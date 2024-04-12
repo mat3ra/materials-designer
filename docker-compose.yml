@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   materials-designer:
-    image: materials-designer:${IMAGE_TAG}
+#    image: materials-designer:${IMAGE_TAG}
     build:
       context: .
       dockerfile: ./dockerfiles/app/Dockerfile
@@ -13,7 +13,7 @@ services:
       - ./entrypoint.sh:/opt/app/entrypoint.sh
   # Meant to be used for CI/CD testing
   materials-designer-test:
-    image: materials-designer-test:${IMAGE_TAG}
+#    image: materials-designer-test:${IMAGE_TAG}
     build:
       args:
         BASE_TAG: ${IMAGE_TAG}

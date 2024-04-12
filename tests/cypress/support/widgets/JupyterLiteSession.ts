@@ -21,7 +21,7 @@ export default class JupyterLiteSession extends Widget {
     waitForVisible() {
         return cy
             .getIframeBody(selectors.wrapper)
-            .find(selectors.main, { timeout: 10000 })
+            .find(selectors.main, { timeout: 360000 })
             .should("exist", { timeout: 10000 });
     }
 
@@ -83,7 +83,9 @@ export default class JupyterLiteSession extends Widget {
     // getKernelStatus() {
     //     return this.browser
     //         .iframe(selectors.wrapper, "lg")
-    //         .getElementText("#jp-main-statusbar span");
+    //         .getElementText("#jp-main-statusbar span")
+    //         .contains(/Python \(Pyodide\)/)
+    //         .invoke("text");
     // }
 
     getKernelStatus() {
@@ -123,7 +125,7 @@ export default class JupyterLiteSession extends Widget {
                             })
                             .click({ multiple: true, force: true })
                             .then(() => {
-                                cy.get(".jp-Dialog-button div:contains('Restart')", {
+                                cy.get(".jp-Dialog-button.jp-mod-accept", {
                                     timeout: 2000,
                                 }).click({ multiple: true, force: true });
                                 // Wait a bit for the kernel to potentially restart

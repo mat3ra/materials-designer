@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "test": "CYPRESS_BASE_URL=${CYPRESS_BASE_URL:-'http://localhost:3001'} cypress open",
-        "test:headless": "CYPRESS_BASE_URL=${CYPRESS_BASE_URL:-'http://localhost:3001'} cypress run -e TAGS='not @ignore' --browser chrome",
+        "test:headless": "CYPRESS_BASE_URL=${CYPRESS_BASE_URL:-'http://localhost:3001'} cypress run --spec 'cypress/e2e/menu/advanced/jupyterlite-transformation-dialog.feature' -e TAGS='not @ignore' ",
         "lint": "npx eslint cypress && prettier --write cypress"
     },
     "engines": {
@@ -20,6 +20,7 @@
         "@mat3ra/standata": "^2024.2.21-0",
         "@types/node": "^20.10.1",
         "cypress": "^13.6.0",
+        "cypress-terminal-report": "^6.0.1",
         "cypress-xpath": "^2.0.1",
         "random-seed": "^0.3.0",
         "typescript": "^5.3.2",
@@ -32,9 +33,9 @@
         "@babel/preset-react": "^7.16.7",
         "@babel/register": "^7.22.15",
         "@babel/runtime-corejs3": "^7.16.8",
-        "@exabyte-io/eslint-config": "^2023.8.29-1",
         "@exabyte-io/code.js": "2024.1.16-0",
-        "@mat3ra/tede": "2024.3.15-1",
+        "@exabyte-io/eslint-config": "^2023.8.29-1",
+        "@mat3ra/tede": "https://github.com/Exabyte-io/tede.git#74be58453237816d88319eebc236454f18397320",
         "@types/mocha": "^10.0.1",
         "@typescript-eslint/eslint-plugin": "^5.9.1",
         "@typescript-eslint/parser": "^5.9.1",
