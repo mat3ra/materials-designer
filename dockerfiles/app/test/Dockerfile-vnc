@@ -31,10 +31,18 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 RUN curl https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -o /tmp/google-chrome.deb
 RUN apt-get install -y /tmp/google-chrome.deb
 
-RUN Xvfb :20 -screen 0 1920x1080x16 && \
-    sleep 1 && \
-    x11vnc -display :20 -N -forever -bg -o "/tmp/x11vnc.log" && \
-    sleep 1 && \
-    DISPLAY=:20 fluxbox -log /tmp/fluxbox.log &
+# Configure environment variable
+ENV CYPRESS_BASE_URL=${CYPRESS_BASE_URL:-'http://docker.host.internal:3001'}
 
-ENTRYPOINT ["tail", "-f", "/dev/null"   ]
+# Define Xvfb, x11vnc and fluxbox and Cypress in a single script to ensure they're properly synchronized
+RUN echo '#!/bin/sh\n\
+Xvfb :20 -screen 0 1920x1080x16 &\n\
+sleep 5 &&\n\
+x11vnc --passwd "123" -display :20 -N -forever -bg -o "/tmp/x11vnc.log" &\n\
+sleep 5 &&\n\
+DISPLAY=:20 fluxbox -log /tmp/fluxbox.log &\n\
+sleep 5 &&\n\
+DISPLAY=:20 cypress open --browser chrome\n' > /start.sh && chmod +x /start.sh
+
+# Execute the script
+ENTRYPOINT ["/start.sh"]
