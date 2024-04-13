@@ -6,7 +6,6 @@ WORKDIR /opt/test
 COPY ./tests/package.json package.json
 COPY ./tests/package-lock.json package-lock.json
 COPY ./tests/cypress.config.ts cypress.config.ts
-COPY ./tests/cypress cypress
 
 RUN npm install
 
