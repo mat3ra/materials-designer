@@ -24,7 +24,7 @@ export default class PythonTransformationDialogWidget extends Widget {
     }
 
     selectMaterial(index: number) {
-        this.browser.click(this.wrappedSelectors.materialsInSelector);
+        this.browser.click(selectors.materialsInSelector);
         this.browser.click(selectors.materialsSelectorItem(index));
     }
 

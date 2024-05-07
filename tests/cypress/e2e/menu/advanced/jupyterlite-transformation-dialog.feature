@@ -3,6 +3,7 @@ Feature: User can open JupyterLite Transformation dialog and create an interface
   Scenario:
     When I open materials designer page
     Then I see material designer page
+    And I clone material at index "1"
 
     # Open
     When I open JupyterLite Transformation dialog
@@ -12,19 +13,17 @@ Feature: User can open JupyterLite Transformation dialog and create an interface
     # Open notebook
     When I click on "1.1. Interface creation with Zur and McGill Superlattice (ZSL) algorithm" link
     Then I see file "create_interface_with_min_strain_zsl.ipynb" opened
-
+    And I select material with index "2" in MaterialsSelector
 
     # Change code
     When I set code in the cell "3" to:
     """
 SUBSTRATE_PARAMETERS = {
-    "MATERIAL_INDEX": 0,
     "MILLER_INDICES": (1, 1, 1),
     "THICKNESS": 1,
 }
 
 LAYER_PARAMETERS = {
-    "MATERIAL_INDEX": 0,
     "MILLER_INDICES": (1, 1, 1),
     "THICKNESS": 1,
 }
@@ -53,8 +52,9 @@ USE_CONVENTIONAL_CELL = True
     And I submit materials
     Then material with following data exists in state
       | path              | index   |
-      | si-interface.json | $INT{2} |
+      | si-interface.json | $INT{3} |
 
 
     # Reset the materials list
+    And I delete materials with index "3"
     And I delete materials with index "2"
