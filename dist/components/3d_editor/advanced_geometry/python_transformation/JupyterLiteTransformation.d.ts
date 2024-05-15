@@ -12,7 +12,7 @@ declare class JupyterLiteTransformationDialog extends BaseJupyterLiteSessionComp
     getMaterialsToUse: () => ({
         _json: import("@mat3ra/made/dist/js/material").MaterialSchemaJSON;
         toJSON(): import("@mat3ra/made/dist/js/types").MaterialJSON;
-        src: import("@mat3ra/esse/dist/js/types").FileSourceSchema;
+        src: import("@mat3ra/esse/dist/js/types").FileSourceSchema | undefined;
         updateFormula(): void;
         isNonPeriodic: boolean;
         getDerivedPropertyByName(name: string): {
@@ -49,6 +49,7 @@ declare class JupyterLiteTransformationDialog extends BaseJupyterLiteSessionComp
         getDerivedProperties(): import("@mat3ra/esse/dist/js/types").DerivedPropertiesSchema;
         readonly formula: string;
         readonly unitCellFormula: string;
+        unsetFileProps(): void;
         setBasis(textOrObject: string | import("@mat3ra/made/dist/js/parsers/xyz").BasisConfig, format?: string | undefined, unitz?: string | undefined): void;
         setBasisConstraints(constraints: import("@mat3ra/made/dist/js/constraints/constraints").Constraint[]): void;
         readonly basis: import("@mat3ra/made/dist/js/parsers/xyz").BasisConfig;

@@ -29,6 +29,8 @@ LAYER_PARAMETERS = {
 }
 
 USE_CONVENTIONAL_CELL = True
+IS_TERMINATION_SELECTION_INTERACTIVE = False
+TERMINATION_INDEX = 0
     """
 
     When I set code in the cell "5" to:

@@ -10,6 +10,7 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { DataGrid } from "@mui/x-data-grid";
 import { enqueueSnackbar } from "notistack";
+import path from "path";
 import PropTypes from "prop-types";
 import React from "react";
 
@@ -56,7 +57,17 @@ class UploadDialog extends React.Component {
                 const materialConfig = Made.parsers.nativeFormatParsers.convertFromNativeFormat(
                     file.text,
                 );
-                newMaterialConfigs.push(materialConfig);
+
+                const extension = path.extname(file.fileName).replace(".", "");
+
+                newMaterialConfigs.push({
+                    ...materialConfig,
+                    src: Made.Material.constructMaterialFileSource(
+                        file.fileName,
+                        file.text,
+                        extension,
+                    ),
+                });
             } catch (error) {
                 errors.push(error.message);
             }
