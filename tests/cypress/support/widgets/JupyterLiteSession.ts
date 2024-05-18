@@ -1,3 +1,5 @@
+import { IframeBrowser } from "@mat3ra/tede/src/js/cypress/Browser";
+
 import Widget from "./Widget";
 
 const menuTabSelectorMap: Record<string, string> = {
@@ -41,7 +43,7 @@ export enum kernelStatus {
 export default class JupyterLiteSession extends Widget {
     wrappedSelectors: typeof selectors;
 
-    private iframeAnchor: any;
+    private iframeAnchor: IframeBrowser;
 
     constructor() {
         super(selectors.iframe);
@@ -91,11 +93,11 @@ export default class JupyterLiteSession extends Widget {
     }
 
     clickMenu(tabName: string, subItemName?: string) {
-        this.iframeAnchor.waitForVisible(selectors.menuTab(tabName)).click();
+        this.iframeAnchor.waitForVisible(selectors.menuTab(tabName));
+        this.iframeAnchor.click(selectors.menuTab(tabName));
         if (subItemName) {
-            return this.iframeAnchor
-                .waitForVisible(selectors.menuItem(subItemName))
-                .click({ force: true });
+            this.iframeAnchor.waitForVisible(selectors.menuItem(subItemName));
+            this.iframeAnchor.click(selectors.menuItem(subItemName), { force: true });
         }
     }
 
@@ -114,9 +116,9 @@ export default class JupyterLiteSession extends Widget {
     }
 
     restartKernel() {
-        this.iframeAnchor.waitForVisible(selectors.restartKernel).click();
+        this.iframeAnchor.click(selectors.restartKernel);
         this.iframeAnchor.waitForVisible(selectors.dialogAccept, Widget.TimeoutType.md);
-        this.iframeAnchor.waitForVisible(selectors.dialogAccept).click();
+        this.iframeAnchor.click(selectors.dialogAccept);
     }
 
     waitForKernelInStatusWithCallback(status: kernelStatus, callback: () => void) {

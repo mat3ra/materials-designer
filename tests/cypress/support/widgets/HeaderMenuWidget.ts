@@ -15,12 +15,12 @@ export default class HeaderMenuWidget extends Widget {
     }
 
     openMenuDialog(menuName: string) {
-        return this.browser.clickOnText(menuName);
+        this.browser.clickOnText(menuName, this.selector);
     }
 
     selectMenuItem(menuName: string, itemNumber: number) {
         // Not using 'selectors' instead of 'this.selectors' because of the dialog location
-        return this.browser.click(selectors.menuDialogItemByNumber(menuName, itemNumber));
+        this.browser.click(selectors.menuDialogItemByNumber(menuName, itemNumber));
     }
 
     selectMenuItemByNameAndItemNumber(menuName: string, itemNumber: number) {

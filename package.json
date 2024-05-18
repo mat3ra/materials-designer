@@ -68,7 +68,7 @@
         "react-dom": "^17.0.0"
     },
     "devDependencies": {
-        "@exabyte-io/cove.js": "2024.5.4-0",
+        "@exabyte-io/cove.js": "2024.5.14-0",
         "@exabyte-io/eslint-config": "^2023.8.29-1",
         "@mat3ra/esse": "2024.4.9-0",
         "@mat3ra/code": "2024.3.25-3",

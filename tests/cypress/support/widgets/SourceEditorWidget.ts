@@ -19,19 +19,17 @@ class LatticeEditorWidget extends Widget {
     }
 
     openLatticeForm() {
-        return this.browser.click(this.selectors.latticeFormTrigger).then(() => {
-            return this.browser.waitForVisible(this.selectors.latticeFormBody);
-        });
+        this.browser.click(this.selectors.latticeFormTrigger);
+        this.browser.waitForVisible(this.selectors.latticeFormBody);
     }
 
     closeLatticeForm() {
-        return this.browser.click(this.selectors.latticeFormTrigger).then(() => {
-            return this.browser.waitForHide(this.selectors.latticeFormBody);
-        });
+        this.browser.click(this.selectors.latticeFormTrigger);
+        this.browser.waitForHide(this.selectors.latticeFormBody);
     }
 
     updateLatticeConfiguration() {
-        return this.browser.click(this.selectors.latticeFormSaveButton);
+        this.browser.click(this.selectors.latticeFormSaveButton);
     }
 
     setLatticeParamInput(name: string, value: string) {
@@ -44,39 +42,22 @@ class LatticeEditorWidget extends Widget {
     }
 
     setLatticeParamSelect(name: string, value: string) {
-        const selectSelector = this.selectors.latticeOptionSelectorByNameSelect(name);
-        const menuItemSelector = `li[data-value="${value}"]`;
-
-        return this.browser
-            .waitForVisible(selectSelector)
-            .then(() => {
-                return this.browser.click(selectSelector);
-            })
-            .then(() => {
-                return this.browser.waitForVisible(menuItemSelector);
-            })
-            .then(() => {
-                return this.browser.click(menuItemSelector);
-            });
+        this.browser.click(this.selectors.latticeOptionSelectorByNameSelect(name));
+        this.browser.click(`li[data-value="${value}"]`);
     }
 
     setLattice(latticeObject: object) {
-        const res = this.openLatticeForm();
+        this.openLatticeForm();
 
-        return Object.keys(latticeObject)
-            .reduce((acc, key) => {
-                const value = latticeObject[key];
-                if (key === "type") {
-                    return acc.then(() => this.setLatticeParamSelect(key, value));
-                }
-                return acc.then(() => this.setLatticeParamInput(key, value));
-            }, res)
-            .then(() => {
-                return this.updateLatticeConfiguration();
-            })
-            .then(() => {
-                return this.closeLatticeForm();
-            });
+        Object.entries(latticeObject).forEach(([key, value]) => {
+            if (key === "type") {
+                return this.setLatticeParamSelect(key, value);
+            }
+            this.setLatticeParamInput(key, value);
+        });
+
+        this.updateLatticeConfiguration();
+        this.closeLatticeForm();
     }
 }
 
