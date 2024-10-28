@@ -32,8 +32,6 @@
         "@babel/core": "7.16.0",
         "@babel/runtime": "7.16.7",
         "@babel/runtime-corejs2": "7.16.7",
-        "@emotion/react": "^11.13.0",
-        "@emotion/styled": "^11.13.0",
         "@exabyte-io/wave.js": "2024.8.1-0",
         "@mui/icons-material": "^5.11.0",
         "@mui/material": "^5.11.9",
