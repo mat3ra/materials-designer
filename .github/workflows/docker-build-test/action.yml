@@ -31,7 +31,6 @@ runs:
 #        docker push ghcr.io/exabyte-io/materials-designer_x86_64:latest
 
     - name: Build test container
-      if: inputs.skip_tests != 'true'
       uses: ./actions/docker/build
       with:
         image-name: materials-designer-test
@@ -39,6 +38,7 @@ runs:
         cli-args: --build-arg BASE_IMAGE=node
 
     - name: Run tests
+      if: inputs.skip_tests != 'true'
       shell: bash -l {0}
       run: |
         docker run -d -p 3001:3001 --name=materials-designer materials-designer:latest
