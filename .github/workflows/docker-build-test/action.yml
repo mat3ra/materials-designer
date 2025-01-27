@@ -2,10 +2,19 @@ name: Build docker containers and run tests
 description: Building docker images using ECR or github containers
 
 inputs:
+  run-test-environment:
+    description: '-e VAR1=value1 -e VAR2=value2'
+    required: false
+    default: ''
+  skip_build:
+    description: 'Skip building container'
+    required: false
+    default: 'false'
   skip_tests:
     description: 'Skip running tests'
     required: false
     default: 'false'
+
 
 runs:
   using: composite
@@ -31,7 +40,7 @@ runs:
 #        docker push ghcr.io/exabyte-io/materials-designer_x86_64:latest
 
     - name: Build test container
-      if: inputs.skip_tests != 'true'
+      if: inputs.skip_build != 'true'
       uses: ./actions/docker/build
       with:
         image-name: materials-designer-test
@@ -39,6 +48,7 @@ runs:
         cli-args: --build-arg BASE_IMAGE=node
 
     - name: Run tests
+      if: inputs.skip_tests != 'true'
       shell: bash -l {0}
       run: |
         docker run -d -p 3001:3001 --name=materials-designer materials-designer:latest
@@ -51,4 +61,4 @@ runs:
             fi
             sleep 5
         done
-        docker run --network=host materials-designer-test
+        docker run ${{ inputs.run-test-environment }} --network=host materials-designer-test

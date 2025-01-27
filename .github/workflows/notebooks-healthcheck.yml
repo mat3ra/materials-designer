@@ -36,17 +36,10 @@ jobs:
         with:
           skip_tests: 'true'
 
-      - name: Run notebooks healthcheck
-        shell: bash -l {0}
-        run: |
-          docker run -d -p 3001:3001 --name=materials-designer materials-designer:latest
-          while ! docker logs materials-designer 2>&1 | grep "Compiled"; do
-              failed=$(docker logs materials-designer 2>&1 | grep "Failed")
-              if [[ "$failed" != "" ]]; then
-                  docker logs materials-designer 2>&1
-                  exit 1
-              fi
-              sleep 5
-          done
-          docker run --network=host materials-designer-test npm run test:healthcheck
+      - name: Docker test, healthchecks only
+        uses: ./.github/workflows/docker-build-test
+        with:
+          skip_build: 'true'
+          run-test-environment: -e NPM_RUN_COMMAND='test:healthcheck'
 
+      
