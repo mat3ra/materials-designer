@@ -70,7 +70,7 @@ export class MaterialsDesignerContainer extends React.Component {
     }
     render() {
         const props = _.omit(this.props, "component");
-        return (_jsx("div", { children: _jsx(AlertProvider, { children: _jsx(ReduxProvider, { ...props, container: this.container, store: this.store }) }) }));
+        return (_jsx("div", { children: props.skipAlertProvider ? (_jsx(ReduxProvider, { ...props, container: this.container, store: this.store })) : (_jsx(AlertProvider, { children: _jsx(ReduxProvider, { ...props, container: this.container, store: this.store }) })) }));
     }
 }
 MaterialsDesignerContainer.propTypes = {
@@ -93,10 +93,13 @@ MaterialsDesignerContainer.propTypes = {
     maxCombinatorialBasesCount: PropTypes.number,
     // eslint-disable-next-line react/require-default-props
     isConventionalCellShown: PropTypes.bool,
+    // multiple alert providers lead to broken alerts in web-app
+    skipAlertProvider: PropTypes.bool,
 };
 MaterialsDesignerContainer.defaultProps = {
     applyMiddleware: true,
     initialMaterials,
     maxCombinatorialBasesCount: 100,
     onExit: () => { },
+    skipAlertProvider: false,
 };

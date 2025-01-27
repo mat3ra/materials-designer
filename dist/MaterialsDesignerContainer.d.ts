@@ -21,6 +21,7 @@ export namespace MaterialsDesignerContainer {
         const materialsSave: PropTypes.Requireable<(...args: any[]) => any>;
         const maxCombinatorialBasesCount: PropTypes.Requireable<number>;
         const isConventionalCellShown: PropTypes.Requireable<boolean>;
+        const skipAlertProvider: PropTypes.Requireable<boolean>;
     }
     namespace defaultProps {
         const applyMiddleware_1: boolean;
@@ -30,6 +31,8 @@ export namespace MaterialsDesignerContainer {
         export { maxCombinatorialBasesCount_1 as maxCombinatorialBasesCount };
         export function onExit_1(): void;
         export { onExit_1 as onExit };
+        const skipAlertProvider_1: boolean;
+        export { skipAlertProvider_1 as skipAlertProvider };
     }
 }
 import React from "react";
