@@ -3,7 +3,7 @@ description: Building docker images using ECR or github containers
 
 inputs:
   run-test-environment:
-    description: '-e VAR1=value1 -e VAR2=value2'
+    description: 'VAR1=value1 VAR2=value2'
     required: false
     default: ''
   skip_build:
@@ -51,14 +51,5 @@ runs:
       if: inputs.skip_tests != 'true'
       shell: bash -l {0}
       run: |
-        docker run -d -p 3001:3001 --name=materials-designer materials-designer:latest
-        while ! docker logs materials-designer 2>&1 | grep "Compiled"; do
-            failed=$(docker logs materials-designer 2>&1 | grep "Failed")
-            if [[ "$failed" != "" ]]; then
-                # print logs to understand what went wrong
-                docker logs materials-designer 2>&1
-                exit 1
-            fi
-            sleep 5
-        done
-        docker run ${{ inputs.run-test-environment }} --network=host materials-designer-test
+        # Starting tests
+        ${{ inputs.run-test-environment }} docker compose up --abort-on-container-exit --exit-code-from materials-designer-test

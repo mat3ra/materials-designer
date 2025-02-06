@@ -1,4 +1,4 @@
-export class ThreeDEditorFullscreen {
+export class ThreeDEditorFullscreen extends ThreeDEditor {
 }
 export namespace ThreeDEditorFullscreen {
     namespace propTypes {
@@ -8,4 +8,5 @@ export namespace ThreeDEditorFullscreen {
         const editable: PropTypes.Requireable<boolean>;
     }
 }
+import { ThreeDEditor } from "@exabyte-io/wave.js";
 import PropTypes from "prop-types";

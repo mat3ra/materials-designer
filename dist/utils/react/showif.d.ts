@@ -7,7 +7,6 @@
  */
 export class ShowIf extends React.Component<any, any, any> {
     constructor(props: any);
-    constructor(props: any, context: any);
     render(): any;
 }
 export namespace ShowIf {

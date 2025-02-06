@@ -1,22 +1,193 @@
 {
-  "testCases": [
-    {
-      "tutorial_notebook_name": "defect_planar_grain_boundary_2d_boron_nitride.ipynb",
-      "tutorial_material_name": "BN, Hexagonal Boron Nitride, HEX (P6/mmm) 2D (Monolayer), 2dm-4991, Grain Boundary (9.00°)",
-      "tutorial_material_file_name": "grain_boundary_2d_boron_nitride.json",
-      "tutorial_material_index": 2,
-      "template_name": "jupyterlite-api-examples.ftl",
-      "feature_path": "../e2e/health_checks/",
-      "feature_name": "defect_planar_grain_boundary_2d_boron_nitride"
-    },
-    {
-      "tutorial_notebook_name": "defect_point_adatom_island_molybdenum_disulfide_platinum.ipynb",
-      "tutorial_material_name": "MoS2(001), termination S_P6/mmm_1, Slab, Adatom Pt Defect, Adatom Pt Defect, Adatom Pt Defect, Adatom Pt Defect",
-      "tutorial_material_file_name": "MoS2_Pt_island.json",
-      "tutorial_material_index": 2,
-      "template_name": "jupyterlite-api-examples.ftl",
-      "feature_path": "../e2e/health_checks/",
-      "feature_name": "defect_point_adatom_island_mos2_pt"
-    }
-  ]
+    "testCases": [
+        {
+            "tutorial_notebook_name": "defect_planar_grain_boundary_2d_boron_nitride.ipynb",
+            "tutorial_material_name": "BN, Hexagonal Boron Nitride, HEX (P6/mmm) 2D (Monolayer), 2dm-4991, Grain Boundary (9.00°)",
+            "tutorial_material_file_name": "grain_boundary_2d_boron_nitride.json",
+            "tutorial_material_index": 2,
+            "template_name": "jupyterlite-api-examples.ftl",
+            "feature_path": "../e2e/health_checks/",
+            "feature_name": "defect_planar_grain_boundary_2d_boron_nitride"
+        },
+        {
+            "tutorial_notebook_name": "defect_planar_grain_boundary_3d_fcc_metals_copper.ipynb",
+            "tutorial_material_name": "Cu4(310)-Cu4(-3-10), Grain Boundary",
+            "tutorial_material_file_name": "Cu-(3, 1, 0)-(-3, -1, 0)_grain_boundary.json",
+            "tutorial_material_index": 2,
+            "template_name": "jupyterlite-api-examples.ftl",
+            "feature_path": "../e2e/health_checks/",
+            "feature_name": "defect_planar_grain_boundary_3d_fcc_metals_copper"
+        },
+        {
+            "tutorial_notebook_name": "defect_point_adatom_island_molybdenum_disulfide_platinum.ipynb",
+            "tutorial_material_name": "MoS2(001), termination S_P6/mmm_1, Slab, Adatom Pt Defect, Adatom Pt Defect, Adatom Pt Defect, Adatom Pt Defect",
+            "tutorial_material_file_name": "MoS2_Pt_island.json",
+            "tutorial_material_index": 2,
+            "template_name": "jupyterlite-api-examples.ftl",
+            "feature_path": "../e2e/health_checks/",
+            "feature_name": "defect_point_adatom_island_mos2_pt"
+        },
+        {
+            "tutorial_notebook_name": "defect_point_vacancy_boron_nitride.ipynb",
+            "tutorial_material_name": "B-vacancy h-BN",
+            "tutorial_material_file_name": "B-vacancy_hexagonal_boron_nitride.json",
+            "tutorial_material_index": 2,
+            "template_name": "jupyterlite-api-examples.ftl",
+            "feature_path": "../e2e/health_checks/",
+            "feature_name": "defect_point_vacancy_boron_nitride"
+        },
+        {
+            "tutorial_notebook_name": "defect_point_substitution_graphene.ipynb",
+            "tutorial_material_name": "N-doped Graphene",
+            "tutorial_material_file_name": "N-doped_Graphene.json",
+            "tutorial_material_index": 2,
+            "template_name": "jupyterlite-api-examples.ftl",
+            "feature_path": "../e2e/health_checks/",
+            "feature_name": "defect_point_substitution_graphene"
+        },
+        {
+            "tutorial_notebook_name": "defect_point_pair_gallium_nitride.ipynb",
+            "tutorial_material_name": "Mg1 Ga35 N35, Vacancy  Defect, Pair  Defect, Substitution and Vacancy Defect Pair",
+            "tutorial_material_file_name": "Mg substitution and vacancy in GaN.json",
+            "tutorial_material_index": 2,
+            "template_name": "jupyterlite-api-examples.ftl",
+            "feature_path": "../e2e/health_checks/",
+            "feature_name": "defect_point_pair_gallium_nitride"
+        },
+        {
+            "tutorial_notebook_name": "defect_point_interstitial_tin_oxide.ipynb",
+            "tutorial_material_name": "Sn15 O17, Interstitial O Defect",
+            "tutorial_material_file_name": "Sn15 O17, Interstitial O Defect.json",
+            "tutorial_material_index": 2,
+            "template_name": "jupyterlite-api-examples.ftl",
+            "feature_path": "../e2e/health_checks/",
+            "feature_name": "defect_point_interstitial_tin_oxide"
+        },
+        {
+            "tutorial_notebook_name": "defect_surface_step_platinum.ipynb",
+            "tutorial_material_name": "Pt4(211), termination Pt_Pmmm_4, Slab",
+            "tutorial_material_file_name": "Pt_211_step.json",
+            "tutorial_material_index": 2,
+            "template_name": "jupyterlite-api-examples.ftl",
+            "feature_path": "../e2e/health_checks/",
+            "feature_name": "defect_surface_step_platinum"
+        },
+        {
+            "tutorial_notebook_name": "defect_surface_island_titanium_nitride.ipynb",
+            "tutorial_material_name": "N4Ti4(001), termination TiN_P4/mmm_4, Slab",
+            "tutorial_material_file_name": "TiN_slab_with_island.json",
+            "tutorial_material_index": 2,
+            "template_name": "jupyterlite-api-examples.ftl",
+            "feature_path": "../e2e/health_checks/",
+            "feature_name": "defect_surface_island_titanium_nitride"
+        },
+        {
+            "tutorial_notebook_name": "nanocluster_gold.ipynb",
+            "tutorial_material_name": "Au55 Octahedron",
+            "tutorial_material_file_name": "gold_nanocluster_0.json",
+            "tutorial_material_index": 2,
+            "template_name": "jupyterlite-api-examples.ftl",
+            "feature_path": "../e2e/health_checks/",
+            "feature_name": "nanocluster_gold"
+        },
+        {
+            "tutorial_notebook_name": "optimization_interface_film_xy_position_graphene_nickel.ipynb",
+            "tutorial_material_name": "Graphene_Nickel_interface_optimized_xy",
+            "tutorial_material_file_name": "Graphene_Nickel_interface_optimized_xy.json",
+            "tutorial_material_index": 2,
+            "template_name": "jupyterlite-api-examples.ftl",
+            "feature_path": "../e2e/health_checks/",
+            "feature_name": "optimization_interface_film_xy_position_graphene_nickel"
+        },
+        {
+            "tutorial_notebook_name": "interface_bilayer_twisted_nanoribbons_boron_nitride.ipynb",
+            "tutorial_material_name": "Twisted Nanoribbon Interface (2.64 degrees)",
+            "tutorial_material_file_name": "twisted_bilayer_h-BN_A.json",
+            "tutorial_material_index": 2,
+            "template_name": "jupyterlite-api-examples.ftl",
+            "feature_path": "../e2e/health_checks/",
+            "feature_name": "interface_bilayer_twisted_nanoribbons_boron_nitride"
+        },
+        {
+            "tutorial_notebook_name": "defect_surface_adatom_graphene.ipynb",
+            "tutorial_material_name": "C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993, Adatom Li Defect",
+            "tutorial_material_file_name": "Li_adatom.json",
+            "tutorial_material_index": 2,
+            "template_name": "jupyterlite-api-examples.ftl",
+            "feature_path": "../e2e/health_checks/",
+            "feature_name": "defect_surface_adatom_graphene"
+        },
+        {
+            "tutorial_notebook_name": "interface_2d_2d_boron_nitride_graphene.ipynb",
+            "tutorial_material_name": "C2(001)-BN(001), Interface, Strain 0.401pct",
+            "tutorial_material_file_name": "interface_0.json",
+            "tutorial_material_index": 2,
+            "template_name": "jupyterlite-api-examples.ftl",
+            "feature_path": "../e2e/health_checks/",
+            "feature_name": "interface_2d_2d_boron_nitride_graphene"
+        },
+        {
+            "tutorial_notebook_name": "interface_2d_3d_graphene_silicon_dioxide.ipynb",
+            "tutorial_material_name": "Interface (C_P6/mmm_2, O2_P6/mmm_1)",
+            "tutorial_material_file_name": "interface_1.json",
+            "tutorial_material_index": 2,
+            "template_name": "jupyterlite-api-examples.ftl",
+            "feature_path": "../e2e/health_checks/",
+            "feature_name": "interface_2d_3d_graphene_silicon_dioxide"
+        },
+        {
+            "tutorial_notebook_name": "interface_3d_3d_copper_cristobalite.ipynb",
+            "tutorial_material_name": "Cu4(001)-O8Si4(001), Interface, Strain 0.444pct",
+            "tutorial_material_file_name": "interface_2.json",
+            "tutorial_material_index": 2,
+            "template_name": "jupyterlite-api-examples.ftl",
+            "feature_path": "../e2e/health_checks/",
+            "feature_name": "interface_3d_3d_copper_cristobalite"
+        },
+        {
+            "tutorial_notebook_name": "interface_bilayer_twisted_commensurate_lattices_molybdenum_disulfide.ipynb",
+            "tutorial_material_name": "Twisted Bilayer Interface (21.79 degrees)",
+            "tutorial_material_file_name": "twisted_interface_0.json",
+            "tutorial_material_index": 2,
+            "template_name": "jupyterlite-api-examples.ftl",
+            "feature_path": "../e2e/health_checks/",
+            "feature_name": "interface_bilayer_twisted_commensurate_lattices_molybdenum_disulfide"
+        },
+        {
+            "tutorial_notebook_name": "passivation_surface_silicon.ipynb",
+            "tutorial_material_name": "Si, Silicon (100) surface (reconstructed), TRI (P1) 2D (Surface), mavrl-si-100-r H-passivated",
+            "tutorial_material_file_name": "Si, Silicon (100) surface (reconstructed), TRI (P1) 2D (Surface), mavrl-si-100-r_passivated.json",
+            "tutorial_material_index": 2,
+            "template_name": "jupyterlite-api-examples.ftl",
+            "feature_path": "../e2e/health_checks/",
+            "feature_name": "passivation_surface_silicon"
+        },
+        {
+            "tutorial_notebook_name": "passivation_edge_nanowire_silicon.ipynb",
+            "tutorial_material_name": "H-Passivated Silicon Nanowire",
+            "tutorial_material_file_name": "passivated_nanowire.json",
+            "tutorial_material_index": 2,
+            "template_name": "jupyterlite-api-examples.ftl",
+            "feature_path": "../e2e/health_checks/",
+            "feature_name": "passivation_edge_nanowire_silicon"
+        },
+        {
+            "tutorial_notebook_name": "slab_strontium_titanate.ipynb",
+            "tutorial_material_name": "O3SrTi(011), termination O2_Pmmm_2, Slab",
+            "tutorial_material_file_name": "O3SrTi(011), termination O2_Pmmm_2, Slab.json",
+            "tutorial_material_index": 2,
+            "template_name": "jupyterlite-api-examples.ftl",
+            "feature_path": "../e2e/health_checks/",
+            "feature_name": "slab_strontium_titanate"
+        },
+        {
+            "tutorial_notebook_name": "perturbation_ripple_graphene.ipynb",
+            "tutorial_material_name": "C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993 (Zigzag nanoribbon) (Perturbation: PerturbationFunctionHolder)",
+            "tutorial_material_file_name": "Graphene_edge_perturbation.json",
+            "tutorial_material_index": 2,
+            "template_name": "jupyterlite-api-examples.ftl",
+            "feature_path": "../e2e/health_checks/",
+            "feature_name": "perturbation_ripple_graphene"
+        }
+    ]
 }

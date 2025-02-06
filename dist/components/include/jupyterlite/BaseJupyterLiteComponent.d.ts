@@ -12,7 +12,7 @@ export interface BaseJupyterLiteProps {
 }
 declare class BaseJupyterLiteSessionComponent<P = never, S = never> extends React.Component<P & BaseJupyterLiteProps, S> {
     DEFAULT_NOTEBOOK_PATH: string;
-    jupyterLiteSessionRef: React.RefObject<JupyterLiteSession>;
+    jupyterLiteSessionRef: React.RefObject<JupyterLiteSession | null>;
     componentDidUpdate(prevProps: P & BaseJupyterLiteProps, prevState: S): void;
     sendMaterials: () => void;
     getMaterialsForMessage: () => import("@mat3ra/made/dist/js/types").MaterialJSON[];

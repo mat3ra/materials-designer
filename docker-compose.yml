@@ -8,6 +8,11 @@ services:
       dockerfile: ./dockerfiles/app/Dockerfile
     ports:
       - ${PORT}:${PORT}
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:${PORT}" ]
+      interval: 5s
+      timeout: 2s
+      retries: 20
     volumes:
       - ./src/:/opt/app/src/
       - ./entrypoint.sh:/opt/app/entrypoint.sh
@@ -26,16 +31,14 @@ services:
     depends_on:
       - materials-designer
     network_mode: host
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:${PORT}" ]
-      interval: 5s
-      timeout: 2s
-      retries: 20
     volumes:
       - ./tests/cypress:/opt/test/cypress
       - ./entrypoint.sh:/opt/test/entrypoint.sh
     profiles:
       - ""
+    environment:
+      - CYPRESS_BASE_URL=${CYPRESS_BASE_URL:-http://localhost:${PORT}}
+      - NPM_RUN_COMMAND=${NPM_RUN_COMMAND:-test:headless}
 
   # For local testing with access via VNC
   materials-designer-test-vnc:

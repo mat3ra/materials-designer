@@ -37,6 +37,8 @@ jobs:
 
       - name: Docker build and test
         uses: ./.github/workflows/docker-build-test
+        with:
+          test-command: 'test:headless'
 
       - name: Validate app dockerfile
         uses: ./actions/docker/validate
@@ -47,6 +49,7 @@ jobs:
         uses: ./actions/js/validate
         with:
           node-version: 20.x
+          use-legacy-peer-deps: true
 
       - name: Validate test dockerfile
         uses: ./actions/docker/validate

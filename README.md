@@ -27,7 +27,7 @@ Or use https, if no SSH authentication is set up with GitHub:
 git clone https://github.com/Exabyte-io/materials-designer.git
 ```
 
-then start the application using Node v14.19:
+then start the application using Node v20.18:
 
 ```bash
 cd materials-designer
@@ -151,27 +151,39 @@ see [package.json](package.json).
 
 The first `dockerfiles/app/Dockerfile` builds and runs the application. The second `dockerfiles/tests/Dockerfile` provisions and runs the tests. 
 
-Provided `docker-compose` is installed, it can be used like so:
+Provided `docker compose` is installed, it can be used like so:
 
 ```bash
-docker-compose build materials-designer
-docker-compose build materials-designer-test
+docker compose build materials-designer
+docker compose build materials-designer-test
 
-docker-compose up -d materials-designer
+docker compose up -d materials-designer
 sleep 30  # let the app actually start
-docker-compose run materials-designer-test
+docker compose run materials-designer-test
 ```
 
 To run tests in the container use default profile by not specifying it:
 
 ```bash
-docker-compose up -d --build
+docker compose up -d --build
+```
+
+To run on MacOS, add CYPRESS_BASE_URL=http://host.docker.internal:3001 to the environment variables in the test container
+
+```
+CYRPRESS_BASE_URL=http://host.docker.internal:3001 docker compose run materials-designer-test
+```
+
+To run both services and execute tests:
+
+```
+CYPRESS_BASE_URL=http://host.docker.internal:3001 docker compose up --abort-on-container-exit --exit-code-from materials-designer-test
 ```
 
 For debugging purposes, Materials Designer and test container can be run interactively with access via VNC:
 
 ```bash
-docker-compose --profile use-vnc up -d --build
+docker compose --profile use-vnc up -d --build
 ```
 
 Then connect to `vnc://localhost:5920` with a VNC client. The password is `123`. (Port set in `.env` file.)

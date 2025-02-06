@@ -40,6 +40,6 @@ jobs:
         uses: ./.github/workflows/docker-build-test
         with:
           skip_build: 'true'
-          run-test-environment: -e NPM_RUN_COMMAND='test:healthcheck'
+          run-test-environment: NPM_RUN_COMMAND='test:healthcheck'
 
-      
+
