@@ -21,7 +21,7 @@ const SELECTORS = {
             byIndex: (index: number) =>
                 `.jp-Notebook .jp-Cell:nth-child(${index}) .jp-InputArea-editor .CodeMirror`,
             output: (index: number) =>
-                `.jp-Notebook .jp-Cell:nth-child(${index}) .jp-OutputArea-output pre`,
+                `.jp-Notebook .jp-Cell:nth-child(${index}) .jp-OutputArea-output`,
             stdin: ".lm-Widget.p-Widget input.jp-Stdin-input",
         },
     },
