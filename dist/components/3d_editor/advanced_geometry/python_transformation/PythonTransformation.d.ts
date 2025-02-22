@@ -1,5 +1,5 @@
 import React from "react";
-import { Material as MDMaterial } from "../../../../material";
+import { MDMaterial } from "../../../../MDMaterial";
 import { ExecutionStatus } from "./CodeExecutionControls";
 import { ExecutionCellState } from "./ExecutionCell";
 import { Transformation } from "./TransformationSelector";

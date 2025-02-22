@@ -25,7 +25,7 @@ import HeaderMenuToolbar from "./components/header_menu/HeaderMenuToolbar";
 import ItemsList from "./components/items_list/ItemsList";
 import BasisEditor from "./components/source_editor/Basis";
 import LatticeEditor from "./components/source_editor/Lattice";
-import { Material } from "./material";
+import { MDMaterial } from "./MDMaterial";
 import { theme } from "./settings";
 
 const data = MaterialStandata.runtimeData;
@@ -278,7 +278,7 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                                 this.props.material.boundaryConditions
                                             }
                                             onUpdate={(material) => {
-                                                const newMaterial = Material.fromMadeMaterial(
+                                                const newMaterial = MDMaterial.fromMadeMaterial(
                                                     material,
                                                     this.props.material.metadata,
                                                 );

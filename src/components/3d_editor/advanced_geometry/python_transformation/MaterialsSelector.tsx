@@ -7,7 +7,7 @@ import Chip from "@mui/material/Chip";
 import TextField from "@mui/material/TextField";
 import React, { useEffect } from "react";
 
-import { Material as MDMaterial } from "../../../../material";
+import { MDMaterial } from "../../../../MDMaterial";
 
 interface MaterialsSelectorProps {
     materials: MDMaterial[];

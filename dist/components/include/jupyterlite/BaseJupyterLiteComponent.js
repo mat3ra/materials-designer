@@ -3,7 +3,7 @@ import { showErrorAlert } from "@exabyte-io/cove.js/dist/other/alerts";
 import JupyterLiteSession from "@exabyte-io/cove.js/dist/other/jupyterlite/JupyterLiteSession";
 import { Action } from "@mat3ra/esse/dist/js/types";
 import React from "react";
-import { Material as MDMaterial } from "../../../material";
+import { MDMaterial } from "../../../MDMaterial";
 class BaseJupyterLiteSessionComponent extends React.Component {
     constructor() {
         super(...arguments);

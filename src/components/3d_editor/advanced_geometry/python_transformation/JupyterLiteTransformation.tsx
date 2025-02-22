@@ -5,7 +5,7 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import React from "react";
 
-import { Material as MDMaterial } from "../../../../material";
+import { MDMaterial } from "../../../../MDMaterial";
 import { theme } from "../../../../settings";
 import BaseJupyterLiteSessionComponent, {
     BaseJupyterLiteProps,

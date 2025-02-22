@@ -1,10 +1,10 @@
 import { MaterialSchema } from "@mat3ra/esse/dist/js/types";
 import React from "react";
-import { Material } from "../../material";
+import { MDMaterial } from "../../MDMaterial";
 interface StandataImportDialogProps {
     show: boolean;
     onClose: () => void;
-    onSubmit: (materials: Material[]) => void;
+    onSubmit: (materials: MDMaterial[]) => void;
     defaultMaterialConfigs: MaterialSchema[];
 }
 interface StandataImportDialogState {

@@ -14,7 +14,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import path from "path";
 import PropTypes from "prop-types";
 import React from "react";
-import { Material } from "../../material";
+import { MDMaterial } from "../../MDMaterial";
 const dropZoneStyle = (dragging) => ({
     height: 300,
     display: "flex",
@@ -90,7 +90,7 @@ class UploadDialog extends React.Component {
                 const extension = path.extname(file.fileName).replace(".", "");
                 newMaterialConfigs.push({
                     ...materialConfig,
-                    src: Material.constructMaterialFileSource(file.fileName, file.text, extension),
+                    src: MDMaterial.constructMaterialFileSource(file.fileName, file.text, extension),
                 });
             }
             catch (error) {
@@ -102,7 +102,7 @@ class UploadDialog extends React.Component {
             return;
         }
         const newMaterials = newMaterialConfigs.map((config) => {
-            const newMaterial = new Material(config);
+            const newMaterial = new MDMaterial(config);
             newMaterial.cleanOnCopy();
             return newMaterial;
         });

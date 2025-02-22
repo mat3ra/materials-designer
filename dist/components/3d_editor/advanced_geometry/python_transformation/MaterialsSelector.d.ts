@@ -1,4 +1,4 @@
-import { Material as MDMaterial } from "../../../../material";
+import { MDMaterial } from "../../../../MDMaterial";
 interface MaterialsSelectorProps {
     materials: MDMaterial[];
     selectedMaterials: MDMaterial[];

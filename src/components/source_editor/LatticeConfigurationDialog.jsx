@@ -8,7 +8,7 @@ import TextField from "@mui/material/TextField";
 import PropTypes from "prop-types";
 import React from "react";
 
-import { Material } from "../../material";
+import { MDMaterial } from "../../MDMaterial";
 import { deepClone } from "../../utils/index";
 
 /**
@@ -132,7 +132,7 @@ class LatticeConfigurationDialog extends React.Component {
         };
 
         // preserve basis if asked to do so (eg. when constructing a slab)
-        const newMaterial = new Material(newMaterialConfig);
+        const newMaterial = new MDMaterial(newMaterialConfig);
         // assert basis is stored in 'crystal' units
         newMaterial.toCrystal();
         onUpdate(newMaterial);

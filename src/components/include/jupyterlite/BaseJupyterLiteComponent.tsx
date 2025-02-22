@@ -5,7 +5,7 @@ import JupyterLiteSession, {
 import { Action, MaterialSchema } from "@mat3ra/esse/dist/js/types";
 import React from "react";
 
-import { Material as MDMaterial } from "../../../material";
+import { MDMaterial } from "../../../MDMaterial";
 
 export interface BaseJupyterLiteProps {
     // eslint-disable-next-line react/no-unused-prop-types

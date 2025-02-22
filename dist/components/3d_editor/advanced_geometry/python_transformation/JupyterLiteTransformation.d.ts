@@ -1,4 +1,4 @@
-import { Material as MDMaterial } from "../../../../material";
+import { MDMaterial } from "../../../../MDMaterial";
 import BaseJupyterLiteSessionComponent, { BaseJupyterLiteProps } from "../../../include/jupyterlite/BaseJupyterLiteComponent";
 interface JupyterLiteTransformationDialogState {
     selectedMaterials: MDMaterial[];

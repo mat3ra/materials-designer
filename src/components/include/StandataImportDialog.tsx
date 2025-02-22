@@ -10,12 +10,12 @@ import TextField from "@mui/material/TextField";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import React from "react";
 
-import { Material } from "../../material";
+import { MDMaterial } from "../../MDMaterial";
 
 interface StandataImportDialogProps {
     show: boolean;
     onClose: () => void;
-    onSubmit: (materials: Material[]) => void;
+    onSubmit: (materials: MDMaterial[]) => void;
     defaultMaterialConfigs: MaterialSchema[];
 }
 
@@ -50,7 +50,7 @@ class StandataImportDialog extends React.Component<
 
     addMaterials = () => {
         const { selectedMaterialConfigs } = this.state;
-        const materials = selectedMaterialConfigs.map((config) => new Material(config));
+        const materials = selectedMaterialConfigs.map((config) => new MDMaterial(config));
         const { onSubmit } = this.props;
         onSubmit(materials);
         this.setState({ selectedMaterialConfigs: [] });
@@ -60,7 +60,7 @@ class StandataImportDialog extends React.Component<
         const { show, onClose, defaultMaterialConfigs } = this.props;
         const { selectedMaterialConfigs } = this.state;
 
-        const selectedMaterials = selectedMaterialConfigs.map((config) => new Material(config));
+        const selectedMaterials = selectedMaterialConfigs.map((config) => new MDMaterial(config));
 
         const columns: GridColDef[] = [
             { field: "name", headerName: "Name", flex: 1, headerAlign: "center", align: "center" },

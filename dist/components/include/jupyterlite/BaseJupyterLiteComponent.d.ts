@@ -1,7 +1,7 @@
 import JupyterLiteSession, { IMessageHandlerConfigItem } from "@exabyte-io/cove.js/dist/other/jupyterlite/JupyterLiteSession";
 import { MaterialSchema } from "@mat3ra/esse/dist/js/types";
 import React from "react";
-import { Material as MDMaterial } from "../../../material";
+import { MDMaterial } from "../../../MDMaterial";
 export interface BaseJupyterLiteProps {
     materials: MDMaterial[];
     show: boolean;
