@@ -1,11 +1,11 @@
 import Dialog from "@exabyte-io/cove.js/dist/mui/components/dialog/Dialog";
-import { Made } from "@mat3ra/made";
 import { darkScrollbar } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import React from "react";
 
+import { MDMaterial } from "../../../../MDMaterial";
 import { theme } from "../../../../settings";
 import BaseJupyterLiteSessionComponent, {
     BaseJupyterLiteProps,
@@ -13,8 +13,8 @@ import BaseJupyterLiteSessionComponent, {
 import MaterialsSelector from "./MaterialsSelector";
 
 interface JupyterLiteTransformationDialogState {
-    selectedMaterials: Made.Material[];
-    newMaterials: Made.Material[];
+    selectedMaterials: MDMaterial[];
+    newMaterials: MDMaterial[];
 }
 
 class JupyterLiteTransformationDialog extends BaseJupyterLiteSessionComponent<
@@ -47,7 +47,7 @@ class JupyterLiteTransformationDialog extends BaseJupyterLiteSessionComponent<
         this.props.onMaterialsUpdate(newMaterials);
     };
 
-    setMaterials = (newMaterials: Made.Material[]) => {
+    setMaterials = (newMaterials: MDMaterial[]) => {
         this.setState({ newMaterials });
     };
 

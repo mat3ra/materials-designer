@@ -25,12 +25,12 @@ import {
     updateNameForOneMaterial,
     updateOneMaterial,
 } from "./actions";
-import { Material } from "./material";
 import MaterialsDesignerComponent from "./MaterialsDesigner";
+import { MDMaterial } from "./MDMaterial";
 import { createMaterialsDesignerReducer } from "./reducers";
 import ReduxProvider from "./utils/react/provider";
 
-const initialMaterials = Array(1).fill(new Material());
+const initialMaterials = Array(1).fill(new MDMaterial());
 
 const initialState = ({ materials = initialMaterials } = {}) => {
     return {

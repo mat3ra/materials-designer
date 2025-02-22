@@ -2,7 +2,7 @@ import { showWarningAlert } from "@exabyte-io/cove.js/dist/other/alerts";
 import { Made } from "@mat3ra/made";
 import { MATERIALS_CLONE_ONE, MATERIALS_GENERATE_SUPERCELL_FOR_ONE, MATERIALS_GENERATE_SURFACE_FOR_ONE, MATERIALS_SET_BOUNDARY_CONDITIONS_FOR_ONE, MATERIALS_TOGGLE_IS_NON_PERIODIC_FOR_ONE, MATERIALS_UPDATE_INDEX, MATERIALS_UPDATE_NAME_FOR_ONE, MATERIALS_UPDATE_ONE, } from "../actions";
 import { displayMessage } from "../i18n/messages";
-import { Material } from "../material";
+import { MDMaterial } from "../MDMaterial";
 function materialsUpdateOne(state, action) {
     const materials = state.materials.slice(); // get copy of array
     const index = action.index || state.index; // not passing index when modifying currently displayed material
@@ -46,7 +46,7 @@ function materialsGenerateSupercellForOne(state, action) {
     const matrixAsNestedArray = action.matrix;
     const material = state.materials[state.index]; // only using currently active material
     const supercellConfig = Made.tools.supercell.generateConfig(material, matrixAsNestedArray);
-    const supercell = new Material(supercellConfig);
+    const supercell = new MDMaterial(supercellConfig);
     return materialsUpdateOne(state, Object.assign(action, { material: supercell }));
 }
 function _setMetadataForSlabConfig(slabConfig, { h, k, l, thickness, vacuumRatio, vx, vy, material }) {
@@ -76,7 +76,7 @@ function materialsGenerateSurfaceForOne(state, action) {
         ...action,
         material,
     });
-    const newMaterial = new Material(supercellConfig);
+    const newMaterial = new MDMaterial(supercellConfig);
     Made.tools.material.scaleOneLatticeVector(newMaterial, ["a", "b", "c"][outOfPlaneAxisIndex], 1 / (1 - vacuumRatio));
     return materialsUpdateOne(state, Object.assign(action, { material: newMaterial }));
 }

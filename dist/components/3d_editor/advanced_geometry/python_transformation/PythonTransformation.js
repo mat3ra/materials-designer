@@ -12,6 +12,7 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import React from "react";
+import { MDMaterial } from "../../../../MDMaterial";
 import { theme } from "../../../../settings";
 import { exportToDisk } from "../../../../utils/downloader";
 import CodeExecutionControls, { ExecutionStatus } from "./CodeExecutionControls";
@@ -93,7 +94,7 @@ class PythonTransformation extends React.Component {
                         const material = this.mapToObject(m);
                         // material structure is returned in POSCAR format in python code
                         const config = Made.parsers.poscar.fromPoscar(material.poscar);
-                        const newMaterial = new Made.Material(config);
+                        const newMaterial = new MDMaterial(config);
                         return newMaterial;
                     });
                     this.setState({ newMaterials, executionStatus: ExecutionStatus.Ready });

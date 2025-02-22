@@ -6,7 +6,7 @@ import React from "react";
 import _ from "underscore";
 
 import { displayMessage } from "../../../i18n/messages";
-import { Material } from "../../../material";
+import { MDMaterial } from "../../../MDMaterial";
 import BasisText from "../../source_editor/BasisText";
 
 // TODO: adjust this component and SourceEditor to inherit from the same one - XYZBasisEditor
@@ -56,7 +56,7 @@ class CombinatorialBasisDialog extends React.Component {
                 basis: basis.toJSON(),
                 name: `${material.name} - ${basis.formula}`,
             };
-            const newMaterial = new Material(newMaterialConfig);
+            const newMaterial = new MDMaterial(newMaterialConfig);
             newMaterial.cleanOnCopy();
             newMaterials.push(newMaterial);
         });

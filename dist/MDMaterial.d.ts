@@ -1,4 +1,4 @@
-declare const Material_base: {
+declare const MDMaterial_base: {
     new (...config: any[]): {
         _json: import("@mat3ra/made/dist/js/material").MaterialSchemaJSON;
         toJSON(): import("@mat3ra/made/dist/js/types").MaterialJSON;
@@ -223,8 +223,8 @@ declare const Material_base: {
     readonly defaultConfig: object | null;
     createDefault(): any;
 } & typeof import("@mat3ra/code/dist/js/entity").InMemoryEntity;
-export class Material extends Material_base {
-    static fromMadeMaterial(madeMaterial: any, metadata?: {}): Material;
+export class MDMaterial extends MDMaterial_base {
+    static fromMadeMaterial(madeMaterial: any, metadata?: {}): MDMaterial;
     constructor(config: any);
     set isUpdated(arg: boolean);
     get isUpdated(): boolean;

@@ -9,7 +9,7 @@ import IconButton from "@mui/material/IconButton";
 import TextField from "@mui/material/TextField";
 import { DataGrid } from "@mui/x-data-grid";
 import React from "react";
-import { Material } from "../../material";
+import { MDMaterial } from "../../MDMaterial";
 class StandataImportDialog extends React.Component {
     constructor(props) {
         super(props);
@@ -25,7 +25,7 @@ class StandataImportDialog extends React.Component {
         };
         this.addMaterials = () => {
             const { selectedMaterialConfigs } = this.state;
-            const materials = selectedMaterialConfigs.map((config) => new Material(config));
+            const materials = selectedMaterialConfigs.map((config) => new MDMaterial(config));
             const { onSubmit } = this.props;
             onSubmit(materials);
             this.setState({ selectedMaterialConfigs: [] });
@@ -37,7 +37,7 @@ class StandataImportDialog extends React.Component {
     render() {
         const { show, onClose, defaultMaterialConfigs } = this.props;
         const { selectedMaterialConfigs } = this.state;
-        const selectedMaterials = selectedMaterialConfigs.map((config) => new Material(config));
+        const selectedMaterials = selectedMaterialConfigs.map((config) => new MDMaterial(config));
         const columns = [
             { field: "name", headerName: "Name", flex: 1, headerAlign: "center", align: "center" },
             {

@@ -8,7 +8,7 @@ import PropTypes from "prop-types";
 import React from "react";
 import _ from "underscore";
 import { displayMessage } from "../../../i18n/messages";
-import { Material } from "../../../material";
+import { MDMaterial } from "../../../MDMaterial";
 import BasisText from "../../source_editor/BasisText";
 class InterpolateBasesDialog extends React.Component {
     constructor(props) {
@@ -57,7 +57,7 @@ class InterpolateBasesDialog extends React.Component {
                 basis: newBasis.toJSON(),
                 name: `${idx} - ${material.name} - ${newBasis.formula}`,
             };
-            const newMaterial = new Material(newMaterialConfig);
+            const newMaterial = new MDMaterial(newMaterialConfig);
             newMaterial.isUpdated = true;
             newMaterial.cleanOnCopy();
             newMaterials.push(newMaterial);

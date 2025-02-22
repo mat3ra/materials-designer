@@ -1,18 +1,18 @@
-import { Made } from "@mat3ra/made";
 import React from "react";
+import { MDMaterial } from "../../../../MDMaterial";
 import { ExecutionStatus } from "./CodeExecutionControls";
 import { ExecutionCellState } from "./ExecutionCell";
 import { Transformation } from "./TransformationSelector";
 interface PythonTransformationProps {
-    materials: Made.Material[];
+    materials: MDMaterial[];
     show: boolean;
-    onSubmit: (newMaterials: Made.Material[]) => void;
+    onSubmit: (newMaterials: MDMaterial[]) => void;
     onHide: () => void;
 }
 interface PythonTransformationState {
-    materials: Made.Material[];
-    selectedMaterials: Made.Material[];
-    newMaterials: Made.Material[];
+    materials: MDMaterial[];
+    selectedMaterials: MDMaterial[];
+    newMaterials: MDMaterial[];
     executionStatus: ExecutionStatus;
     pyodide: any;
     transformation: Transformation | null;
