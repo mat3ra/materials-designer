@@ -18,6 +18,8 @@ Given("material with following data exists in state", (table: DataTable) => {
     const assertMaterialExists = (material: object) => {
         BrowserManager.getBrowser()
             .execute((win) => {
+                // Note that the actual type of m is MDMaterial in the `map` below, not Made.Material
+                // Using Made.Material here to avoid dependency on the MDMaterial class
                 // @ts-ignore
                 return win.MDContainer.store
                     .getState()
