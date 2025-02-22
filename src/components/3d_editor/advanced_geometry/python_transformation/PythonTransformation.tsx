@@ -12,6 +12,7 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import React from "react";
 
+import { Material as MDMaterial } from "../../../../material";
 import { theme } from "../../../../settings";
 import { exportToDisk } from "../../../../utils/downloader";
 import CodeExecutionControls, { ExecutionStatus } from "./CodeExecutionControls";
@@ -20,16 +21,16 @@ import MaterialsSelector from "./MaterialsSelector";
 import TransformationSelector, { Transformation } from "./TransformationSelector";
 
 interface PythonTransformationProps {
-    materials: Made.Material[];
+    materials: MDMaterial[];
     show: boolean;
-    onSubmit: (newMaterials: Made.Material[]) => void;
+    onSubmit: (newMaterials: MDMaterial[]) => void;
     onHide: () => void;
 }
 
 interface PythonTransformationState {
-    materials: Made.Material[];
-    selectedMaterials: Made.Material[];
-    newMaterials: Made.Material[];
+    materials: MDMaterial[];
+    selectedMaterials: MDMaterial[];
+    newMaterials: MDMaterial[];
     executionStatus: ExecutionStatus;
     // TODO: import type for Pyodide when they are available in Cove.js
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -160,7 +161,7 @@ class PythonTransformation extends React.Component<
                     const material = this.mapToObject(m);
                     // material structure is returned in POSCAR format in python code
                     const config = Made.parsers.poscar.fromPoscar(material.poscar as string);
-                    const newMaterial: Made.Material = new Made.Material(config);
+                    const newMaterial: MDMaterial = new MDMaterial(config);
 
                     return newMaterial;
                 });

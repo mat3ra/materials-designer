@@ -2,8 +2,8 @@ import { jsx as _jsx } from "react/jsx-runtime";
 import { showErrorAlert } from "@exabyte-io/cove.js/dist/other/alerts";
 import JupyterLiteSession from "@exabyte-io/cove.js/dist/other/jupyterlite/JupyterLiteSession";
 import { Action } from "@mat3ra/esse/dist/js/types";
-import { Made } from "@mat3ra/made";
 import React from "react";
+import { Material as MDMaterial } from "../../../material";
 class BaseJupyterLiteSessionComponent extends React.Component {
     constructor() {
         super(...arguments);
@@ -26,7 +26,7 @@ class BaseJupyterLiteSessionComponent extends React.Component {
             const validationErrors = [];
             const validatedMaterials = configs.reduce((validMaterials, config) => {
                 try {
-                    const material = new Made.Material(config);
+                    const material = new MDMaterial(config);
                     material.validate();
                     validMaterials.push(material);
                 }

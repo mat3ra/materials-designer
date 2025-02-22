@@ -125,8 +125,7 @@ class HeaderMenuToolbar extends React.Component {
         return (_jsx(ThreejsEditorModal, { show: showThreejsEditorModal, onHide: (material) => {
                 this.setState({ showThreejsEditorModal: !showThreejsEditorModal });
                 if (material) {
-                    // convert made material to MD material
-                    const newMaterial = Material.createFromMadeMaterial(material);
+                    const newMaterial = material;
                     newMaterial.isUpdated = true; // to show it as new (yellow color)
                     onAdd(newMaterial);
                 }

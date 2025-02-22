@@ -1,5 +1,4 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import { Made } from "@mat3ra/made";
 import CheckBox from "@mui/icons-material/CheckBox";
 import CheckBoxOutlineBlank from "@mui/icons-material/CheckBoxOutlineBlank";
 import Autocomplete from "@mui/material/Autocomplete";
@@ -8,10 +7,12 @@ import Chip from "@mui/material/Chip";
 import TextField from "@mui/material/TextField";
 import React, { useEffect } from "react";
 
+import { Material as MDMaterial } from "../../../../material";
+
 interface MaterialsSelectorProps {
-    materials: Made.Material[];
-    selectedMaterials: Made.Material[];
-    setSelectedMaterials: (selectedMaterials: Made.Material[]) => void;
+    materials: MDMaterial[];
+    selectedMaterials: MDMaterial[];
+    setSelectedMaterials: (selectedMaterials: MDMaterial[]) => void;
     testId?: string;
 }
 

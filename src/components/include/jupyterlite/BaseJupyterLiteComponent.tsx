@@ -3,15 +3,16 @@ import JupyterLiteSession, {
     IMessageHandlerConfigItem,
 } from "@exabyte-io/cove.js/dist/other/jupyterlite/JupyterLiteSession";
 import { Action, MaterialSchema } from "@mat3ra/esse/dist/js/types";
-import { Made } from "@mat3ra/made";
 import React from "react";
+
+import { Material as MDMaterial } from "../../../material";
 
 export interface BaseJupyterLiteProps {
     // eslint-disable-next-line react/no-unused-prop-types
-    materials: Made.Material[];
+    materials: MDMaterial[];
     // eslint-disable-next-line react/no-unused-prop-types
     show: boolean;
-    onMaterialsUpdate: (newMaterials: Made.Material[]) => void;
+    onMaterialsUpdate: (newMaterials: MDMaterial[]) => void;
     // eslint-disable-next-line react/no-unused-prop-types
     onHide: () => void;
     // eslint-disable-next-line react/no-unused-prop-types
@@ -54,14 +55,14 @@ class BaseJupyterLiteSessionComponent<P = never, S = never> extends React.Compon
         const validationErrors: string[] = [];
         const validatedMaterials = configs.reduce((validMaterials, config) => {
             try {
-                const material = new Made.Material(config);
+                const material = new MDMaterial(config);
                 material.validate();
                 validMaterials.push(material);
             } catch (e: any) {
                 validationErrors.push(`Failed to create material ${config.name}: ${e.message}`);
             }
             return validMaterials;
-        }, [] as Made.Material[]);
+        }, [] as MDMaterial[]);
         return { validatedMaterials, validationErrors };
     };
 
@@ -88,7 +89,7 @@ class BaseJupyterLiteSessionComponent<P = never, S = never> extends React.Compon
         },
     ];
 
-    setMaterials = (materials: Made.Material[]): void => {
+    setMaterials = (materials: MDMaterial[]): void => {
         const { onMaterialsUpdate } = this.props;
         onMaterialsUpdate(materials);
     };

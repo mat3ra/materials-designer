@@ -140,10 +140,7 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                         }, className: "materials-designer-source-editor", children: [_jsx(Grid, { item: true, xs: 12, mt: 0.25, children: _jsx(LatticeEditor, { material: this.props.material, onUpdate: this.props.onUpdate }) }), _jsx(Grid, { item: true, xs: 12, mt: 0.25, children: _jsx(BasisEditor, { material: this.props.material, onUpdate: this.props.onUpdate }) })] })), isVisibleThreeDEditorFullscreen && (
                                     // eslint-disable-next-line react/jsx-props-no-spreading
                                     _jsx(Grid, { item: true, ...gridConfig[3], mt: 0.25, children: _jsx(ThreeDEditorFullscreen, { editable: true, material: this.props.material, isConventionalCellShown: this.props.isConventionalCellShown, boundaryConditions: this.props.material.boundaryConditions, onUpdate: (material) => {
-                                                // convert made material to MD material and re-set metadata
-                                                const newMaterial = Material.createFromMadeMaterial(material);
-                                                newMaterial.metadata =
-                                                    this.props.material.metadata || {};
+                                                const newMaterial = Material.fromMadeMaterial(material, this.props.material.metadata);
                                                 this.props.onUpdate(newMaterial);
                                             } }) })), this.state.isVisibleJupyterLiteSessionDrawer && (_jsx(JupyterLiteSessionDrawer, { materials: this.props.materials, show: this.state.isVisibleJupyterLiteSessionDrawer, onMaterialsUpdate: (...args) => {
                                             this.props.onAdd(...args);

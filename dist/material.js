@@ -3,6 +3,9 @@ export class Material extends Made.Material {
     constructor(config) {
         super({ ...Made.defaultMaterialConfig, ...config });
     }
+    static fromMadeMaterial(madeMaterial, metadata = {}) {
+        return new Material({ ...madeMaterial.toJSON(), ...metadata });
+    }
     get id() {
         return this.prop("_id", "");
     }
@@ -33,9 +36,5 @@ export class Material extends Made.Material {
     }
     get boundaryConditions() {
         return this.metadata.boundaryConditions || {};
-    }
-    static createFromMadeMaterial(material) {
-        const config = material.toJSON();
-        return new Material(config);
     }
 }

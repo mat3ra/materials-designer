@@ -224,7 +224,7 @@ declare const Material_base: {
     createDefault(): any;
 } & typeof import("@mat3ra/code/dist/js/entity").InMemoryEntity;
 export class Material extends Material_base {
-    static createFromMadeMaterial(material: any): Material;
+    static fromMadeMaterial(madeMaterial: any, metadata?: {}): Material;
     constructor(config: any);
     set isUpdated(arg: boolean);
     get isUpdated(): boolean;
@@ -265,7 +265,7 @@ export class Material extends Material_base {
             name?: "lattice" | undefined;
             vectors?: {
                 alat?: number | undefined;
-                units?: "m" | "angstrom" | "crystal" | "km" | "pm" | "nm" | "a.u." | "bohr" | "fractional" | "cartesian" | "alat" | undefined;
+                units?: "m" | "crystal" | "angstrom" | "km" | "pm" | "nm" | "a.u." | "bohr" | "fractional" | "cartesian" | "alat" | undefined;
                 a: [number, number, number];
                 b: [number, number, number];
                 c: [number, number, number];

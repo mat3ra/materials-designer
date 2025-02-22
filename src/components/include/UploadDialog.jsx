@@ -62,11 +62,7 @@ class UploadDialog extends React.Component {
 
                 newMaterialConfigs.push({
                     ...materialConfig,
-                    src: Made.Material.constructMaterialFileSource(
-                        file.fileName,
-                        file.text,
-                        extension,
-                    ),
+                    src: Material.constructMaterialFileSource(file.fileName, file.text, extension),
                 });
             } catch (error) {
                 errors.push(error.message);

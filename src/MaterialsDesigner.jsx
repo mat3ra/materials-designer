@@ -278,11 +278,10 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                                 this.props.material.boundaryConditions
                                             }
                                             onUpdate={(material) => {
-                                                // convert made material to MD material and re-set metadata
-                                                const newMaterial =
-                                                    Material.createFromMadeMaterial(material);
-                                                newMaterial.metadata =
-                                                    this.props.material.metadata || {};
+                                                const newMaterial = Material.fromMadeMaterial(
+                                                    material,
+                                                    this.props.material.metadata,
+                                                );
                                                 this.props.onUpdate(newMaterial);
                                             }}
                                         />
