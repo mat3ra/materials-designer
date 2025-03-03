@@ -1546,17 +1546,83 @@ declare const materialConfigs: ({
         origin: boolean;
     };
     isNonPeriodic: boolean;
-    metadata: ({
-        build: null;
-        configuration?: undefined;
-    } | {
-        configuration: {
-            width: number;
-            length: number;
-            vacuum_width: number;
-            vacuum_length: number;
-            edge_type: string;
+    metadata: {
+        build: {
+            configuration: {
+                width: number;
+                length: number;
+                vacuum_width: number;
+                vacuum_length: number;
+                edge_type: string;
+            };
+        }[];
+    }[];
+} | {
+    name: string;
+    lattice: {
+        type: string;
+        a: number;
+        b: number;
+        c: number;
+        alpha: number;
+        beta: number;
+        gamma: number;
+        units: {
+            length: string;
+            angle: string;
         };
-        build?: undefined;
-    })[];
+    };
+    basis: {
+        units: string;
+        elements: {
+            id: number;
+            value: string;
+        }[];
+        coordinates: {
+            id: number;
+            value: number[];
+        }[];
+    };
+    external: {
+        id: string;
+        source: string;
+        doi: string;
+        url: string;
+        origin: boolean;
+    };
+    isNonPeriodic: boolean;
+} | {
+    name: string;
+    lattice: {
+        type: string;
+        a: number;
+        b: number;
+        c: number;
+        alpha: number;
+        beta: number;
+        gamma: number;
+        units: {
+            length: string;
+            angle: string;
+        };
+    };
+    basis: {
+        units: string;
+        elements: {
+            id: number;
+            value: string;
+        }[];
+        coordinates: {
+            id: number;
+            value: number[];
+        }[];
+    };
+    external: {
+        id: string;
+        source: string;
+        doi: string;
+        url: string;
+        origin: boolean;
+    };
+    isNonPeriodic: boolean;
 })[];
