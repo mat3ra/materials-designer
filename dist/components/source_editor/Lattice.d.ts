@@ -7,7 +7,7 @@ declare class Lattice extends React.Component<any, any, any> {
     componentDidUpdate(): void;
     latticeTypeOptions: () => {
         label: string;
-        value: import("@mat3ra/esse/dist/js/types").LatticeTypeSchema;
+        value: LatticeTypeSchema;
     }[];
     latticeUnitOptions: () => {
         label: string;

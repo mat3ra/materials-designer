@@ -27,30 +27,20 @@ declare class BaseJupyterLiteSessionComponent<P = never, S = never> extends Reac
                 occurrence?: number | undefined;
                 oxidationState?: number | undefined;
             }[];
-            labels?: {
-                id?: number | undefined;
-                value?: number | undefined;
-            }[] | undefined;
             coordinates: {
                 id?: number | undefined;
                 value?: [number, number, number] | [boolean, boolean, boolean] | undefined;
             }[];
-            name?: string | undefined;
-            units?: string | undefined;
-            bonds?: {
-                atomPair?: [{
-                    id?: number | undefined;
-                }, {
-                    id?: number | undefined;
-                }] | undefined;
-                bondType?: "double" | "other" | "single" | "triple" | "quadruple" | "aromatic" | "tautomeric" | "dative" | undefined;
+            units?: "crystal" | "cartesian" | undefined;
+            labels?: {
+                id?: number | undefined;
+                value?: number | undefined;
             }[] | undefined;
         };
         lattice: {
-            name?: "lattice" | undefined;
             vectors?: {
                 alat?: number | undefined;
-                units?: "m" | "crystal" | "angstrom" | "km" | "pm" | "nm" | "a.u." | "bohr" | "fractional" | "cartesian" | "alat" | undefined;
+                units?: "m" | "angstrom" | "km" | "cm" | "mm" | "um" | "nm" | "a.u." | "bohr" | "pm" | undefined;
                 a: [number, number, number];
                 b: [number, number, number];
                 c: [number, number, number];
@@ -115,14 +105,14 @@ declare class BaseJupyterLiteSessionComponent<P = never, S = never> extends Reac
         scaledHash?: string | undefined;
         icsdId?: number | undefined;
         isNonPeriodic?: boolean | undefined;
-        slug?: string | undefined;
-        systemName?: string | undefined;
         consistencyChecks?: {
-            key: string;
             name: "default" | "atomsTooClose" | "atomsOverlap";
+            key: string;
             severity: "error" | "info" | "warning";
             message: string;
         }[] | undefined;
+        slug?: string | undefined;
+        systemName?: string | undefined;
         schemaVersion?: string | undefined;
         name?: string | undefined;
         isDefault?: boolean | undefined;
