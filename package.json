@@ -69,9 +69,9 @@
     "devDependencies": {
         "@exabyte-io/cove.js": "2025.2.22-0",
         "@exabyte-io/eslint-config": "^2025.1.15-0",
-        "@mat3ra/code": "2024.3.25-3",
+        "@mat3ra/code": "2025.4.4-1",
         "@mat3ra/esse": "2025.4.3-0",
-        "@mat3ra/made": "git+https://git@github.com/Exabyte-io/made.git#feature/SOF-7597",
+        "@mat3ra/made": "git+https://git@github.com/Exabyte-io/made.git#8d54d67b7875a10d0a53de17bf5a813290324e2d",
         "@mat3ra/standata": "2025.3.3-0",
         "@mat3ra/tsconfig": "^2024.3.23-2",
         "@types/debug": "^4.1.12",
