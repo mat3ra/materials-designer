@@ -1,6 +1,7 @@
 export default ReduxProvider;
 declare class ReduxProvider extends React.Component<any, any, any> {
     constructor(props: any);
+    constructor(props: any, context: any);
     get parentProps(): Pick<Readonly<any>, string | number | symbol>;
     render(): import("react/jsx-runtime").JSX.Element;
 }
