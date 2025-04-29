@@ -42,6 +42,7 @@ declare const MDMaterial_base: {
         unsetFileProps(): void;
         setBasis(textOrObject: string | import("@mat3ra/made/dist/js/basis/basis").BasisConfig, format?: string | undefined, unitz?: string | undefined): void;
         setBasisConstraints(constraints: import("@mat3ra/made/dist/js/constraints/constraints").Constraint[]): void;
+        setBasisConstraintsFromArrayOfObjects(constraints: import("@mat3ra/esse/dist/js/types").AtomicConstraintsSchema): void;
         readonly basis: import("@mat3ra/made/dist/js/material").OptionallyConstrainedBasisConfig;
         readonly Basis: import("@mat3ra/made/dist/js/basis/constrained_basis").ConstrainedBasis;
         readonly uniqueElements: string[];
