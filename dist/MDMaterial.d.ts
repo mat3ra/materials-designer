@@ -40,13 +40,13 @@ declare const MDMaterial_base: {
         readonly formula: string;
         readonly unitCellFormula: string;
         unsetFileProps(): void;
-        setBasis(textOrObject: string | import("@mat3ra/made/dist/js/parsers/xyz").BasisConfig, format?: string | undefined, unitz?: string | undefined): void;
+        setBasis(textOrObject: string | import("@mat3ra/made/dist/js/basis/basis").BasisConfig, format?: string | undefined, unitz?: string | undefined): void;
         setBasisConstraints(constraints: import("@mat3ra/made/dist/js/constraints/constraints").Constraint[]): void;
-        readonly basis: import("@mat3ra/made/dist/js/parsers/xyz").BasisConfig;
+        readonly basis: import("@mat3ra/made/dist/js/material").OptionallyConstrainedBasisConfig;
         readonly Basis: import("@mat3ra/made/dist/js/basis/constrained_basis").ConstrainedBasis;
         readonly uniqueElements: string[];
-        lattice: import("@mat3ra/made/dist/js/lattice/lattice_vectors").BravaisConfigProps | undefined;
-        readonly Lattice: Made.Lattice;
+        lattice: import("@mat3ra/esse/dist/js/types").LatticeSchema;
+        readonly Lattice: import("@mat3ra/made/dist/js/lattice/lattice").Lattice;
         getInchiStringForHash(): string;
         calculateHash(salt?: string | undefined, isScaled?: boolean | undefined, bypassNonPeriodicCheck?: boolean | undefined): string;
         hash: string;
@@ -289,50 +289,38 @@ export class MDMaterial extends MDMaterial_base {
         unitCellFormula?: string | undefined;
         basis: {
             elements: {
-                id: number;
                 value: string;
-                occurrence?: number | undefined;
-                oxidationState?: number | undefined;
+                id: number;
             }[];
-            labels?: {
-                id?: number | undefined;
-                value?: number | undefined;
-            }[] | undefined;
             coordinates: {
-                id?: number | undefined;
-                value?: [number, number, number] | [boolean, boolean, boolean] | undefined;
+                value: [number, number, number];
+                id: number;
             }[];
-            name?: string | undefined;
-            units?: string | undefined;
-            bonds?: {
-                atomPair?: [{
-                    id?: number | undefined;
-                }, {
-                    id?: number | undefined;
-                }] | undefined;
-                bondType?: "double" | "other" | "single" | "triple" | "quadruple" | "aromatic" | "tautomeric" | "dative" | undefined;
+            units?: "crystal" | "cartesian" | undefined;
+            labels?: {
+                value: string | number;
+                id: number;
             }[] | undefined;
         };
         lattice: {
-            name?: "lattice" | undefined;
-            vectors?: {
-                alat?: number | undefined;
-                units?: "m" | "crystal" | "angstrom" | "km" | "pm" | "nm" | "a.u." | "bohr" | "fractional" | "cartesian" | "alat" | undefined;
-                a: [number, number, number];
-                b: [number, number, number];
-                c: [number, number, number];
-            } | undefined;
-            type: "CUB" | "BCC" | "FCC" | "TET" | "MCL" | "ORC" | "ORCC" | "ORCF" | "ORCI" | "HEX" | "BCT" | "TRI" | "MCLC" | "RHL";
-            units?: {
-                length?: "angstrom" | "bohr" | undefined;
-                angle?: "degree" | "radian" | undefined;
-            } | undefined;
             a: number;
             b: number;
             c: number;
             alpha: number;
             beta: number;
             gamma: number;
+            vectors?: {
+                a: [number, number, number];
+                b: [number, number, number];
+                c: [number, number, number];
+                alat?: number | undefined;
+                units?: "angstrom" | "bohr" | undefined;
+            } | undefined;
+            type?: "CUB" | "BCC" | "FCC" | "TET" | "MCL" | "ORC" | "ORCC" | "ORCF" | "ORCI" | "HEX" | "BCT" | "TRI" | "MCLC" | "RHL" | undefined;
+            units?: {
+                length?: "angstrom" | "bohr" | undefined;
+                angle?: "degree" | "radian" | undefined;
+            } | undefined;
         };
         derivedProperties?: ({
             name?: "volume" | undefined;
@@ -382,14 +370,14 @@ export class MDMaterial extends MDMaterial_base {
         scaledHash?: string | undefined;
         icsdId?: number | undefined;
         isNonPeriodic?: boolean | undefined;
-        slug?: string | undefined;
-        systemName?: string | undefined;
         consistencyChecks?: {
-            key: string;
             name: "default" | "atomsTooClose" | "atomsOverlap";
+            key: string;
             severity: "error" | "info" | "warning";
             message: string;
         }[] | undefined;
+        slug?: string | undefined;
+        systemName?: string | undefined;
         schemaVersion?: string | undefined;
         name?: string | undefined;
         isDefault?: boolean | undefined;
@@ -397,5 +385,4 @@ export class MDMaterial extends MDMaterial_base {
     cleanOnCopy(): void;
     get boundaryConditions(): any;
 }
-import { Made } from "@mat3ra/made";
 export {};
