@@ -32,7 +32,7 @@ function materialsToggleIsNonPeriodicForOne(state, action) {
     }
     newMaterial.isNonPeriodic = !newMaterial.isNonPeriodic;
     Made.tools.material.scaleLatticeToMakeNonPeriodic(newMaterial);
-    Made.tools.material.getBasisConfigTranslatedToCenter(newMaterial);
+    Made.tools.material.translateAtomsToCenter(newMaterial);
     return materialsUpdateOne(state, { ...state, material: newMaterial });
 }
 function materialsUpdateNameForOne(state, action) {
