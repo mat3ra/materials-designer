@@ -2,7 +2,6 @@ import { defaultMaterialConfig, Material } from "@mat3ra/made/dist/js/material";
 export class MDMaterial extends Material {
     constructor(config) {
         super({ ...defaultMaterialConfig, ...config });
-        console.log(this);
     }
     static fromMadeMaterial(madeMaterial, metadata = {}) {
         return new MDMaterial({ ...madeMaterial.toJSON(), ...metadata });
