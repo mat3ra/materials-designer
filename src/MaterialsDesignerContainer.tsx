@@ -93,7 +93,6 @@ interface MaterialsDesignerContainerProps {
         material: MDMaterial;
         onSubmit: () => void;
     }) => void;
-    materialsSave?: () => void;
     isConventionalCellShown?: boolean;
     maxCombinatorialBasesCount?: number;
     onExit?: () => void;
