@@ -4,7 +4,7 @@ import { displayMessage } from "../i18n/messages";
 import { MDMaterial } from "../MDMaterial";
 export function materialsUpdateOne(state, action) {
     const materials = state.materials.slice(); // get copy of array
-    const index = action.index || state.index; // not passing index when modifying currently displa yed material
+    const index = action.index || state.index; // not passing index when modifying currently displayed material
     const material = action.material.clone(); // clone material to assert props re-render
     material.isUpdated = true; // to be used inside components
     // TODO: consider adjusting the logic to avoid expensive cloning procedure below
