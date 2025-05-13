@@ -1,22 +1,33 @@
 import { showWarningAlert } from "@exabyte-io/cove.js/dist/other/alerts";
+import type { Matrix3X3Schema } from "@mat3ra/esse/dist/js/types";
 import { Made } from "@mat3ra/made";
+import type { SlabConfigSchema } from "@mat3ra/made/dist/js/tools/surface";
 
-import {
-    MATERIALS_CLONE_ONE,
-    MATERIALS_GENERATE_SUPERCELL_FOR_ONE,
-    MATERIALS_GENERATE_SURFACE_FOR_ONE,
-    MATERIALS_SET_BOUNDARY_CONDITIONS_FOR_ONE,
-    MATERIALS_TOGGLE_IS_NON_PERIODIC_FOR_ONE,
-    MATERIALS_UPDATE_INDEX,
-    MATERIALS_UPDATE_NAME_FOR_ONE,
-    MATERIALS_UPDATE_ONE,
-} from "../actions";
 import { displayMessage } from "../i18n/messages";
 import { MDMaterial } from "../MDMaterial";
 
-function materialsUpdateOne(state, action) {
+export type MDState = {
+    index: number;
+    isLoading: boolean;
+    materials: MDMaterial[];
+};
+
+export type SurfaceConfig = {
+    h: number;
+    k: number;
+    l: number;
+    thickness: number;
+    vacuumRatio: number;
+    vx: number;
+    vy: number;
+};
+
+export function materialsUpdateOne(
+    state: MDState,
+    action: { material: MDMaterial; index?: number },
+): MDState {
     const materials = state.materials.slice(); // get copy of array
-    const index = action.index || state.index; // not passing index when modifying currently displayed material
+    const index = action.index || state.index; // not passing index when modifying currently displa yed material
     const material = action.material.clone(); // clone material to assert props re-render
     material.isUpdated = true; // to be used inside components
     // TODO: consider adjusting the logic to avoid expensive cloning procedure below
@@ -24,8 +35,7 @@ function materialsUpdateOne(state, action) {
     return { ...state, materials };
 }
 
-// eslint-disable-next-line no-unused-vars
-function materialsCloneOne(state, action) {
+export function materialsCloneOne(state: MDState): MDState {
     const materials = state.materials.slice(); // get copy of array
     const material = materials[state.index].clone();
     material.cleanOnCopy();
@@ -35,8 +45,7 @@ function materialsCloneOne(state, action) {
     return { ...state, materials };
 }
 
-// eslint-disable-next-line no-unused-vars
-function materialsToggleIsNonPeriodicForOne(state, action) {
+export function materialsToggleIsNonPeriodicForOne(state: MDState): MDState {
     const newMaterial = state.materials[state.index].clone({ hash: "", scaledHash: "" });
     // clone check
     if (newMaterial.id) {
@@ -51,7 +60,10 @@ function materialsToggleIsNonPeriodicForOne(state, action) {
     return materialsUpdateOne(state, { ...state, material: newMaterial });
 }
 
-function materialsUpdateNameForOne(state, action) {
+export function materialsUpdateNameForOne(
+    state: MDState,
+    action: { name: string; index: number },
+): MDState {
     const config = { name: action.name, isUpdated: true };
     const material = state.materials[action.index].clone(config);
     const update = { [action.index]: material };
@@ -59,17 +71,20 @@ function materialsUpdateNameForOne(state, action) {
     return { ...state, materials };
 }
 
-function materialsGenerateSupercellForOne(state, action) {
+export function materialsGenerateSupercellForOne(
+    state: MDState,
+    action: { matrix: Matrix3X3Schema },
+): MDState {
     const matrixAsNestedArray = action.matrix;
     const material = state.materials[state.index]; // only using currently active material
     const supercellConfig = Made.tools.supercell.generateConfig(material, matrixAsNestedArray);
     const supercell = new MDMaterial(supercellConfig);
-    return materialsUpdateOne(state, Object.assign(action, { material: supercell }));
+    return materialsUpdateOne(state, { ...action, material: supercell });
 }
 
 function _setMetadataForSlabConfig(
-    slabConfig,
-    { h, k, l, thickness, vacuumRatio, vx, vy, material },
+    slabConfig: SlabConfigSchema,
+    { h, k, l, thickness, vacuumRatio, vx, vy, material }: SurfaceConfig & { material: MDMaterial },
 ) {
     const bulkId = material && (material.id || material._id);
     if (!bulkId) showWarningAlert(displayMessage("surface.noBulkId"));
@@ -89,7 +104,7 @@ function _setMetadataForSlabConfig(
     });
 }
 
-function materialsGenerateSurfaceForOne(state, action) {
+export function materialsGenerateSurfaceForOne(state: MDState, action: SurfaceConfig): MDState {
     const material = state.materials[state.index]; // only using currently active material
 
     const { h, k, l, thickness, vacuumRatio, vx, vy } = action;
@@ -110,14 +125,20 @@ function materialsGenerateSurfaceForOne(state, action) {
     const newMaterial = new MDMaterial(supercellConfig);
     Made.tools.material.scaleOneLatticeVector(
         newMaterial,
-        ["a", "b", "c"][outOfPlaneAxisIndex],
+        ["a", "b", "c"][outOfPlaneAxisIndex] as "a" | "b" | "c",
         1 / (1 - vacuumRatio),
     );
 
-    return materialsUpdateOne(state, Object.assign(action, { material: newMaterial }));
+    return materialsUpdateOne(state, {
+        ...action,
+        material: newMaterial,
+    });
 }
 
-function materialsSetBoundaryConditionsForOne(state, action) {
+export function materialsSetBoundaryConditionsForOne(
+    state: MDState,
+    action: { boundaryType: string; boundaryOffset: number },
+): MDState {
     const newMaterial = state.materials[state.index].clone();
     newMaterial.metadata = {
         ...newMaterial.metadata,
@@ -129,17 +150,6 @@ function materialsSetBoundaryConditionsForOne(state, action) {
     return materialsUpdateOne(state, Object.assign(action, { material: newMaterial }));
 }
 
-export function materialsUpdateIndex(state, action) {
+export function materialsUpdateIndex(state: MDState, action: { index: number }): MDState {
     return { ...state, index: action.index };
 }
-
-export default {
-    [MATERIALS_UPDATE_INDEX]: materialsUpdateIndex,
-    [MATERIALS_UPDATE_ONE]: materialsUpdateOne,
-    [MATERIALS_CLONE_ONE]: materialsCloneOne,
-    [MATERIALS_UPDATE_NAME_FOR_ONE]: materialsUpdateNameForOne,
-    [MATERIALS_GENERATE_SUPERCELL_FOR_ONE]: materialsGenerateSupercellForOne,
-    [MATERIALS_GENERATE_SURFACE_FOR_ONE]: materialsGenerateSurfaceForOne,
-    [MATERIALS_SET_BOUNDARY_CONDITIONS_FOR_ONE]: materialsSetBoundaryConditionsForOne,
-    [MATERIALS_TOGGLE_IS_NON_PERIODIC_FOR_ONE]: materialsToggleIsNonPeriodicForOne,
-};

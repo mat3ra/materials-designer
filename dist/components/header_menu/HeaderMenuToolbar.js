@@ -36,7 +36,6 @@ import Toolbar from "@mui/material/Toolbar";
 import setClass from "classnames";
 import PropTypes from "prop-types";
 import React from "react";
-import { MDMaterial } from "../../MDMaterial";
 import { BoundaryConditionsDialog } from "../3d_editor/advanced_geometry/BoundaryConditionsDialog";
 import CombinatorialBasisDialog from "../3d_editor/advanced_geometry/CombinatorialBasisDialog";
 import InterpolateBasesDialog from "../3d_editor/advanced_geometry/InterpolateBasesDialog";
@@ -76,10 +75,8 @@ class HeaderMenuToolbar extends React.Component {
                 : null;
         };
         this.renderSaveActionDialog = () => {
-            const { openSaveActionDialog, material, onSave } = this.props;
-            return openSaveActionDialog
-                ? openSaveActionDialog({ show: true, material, onSubmit: onSave })
-                : null;
+            const { openSaveActionDialog, material } = this.props;
+            return openSaveActionDialog ? openSaveActionDialog({ show: true, material }) : null;
         };
         this.state = {
             showSupercellDialog: false,
@@ -171,13 +168,12 @@ HeaderMenuToolbar.propTypes = {
     onUpdate: PropTypes.func.isRequired,
     onUndo: PropTypes.func.isRequired,
     onRedo: PropTypes.func.isRequired,
-    onSave: PropTypes.func.isRequired,
     onReset: PropTypes.func.isRequired,
     onClone: PropTypes.func.isRequired,
     onToggleIsNonPeriodic: PropTypes.func.isRequired,
     onAdd: PropTypes.func.isRequired,
     onExport: PropTypes.func.isRequired,
-    onExit: PropTypes.func.isRequired,
+    onExit: PropTypes.func,
     onGenerateSupercell: PropTypes.func.isRequired,
     onGenerateSurface: PropTypes.func.isRequired,
     onSetBoundaryConditions: PropTypes.func.isRequired,
@@ -185,8 +181,8 @@ HeaderMenuToolbar.propTypes = {
     isVisibleItemsList: PropTypes.bool.isRequired,
     isVisibleSourceEditor: PropTypes.bool.isRequired,
     isVisibleThreeDEditorFullscreen: PropTypes.bool.isRequired,
-    openImportModal: PropTypes.func.isRequired,
-    closeImportModal: PropTypes.func.isRequired,
+    openImportModal: PropTypes.func,
+    closeImportModal: PropTypes.func,
     openSaveActionDialog: PropTypes.func,
     children: PropTypes.node,
 };
@@ -194,5 +190,8 @@ HeaderMenuToolbar.defaultProps = {
     className: undefined,
     openSaveActionDialog: null,
     children: null,
+    onExit: undefined,
+    openImportModal: undefined,
+    closeImportModal: undefined,
 };
 export default HeaderMenuToolbar;

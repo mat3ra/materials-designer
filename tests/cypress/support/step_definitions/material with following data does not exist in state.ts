@@ -13,7 +13,7 @@ Given("material with following data does not exist in state", (table: DataTable)
     cy.readFile(`./cypress/fixtures/${config.path}`).then(() => {
         return BrowserManager.getBrowser()
             .execute((win) => {
-                return win.MDContainer.store.getState().present.materials.map((m) => m.toJSON());
+                return win.MDState.materials.map((m) => m.toJSON());
             })
             .then((materials) => {
                 shallowDeepAlmostEqual(undefined, materials[config.index - 1]);

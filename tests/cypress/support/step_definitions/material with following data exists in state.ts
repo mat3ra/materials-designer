@@ -21,9 +21,7 @@ Given("material with following data exists in state", (table: DataTable) => {
                 // Note that the actual type of m is MDMaterial in the `map` below, not Made.Material
                 // Using Made.Material here to avoid dependency on the MDMaterial class
                 // @ts-ignore
-                return win.MDContainer.store
-                    .getState()
-                    .present.materials.map((m: Made.Material) => m.toJSON());
+                return win.MDState.materials.map((m: Made.Material) => m.toJSON());
             })
             .then((materials: Made.Material[]) => {
                 // TODO: fix toJSON() method in made.js to return basis.elements and basis.coordinates array with index starting from 1

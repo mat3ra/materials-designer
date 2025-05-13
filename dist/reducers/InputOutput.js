@@ -1,10 +1,5 @@
 import { showSuccessAlert, showWarningAlert } from "@exabyte-io/cove.js/dist/other/alerts";
-import { MATERIALS_ADD, MATERIALS_EXPORT, MATERIALS_REMOVE, MATERIALS_SAVE } from "../actions";
 import { exportToDisk } from "../utils/downloader";
-// eslint-disable-next-line no-unused-vars
-export function materialsSave(state, action) {
-    return { ...state };
-}
 export function materialsAdd(state, action) {
     const index = state.index || 0;
     const actionMaterials = action.materials;
@@ -51,9 +46,3 @@ export function materialsExport(state, action) {
     materials.map((m) => exportToDisk(exportHandlers[format](m), m.name, format));
     return state;
 }
-export default {
-    [MATERIALS_ADD]: materialsAdd,
-    [MATERIALS_SAVE]: materialsSave,
-    [MATERIALS_REMOVE]: materialsRemove,
-    [MATERIALS_EXPORT]: materialsExport,
-};

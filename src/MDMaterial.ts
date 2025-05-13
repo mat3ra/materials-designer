@@ -3,7 +3,7 @@ import { defaultMaterialConfig, Material } from "@mat3ra/made/dist/js/material";
 import type { MaterialJSON } from "@mat3ra/made/dist/js/types";
 
 export class MDMaterial extends Material {
-    constructor(config: Partial<MaterialSchema>) {
+    constructor(config: Partial<MaterialSchema> = {}) {
         super({ ...defaultMaterialConfig, ...config });
     }
 

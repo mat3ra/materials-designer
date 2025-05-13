@@ -1,6 +1,6 @@
 import { defaultMaterialConfig, Material } from "@mat3ra/made/dist/js/material";
 export class MDMaterial extends Material {
-    constructor(config) {
+    constructor(config = {}) {
         super({ ...defaultMaterialConfig, ...config });
     }
     static fromMadeMaterial(madeMaterial, metadata = {}) {

@@ -156,7 +156,6 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                 onUpdate={this.props.onUpdate}
                                 onAdd={this.props.onAdd}
                                 onExport={this.props.onExport}
-                                onSave={this.props.onSave}
                                 onExit={this.props.onExit}
                                 openImportModal={this.props.openImportModal}
                                 closeImportModal={this.props.closeImportModal}
@@ -343,7 +342,6 @@ MaterialsDesigner.propTypes = {
 
     onAdd: PropTypes.func,
     onExport: PropTypes.func,
-    onSave: PropTypes.func,
     onExit: PropTypes.func,
 
     openImportModal: PropTypes.func,

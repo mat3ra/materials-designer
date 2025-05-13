@@ -35,7 +35,6 @@ declare namespace MaterialsDesigner {
         const onReset: PropTypes.Requireable<(...args: any[]) => any>;
         const onAdd: PropTypes.Requireable<(...args: any[]) => any>;
         const onExport: PropTypes.Requireable<(...args: any[]) => any>;
-        const onSave: PropTypes.Requireable<(...args: any[]) => any>;
         const onExit: PropTypes.Requireable<(...args: any[]) => any>;
         const openImportModal: PropTypes.Requireable<(...args: any[]) => any>;
         const closeImportModal: PropTypes.Requireable<(...args: any[]) => any>;
