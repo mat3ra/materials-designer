@@ -82,17 +82,18 @@ function useUndoableState<T extends MDState>(initialValue: T, maxPastSize = 50) 
     ];
 }
 
-interface MaterialsDesignerContainerProps {
+export interface ImportModalProps {
+    show: boolean;
+    onSubmit: (materials: MDMaterial[]) => void;
+}
+
+export interface MaterialsDesignerContainerProps {
     skipAlertProvider?: boolean;
     isLoading?: boolean;
     initialMaterials?: MDMaterial[];
-    openImportModal?: () => void;
+    openImportModal?: (params: ImportModalProps) => void;
     closeImportModal?: () => void;
-    openSaveActionDialog?: (params: {
-        show: boolean;
-        material: MDMaterial;
-        onSubmit: () => void;
-    }) => void;
+    openSaveActionDialog?: (state: MDState) => void;
     isConventionalCellShown?: boolean;
     maxCombinatorialBasesCount?: number;
     onExit?: () => void;
@@ -104,72 +105,70 @@ export function MaterialsDesignerContainer({
     isLoading = false,
     ...props
 }: MaterialsDesignerContainerProps) {
-    const [state, setState, undo, redo, reset] = useUndoableState<MDState>({
+    const [mdState, setMdState, undo, redo, reset] = useUndoableState<MDState>({
         index: 0,
         isLoading: false,
         materials: initialMaterials,
     });
 
     useEffect(() => {
-        setState({ ...state.current, isLoading });
+        setMdState({ ...mdState.current, isLoading });
     }, [isLoading]);
 
-    const material = state.current.materials ? state.current.materials[state.current.index] : null;
-
     const onUpdate = useCallback((material: MDMaterial, index: number) => {
-        setState(materialsUpdateOne(state.current, { material, index }));
+        setMdState(materialsUpdateOne(mdState.current, { material, index }));
     }, []);
 
     const onNameUpdate = useCallback((name: string, index: number) => {
-        setState(materialsUpdateNameForOne(state.current, { name, index }));
+        setMdState(materialsUpdateNameForOne(mdState.current, { name, index }));
     }, []);
 
     const onItemClick = useCallback((index: number) => {
-        setState(materialsUpdateIndex(state.current, { index }));
+        setMdState(materialsUpdateIndex(mdState.current, { index }));
     }, []);
 
     const onClone = useCallback(() => {
-        setState(materialsCloneOne(state.current));
+        setMdState(materialsCloneOne(mdState.current));
     }, []);
 
     const onToggleIsNonPeriodic = useCallback(() => {
-        setState(materialsToggleIsNonPeriodicForOne(state.current));
+        setMdState(materialsToggleIsNonPeriodicForOne(mdState.current));
     }, []);
 
     const onGenerateSupercell = useCallback((matrix: Matrix3X3Schema) => {
-        setState(materialsGenerateSupercellForOne(state.current, { matrix }));
+        setMdState(materialsGenerateSupercellForOne(mdState.current, { matrix }));
     }, []);
 
     const onGenerateSurface = useCallback((config: SurfaceConfig) => {
-        setState(materialsGenerateSurfaceForOne(state.current, config));
+        setMdState(materialsGenerateSurfaceForOne(mdState.current, config));
     }, []);
 
     const onSetBoundaryConditions = useCallback(
         (config: { boundaryType: string; boundaryOffset: number }) => {
-            setState(materialsSetBoundaryConditionsForOne(state.current, config));
+            setMdState(materialsSetBoundaryConditionsForOne(mdState.current, config));
         },
         [],
     );
 
     const onAdd = useCallback((materials: MDMaterial[], addAtIndex: number) => {
-        setState(materialsAdd(state.current, { materials, addAtIndex }));
+        setMdState(materialsAdd(mdState.current, { materials, addAtIndex }));
     }, []);
 
     const onRemove = useCallback((indices: number[]) => {
-        setState(materialsRemove(state.current, { indices }));
+        setMdState(materialsRemove(mdState.current, { indices }));
     }, []);
 
     const onExport = useCallback((format: "json" | "poscar", useMultiple: boolean) => {
-        setState(materialsExport(state.current, { format, useMultiple }));
+        setMdState(materialsExport(mdState.current, { format, useMultiple }));
     }, []);
 
     const content = (
         // @ts-ignore
         <MaterialsDesignerComponent
-            index={state.current.index}
-            material={material}
-            materials={state.current.materials}
-            isLoading={state.current.isLoading}
+            mdState={mdState.current}
+            onUndo={undo}
+            onRedo={redo}
+            onReset={reset}
             onUpdate={onUpdate}
             onNameUpdate={onNameUpdate}
             onItemClick={onItemClick}
@@ -181,9 +180,6 @@ export function MaterialsDesignerContainer({
             onAdd={onAdd}
             onRemove={onRemove}
             onExport={onExport}
-            onUndo={undo}
-            onRedo={redo}
-            onReset={reset}
             {...props}
         />
     );

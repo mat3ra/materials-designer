@@ -40,7 +40,6 @@ import { BoundaryConditionsDialog } from "../3d_editor/advanced_geometry/Boundar
 import CombinatorialBasisDialog from "../3d_editor/advanced_geometry/CombinatorialBasisDialog";
 import InterpolateBasesDialog from "../3d_editor/advanced_geometry/InterpolateBasesDialog";
 import JupyterLiteTransformation from "../3d_editor/advanced_geometry/python_transformation/JupyterLiteTransformation";
-// eslint-disable-next-line import/no-unresolved
 import PythonTransformation from "../3d_editor/advanced_geometry/python_transformation/PythonTransformation";
 import SupercellDialog from "../3d_editor/advanced_geometry/SupercellDialog";
 import SurfaceDialog from "../3d_editor/advanced_geometry/SurfaceDialog";
@@ -68,8 +67,11 @@ class HeaderMenuToolbar extends React.Component {
     }
 
     _handleConventionalCellSelect = () => {
-        const { material, onUpdate, index } = this.props;
-        const newMaterial = material.getACopyWithConventionalCell();
+        const {
+            onUpdate,
+            mdState: { materials, index },
+        } = this.props;
+        const newMaterial = materials[index].getACopyWithConventionalCell();
         return onUpdate(newMaterial, index);
     };
 
@@ -315,10 +317,10 @@ class HeaderMenuToolbar extends React.Component {
     }
 
     renderSpinner() {
-        const { isLoading } = this.props;
+        const { mdState } = this.props;
         return (
             <Stack spacing={2} direction="row" justifyContent="end" sx={{ flex: 1 }}>
-                {isLoading ? (
+                {mdState.isLoading ? (
                     <CircularProgress color="warning" size={30} />
                 ) : (
                     <CheckIcon color="success" size={50} />
@@ -344,12 +346,21 @@ class HeaderMenuToolbar extends React.Component {
     };
 
     renderSaveActionDialog = () => {
-        const { openSaveActionDialog, material } = this.props;
+        const {
+            openSaveActionDialog,
+            mdState: { materials, index },
+        } = this.props;
+
+        const material = materials[index];
+
         return openSaveActionDialog ? openSaveActionDialog({ show: true, material }) : null;
     };
 
     renderThreejsEditorModal() {
-        const { onAdd, materials } = this.props;
+        const {
+            onAdd,
+            mdState: { materials },
+        } = this.props;
         const { showThreejsEditorModal } = this.state;
         return (
             <ThreejsEditorModal
@@ -385,9 +396,7 @@ class HeaderMenuToolbar extends React.Component {
         const {
             children,
             className,
-            material,
-            materials,
-            index,
+            mdState: { materials, index },
             onAdd,
             onExport,
             onGenerateSupercell,
@@ -396,6 +405,9 @@ class HeaderMenuToolbar extends React.Component {
             maxCombinatorialBasesCount,
             defaultMaterialsSet,
         } = this.props;
+
+        const material = materials[index];
+
         if (showThreejsEditorModal) return this.renderThreejsEditorModal();
 
         return (
@@ -516,13 +528,14 @@ class HeaderMenuToolbar extends React.Component {
 }
 
 HeaderMenuToolbar.propTypes = {
+    mdState: PropTypes.shape({
+        index: PropTypes.number,
+        isLoading: PropTypes.bool,
+        materials: PropTypes.arrayOf(PropTypes.object),
+    }).isRequired,
+
     className: PropTypes.string,
-    isLoading: PropTypes.bool.isRequired,
-    // eslint-disable-next-line react/forbid-prop-types
-    material: PropTypes.object.isRequired,
-    // eslint-disable-next-line react/forbid-prop-types
-    materials: PropTypes.array.isRequired,
-    index: PropTypes.number.isRequired,
+
     maxCombinatorialBasesCount: PropTypes.number.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
     defaultMaterialsSet: PropTypes.array.isRequired,

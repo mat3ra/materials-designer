@@ -5,20 +5,19 @@ declare global {
         MDState: MDState;
     }
 }
-interface MaterialsDesignerContainerProps {
+export interface ImportModalProps {
+    show: boolean;
+    onSubmit: (materials: MDMaterial[]) => void;
+}
+export interface MaterialsDesignerContainerProps {
     skipAlertProvider?: boolean;
     isLoading?: boolean;
     initialMaterials?: MDMaterial[];
-    openImportModal?: () => void;
+    openImportModal?: (params: ImportModalProps) => void;
     closeImportModal?: () => void;
-    openSaveActionDialog?: (params: {
-        show: boolean;
-        material: MDMaterial;
-        onSubmit: () => void;
-    }) => void;
+    openSaveActionDialog?: (state: MDState) => void;
     isConventionalCellShown?: boolean;
     maxCombinatorialBasesCount?: number;
     onExit?: () => void;
 }
 export declare function MaterialsDesignerContainer({ initialMaterials, skipAlertProvider, isLoading, ...props }: MaterialsDesignerContainerProps): import("react/jsx-runtime").JSX.Element;
-export {};

@@ -17,12 +17,13 @@ declare class MaterialsDesigner {
 }
 declare namespace MaterialsDesigner {
     namespace propTypes {
-        const isLoading: PropTypes.Requireable<boolean>;
+        const mdState: PropTypes.Validator<NonNullable<PropTypes.InferProps<{
+            index: PropTypes.Requireable<number>;
+            isLoading: PropTypes.Requireable<boolean>;
+            materials: PropTypes.Requireable<(object | null | undefined)[]>;
+        }>>>;
         const showToolbar: PropTypes.Requireable<boolean>;
-        const material: PropTypes.Validator<object>;
         const isConventionalCellShown: PropTypes.Requireable<boolean>;
-        const materials: PropTypes.Requireable<any[]>;
-        const index: PropTypes.Requireable<number>;
         const onUpdate: PropTypes.Requireable<(...args: any[]) => any>;
         const onItemClick: PropTypes.Requireable<(...args: any[]) => any>;
         const onNameUpdate: PropTypes.Requireable<(...args: any[]) => any>;

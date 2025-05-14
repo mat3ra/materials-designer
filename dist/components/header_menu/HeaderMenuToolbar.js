@@ -40,7 +40,6 @@ import { BoundaryConditionsDialog } from "../3d_editor/advanced_geometry/Boundar
 import CombinatorialBasisDialog from "../3d_editor/advanced_geometry/CombinatorialBasisDialog";
 import InterpolateBasesDialog from "../3d_editor/advanced_geometry/InterpolateBasesDialog";
 import JupyterLiteTransformation from "../3d_editor/advanced_geometry/python_transformation/JupyterLiteTransformation";
-// eslint-disable-next-line import/no-unresolved
 import PythonTransformation from "../3d_editor/advanced_geometry/python_transformation/PythonTransformation";
 import SupercellDialog from "../3d_editor/advanced_geometry/SupercellDialog";
 import SurfaceDialog from "../3d_editor/advanced_geometry/SurfaceDialog";
@@ -52,8 +51,8 @@ class HeaderMenuToolbar extends React.Component {
     constructor(config) {
         super(config);
         this._handleConventionalCellSelect = () => {
-            const { material, onUpdate, index } = this.props;
-            const newMaterial = material.getACopyWithConventionalCell();
+            const { onUpdate, mdState: { materials, index }, } = this.props;
+            const newMaterial = materials[index].getACopyWithConventionalCell();
             return onUpdate(newMaterial, index);
         };
         this.openPageByURL = (url) => {
@@ -75,7 +74,8 @@ class HeaderMenuToolbar extends React.Component {
                 : null;
         };
         this.renderSaveActionDialog = () => {
-            const { openSaveActionDialog, material } = this.props;
+            const { openSaveActionDialog, mdState: { materials, index }, } = this.props;
+            const material = materials[index];
             return openSaveActionDialog ? openSaveActionDialog({ show: true, material }) : null;
         };
         this.state = {
@@ -113,11 +113,11 @@ class HeaderMenuToolbar extends React.Component {
         return (_jsxs(ButtonActivatedMenuMaterialUI, { title: "Help", children: [_jsxs(MenuItem, { onClick: () => this.openPageByURL("https://docs.exabyte.io/materials-designer/overview/"), children: [_jsx(ListItemIcon, { children: _jsx(HelpIcon, {}) }), "Documentation"] }), _jsxs(MenuItem, { onClick: () => this.openPageByURL("https://docs.exabyte.io/tutorials/materials/overview/"), children: [_jsx(ListItemIcon, { children: _jsx(AssignmentIcon, {}) }), "Tutorials"] })] }));
     }
     renderSpinner() {
-        const { isLoading } = this.props;
-        return (_jsx(Stack, { spacing: 2, direction: "row", justifyContent: "end", sx: { flex: 1 }, children: isLoading ? (_jsx(CircularProgress, { color: "warning", size: 30 })) : (_jsx(CheckIcon, { color: "success", size: 50 })) }));
+        const { mdState } = this.props;
+        return (_jsx(Stack, { spacing: 2, direction: "row", justifyContent: "end", sx: { flex: 1 }, children: mdState.isLoading ? (_jsx(CircularProgress, { color: "warning", size: 30 })) : (_jsx(CheckIcon, { color: "success", size: 50 })) }));
     }
     renderThreejsEditorModal() {
-        const { onAdd, materials } = this.props;
+        const { onAdd, mdState: { materials }, } = this.props;
         const { showThreejsEditorModal } = this.state;
         return (_jsx(ThreejsEditorModal, { show: showThreejsEditorModal, onHide: (material) => {
                 this.setState({ showThreejsEditorModal: !showThreejsEditorModal });
@@ -130,7 +130,8 @@ class HeaderMenuToolbar extends React.Component {
     }
     render() {
         const { showThreejsEditorModal, showSupercellDialog, showSurfaceDialog, showBoundaryConditionsDialog, showCombinatorialDialog, showExportMaterialsDialog, showInterpolateDialog, showPythonTransformation, showStandataImportDialog, showDefaultImportModalDialog, showJupyterLiteTransformation, } = this.state;
-        const { children, className, material, materials, index, onAdd, onExport, onGenerateSupercell, onGenerateSurface, onSetBoundaryConditions, maxCombinatorialBasesCount, defaultMaterialsSet, } = this.props;
+        const { children, className, mdState: { materials, index }, onAdd, onExport, onGenerateSupercell, onGenerateSurface, onSetBoundaryConditions, maxCombinatorialBasesCount, defaultMaterialsSet, } = this.props;
+        const material = materials[index];
         if (showThreejsEditorModal)
             return this.renderThreejsEditorModal();
         return (_jsxs(Toolbar, { variant: "dense", className: setClass(className, "materials-designer-header-menu"), children: [children, this.renderIOMenu(), this.renderEditMenu(), this.renderViewMenu(), this.renderAdvancedMenu(), this.renderHelpMenu(), this.renderSpinner(), _jsx(SupercellDialog, { isOpen: showSupercellDialog, modalId: "supercellModal", backdropColor: "dark", onSubmit: onGenerateSupercell, onHide: () => this.setState({ showSupercellDialog: false }) }), _jsx(SurfaceDialog, { isOpen: showSurfaceDialog, modalId: "surfaceModal", backdropColor: "dark", onSubmit: onGenerateSurface, onHide: () => this.setState({ showSurfaceDialog: false }) }), _jsx(BoundaryConditionsDialog, { isOpen: showBoundaryConditionsDialog, modalId: "BoundaryConditionsModal", backdropColor: "dark", material: material, onSubmit: onSetBoundaryConditions, onHide: () => this.setState({ showBoundaryConditionsDialog: false }) }), _jsx(ExportActionDialog, { isOpen: showExportMaterialsDialog, modalId: "ExportActionsModal", onHide: () => this.setState({ showExportMaterialsDialog: false }), onSubmit: onExport }), _jsx(StandataImportDialog, { modalId: "standataImportModalDialog", show: showStandataImportDialog, onSubmit: (...args) => {
@@ -155,13 +156,12 @@ class HeaderMenuToolbar extends React.Component {
     }
 }
 HeaderMenuToolbar.propTypes = {
+    mdState: PropTypes.shape({
+        index: PropTypes.number,
+        isLoading: PropTypes.bool,
+        materials: PropTypes.arrayOf(PropTypes.object),
+    }).isRequired,
     className: PropTypes.string,
-    isLoading: PropTypes.bool.isRequired,
-    // eslint-disable-next-line react/forbid-prop-types
-    material: PropTypes.object.isRequired,
-    // eslint-disable-next-line react/forbid-prop-types
-    materials: PropTypes.array.isRequired,
-    index: PropTypes.number.isRequired,
     maxCombinatorialBasesCount: PropTypes.number.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
     defaultMaterialsSet: PropTypes.array.isRequired,

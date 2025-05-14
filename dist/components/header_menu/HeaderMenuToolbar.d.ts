@@ -29,11 +29,12 @@ declare class HeaderMenuToolbar extends React.Component<any, any, any> {
 }
 declare namespace HeaderMenuToolbar {
     namespace propTypes {
+        const mdState: PropTypes.Validator<NonNullable<PropTypes.InferProps<{
+            index: PropTypes.Requireable<number>;
+            isLoading: PropTypes.Requireable<boolean>;
+            materials: PropTypes.Requireable<(object | null | undefined)[]>;
+        }>>>;
         const className: PropTypes.Requireable<string>;
-        const isLoading: PropTypes.Validator<boolean>;
-        const material: PropTypes.Validator<object>;
-        const materials: PropTypes.Validator<any[]>;
-        const index: PropTypes.Validator<number>;
         const maxCombinatorialBasesCount: PropTypes.Validator<number>;
         const defaultMaterialsSet: PropTypes.Validator<any[]>;
         const onUpdate: PropTypes.Validator<(...args: any[]) => any>;

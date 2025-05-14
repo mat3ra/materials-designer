@@ -46,50 +46,49 @@ function useUndoableState(initialValue, maxPastSize = 50) {
     return [presentRef, setState, undo, redo, reset, canUndo, canRedo];
 }
 export function MaterialsDesignerContainer({ initialMaterials = [new MDMaterial()], skipAlertProvider = false, isLoading = false, ...props }) {
-    const [state, setState, undo, redo, reset] = useUndoableState({
+    const [mdState, setMdState, undo, redo, reset] = useUndoableState({
         index: 0,
         isLoading: false,
         materials: initialMaterials,
     });
     useEffect(() => {
-        setState({ ...state.current, isLoading });
+        setMdState({ ...mdState.current, isLoading });
     }, [isLoading]);
-    const material = state.current.materials ? state.current.materials[state.current.index] : null;
     const onUpdate = useCallback((material, index) => {
-        setState(materialsUpdateOne(state.current, { material, index }));
+        setMdState(materialsUpdateOne(mdState.current, { material, index }));
     }, []);
     const onNameUpdate = useCallback((name, index) => {
-        setState(materialsUpdateNameForOne(state.current, { name, index }));
+        setMdState(materialsUpdateNameForOne(mdState.current, { name, index }));
     }, []);
     const onItemClick = useCallback((index) => {
-        setState(materialsUpdateIndex(state.current, { index }));
+        setMdState(materialsUpdateIndex(mdState.current, { index }));
     }, []);
     const onClone = useCallback(() => {
-        setState(materialsCloneOne(state.current));
+        setMdState(materialsCloneOne(mdState.current));
     }, []);
     const onToggleIsNonPeriodic = useCallback(() => {
-        setState(materialsToggleIsNonPeriodicForOne(state.current));
+        setMdState(materialsToggleIsNonPeriodicForOne(mdState.current));
     }, []);
     const onGenerateSupercell = useCallback((matrix) => {
-        setState(materialsGenerateSupercellForOne(state.current, { matrix }));
+        setMdState(materialsGenerateSupercellForOne(mdState.current, { matrix }));
     }, []);
     const onGenerateSurface = useCallback((config) => {
-        setState(materialsGenerateSurfaceForOne(state.current, config));
+        setMdState(materialsGenerateSurfaceForOne(mdState.current, config));
     }, []);
     const onSetBoundaryConditions = useCallback((config) => {
-        setState(materialsSetBoundaryConditionsForOne(state.current, config));
+        setMdState(materialsSetBoundaryConditionsForOne(mdState.current, config));
     }, []);
     const onAdd = useCallback((materials, addAtIndex) => {
-        setState(materialsAdd(state.current, { materials, addAtIndex }));
+        setMdState(materialsAdd(mdState.current, { materials, addAtIndex }));
     }, []);
     const onRemove = useCallback((indices) => {
-        setState(materialsRemove(state.current, { indices }));
+        setMdState(materialsRemove(mdState.current, { indices }));
     }, []);
     const onExport = useCallback((format, useMultiple) => {
-        setState(materialsExport(state.current, { format, useMultiple }));
+        setMdState(materialsExport(mdState.current, { format, useMultiple }));
     }, []);
     const content = (
     // @ts-ignore
-    _jsx(MaterialsDesignerComponent, { index: state.current.index, material: material, materials: state.current.materials, isLoading: state.current.isLoading, onUpdate: onUpdate, onNameUpdate: onNameUpdate, onItemClick: onItemClick, onClone: onClone, onToggleIsNonPeriodic: onToggleIsNonPeriodic, onGenerateSupercell: onGenerateSupercell, onGenerateSurface: onGenerateSurface, onSetBoundaryConditions: onSetBoundaryConditions, onAdd: onAdd, onRemove: onRemove, onExport: onExport, onUndo: undo, onRedo: redo, onReset: reset, ...props }));
+    _jsx(MaterialsDesignerComponent, { mdState: mdState.current, onUndo: undo, onRedo: redo, onReset: reset, onUpdate: onUpdate, onNameUpdate: onNameUpdate, onItemClick: onItemClick, onClone: onClone, onToggleIsNonPeriodic: onToggleIsNonPeriodic, onGenerateSupercell: onGenerateSupercell, onGenerateSurface: onGenerateSurface, onSetBoundaryConditions: onSetBoundaryConditions, onAdd: onAdd, onRemove: onRemove, onExport: onExport, ...props }));
     return _jsx("div", { children: skipAlertProvider ? content : _jsx(AlertProvider, { children: content }) });
 }

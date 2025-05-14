@@ -137,6 +137,10 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
         const mainContainerHeightDirective = `calc(100vh - ${
             APP_BAR_HEIGHT + FOOTER_HEIGHT - 8
         }px)`; // 8px is the padding + borders
+
+        const { mdState } = this.props;
+        const globalMaterial = mdState.materials[mdState.index];
+
         return (
             <ThemeProvider theme={theme}>
                 <ScopedCssBaseline enableColorScheme>
@@ -144,10 +148,7 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                         <AppBar position="static" className={setClass("", this.props.className)}>
                             {/* TODO: find out how to avoid passing material to header */}
                             <HeaderMenuToolbar
-                                isLoading={this.props.isLoading}
-                                material={this.props.material}
-                                materials={this.props.materials}
-                                index={this.props.index}
+                                mdState={mdState}
                                 onUndo={this.props.onUndo}
                                 onRedo={this.props.onRedo}
                                 onReset={this.props.onReset}
@@ -228,8 +229,8 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                             mt={0.25}
                                         >
                                             <ItemsList
-                                                materials={this.props.materials}
-                                                index={this.props.index}
+                                                materials={mdState.materials}
+                                                index={mdState.index}
                                                 onItemClick={this.props.onItemClick}
                                                 onRemove={this.props.onRemove}
                                                 onNameUpdate={this.props.onNameUpdate}
@@ -252,13 +253,13 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                     >
                                         <Grid item xs={12} mt={0.25}>
                                             <LatticeEditor
-                                                material={this.props.material}
+                                                material={globalMaterial}
                                                 onUpdate={this.props.onUpdate}
                                             />
                                         </Grid>
                                         <Grid item xs={12} mt={0.25}>
                                             <BasisEditor
-                                                material={this.props.material}
+                                                material={globalMaterial}
                                                 onUpdate={this.props.onUpdate}
                                             />
                                         </Grid>
@@ -269,17 +270,15 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                     <Grid item {...gridConfig[3]} mt={0.25}>
                                         <ThreeDEditorFullscreen
                                             editable
-                                            material={this.props.material}
+                                            material={globalMaterial}
                                             isConventionalCellShown={
                                                 this.props.isConventionalCellShown
                                             }
-                                            boundaryConditions={
-                                                this.props.material.boundaryConditions
-                                            }
+                                            boundaryConditions={globalMaterial.boundaryConditions}
                                             onUpdate={(material) => {
                                                 const newMaterial = MDMaterial.fromMadeMaterial(
                                                     material,
-                                                    this.props.material.metadata,
+                                                    globalMaterial.metadata,
                                                 );
                                                 this.props.onUpdate(newMaterial);
                                             }}
@@ -288,7 +287,7 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                 )}
                                 {this.state.isVisibleJupyterLiteSessionDrawer && (
                                     <JupyterLiteSessionDrawer
-                                        materials={this.props.materials}
+                                        materials={mdState.materials}
                                         show={this.state.isVisibleJupyterLiteSessionDrawer}
                                         onMaterialsUpdate={(...args) => {
                                             this.props.onAdd(...args);
@@ -312,16 +311,15 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
 }
 
 MaterialsDesigner.propTypes = {
-    isLoading: PropTypes.bool,
+    mdState: PropTypes.shape({
+        index: PropTypes.number,
+        isLoading: PropTypes.bool,
+        materials: PropTypes.arrayOf(PropTypes.object),
+    }).isRequired,
+
     showToolbar: PropTypes.bool,
 
-    // eslint-disable-next-line react/forbid-prop-types
-    material: PropTypes.object.isRequired,
     isConventionalCellShown: PropTypes.bool,
-
-    // eslint-disable-next-line react/forbid-prop-types
-    materials: PropTypes.array,
-    index: PropTypes.number,
 
     onUpdate: PropTypes.func,
 
