@@ -74,9 +74,8 @@ class HeaderMenuToolbar extends React.Component {
                 : null;
         };
         this.renderSaveActionDialog = () => {
-            const { openSaveActionDialog, mdState: { materials, index }, } = this.props;
-            const material = materials[index];
-            return openSaveActionDialog ? openSaveActionDialog({ show: true, material }) : null;
+            const { openSaveActionDialog, mdState } = this.props;
+            return openSaveActionDialog ? openSaveActionDialog(mdState) : null;
         };
         this.state = {
             showSupercellDialog: false,
