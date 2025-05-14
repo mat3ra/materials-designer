@@ -15,7 +15,7 @@ const paperStyle = {
 
 export class ActionDialog extends React.Component {
     render() {
-        const { show, children, onClose, onSubmit, title } = this.props;
+        const { show, children, onClose, onSubmit, title, isLoading } = this.props;
         return (
             <Dialog
                 open={show}
@@ -33,7 +33,13 @@ export class ActionDialog extends React.Component {
                     <Button data-name="Cancel" onClick={onClose}>
                         Cancel
                     </Button>
-                    <Button data-name="Submit" onClick={this.onSubmit || onSubmit}>
+                    <Button
+                        data-name="Submit"
+                        onClick={this.onSubmit || onSubmit}
+                        disabled={isLoading}
+                        loading={isLoading}
+                        loadingPosition="start"
+                    >
                         Ok
                     </Button>
                 </DialogActions>
@@ -48,9 +54,11 @@ ActionDialog.propTypes = {
     onClose: PropTypes.func.isRequired,
     onSubmit: PropTypes.func.isRequired,
     children: PropTypes.node,
+    isLoading: PropTypes.bool,
 };
 
 ActionDialog.defaultProps = {
     title: "",
     children: null,
+    isLoading: false,
 };
