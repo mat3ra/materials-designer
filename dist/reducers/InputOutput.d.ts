@@ -1,11 +1,13 @@
-export function materialsSave(state: any, action: any): any;
-export function materialsAdd(state: any, action: any): any;
-export function materialsRemove(state: any, action: any): any;
-export function materialsExport(state: any, action: any): any;
-declare namespace _default {
-    export { materialsAdd as MATERIALS_ADD };
-    export { materialsSave as MATERIALS_SAVE };
-    export { materialsRemove as MATERIALS_REMOVE };
-    export { materialsExport as MATERIALS_EXPORT };
-}
-export default _default;
+import type { MDMaterial } from "src/MDMaterial";
+import type { MDState } from "./Material";
+export declare function materialsAdd(state: MDState, action: {
+    materials: MDMaterial[];
+    addAtIndex: number;
+}): MDState;
+export declare function materialsRemove(state: MDState, action: {
+    indices: number[];
+}): MDState;
+export declare function materialsExport(state: MDState, action: {
+    format: "json" | "poscar";
+    useMultiple: boolean;
+}): MDState;

@@ -1,14 +1,13 @@
 import { showSuccessAlert, showWarningAlert } from "@exabyte-io/cove.js/dist/other/alerts";
+import type { MDMaterial } from "src/MDMaterial";
 
-import { MATERIALS_ADD, MATERIALS_EXPORT, MATERIALS_REMOVE, MATERIALS_SAVE } from "../actions";
 import { exportToDisk } from "../utils/downloader";
+import type { MDState } from "./Material";
 
-// eslint-disable-next-line no-unused-vars
-export function materialsSave(state, action) {
-    return { ...state };
-}
-
-export function materialsAdd(state, action) {
+export function materialsAdd(
+    state: MDState,
+    action: { materials: MDMaterial[]; addAtIndex: number },
+): MDState {
     const index = state.index || 0;
     const actionMaterials = action.materials;
     const newMaterials = action.addAtIndex
@@ -20,7 +19,7 @@ export function materialsAdd(state, action) {
     return { ...state, materials: newMaterials };
 }
 
-export function materialsRemove(state, action) {
+export function materialsRemove(state: MDState, action: { indices: number[] }): MDState {
     let { index } = state;
     const materials = state.materials.slice(); // clone original array to force update to components
     // if no indices passed -> remove the material at current index
@@ -47,10 +46,13 @@ export function materialsRemove(state, action) {
     return { ...state, materials, index };
 }
 
-export function materialsExport(state, action) {
+export function materialsExport(
+    state: MDState,
+    action: { format: "json" | "poscar"; useMultiple: boolean },
+): MDState {
     const exportHandlers = {
-        json: (m) => JSON.stringify(m.toJSON()),
-        poscar: (m) => m.getAsPOSCAR(),
+        json: (m: MDMaterial) => JSON.stringify(m.toJSON()),
+        poscar: (m: MDMaterial) => m.getAsPOSCAR(),
     };
     const format = Object.keys(exportHandlers).includes(action.format) ? action.format : "json";
 
@@ -59,10 +61,3 @@ export function materialsExport(state, action) {
     materials.map((m) => exportToDisk(exportHandlers[format](m), m.name, format));
     return state;
 }
-
-export default {
-    [MATERIALS_ADD]: materialsAdd,
-    [MATERIALS_SAVE]: materialsSave,
-    [MATERIALS_REMOVE]: materialsRemove,
-    [MATERIALS_EXPORT]: materialsExport,
-};

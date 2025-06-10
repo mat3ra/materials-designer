@@ -120,7 +120,9 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
         const { isVisibleItemsList, isVisibleSourceEditor, isVisibleThreeDEditorFullscreen } = this.state;
         const gridConfig = this.getGridConfig();
         const mainContainerHeightDirective = `calc(100vh - ${APP_BAR_HEIGHT + FOOTER_HEIGHT - 8}px)`; // 8px is the padding + borders
-        return (_jsx(ThemeProvider, { theme: theme, children: _jsx(ScopedCssBaseline, { enableColorScheme: true, children: _jsxs(Paper, { id: "materials-designer", children: [_jsx(AppBar, { position: "static", className: setClass("", this.props.className), children: _jsx(HeaderMenuToolbar, { isLoading: this.props.isLoading, material: this.props.material, materials: this.props.materials, index: this.props.index, onUndo: this.props.onUndo, onRedo: this.props.onRedo, onReset: this.props.onReset, onClone: this.props.onClone, onToggleIsNonPeriodic: this.props.onToggleIsNonPeriodic, onUpdate: this.props.onUpdate, onAdd: this.props.onAdd, onExport: this.props.onExport, onSave: this.props.onSave, onExit: this.props.onExit, openImportModal: this.props.openImportModal, closeImportModal: this.props.closeImportModal, openSaveActionDialog: this.props.openSaveActionDialog, onGenerateSupercell: this.props.onGenerateSupercell, onGenerateSurface: this.props.onGenerateSurface, onSetBoundaryConditions: this.props.onSetBoundaryConditions, maxCombinatorialBasesCount: this.props.maxCombinatorialBasesCount, defaultMaterialsSet: this.props.defaultMaterialsSet, onSectionVisibilityToggle: this.onSectionVisibilityToggle, isVisibleItemsList: isVisibleItemsList, isVisibleSourceEditor: isVisibleSourceEditor, isVisibleThreeDEditorFullscreen: isVisibleThreeDEditorFullscreen, isVisibleJupyterLiteSessionDrawer: this.state.isVisibleJupyterLiteSessionDrawer, children: _jsx(IconButton, { color: "inherit", disabled: true, edge: "start", disableFocusRipple: true, disableRipple: true, sx: { mr: 0.75 }, children: _jsx(IconByName, { size: "large", edge: "start", color: "inherit", name: "entities.material", sx: { fontSize: "1.5rem" } }) }) }) }), _jsx(Box, { component: "main", sx: {
+        const { mdState } = this.props;
+        const globalMaterial = mdState.materials[mdState.index];
+        return (_jsx(ThemeProvider, { theme: theme, children: _jsx(ScopedCssBaseline, { enableColorScheme: true, children: _jsxs(Paper, { id: "materials-designer", children: [_jsx(AppBar, { position: "static", className: setClass("", this.props.className), children: _jsx(HeaderMenuToolbar, { mdState: mdState, onUndo: this.props.onUndo, onRedo: this.props.onRedo, onReset: this.props.onReset, onClone: this.props.onClone, onToggleIsNonPeriodic: this.props.onToggleIsNonPeriodic, onUpdate: this.props.onUpdate, onAdd: this.props.onAdd, onExport: this.props.onExport, onExit: this.props.onExit, openImportModal: this.props.openImportModal, closeImportModal: this.props.closeImportModal, openSaveActionDialog: this.props.openSaveActionDialog, onGenerateSupercell: this.props.onGenerateSupercell, onGenerateSurface: this.props.onGenerateSurface, onSetBoundaryConditions: this.props.onSetBoundaryConditions, maxCombinatorialBasesCount: this.props.maxCombinatorialBasesCount, defaultMaterialsSet: this.props.defaultMaterialsSet, onSectionVisibilityToggle: this.onSectionVisibilityToggle, isVisibleItemsList: isVisibleItemsList, isVisibleSourceEditor: isVisibleSourceEditor, isVisibleThreeDEditorFullscreen: isVisibleThreeDEditorFullscreen, isVisibleJupyterLiteSessionDrawer: this.state.isVisibleJupyterLiteSessionDrawer, children: _jsx(IconButton, { color: "inherit", disabled: true, edge: "start", disableFocusRipple: true, disableRipple: true, sx: { mr: 0.75 }, children: _jsx(IconByName, { size: "large", edge: "start", color: "inherit", name: "entities.material", sx: { fontSize: "1.5rem" } }) }) }) }), _jsx(Box, { component: "main", sx: {
                                 [theme.breakpoints.up("md")]: {
                                     height: mainContainerHeightDirective,
                                 },
@@ -132,17 +134,17 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                             borderRight: `1px solid ${theme.palette.grey[800]}`,
                                             height: "100%",
                                             overflowY: "auto",
-                                        }, children: _jsx(Grid, { item: true, className: "materials-designer-items-list", xs: 12, mt: 0.25, children: _jsx(ItemsList, { materials: this.props.materials, index: this.props.index, onItemClick: this.props.onItemClick, onRemove: this.props.onRemove, onNameUpdate: this.props.onNameUpdate }) }) })), isVisibleSourceEditor && (_jsxs(Grid, { item: true, ...gridConfig[2], sx: {
+                                        }, children: _jsx(Grid, { item: true, className: "materials-designer-items-list", xs: 12, mt: 0.25, children: _jsx(ItemsList, { materials: mdState.materials, index: mdState.index, onItemClick: this.props.onItemClick, onRemove: this.props.onRemove, onNameUpdate: this.props.onNameUpdate }) }) })), isVisibleSourceEditor && (_jsxs(Grid, { item: true, ...gridConfig[2], sx: {
                                             borderRight: `1px solid ${theme.palette.grey[800]}`,
                                             height: "100%",
                                             width: "100%",
                                             overflowY: "auto",
-                                        }, className: "materials-designer-source-editor", children: [_jsx(Grid, { item: true, xs: 12, mt: 0.25, children: _jsx(LatticeEditor, { material: this.props.material, onUpdate: this.props.onUpdate }) }), _jsx(Grid, { item: true, xs: 12, mt: 0.25, children: _jsx(BasisEditor, { material: this.props.material, onUpdate: this.props.onUpdate }) })] })), isVisibleThreeDEditorFullscreen && (
+                                        }, className: "materials-designer-source-editor", children: [_jsx(Grid, { item: true, xs: 12, mt: 0.25, children: _jsx(LatticeEditor, { material: globalMaterial, onUpdate: this.props.onUpdate }) }), _jsx(Grid, { item: true, xs: 12, mt: 0.25, children: _jsx(BasisEditor, { material: globalMaterial, onUpdate: this.props.onUpdate }) })] })), isVisibleThreeDEditorFullscreen && (
                                     // eslint-disable-next-line react/jsx-props-no-spreading
-                                    _jsx(Grid, { item: true, ...gridConfig[3], mt: 0.25, children: _jsx(ThreeDEditorFullscreen, { editable: true, material: this.props.material, isConventionalCellShown: this.props.isConventionalCellShown, boundaryConditions: this.props.material.boundaryConditions, onUpdate: (material) => {
-                                                const newMaterial = MDMaterial.fromMadeMaterial(material, this.props.material.metadata);
+                                    _jsx(Grid, { item: true, ...gridConfig[3], mt: 0.25, children: _jsx(ThreeDEditorFullscreen, { editable: true, material: globalMaterial, isConventionalCellShown: this.props.isConventionalCellShown, boundaryConditions: globalMaterial.boundaryConditions, onUpdate: (material) => {
+                                                const newMaterial = MDMaterial.fromMadeMaterial(material, globalMaterial.metadata);
                                                 this.props.onUpdate(newMaterial);
-                                            } }) })), this.state.isVisibleJupyterLiteSessionDrawer && (_jsx(JupyterLiteSessionDrawer, { materials: this.props.materials, show: this.state.isVisibleJupyterLiteSessionDrawer, onMaterialsUpdate: (...args) => {
+                                            } }) })), this.state.isVisibleJupyterLiteSessionDrawer && (_jsx(JupyterLiteSessionDrawer, { materials: mdState.materials, show: this.state.isVisibleJupyterLiteSessionDrawer, onMaterialsUpdate: (...args) => {
                                             this.props.onAdd(...args);
                                         }, onHide: () => {
                                             this.setState({
@@ -152,14 +154,13 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
     }
 }
 MaterialsDesigner.propTypes = {
-    isLoading: PropTypes.bool,
+    mdState: PropTypes.shape({
+        index: PropTypes.number,
+        isLoading: PropTypes.bool,
+        materials: PropTypes.arrayOf(PropTypes.object),
+    }).isRequired,
     showToolbar: PropTypes.bool,
-    // eslint-disable-next-line react/forbid-prop-types
-    material: PropTypes.object.isRequired,
     isConventionalCellShown: PropTypes.bool,
-    // eslint-disable-next-line react/forbid-prop-types
-    materials: PropTypes.array,
-    index: PropTypes.number,
     onUpdate: PropTypes.func,
     // ItemsList
     onItemClick: PropTypes.func,
@@ -175,7 +176,6 @@ MaterialsDesigner.propTypes = {
     onReset: PropTypes.func,
     onAdd: PropTypes.func,
     onExport: PropTypes.func,
-    onSave: PropTypes.func,
     onExit: PropTypes.func,
     openImportModal: PropTypes.func,
     closeImportModal: PropTypes.func,

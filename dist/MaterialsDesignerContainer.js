@@ -1,105 +1,94 @@
 import { jsx as _jsx } from "react/jsx-runtime";
 /* eslint-disable react/jsx-props-no-spreading */
 import { AlertProvider } from "@exabyte-io/cove.js/dist/theme/provider";
-import lodash from "lodash";
-import PropTypes from "prop-types";
-import React from "react";
-import { connect } from "react-redux";
-import { applyMiddleware, createStore } from "redux";
-import logger from "redux-logger";
-import { ActionCreators } from "redux-undo";
-import _ from "underscore";
-import { addMaterials, cloneOneMaterial, exportMaterials, generateSupercellForOneMaterial, generateSurfaceForOneMaterial, MATERIALS_SAVE, materialsToggleIsNonPeriodicForOne, removeMaterials, resetState, saveMaterials, setBoundaryConditionsForOneMaterial, updateMaterialsIndex, updateNameForOneMaterial, updateOneMaterial, } from "./actions";
+import React, { useCallback, useEffect, useState } from "react";
 import MaterialsDesignerComponent from "./MaterialsDesigner";
 import { MDMaterial } from "./MDMaterial";
-import { createMaterialsDesignerReducer } from "./reducers";
-import ReduxProvider from "./utils/react/provider";
-const initialMaterials = Array(1).fill(new MDMaterial());
-const initialState = ({ materials = initialMaterials } = {}) => {
-    return {
+import { materialsAdd, materialsExport, materialsRemove } from "./reducers/InputOutput";
+import { materialsCloneOne, materialsGenerateSupercellForOne, materialsGenerateSurfaceForOne, materialsSetBoundaryConditionsForOne, materialsToggleIsNonPeriodicForOne, materialsUpdateIndex, materialsUpdateNameForOne, materialsUpdateOne, } from "./reducers/Material";
+function useUndoableState(initialValue, maxPastSize = 50) {
+    const [past, setPast] = useState([]);
+    const [future, setFuture] = useState([]);
+    const presentRef = React.useRef(initialValue);
+    window.MDState = presentRef.current;
+    const setState = useCallback((newValue) => {
+        setPast((prevPast) => {
+            const newPast = [...prevPast, presentRef.current];
+            // Keep only the most recent maxPastSize entries
+            return newPast.slice(-maxPastSize);
+        });
+        presentRef.current = newValue;
+        setFuture([]); // clear redo history on new change
+    }, [maxPastSize]);
+    const undo = useCallback(() => {
+        if (past.length === 0)
+            return;
+        const previous = past[past.length - 1];
+        setPast(past.slice(0, -1));
+        setFuture([presentRef.current, ...future]);
+        presentRef.current = previous;
+    }, [past, future]);
+    const redo = useCallback(() => {
+        if (future.length === 0)
+            return;
+        const next = future[0];
+        setFuture(future.slice(1));
+        setPast([...past, presentRef.current]);
+        presentRef.current = next;
+    }, [future, past]);
+    const reset = useCallback(() => {
+        setPast([]);
+        setFuture([]);
+        presentRef.current = initialValue;
+    }, []);
+    const canUndo = past.length > 0;
+    const canRedo = future.length > 0;
+    return [presentRef, setState, undo, redo, reset, canUndo, canRedo];
+}
+export function MaterialsDesignerContainer({ initialMaterials = [new MDMaterial()], skipAlertProvider = false, isLoading = false, ...props }) {
+    const [mdState, setMdState, undo, redo, reset] = useUndoableState({
         index: 0,
         isLoading: false,
-        materials,
-    };
-};
-const mapStateToProps = (state, ownProps) => {
-    // handle redux-undo modifications to state
-    const { present } = state;
-    return {
-        index: present.index,
-        material: present.materials ? present.materials[present.index] : null,
-        materials: present.materials,
-        editable: lodash.get(present, "editable", false),
-        isLoading: present.isLoading,
-        ...ownProps.parentProps,
-    };
-};
-const mapDispatchToProps = (dispatch) => {
-    return {
-        // Material
-        onUpdate: (material, index) => dispatch(updateOneMaterial(material, index)),
-        onNameUpdate: (name, index) => dispatch(updateNameForOneMaterial(name, index)),
-        onItemClick: (index) => dispatch(updateMaterialsIndex(index)),
-        // Toolbar
-        onAdd: (materials, addAtIndex) => dispatch(addMaterials(materials, addAtIndex)),
-        onRemove: (indices) => dispatch(removeMaterials(indices)),
-        onExport: (format, useMultiple) => dispatch(exportMaterials(format, useMultiple)),
-        onSave: (config) => dispatch(saveMaterials(config, dispatch)),
-        onGenerateSupercell: (matrix) => dispatch(generateSupercellForOneMaterial(matrix)),
-        onGenerateSurface: (config) => dispatch(generateSurfaceForOneMaterial(config)),
-        onSetBoundaryConditions: (config) => dispatch(setBoundaryConditionsForOneMaterial(config)),
-        // Undo-Redo
-        onUndo: () => dispatch(ActionCreators.undo()),
-        onRedo: () => dispatch(ActionCreators.redo()),
-        onReset: () => dispatch(resetState(initialState())),
-        onClone: () => dispatch(cloneOneMaterial()),
-        onToggleIsNonPeriodic: () => dispatch(materialsToggleIsNonPeriodicForOne()),
-    };
-};
-const MaterialsDesignerContainerHelper = connect(mapStateToProps, mapDispatchToProps)(MaterialsDesignerComponent);
-export class MaterialsDesignerContainer extends React.Component {
-    constructor(props) {
-        super(props);
-        const initialState_ = initialState({ materials: props.initialMaterials });
-        const externalReducers = props.materialsSave
-            ? { [MATERIALS_SAVE]: props.materialsSave }
-            : {};
-        const reducer = createMaterialsDesignerReducer(initialState_, externalReducers);
-        this.store = createStore(reducer, props.applyMiddleware ? applyMiddleware(logger) : undefined);
-        this.container = MaterialsDesignerContainerHelper;
-    }
-    render() {
-        const props = _.omit(this.props, "component");
-        return (_jsx("div", { children: props.skipAlertProvider ? (_jsx(ReduxProvider, { ...props, container: this.container, store: this.store })) : (_jsx(AlertProvider, { children: _jsx(ReduxProvider, { ...props, container: this.container, store: this.store }) })) }));
-    }
+        materials: initialMaterials,
+    });
+    useEffect(() => {
+        setMdState({ ...mdState.current, isLoading });
+    }, [isLoading]);
+    const onUpdate = useCallback((material, index) => {
+        setMdState(materialsUpdateOne(mdState.current, { material, index }));
+    }, []);
+    const onNameUpdate = useCallback((name, index) => {
+        setMdState(materialsUpdateNameForOne(mdState.current, { name, index }));
+    }, []);
+    const onItemClick = useCallback((index) => {
+        setMdState(materialsUpdateIndex(mdState.current, { index }));
+    }, []);
+    const onClone = useCallback(() => {
+        setMdState(materialsCloneOne(mdState.current));
+    }, []);
+    const onToggleIsNonPeriodic = useCallback(() => {
+        setMdState(materialsToggleIsNonPeriodicForOne(mdState.current));
+    }, []);
+    const onGenerateSupercell = useCallback((matrix) => {
+        setMdState(materialsGenerateSupercellForOne(mdState.current, { matrix }));
+    }, []);
+    const onGenerateSurface = useCallback((config) => {
+        setMdState(materialsGenerateSurfaceForOne(mdState.current, config));
+    }, []);
+    const onSetBoundaryConditions = useCallback((config) => {
+        setMdState(materialsSetBoundaryConditionsForOne(mdState.current, config));
+    }, []);
+    const onAdd = useCallback((materials, addAtIndex) => {
+        setMdState(materialsAdd(mdState.current, { materials, addAtIndex }));
+    }, []);
+    const onRemove = useCallback((indices) => {
+        setMdState(materialsRemove(mdState.current, { indices }));
+    }, []);
+    const onExport = useCallback((format, useMultiple) => {
+        setMdState(materialsExport(mdState.current, { format, useMultiple }));
+    }, []);
+    const content = (
+    // @ts-ignore
+    _jsx(MaterialsDesignerComponent, { mdState: mdState.current, onUndo: undo, onRedo: redo, onReset: reset, onUpdate: onUpdate, onNameUpdate: onNameUpdate, onItemClick: onItemClick, onClone: onClone, onToggleIsNonPeriodic: onToggleIsNonPeriodic, onGenerateSupercell: onGenerateSupercell, onGenerateSurface: onGenerateSurface, onSetBoundaryConditions: onSetBoundaryConditions, onAdd: onAdd, onRemove: onRemove, onExport: onExport, ...props }));
+    return _jsx("div", { children: skipAlertProvider ? content : _jsx(AlertProvider, { children: content }) });
 }
-MaterialsDesignerContainer.propTypes = {
-    // eslint-disable-next-line react/forbid-prop-types, react/require-default-props
-    childrenProps: PropTypes.object,
-    applyMiddleware: PropTypes.bool,
-    // eslint-disable-next-line react/forbid-prop-types
-    initialMaterials: PropTypes.array,
-    // eslint-disable-next-line react/require-default-props
-    onExit: PropTypes.func,
-    // eslint-disable-next-line react/require-default-props
-    openImportModal: PropTypes.func,
-    // eslint-disable-next-line react/require-default-props
-    closeImportModal: PropTypes.func,
-    // eslint-disable-next-line react/require-default-props
-    openSaveActionDialog: PropTypes.func,
-    // eslint-disable-next-line react/require-default-props
-    materialsSave: PropTypes.func,
-    // eslint-disable-next-line react/require-default-props
-    maxCombinatorialBasesCount: PropTypes.number,
-    // eslint-disable-next-line react/require-default-props
-    isConventionalCellShown: PropTypes.bool,
-    // multiple alert providers lead to broken alerts in web-app
-    skipAlertProvider: PropTypes.bool,
-};
-MaterialsDesignerContainer.defaultProps = {
-    applyMiddleware: true,
-    initialMaterials,
-    maxCombinatorialBasesCount: 100,
-    onExit: () => { },
-    skipAlertProvider: false,
-};

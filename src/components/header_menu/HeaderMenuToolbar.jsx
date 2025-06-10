@@ -36,12 +36,10 @@ import setClass from "classnames";
 import PropTypes from "prop-types";
 import React from "react";
 
-import { MDMaterial } from "../../MDMaterial";
 import { BoundaryConditionsDialog } from "../3d_editor/advanced_geometry/BoundaryConditionsDialog";
 import CombinatorialBasisDialog from "../3d_editor/advanced_geometry/CombinatorialBasisDialog";
 import InterpolateBasesDialog from "../3d_editor/advanced_geometry/InterpolateBasesDialog";
 import JupyterLiteTransformation from "../3d_editor/advanced_geometry/python_transformation/JupyterLiteTransformation";
-// eslint-disable-next-line import/no-unresolved
 import PythonTransformation from "../3d_editor/advanced_geometry/python_transformation/PythonTransformation";
 import SupercellDialog from "../3d_editor/advanced_geometry/SupercellDialog";
 import SurfaceDialog from "../3d_editor/advanced_geometry/SurfaceDialog";
@@ -69,8 +67,11 @@ class HeaderMenuToolbar extends React.Component {
     }
 
     _handleConventionalCellSelect = () => {
-        const { material, onUpdate, index } = this.props;
-        const newMaterial = material.getACopyWithConventionalCell();
+        const {
+            onUpdate,
+            mdState: { materials, index },
+        } = this.props;
+        const newMaterial = materials[index].getACopyWithConventionalCell();
         return onUpdate(newMaterial, index);
     };
 
@@ -316,10 +317,10 @@ class HeaderMenuToolbar extends React.Component {
     }
 
     renderSpinner() {
-        const { isLoading } = this.props;
+        const { mdState } = this.props;
         return (
             <Stack spacing={2} direction="row" justifyContent="end" sx={{ flex: 1 }}>
-                {isLoading ? (
+                {mdState.isLoading ? (
                     <CircularProgress color="warning" size={30} />
                 ) : (
                     <CheckIcon color="success" size={50} />
@@ -345,14 +346,16 @@ class HeaderMenuToolbar extends React.Component {
     };
 
     renderSaveActionDialog = () => {
-        const { openSaveActionDialog, material, onSave } = this.props;
-        return openSaveActionDialog
-            ? openSaveActionDialog({ show: true, material, onSubmit: onSave })
-            : null;
+        const { openSaveActionDialog, mdState } = this.props;
+
+        return openSaveActionDialog ? openSaveActionDialog(mdState) : null;
     };
 
     renderThreejsEditorModal() {
-        const { onAdd, materials } = this.props;
+        const {
+            onAdd,
+            mdState: { materials },
+        } = this.props;
         const { showThreejsEditorModal } = this.state;
         return (
             <ThreejsEditorModal
@@ -388,9 +391,7 @@ class HeaderMenuToolbar extends React.Component {
         const {
             children,
             className,
-            material,
-            materials,
-            index,
+            mdState: { materials, index },
             onAdd,
             onExport,
             onGenerateSupercell,
@@ -399,6 +400,9 @@ class HeaderMenuToolbar extends React.Component {
             maxCombinatorialBasesCount,
             defaultMaterialsSet,
         } = this.props;
+
+        const material = materials[index];
+
         if (showThreejsEditorModal) return this.renderThreejsEditorModal();
 
         return (
@@ -519,13 +523,14 @@ class HeaderMenuToolbar extends React.Component {
 }
 
 HeaderMenuToolbar.propTypes = {
+    mdState: PropTypes.shape({
+        index: PropTypes.number,
+        isLoading: PropTypes.bool,
+        materials: PropTypes.arrayOf(PropTypes.object),
+    }).isRequired,
+
     className: PropTypes.string,
-    isLoading: PropTypes.bool.isRequired,
-    // eslint-disable-next-line react/forbid-prop-types
-    material: PropTypes.object.isRequired,
-    // eslint-disable-next-line react/forbid-prop-types
-    materials: PropTypes.array.isRequired,
-    index: PropTypes.number.isRequired,
+
     maxCombinatorialBasesCount: PropTypes.number.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
     defaultMaterialsSet: PropTypes.array.isRequired,
@@ -533,13 +538,12 @@ HeaderMenuToolbar.propTypes = {
     onUpdate: PropTypes.func.isRequired,
     onUndo: PropTypes.func.isRequired,
     onRedo: PropTypes.func.isRequired,
-    onSave: PropTypes.func.isRequired,
     onReset: PropTypes.func.isRequired,
     onClone: PropTypes.func.isRequired,
     onToggleIsNonPeriodic: PropTypes.func.isRequired,
     onAdd: PropTypes.func.isRequired,
     onExport: PropTypes.func.isRequired,
-    onExit: PropTypes.func.isRequired,
+    onExit: PropTypes.func,
     onGenerateSupercell: PropTypes.func.isRequired,
     onGenerateSurface: PropTypes.func.isRequired,
     onSetBoundaryConditions: PropTypes.func.isRequired,
@@ -548,8 +552,8 @@ HeaderMenuToolbar.propTypes = {
     isVisibleSourceEditor: PropTypes.bool.isRequired,
     isVisibleThreeDEditorFullscreen: PropTypes.bool.isRequired,
 
-    openImportModal: PropTypes.func.isRequired,
-    closeImportModal: PropTypes.func.isRequired,
+    openImportModal: PropTypes.func,
+    closeImportModal: PropTypes.func,
     openSaveActionDialog: PropTypes.func,
 
     children: PropTypes.node,
@@ -559,6 +563,9 @@ HeaderMenuToolbar.defaultProps = {
     className: undefined,
     openSaveActionDialog: null,
     children: null,
+    onExit: undefined,
+    openImportModal: undefined,
+    closeImportModal: undefined,
 };
 
 export default HeaderMenuToolbar;
