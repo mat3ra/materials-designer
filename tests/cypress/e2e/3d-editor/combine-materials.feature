@@ -1,4 +1,3 @@
-@ignore
 Feature: User can combine multiple materials and create a new material
 
   Scenario:
