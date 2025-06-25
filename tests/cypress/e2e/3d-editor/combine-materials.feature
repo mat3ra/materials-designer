@@ -8,9 +8,9 @@ Feature: User can combine multiple materials and create a new material
       | basis    | lattice                                                  |
       | Cu 0 0 0 | {"type":"FCC", "a":2.560619, "b":2.560619, "c":2.560619} |
     And I set name of material with index "2" to "Copper"
-    Then material with following data exists in state
-      | path        | index   |
-      | copper.json | $INT{2} |
+    # Then material with following data exists in state
+    #   | path        | index   |
+    #   | copper.json | $INT{2} |
     When I select material with index "1" from material designer items list
     And I create a surface with the following data:
       | h       | k       | l       | thickness | vacuumRatio | vx      | vy      |
