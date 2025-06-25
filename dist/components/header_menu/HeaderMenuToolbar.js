@@ -47,6 +47,7 @@ import { ButtonActivatedMenuMaterialUI } from "../include/material-ui/ButtonActi
 import StandataImportDialog from "../include/StandataImportDialog";
 import UploadDialog from "../include/UploadDialog";
 import ExportActionDialog from "./ExportActionDialog";
+import { MDMaterial } from "../../MDMaterial";
 class HeaderMenuToolbar extends React.Component {
     constructor(config) {
         super(config);
@@ -121,9 +122,17 @@ class HeaderMenuToolbar extends React.Component {
         return (_jsx(ThreejsEditorModal, { show: showThreejsEditorModal, onHide: (material) => {
                 this.setState({ showThreejsEditorModal: !showThreejsEditorModal });
                 if (material) {
-                    const newMaterial = material;
-                    newMaterial.isUpdated = true; // to show it as new (yellow color)
-                    onAdd(newMaterial);
+                    try {
+                        // Convert the material from the editor back to MDMaterial
+                        const materialData = material.toJSON ? material.toJSON() : material;
+                        const newMaterial = new MDMaterial(materialData);
+                        newMaterial.isUpdated = true; // to show it as new (yellow color)
+                        onAdd(newMaterial);
+                    }
+                    catch (error) {
+                        console.error("Error creating MDMaterial:", error);
+                        console.error("Original material:", material);
+                    }
                 }
             }, materials: materials, modalId: "threejs-editor" }));
     }
