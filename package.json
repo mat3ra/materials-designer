@@ -32,7 +32,7 @@
         "@babel/runtime-corejs2": "7.16.7",
         "@emotion/react": "^11.13.0",
         "@emotion/styled": "^11.13.0",
-        "@exabyte-io/wave.js": "2025.6.25-0",
+        "@exabyte-io/wave.js": "2025.6.26-0",
         "@mui/icons-material": "^5.11.0",
         "@mui/material": "^5.11.9",
         "@mui/styles": "^5.11.7",
