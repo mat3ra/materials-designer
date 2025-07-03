@@ -160,7 +160,7 @@ HeaderMenuToolbar.propTypes = {
         materials: PropTypes.arrayOf(PropTypes.object),
     }).isRequired,
     className: PropTypes.string,
-    maxCombinatorialBasesCount: PropTypes.number.isRequired,
+    maxCombinatorialBasesCount: PropTypes.number,
     // eslint-disable-next-line react/forbid-prop-types
     defaultMaterialsSet: PropTypes.array.isRequired,
     onUpdate: PropTypes.func.isRequired,
@@ -186,6 +186,7 @@ HeaderMenuToolbar.propTypes = {
 };
 HeaderMenuToolbar.defaultProps = {
     className: undefined,
+    maxCombinatorialBasesCount: 10,
     openSaveActionDialog: null,
     children: null,
     onExit: undefined,
