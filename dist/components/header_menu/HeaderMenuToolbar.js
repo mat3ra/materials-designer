@@ -40,7 +40,7 @@ import { BoundaryConditionsDialog } from "../3d_editor/advanced_geometry/Boundar
 import CombinatorialBasisDialog from "../3d_editor/advanced_geometry/CombinatorialBasisDialog";
 import InterpolateBasesDialog from "../3d_editor/advanced_geometry/InterpolateBasesDialog";
 import JupyterLiteTransformation from "../3d_editor/advanced_geometry/python_transformation/JupyterLiteTransformation";
-import PythonTransformation from "../3d_editor/advanced_geometry/python_transformation/PythonTransformation";
+// import PythonTransformation from "../3d_editor/advanced_geometry/python_transformation/PythonTransformation";
 import SupercellDialog from "../3d_editor/advanced_geometry/SupercellDialog";
 import SurfaceDialog from "../3d_editor/advanced_geometry/SurfaceDialog";
 import { ButtonActivatedMenuMaterialUI } from "../include/material-ui/ButtonActivatedMenu";
@@ -87,7 +87,7 @@ class HeaderMenuToolbar extends React.Component {
             showInterpolateDialog: false,
             showThreejsEditorModal: false,
             showBoundaryConditionsDialog: false,
-            showPythonTransformation: false,
+            // showPythonTransformation: false,
             showJupyterLiteTransformation: false,
         };
     }
@@ -104,7 +104,7 @@ class HeaderMenuToolbar extends React.Component {
         return (_jsxs(ButtonActivatedMenuMaterialUI, { title: "View", children: [_jsxs(MenuItem, { onClick: () => this.setState({ showThreejsEditorModal: true }), children: [_jsx(ListItemIcon, { children: _jsx(ThreeDEditorIcon, {}) }), "Multi-Material 3D Editor"] }), _jsx(Divider, {}), _jsxs(MenuItem, { onClick: () => onSectionVisibilityToggle("ItemsList"), children: [_jsx(ListItemIcon, { children: isVisibleItemsList ? _jsx(VisibilityOffIcon, {}) : _jsx(VisibilityIcon, {}) }), "Sidebar"] }), _jsxs(MenuItem, { onClick: () => onSectionVisibilityToggle("SourceEditor"), children: [_jsx(ListItemIcon, { children: isVisibleSourceEditor ? _jsx(VisibilityOffIcon, {}) : _jsx(VisibilityIcon, {}) }), "Source Editor"] }), _jsxs(MenuItem, { onClick: () => onSectionVisibilityToggle("ThreeDEditorFullscreen"), children: [_jsx(ListItemIcon, { children: isVisibleThreeDEditorFullscreen ? (_jsx(VisibilityOffIcon, {})) : (_jsx(VisibilityIcon, {})) }), "3D Viewer/Editor"] }), _jsxs(MenuItem, { onClick: () => onSectionVisibilityToggle("JupyterLiteSessionDrawer"), children: [_jsx(ListItemIcon, { children: _jsx(Terminal, {}) }), "JupyterLite Session"] })] }));
     }
     renderAdvancedMenu() {
-        return (_jsxs(ButtonActivatedMenuMaterialUI, { title: "Advanced", children: [_jsxs(MenuItem, { onClick: () => this.setState({ showSupercellDialog: true }), children: [_jsx(ListItemIcon, { children: _jsx(SupercellIcon, {}) }), "Supercell"] }), _jsxs(MenuItem, { onClick: () => this.setState({ showCombinatorialDialog: true }), children: [_jsx(ListItemIcon, { children: _jsx(CombinatorialSetIcon, {}) }), "Combinatorial set"] }), _jsxs(MenuItem, { onClick: () => this.setState({ showInterpolateDialog: true }), children: [_jsx(ListItemIcon, { children: _jsx(InterpolatedSetIcon, {}) }), "Interpolated set"] }), _jsxs(MenuItem, { onClick: () => this.setState({ showSurfaceDialog: true }), children: [_jsx(ListItemIcon, { children: _jsx(SlabIcon, {}) }), "Surface / slab"] }), _jsxs(MenuItem, { onClick: () => this.setState({ showBoundaryConditionsDialog: true }), children: [_jsx(ListItemIcon, { children: _jsx(BoundaryConditionsIcon, {}) }), "Boundary Conditions"] }), false && (_jsxs(MenuItem, { children: [_jsx(ListItemIcon, { children: _jsx(PolymerIcon, {}) }), "Polymer"] })), false && (_jsxs(MenuItem, { children: [_jsx(ListItemIcon, { children: _jsx(NanotubeIcon, {}) }), "Nanotube"] })), _jsxs(MenuItem, { onClick: () => this.setState({ showPythonTransformation: true }), children: [_jsx(ListItemIcon, { children: _jsx(Terminal, {}) }), "Python Transformation"] }), _jsxs(MenuItem, { onClick: () => this.setState((state) => ({
+        return (_jsxs(ButtonActivatedMenuMaterialUI, { title: "Advanced", children: [_jsxs(MenuItem, { onClick: () => this.setState({ showSupercellDialog: true }), children: [_jsx(ListItemIcon, { children: _jsx(SupercellIcon, {}) }), "Supercell"] }), _jsxs(MenuItem, { onClick: () => this.setState({ showCombinatorialDialog: true }), children: [_jsx(ListItemIcon, { children: _jsx(CombinatorialSetIcon, {}) }), "Combinatorial set"] }), _jsxs(MenuItem, { onClick: () => this.setState({ showInterpolateDialog: true }), children: [_jsx(ListItemIcon, { children: _jsx(InterpolatedSetIcon, {}) }), "Interpolated set"] }), _jsxs(MenuItem, { onClick: () => this.setState({ showSurfaceDialog: true }), children: [_jsx(ListItemIcon, { children: _jsx(SlabIcon, {}) }), "Surface / slab"] }), _jsxs(MenuItem, { onClick: () => this.setState({ showBoundaryConditionsDialog: true }), children: [_jsx(ListItemIcon, { children: _jsx(BoundaryConditionsIcon, {}) }), "Boundary Conditions"] }), false && (_jsxs(MenuItem, { children: [_jsx(ListItemIcon, { children: _jsx(PolymerIcon, {}) }), "Polymer"] })), false && (_jsxs(MenuItem, { children: [_jsx(ListItemIcon, { children: _jsx(NanotubeIcon, {}) }), "Nanotube"] })), _jsxs(MenuItem, { onClick: () => this.setState((state) => ({
                         showJupyterLiteTransformation: !state.showJupyterLiteTransformation,
                     })), children: [_jsx(ListItemIcon, { children: _jsx(Terminal, {}) }), "JupyterLite Transformation"] })] }));
     }
@@ -128,7 +128,9 @@ class HeaderMenuToolbar extends React.Component {
             }, materials: materials, modalId: "threejs-editor" }));
     }
     render() {
-        const { showThreejsEditorModal, showSupercellDialog, showSurfaceDialog, showBoundaryConditionsDialog, showCombinatorialDialog, showExportMaterialsDialog, showInterpolateDialog, showPythonTransformation, showStandataImportDialog, showDefaultImportModalDialog, showJupyterLiteTransformation, } = this.state;
+        const { showThreejsEditorModal, showSupercellDialog, showSurfaceDialog, showBoundaryConditionsDialog, showCombinatorialDialog, showExportMaterialsDialog, showInterpolateDialog, 
+        // showPythonTransformation,
+        showStandataImportDialog, showDefaultImportModalDialog, showJupyterLiteTransformation, } = this.state;
         const { children, className, mdState: { materials, index }, onAdd, onExport, onGenerateSupercell, onGenerateSurface, onSetBoundaryConditions, maxCombinatorialBasesCount, defaultMaterialsSet, } = this.props;
         const material = materials[index];
         if (showThreejsEditorModal)
@@ -145,9 +147,6 @@ class HeaderMenuToolbar extends React.Component {
                     } }), _jsx(InterpolateBasesDialog, { title: "Generate Interpolated Set", modalId: "interpolatedSetModal", isOpen: showInterpolateDialog, backdropColor: "dark", material: material, material2: materials[index + 1 === materials.length ? 0 : index + 1], onHide: () => this.setState({ showInterpolateDialog: false }), onSubmit: (...args) => {
                         onAdd(...args);
                         this.setState({ showInterpolateDialog: false });
-                    } }), _jsx(PythonTransformation, { show: showPythonTransformation, materials: materials, onHide: () => this.setState({ showPythonTransformation: false }), onSubmit: (...args) => {
-                        onAdd(...args);
-                        this.setState({ showPythonTransformation: false });
                     } }), _jsx(JupyterLiteTransformation, { title: "JupyterLite Transformation", show: showJupyterLiteTransformation, materials: materials, onHide: () => this.setState({ showJupyterLiteTransformation: false }), onMaterialsUpdate: (...args) => {
                         onAdd(...args);
                         this.setState({ showJupyterLiteTransformation: false });

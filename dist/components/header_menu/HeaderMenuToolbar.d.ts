@@ -11,7 +11,6 @@ declare class HeaderMenuToolbar extends React.Component<any, any, any> {
         showInterpolateDialog: boolean;
         showThreejsEditorModal: boolean;
         showBoundaryConditionsDialog: boolean;
-        showPythonTransformation: boolean;
         showJupyterLiteTransformation: boolean;
     };
     _handleConventionalCellSelect: () => any;
