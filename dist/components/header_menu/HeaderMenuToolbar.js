@@ -40,7 +40,6 @@ import { BoundaryConditionsDialog } from "../3d_editor/advanced_geometry/Boundar
 import CombinatorialBasisDialog from "../3d_editor/advanced_geometry/CombinatorialBasisDialog";
 import InterpolateBasesDialog from "../3d_editor/advanced_geometry/InterpolateBasesDialog";
 import JupyterLiteTransformation from "../3d_editor/advanced_geometry/python_transformation/JupyterLiteTransformation";
-// import PythonTransformation from "../3d_editor/advanced_geometry/python_transformation/PythonTransformation";
 import SupercellDialog from "../3d_editor/advanced_geometry/SupercellDialog";
 import SurfaceDialog from "../3d_editor/advanced_geometry/SurfaceDialog";
 import { ButtonActivatedMenuMaterialUI } from "../include/material-ui/ButtonActivatedMenu";
@@ -87,7 +86,6 @@ class HeaderMenuToolbar extends React.Component {
             showInterpolateDialog: false,
             showThreejsEditorModal: false,
             showBoundaryConditionsDialog: false,
-            // showPythonTransformation: false,
             showJupyterLiteTransformation: false,
         };
     }
@@ -128,9 +126,7 @@ class HeaderMenuToolbar extends React.Component {
             }, materials: materials, modalId: "threejs-editor" }));
     }
     render() {
-        const { showThreejsEditorModal, showSupercellDialog, showSurfaceDialog, showBoundaryConditionsDialog, showCombinatorialDialog, showExportMaterialsDialog, showInterpolateDialog, 
-        // showPythonTransformation,
-        showStandataImportDialog, showDefaultImportModalDialog, showJupyterLiteTransformation, } = this.state;
+        const { showThreejsEditorModal, showSupercellDialog, showSurfaceDialog, showBoundaryConditionsDialog, showCombinatorialDialog, showExportMaterialsDialog, showInterpolateDialog, showStandataImportDialog, showDefaultImportModalDialog, showJupyterLiteTransformation, } = this.state;
         const { children, className, mdState: { materials, index }, onAdd, onExport, onGenerateSupercell, onGenerateSurface, onSetBoundaryConditions, maxCombinatorialBasesCount, defaultMaterialsSet, } = this.props;
         const material = materials[index];
         if (showThreejsEditorModal)
