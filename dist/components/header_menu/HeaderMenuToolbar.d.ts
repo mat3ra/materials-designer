@@ -11,7 +11,6 @@ declare class HeaderMenuToolbar extends React.Component<any, any, any> {
         showInterpolateDialog: boolean;
         showThreejsEditorModal: boolean;
         showBoundaryConditionsDialog: boolean;
-        showPythonTransformation: boolean;
         showJupyterLiteTransformation: boolean;
     };
     _handleConventionalCellSelect: () => any;
@@ -35,7 +34,7 @@ declare namespace HeaderMenuToolbar {
             materials: PropTypes.Requireable<(object | null | undefined)[]>;
         }>>>;
         const className: PropTypes.Requireable<string>;
-        const maxCombinatorialBasesCount: PropTypes.Validator<number>;
+        const maxCombinatorialBasesCount: PropTypes.Requireable<number>;
         const defaultMaterialsSet: PropTypes.Validator<any[]>;
         const onUpdate: PropTypes.Validator<(...args: any[]) => any>;
         const onUndo: PropTypes.Validator<(...args: any[]) => any>;
@@ -61,6 +60,8 @@ declare namespace HeaderMenuToolbar {
     namespace defaultProps {
         const className_1: undefined;
         export { className_1 as className };
+        const maxCombinatorialBasesCount_1: number;
+        export { maxCombinatorialBasesCount_1 as maxCombinatorialBasesCount };
         const openSaveActionDialog_1: null;
         export { openSaveActionDialog_1 as openSaveActionDialog };
         const children_1: null;

@@ -7,7 +7,6 @@ import { InterpolatedSetDialogWidget } from "./InterpolatedSetDialogWidget";
 import { ItemsListWidget } from "./ItemsListWidget";
 import JupyterLiteSession from "./JupyterLiteSession";
 import JupyterLiteTransformationDialogWidget from "./JupyterLiteTransformationDialogWidget";
-import PythonTransformationDialogWidget from "./PythonTransformationDialogWidget";
 import { SourceEditorWidget } from "./SourceEditorWidget";
 import StandataDialogWidget from "./StandataDialogWidget";
 import { SupercellDialogWidget } from "./SupercellDialogWidget";
@@ -34,8 +33,6 @@ export default class MaterialDesignerWidget extends Widget {
 
     defaultImportModalDialog: DefaultImportModalDialogWidget;
 
-    pythonTransformationDialog: PythonTransformationDialogWidget;
-
     jupyterLiteTransformationDialog: JupyterLiteTransformationDialogWidget;
 
     jupyterLiteSession: JupyterLiteSession;
@@ -53,7 +50,6 @@ export default class MaterialDesignerWidget extends Widget {
         this.boundaryConditionsDialog = new BoundaryConditionsDialogWidget();
         this.interpolatedSetDialog = new InterpolatedSetDialogWidget();
         this.defaultImportModalDialog = new DefaultImportModalDialogWidget();
-        this.pythonTransformationDialog = new PythonTransformationDialogWidget();
         this.jupyterLiteTransformationDialog = new JupyterLiteTransformationDialogWidget();
         this.jupyterLiteSession = new JupyterLiteSession();
         this.standataDialog = new StandataDialogWidget();

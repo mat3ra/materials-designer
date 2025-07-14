@@ -40,7 +40,6 @@ import { BoundaryConditionsDialog } from "../3d_editor/advanced_geometry/Boundar
 import CombinatorialBasisDialog from "../3d_editor/advanced_geometry/CombinatorialBasisDialog";
 import InterpolateBasesDialog from "../3d_editor/advanced_geometry/InterpolateBasesDialog";
 import JupyterLiteTransformation from "../3d_editor/advanced_geometry/python_transformation/JupyterLiteTransformation";
-import PythonTransformation from "../3d_editor/advanced_geometry/python_transformation/PythonTransformation";
 import SupercellDialog from "../3d_editor/advanced_geometry/SupercellDialog";
 import SurfaceDialog from "../3d_editor/advanced_geometry/SurfaceDialog";
 import { ButtonActivatedMenuMaterialUI } from "../include/material-ui/ButtonActivatedMenu";
@@ -61,7 +60,6 @@ class HeaderMenuToolbar extends React.Component {
             showInterpolateDialog: false,
             showThreejsEditorModal: false,
             showBoundaryConditionsDialog: false,
-            showPythonTransformation: false,
             showJupyterLiteTransformation: false,
         };
     }
@@ -263,12 +261,6 @@ class HeaderMenuToolbar extends React.Component {
                         Nanotube
                     </MenuItem>
                 )}
-                <MenuItem onClick={() => this.setState({ showPythonTransformation: true })}>
-                    <ListItemIcon>
-                        <Terminal />
-                    </ListItemIcon>
-                    Python Transformation
-                </MenuItem>
                 <MenuItem
                     onClick={() =>
                         this.setState((state) => ({
@@ -383,7 +375,6 @@ class HeaderMenuToolbar extends React.Component {
             showCombinatorialDialog,
             showExportMaterialsDialog,
             showInterpolateDialog,
-            showPythonTransformation,
             showStandataImportDialog,
             showDefaultImportModalDialog,
             showJupyterLiteTransformation,
@@ -497,15 +488,6 @@ class HeaderMenuToolbar extends React.Component {
                         this.setState({ showInterpolateDialog: false });
                     }}
                 />
-                <PythonTransformation
-                    show={showPythonTransformation}
-                    materials={materials}
-                    onHide={() => this.setState({ showPythonTransformation: false })}
-                    onSubmit={(...args) => {
-                        onAdd(...args);
-                        this.setState({ showPythonTransformation: false });
-                    }}
-                />
 
                 <JupyterLiteTransformation
                     title="JupyterLite Transformation"
@@ -531,7 +513,7 @@ HeaderMenuToolbar.propTypes = {
 
     className: PropTypes.string,
 
-    maxCombinatorialBasesCount: PropTypes.number.isRequired,
+    maxCombinatorialBasesCount: PropTypes.number,
     // eslint-disable-next-line react/forbid-prop-types
     defaultMaterialsSet: PropTypes.array.isRequired,
 
@@ -561,6 +543,7 @@ HeaderMenuToolbar.propTypes = {
 
 HeaderMenuToolbar.defaultProps = {
     className: undefined,
+    maxCombinatorialBasesCount: 10,
     openSaveActionDialog: null,
     children: null,
     onExit: undefined,
