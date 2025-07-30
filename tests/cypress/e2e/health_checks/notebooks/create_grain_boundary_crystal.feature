@@ -31,4 +31,4 @@ Feature: Healthcheck to create ${material_name}
     And I submit materials
     Then material with following name exists in state
       | name | index |
-      | Cu4(111)-Cu4(001), Grain Boundary | 3 |
+      | Cu(001)-Cu(111), Grain Boundary | 3 |

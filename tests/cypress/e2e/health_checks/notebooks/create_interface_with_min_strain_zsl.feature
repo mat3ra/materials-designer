@@ -34,4 +34,4 @@ Feature: Healthcheck to create ${material_name}
     And I submit materials
     Then material with following name exists in state
       | name | index |
-      | C2(001)-Ni4(001), Interface, Strain 0.244pct | 4 |
+      | C(001)-Ni(001), Interface, Strain 0.244pct | 4 |

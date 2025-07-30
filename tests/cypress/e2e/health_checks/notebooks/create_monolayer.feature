@@ -31,4 +31,4 @@ Feature: Healthcheck to create ${material_name}
     And I submit materials
     Then material with following name exists in state
       | name | index |
-      | S4W2(001), termination S_P6/mmm_1, Slab | 3 |
+      | S2W(001), termination S_P6/mmm_1, Slab | 3 |

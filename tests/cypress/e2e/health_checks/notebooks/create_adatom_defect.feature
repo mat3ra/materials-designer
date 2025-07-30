@@ -31,4 +31,4 @@ Feature: Healthcheck to create ${material_name}
     And I submit materials
     Then material with following name exists in state
       | name | index |
-      | Ni4(111), termination Ni_P6/mmm_4, Slab, Adatom Si Defect | 3 |
+      | Ni(111), termination Ni_P6/mmm_4, Slab, Adatom Si Defect | 3 |
