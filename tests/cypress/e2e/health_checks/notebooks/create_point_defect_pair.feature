@@ -31,4 +31,4 @@ Feature: Healthcheck to create ${material_name}
     And I submit materials
     Then material with following name exists in state
       | name | index |
-      | Ni25 C1, Substitution C Defect, Pair  Defect, Vacancy and Substitution Defect Pair | 3 |
+      | Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23, Pair Defect: Vac + C | 3 |
