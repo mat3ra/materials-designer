@@ -31,4 +31,4 @@ Feature: Healthcheck to create ${material_name}
     And I submit materials
     Then material with following name exists in state
       | name | index |
-      | S2W(001), termination S_P6/mmm_1, Slab | 3 |
+      | WS2, Tungsten Disulfide, HEX (P6_3/mmc) 3D (Bulk), mp-224 - Monolayer | 3 |

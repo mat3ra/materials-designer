@@ -31,4 +31,4 @@ Feature: Healthcheck to create ${material_name}
     And I submit materials
     Then material with following name exists in state
       | name | index |
-      | Twisted Bilayer Interface (17.90 degrees) | 3 |
+      | BN(001)-BN(001), Interface | 3 |

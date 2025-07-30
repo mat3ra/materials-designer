@@ -31,4 +31,4 @@ Feature: Healthcheck to create ${material_name}
     And I submit materials
     Then material with following name exists in state
       | name | index |
-      | C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993 (Perturbation: SineWavePerturbationFunctionHolder) | 3 |
+      | C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993 (Perturbation: 0.5*sin(2*pi*x)) | 3 |
