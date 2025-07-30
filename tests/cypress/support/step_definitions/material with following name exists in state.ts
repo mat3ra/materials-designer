@@ -15,9 +15,7 @@ Given("material with following name exists in state", (table: DataTable) => {
     BrowserManager.getBrowser()
         .execute((win) => {
             // @ts-ignore
-            return win.MDContainer.store
-                .getState()
-                .present.materials.map((m: Made.Material) => m.toJSON());
+            return win.MDState.materials.map((m: Made.Material) => m.toJSON());
         })
         .then((materials: Made.Material[]) => {
             const material = materials[config.index - 1];
