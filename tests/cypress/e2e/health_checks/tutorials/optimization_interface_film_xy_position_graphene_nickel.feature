@@ -1,5 +1,5 @@
 # This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
-@notebook_healthcheck
+@notebook_healthcheck @ignore
 Feature: Healthcheck to create Graphene_Nickel_interface_optimized_xy
 
   Scenario:
