@@ -78,11 +78,9 @@ cases:
     tutorial_material_index: 2
     feature_name: defect_surface_step_platinum
 
-
-  # TODO: fix why it takes 40 mins and fails!
   - tags: "@notebook_healthcheck"
     tutorial_notebook_name: defect_surface_island_titanium_nitride.ipynb
-    tutorial_material_name: N4Ti4(001), termination TiN_P4/mmm_4, Slab
+    tutorial_material_name: NTi(001), termination TiN_P4/mmm_4, Slab, Island
     tutorial_material_file_name: TiN_slab_with_island.json
     tutorial_material_index: 2
     feature_name: defect_surface_island_titanium_nitride
@@ -112,7 +110,7 @@ cases:
 
   - tags: "@notebook_healthcheck"
     tutorial_notebook_name: defect_surface_adatom_graphene.ipynb
-    tutorial_material_name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993, Adatom Li Defect
+    tutorial_material_name: C(001), termination C_P6/mmm_2, Slab, Li Adatom
     tutorial_material_file_name: C(001), termination C_P6_mmm_2, Slab, Li Adatom.json
     tutorial_material_index: 2
     feature_name: defect_surface_adatom_graphene
