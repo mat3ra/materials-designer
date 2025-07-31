@@ -23,8 +23,8 @@ Feature: Notebook healthcheck to create "Pt(001), termination Pt_P4/mmm_2, Slab,
 
     # Select material
     And I select materials in MaterialsSelector
-      | name |
-      | Pt, Platinum, FCC (Fm-3m) 3D (Bulk), mp-126 |
+      | name | index |
+      | Pt, Platinum, FCC (Fm-3m) 3D (Bulk), mp-126 | 2 |
 
     # Run
     And I Run All Cells

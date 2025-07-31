@@ -20,7 +20,7 @@ Feature: Combined test to create interface with relaxation and optimization
     And I submit materials
     Then material with following name exists in state
       | name | index |
-      | C2(001)-Ni4(001), Interface, Strain 0.244pct | 2 |
+      | C(001)-Ni(001), Interface, Strain 8.308pct | 2 |
 
     # Optimize film position
     # Open JupyterLite
@@ -32,13 +32,13 @@ Feature: Combined test to create interface with relaxation and optimization
     And I see file "optimize_film_position.ipynb" opened
     And I select materials in MaterialsSelector
       | name | index |
-      | C2(001)-Ni4(001), Interface, Strain 0.244pct | 2 |
+      | C(001)-Ni(001), Interface, Strain 8.308pct | 2 |
     And I Run All Cells
     And I see kernel status is Idle
     And I submit materials
     Then material with following name exists in state
       | name | index |
-      | C2(001)-Ni4(001), Interface, Strain 0.244pct Optimized XY | 3 |
+      | C(001)-Ni(001), Interface, Strain 8.308pct Optimized XY | 3 |
 
     # Relax with EMT
     # Open JupyterLite
@@ -50,7 +50,7 @@ Feature: Combined test to create interface with relaxation and optimization
     And I see file "create_interface_with_relaxation_ase_emt.ipynb" opened
     And I select materials in MaterialsSelector
       | name | index |
-      | C2(001)-Ni4(001), Interface, Strain 0.244pct | 2 |
+      | C(001)-Ni(001), Interface, Strain 8.308pct | 2 |
     And I Run All Cells
     And I see kernel status is Idle
     And I submit materials
@@ -58,4 +58,4 @@ Feature: Combined test to create interface with relaxation and optimization
     # Final verification
     Then material with following name exists in state
       | name | index |
-      | C2(001)-Ni4(001), Interface, Strain 0.244pct, Relaxed with EMT | 4 |
+      | C(001)-Ni(001), Interface, Strain 8.308pct, Relaxed with EMT | 4 |
