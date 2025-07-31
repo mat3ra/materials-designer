@@ -1,6 +1,6 @@
 # This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
-Feature: Healthcheck to create Au55 Octahedron
+Feature: Healthcheck to create Au Octahedron
 
   Scenario:
     When I open materials designer page
@@ -24,4 +24,4 @@ Feature: Healthcheck to create Au55 Octahedron
     And I submit materials
     Then material with following name exists in state
       | name                      | index                      |
-      | Au55 Octahedron | 2 |
+      | Au Octahedron | 2 |

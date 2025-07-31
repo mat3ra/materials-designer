@@ -1,6 +1,6 @@
 # This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
-Feature: Healthcheck to create Pt4(211), termination Pt_Pmmm_4, Slab
+Feature: Healthcheck to create Pt(211), termination Pt_Pmmm_4, Slab
 
   Scenario:
     When I open materials designer page
@@ -24,4 +24,4 @@ Feature: Healthcheck to create Pt4(211), termination Pt_Pmmm_4, Slab
     And I submit materials
     Then material with following name exists in state
       | name                      | index                      |
-      | Pt4(211), termination Pt_Pmmm_4, Slab | 2 |
+      | Pt(211), termination Pt_Pmmm_4, Slab | 2 |

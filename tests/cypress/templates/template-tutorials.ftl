@@ -1,5 +1,5 @@
 # This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
-@notebook_healthcheck
+${tags}
 Feature: Healthcheck to create ${tutorial_material_name}
 
   Scenario:

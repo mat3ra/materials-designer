@@ -259,7 +259,7 @@ cases:
       - name: BN, Hexagonal Boron Nitride, HEX (P6/mmm) 2D (Monolayer), 2dm-4991
         index: 2
     output_materials:
-      - name: Twisted Nanoribbon Interface (15.00 degrees)
+      - name: BN(001)-BN(001), Interface (17.9 degrees)
         index: 3
     feature_name: create_twisted_interface_with_nanoribbons
 

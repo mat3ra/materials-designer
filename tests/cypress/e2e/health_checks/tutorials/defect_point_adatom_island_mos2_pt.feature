@@ -1,6 +1,6 @@
 # This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
-Feature: Healthcheck to create MoS2(001), termination S_P6/mmm_1, Slab, Adatom Pt Defect, Adatom Pt Defect, Adatom Pt Defect, Adatom Pt Defect
+Feature: Healthcheck to create MoS2(001), termination S_P6/mmm_1, Slab, Pt Adatom
 
   Scenario:
     When I open materials designer page
@@ -24,4 +24,4 @@ Feature: Healthcheck to create MoS2(001), termination S_P6/mmm_1, Slab, Adatom P
     And I submit materials
     Then material with following name exists in state
       | name                      | index                      |
-      | MoS2(001), termination S_P6/mmm_1, Slab, Adatom Pt Defect, Adatom Pt Defect, Adatom Pt Defect, Adatom Pt Defect | 2 |
+      | MoS2(001), termination S_P6/mmm_1, Slab, Pt Adatom | 2 |

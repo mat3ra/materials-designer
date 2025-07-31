@@ -20,7 +20,7 @@ Feature: Healthcheck to create C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-399
     # Run
     And I Run All Cells
     And I see kernel status is Idle
-    Then I see file "Li_adatom.json" on filesystem
+    Then I see file "C(001), termination C_P6_mmm_2, Slab, Li Adatom.json" on filesystem
     And I submit materials
     Then material with following name exists in state
       | name                      | index                      |
