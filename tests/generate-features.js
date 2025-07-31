@@ -8,7 +8,14 @@ function generateFeatures(inputDir, outputDir) {
     const testConfigs = yamlFiles.map(yamlPath => Utils.yaml.readYAMLFile(yamlPath));
 
     testConfigs.forEach(testConfig => {
-        generateFeatureFilesFromConfig(testConfig, inputDir, outputDir);
+        try {
+            generateFeatureFilesFromConfig(testConfig, inputDir, outputDir);
+            console.log(`✅ Successfully generated features for: ${testConfig.template_path}`);
+        } catch (error) {
+            console.error(`❌ Failed to generate features for: ${testConfig.template_path}`);
+            console.error(`Error: ${error.message}`);
+            console.error(`Config:`, JSON.stringify(testConfig, null, 2));
+        }
     });
 }
 inputDir = path.join(__dirname, "cypress/templates");
