@@ -361,7 +361,7 @@ cases:
       - name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
         index: 2
     output_materials:
-      - name: Ni4(001), termination Ni_P4/mmm_2, Slab
+      - name: Ni(001), termination Ni_P4/mmm_2, Slab, Island
         index: 3
     feature_name: create_island_defect_custom
 
@@ -374,7 +374,7 @@ cases:
       - name: Si, Silicon, FCC (Fd-3m) 3D (Bulk), mp-149
         index: 2
     output_materials:
-      - name: Si8(001), termination Si_P4/mmm_2, Slab
+      - name: Si(001), termination Si_P4/mmm_2, Slab
         index: 3
     feature_name: create_nanowire_custom_shape
 

@@ -1,6 +1,6 @@
 # This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
-Feature: Notebook healthcheck to create "Ni4(001), termination Ni_P4/mmm_2, Slab"
+Feature: Notebook healthcheck to create "Ni(001), termination Ni_P4/mmm_2, Slab, Island"
 
   Scenario:
     When I open materials designer page
@@ -32,4 +32,4 @@ Feature: Notebook healthcheck to create "Ni4(001), termination Ni_P4/mmm_2, Slab
     And I submit materials
     Then material with following name exists in state
       | name | index |
-      | Ni4(001), termination Ni_P4/mmm_2, Slab | 3 |
+      | Ni(001), termination Ni_P4/mmm_2, Slab, Island | 3 |
