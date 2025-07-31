@@ -1,6 +1,6 @@
 # This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
-Feature: Healthcheck to create C(001)-O2Si(001), Interface, Strain 1.858pct.json
+Feature: Healthcheck to create C(001)-O2Si(001), Interface, Strain 1.858pct
 
   Scenario:
     When I open materials designer page
@@ -24,4 +24,4 @@ Feature: Healthcheck to create C(001)-O2Si(001), Interface, Strain 1.858pct.json
     And I submit materials
     Then material with following name exists in state
       | name                      | index                      |
-      | C(001)-O2Si(001), Interface, Strain 1.858pct.json | 2 |
+      | C(001)-O2Si(001), Interface, Strain 1.858pct | 2 |

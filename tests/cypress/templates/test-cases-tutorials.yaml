@@ -124,14 +124,14 @@ cases:
 
   - tags: "@notebook_healthcheck"
     tutorial_notebook_name: interface_2d_3d_graphene_silicon_dioxide.ipynb
-    tutorial_material_name: C(001)-O2Si(001), Interface, Strain 1.858pct.json
+    tutorial_material_name: C(001)-O2Si(001), Interface, Strain 1.858pct
     tutorial_material_file_name: C(001)-O2Si(001), Interface, Strain 1.858pct.json
     tutorial_material_index: 2
     feature_name: interface_2d_3d_graphene_silicon_dioxide
 
   - tags: "@notebook_healthcheck"
     tutorial_notebook_name: interface_3d_3d_copper_cristobalite.ipynb
-    tutorial_material_name: Cu(001)-O2Si(001), Interface, Strain 8.787pct.json
+    tutorial_material_name: Cu(001)-O2Si(001), Interface, Strain 8.787pct
     tutorial_material_file_name: Cu(001)-O2Si(001), Interface, Strain 8.787pct.json
     tutorial_material_index: 2
     feature_name: interface_3d_3d_copper_cristobalite
