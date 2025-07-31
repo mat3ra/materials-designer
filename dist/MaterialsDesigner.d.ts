@@ -1546,17 +1546,6 @@ declare const materialConfigs: ({
         origin: boolean;
     };
     isNonPeriodic: boolean;
-    metadata: {
-        build: {
-            configuration: {
-                width: number;
-                length: number;
-                vacuum_width: number;
-                vacuum_length: number;
-                edge_type: string;
-            };
-        }[];
-    }[];
 } | {
     name: string;
     lattice: {
