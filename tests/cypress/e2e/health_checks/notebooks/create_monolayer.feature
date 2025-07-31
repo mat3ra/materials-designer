@@ -1,6 +1,6 @@
 # This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
-Feature: Healthcheck to create material
+Feature: Notebook healthcheck to create "WS2, Tungsten Disulfide, HEX (P6_3/mmc) 3D (Bulk), mp-224 - Monolayer"
 
   Scenario:
     When I open materials designer page

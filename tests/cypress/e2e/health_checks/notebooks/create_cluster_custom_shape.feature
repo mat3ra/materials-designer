@@ -1,6 +1,6 @@
 # This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck @ignore
-Feature: Healthcheck to create material
+Feature: Notebook healthcheck to create "Au Custom Cluster"
 
   Scenario:
     When I open materials designer page

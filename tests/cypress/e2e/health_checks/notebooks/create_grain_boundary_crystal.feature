@@ -1,6 +1,6 @@
 # This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
-Feature: Healthcheck to create material
+Feature: Notebook healthcheck to create "Cu(001)-Cu(111), Grain Boundary"
 
   Scenario:
     When I open materials designer page

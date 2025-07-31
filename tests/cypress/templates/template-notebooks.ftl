@@ -1,6 +1,6 @@
 # This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 ${tags}
-Feature: Healthcheck to create ${material_name}
+Feature: Notebook healthcheck to create "${output_materials[0].name}"
 
   Scenario:
     When I open materials designer page

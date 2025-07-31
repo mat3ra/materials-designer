@@ -1,6 +1,6 @@
 # This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
-Feature: Healthcheck to create material
+Feature: Notebook healthcheck to create "C(001)-Ni(001), Interface, Strain 8.308pct"
 
   Scenario:
     When I open materials designer page

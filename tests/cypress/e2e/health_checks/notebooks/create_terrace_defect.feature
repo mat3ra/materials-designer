@@ -1,6 +1,6 @@
 # This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
-Feature: Healthcheck to create material
+Feature: Notebook healthcheck to create "Pt(001), termination Pt_P4/mmm_2, Slab, Terrace [1, 0, 0]"
 
   Scenario:
     When I open materials designer page
@@ -23,8 +23,8 @@ Feature: Healthcheck to create material
 
     # Select material
     And I select materials in MaterialsSelector
-      | name | index |
-      | Pt, Platinum, FCC (Fm-3m) 3D (Bulk), mp-126 | 2 |
+      | name |
+      | Pt, Platinum, FCC (Fm-3m) 3D (Bulk), mp-126 |
 
     # Run
     And I Run All Cells
