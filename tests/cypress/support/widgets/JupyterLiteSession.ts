@@ -51,11 +51,11 @@ export default class JupyterLiteSession extends Widget {
     constructor() {
         super(SELECTORS.iframe);
         this.wrappedSelectors = this.getWrappedSelectors(SELECTORS);
-        this.iframeAnchor = this.browser.iframe(SELECTORS.iframe, Widget.TimeoutType.md);
+        this.iframeAnchor = this.browser.iframe(SELECTORS.iframe, Widget.TimeoutType.lg);
     }
 
     waitForVisible() {
-        return this.iframeAnchor.waitForVisible(SELECTORS.main, Widget.TimeoutType.md);
+        return this.iframeAnchor.waitForVisible(SELECTORS.main, Widget.TimeoutType.lg);
     }
 
     doubleclickEntryInSidebar(sidebarEntry: string) {
