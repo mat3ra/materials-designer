@@ -59,7 +59,7 @@ cases:
       - material_name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993
         material_index: 3
     output_materials:
-      - material_name: C2(001)-Ni4(001), Interface, Strain 0.244pct
+      - material_name: C(001)-Ni(001), Interface, Strain 8.308pct
         material_index: 4
     feature_name: create_interface_with_min_strain_zsl
 
@@ -72,7 +72,7 @@ cases:
       - material_name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
         material_index: 2
     output_materials:
-      - material_name: Ni26 C1, Substitution C Defect
+      - material_name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23 with 3 defects
         material_index: 3
     feature_name: create_point_defect
 
@@ -85,7 +85,7 @@ cases:
       - material_name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
         material_index: 2
     output_materials:
-      - material_name: Ni4(111), termination Ni_P6/mmm_4, Slab, Adatom Si Defect
+      - material_name: Ni(111), termination Ni_R-3m_4, Slab, Si Adatom
         material_index: 3
     feature_name: create_adatom_defect
 
@@ -138,7 +138,7 @@ cases:
       - material_name: Cu, Copper, FCC (Fm-3m) 3D (Bulk), mp-30
         material_index: 2
     output_materials:
-      - material_name: Cu4(111)-Cu4(001), Grain Boundary
+      - material_name: Cu(001)-Cu(111), Grain Boundary
         material_index: 3
     feature_name: create_grain_boundary_crystal
 
@@ -151,7 +151,7 @@ cases:
       - material_name: BN, Hexagonal Boron Nitride, HEX (P6/mmm) 2D (Monolayer), 2dm-4991
         material_index: 2
     output_materials:
-      - material_name: BN, Hexagonal Boron Nitride, HEX (P6/mmm) 2D (Monolayer), 2dm-4991, Grain Boundary (17.90°)
+      - material_name: BN(001)-BN(001), Linear Grain Boundary, 17.90 degrees
         material_index: 3
     feature_name: create_grain_boundary_film
 
@@ -168,7 +168,7 @@ cases:
       - material_name: BN, Hexagonal Boron Nitride, HEX (P6/mmm) 2D (Monolayer), 2dm-4991
         material_index: 3
     output_materials:
-      - material_name: BN(001)-C2(111), Interface
+      - material_name: BN(001)-C(111), Interface, Strain 807.439pct
         material_index: 4
     feature_name: create_interface_with_no_strain_matching
 
@@ -181,7 +181,7 @@ cases:
       - material_name: WS2, Tungsten Disulfide, HEX (P6_3/mmc) 3D (Bulk), mp-224
         material_index: 2
     output_materials:
-      - material_name: S4W2(001), termination S_P6/mmm_1, Slab
+      - material_name: WS2, Tungsten Disulfide, HEX (P6_3/mmc) 3D (Bulk), mp-224 - Monolayer
         material_index: 3
     feature_name: create_monolayer
 
@@ -194,7 +194,7 @@ cases:
       - material_name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993
         material_index: 2
     output_materials:
-      - material_name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993 (Zigzag nanoribbon)
+      - material_name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993 - Armchair Nanoribbon (11)
         material_index: 3
     feature_name: create_nanoribbon
 
@@ -207,7 +207,7 @@ cases:
       - material_name: Si, Silicon, FCC (Fd-3m) 3D (Bulk), mp-149
         material_index: 2
     output_materials:
-      - material_name: Si8(001), termination Si_P4/mmm_2, Slab
+      - material_name: Si(001), termination Si_P4/mmm_2, Slab
         material_index: 3
     feature_name: create_nanowire
 
@@ -246,7 +246,7 @@ cases:
       - material_name: BN, Hexagonal Boron Nitride, HEX (P6/mmm) 2D (Monolayer), 2dm-4991
         material_index: 2
     output_materials:
-      - material_name: Twisted Bilayer Interface (17.90 degrees)
+      - material_name: BN(001)-BN(001), Interface
         material_index: 3
     feature_name: create_twisted_interface_with_commensurate_lattices
 
@@ -310,7 +310,7 @@ cases:
       - material_name: Si, Silicon, FCC (Fd-3m) 3D (Bulk), mp-149
         material_index: 2
     output_materials:
-      - material_name: Si8(001), termination Si_P4/mmm_2, Slab with box cutout
+      - material_name: Si(001), termination Si_P4/mmm_2, Slab with box cutout
         material_index: 3
     feature_name: create_cutout_box
 
@@ -348,7 +348,7 @@ cases:
       - material_name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
         material_index: 2
     output_materials:
-      - material_name: Ni4(001), termination Ni_P4/mmm_2, Slab
+      - material_name: Ni(001), termination Ni_P4/mmm_2, Slab, Island
         material_index: 3
     feature_name: create_island_defect
 
@@ -387,7 +387,7 @@ cases:
       - material_name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993
         material_index: 2
     output_materials:
-      - material_name: 'C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993 (Perturbation: SineWavePerturbationFunctionHolder)'
+      - material_name: "C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993 (Perturbation: 0.5*sin(2*pi*x))"
         material_index: 3
     feature_name: create_perturbation
 
@@ -413,7 +413,7 @@ cases:
       - material_name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
         material_index: 2
     output_materials:
-      - material_name: Ni25 C1, Substitution C Defect, Pair  Defect, Vacancy and Substitution Defect Pair
+      - material_name: "Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23, Pair Defect: Vac + C"
         material_index: 3
     feature_name: create_point_defect_pair
 
@@ -426,7 +426,7 @@ cases:
       - material_name: Pt, Platinum, FCC (Fm-3m) 3D (Bulk), mp-126
         material_index: 2
     output_materials:
-      - material_name: Pt4(001), termination Pt_P4/mmm_2, Slab, 1-step Terrace [1, 0, 0]
+      - material_name: Pt(001), termination Pt_P4/mmm_2, Slab, Terrace [1, 0, 0]
         material_index: 3
     feature_name: create_terrace_defect
 
