@@ -13,10 +13,10 @@ schema:
     items:
       type: object
       properties:
-        material_name:
+        name:
           type: string
           description: Name of the material from Standata
-        material_index:
+        index:
           type: integer
           description: Index of the material
   input_materials:
@@ -24,10 +24,10 @@ schema:
     items:
       type: object
       properties:
-        material_name:
+        name:
           type: string
           description: Name of the input material
-        material_index:
+        index:
           type: integer
           description: Index of the input material
   output_materials:
@@ -35,10 +35,10 @@ schema:
     items:
       type: object
       properties:
-        material_name:
+        name:
           type: string
           description: Name of the output material
-        material_index:
+        index:
           type: integer
           description: Index of the output material
   feature_name:
@@ -49,396 +49,396 @@ cases:
   - tags: "@notebook_healthcheck"
     notebook_name: create_interface_with_min_strain_zsl.ipynb
     standata_materials:
-      - material_name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
-        material_index: 2
-      - material_name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993
-        material_index: 3
+      - name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
+        index: 2
+      - name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993
+        index: 3
     input_materials:
-      - material_name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
-        material_index: 2
-      - material_name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993
-        material_index: 3
+      - name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
+        index: 2
+      - name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993
+        index: 3
     output_materials:
-      - material_name: C(001)-Ni(001), Interface, Strain 8.308pct
-        material_index: 4
+      - name: C(001)-Ni(001), Interface, Strain 8.308pct
+        index: 4
     feature_name: create_interface_with_min_strain_zsl
 
   - tags: "@notebook_healthcheck"
     notebook_name: create_point_defect.ipynb
     standata_materials:
-      - material_name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
-        material_index: 2
+      - name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
+        index: 2
     input_materials:
-      - material_name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
-        material_index: 2
+      - name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
+        index: 2
     output_materials:
-      - material_name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23 with 3 defects
-        material_index: 3
+      - name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23 with 3 defects
+        index: 3
     feature_name: create_point_defect
 
   - tags: "@notebook_healthcheck"
     notebook_name: create_adatom_defect.ipynb
     standata_materials:
-      - material_name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
-        material_index: 2
+      - name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
+        index: 2
     input_materials:
-      - material_name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
-        material_index: 2
+      - name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
+        index: 2
     output_materials:
-      - material_name: Ni(111), termination Ni_R-3m_4, Slab, Si Adatom
-        material_index: 3
+      - name: Ni(111), termination Ni_R-3m_4, Slab, Si Adatom
+        index: 3
     feature_name: create_adatom_defect
 
   - tags: "@notebook_healthcheck"
     notebook_name: create_cluster_sphere.ipynb
     standata_materials:
-      - material_name: Au, Gold, FCC (Fm-3m) 3D (Bulk), mp-81
-        material_index: 2
+      - name: Au, Gold, FCC (Fm-3m) 3D (Bulk), mp-81
+        index: 2
     input_materials:
-      - material_name: Au, Gold, FCC (Fm-3m) 3D (Bulk), mp-81
-        material_index: 2
+      - name: Au, Gold, FCC (Fm-3m) 3D (Bulk), mp-81
+        index: 2
     output_materials:
-      - material_name: Au, Gold, FCC (Fm-3m) 3D (Bulk), mp-81 Cluster R=4.5A
-        material_index: 3
+      - name: Au, Gold, FCC (Fm-3m) 3D (Bulk), mp-81 Cluster R=4.5A
+        index: 3
     feature_name: create_cluster_sphere
 
   - tags: "@notebook_healthcheck @ignore"
     notebook_name: create_cluster_custom_shape.ipynb
 # TODO:    icosphere has no pure wheel
     standata_materials:
-      - material_name: Au, Gold, FCC (Fm-3m) 3D (Bulk), mp-81
-        material_index: 2
+      - name: Au, Gold, FCC (Fm-3m) 3D (Bulk), mp-81
+        index: 2
     input_materials:
-      - material_name: Au, Gold, FCC (Fm-3m) 3D (Bulk), mp-81
-        material_index: 2
+      - name: Au, Gold, FCC (Fm-3m) 3D (Bulk), mp-81
+        index: 2
     output_materials:
-      - material_name: Au Custom Cluster
-        material_index: 3
+      - name: Au Custom Cluster
+        index: 3
     feature_name: create_cluster_custom_shape
 
   - tags: "@notebook_healthcheck"
     notebook_name: create_cluster_specific_shape.ipynb
     standata_materials:
-      - material_name: Au, Gold, FCC (Fm-3m) 3D (Bulk), mp-81
-        material_index: 2
+      - name: Au, Gold, FCC (Fm-3m) 3D (Bulk), mp-81
+        index: 2
     input_materials:
-      - material_name: Au, Gold, FCC (Fm-3m) 3D (Bulk), mp-81
-        material_index: 2
+      - name: Au, Gold, FCC (Fm-3m) 3D (Bulk), mp-81
+        index: 2
     output_materials:
-      - material_name: Au, Gold, FCC (Fm-3m) 3D (Bulk), mp-81 Octahedron cluster
-        material_index: 3
+      - name: Au, Gold, FCC (Fm-3m) 3D (Bulk), mp-81 Octahedron cluster
+        index: 3
     feature_name: create_cluster_specific_shape
 
   - tags: "@notebook_healthcheck"
     notebook_name: create_grain_boundary_crystal.ipynb
     standata_materials:
-      - material_name: Cu, Copper, FCC (Fm-3m) 3D (Bulk), mp-30
-        material_index: 2
+      - name: Cu, Copper, FCC (Fm-3m) 3D (Bulk), mp-30
+        index: 2
     input_materials:
-      - material_name: Cu, Copper, FCC (Fm-3m) 3D (Bulk), mp-30
-        material_index: 2
+      - name: Cu, Copper, FCC (Fm-3m) 3D (Bulk), mp-30
+        index: 2
     output_materials:
-      - material_name: Cu(001)-Cu(111), Grain Boundary
-        material_index: 3
+      - name: Cu(001)-Cu(111), Grain Boundary
+        index: 3
     feature_name: create_grain_boundary_crystal
 
   - tags: "@notebook_healthcheck"
     notebook_name: create_grain_boundary_film.ipynb
     standata_materials:
-      - material_name: BN, Hexagonal Boron Nitride, HEX (P6/mmm) 2D (Monolayer), 2dm-4991
-        material_index: 2
+      - name: BN, Hexagonal Boron Nitride, HEX (P6/mmm) 2D (Monolayer), 2dm-4991
+        index: 2
     input_materials:
-      - material_name: BN, Hexagonal Boron Nitride, HEX (P6/mmm) 2D (Monolayer), 2dm-4991
-        material_index: 2
+      - name: BN, Hexagonal Boron Nitride, HEX (P6/mmm) 2D (Monolayer), 2dm-4991
+        index: 2
     output_materials:
-      - material_name: BN(001)-BN(001), Linear Grain Boundary, 17.90 degrees
-        material_index: 3
+      - name: BN(001)-BN(001), Linear Grain Boundary, 17.90 degrees
+        index: 3
     feature_name: create_grain_boundary_film
 
   - tags: "@notebook_healthcheck"
     notebook_name: create_interface_with_no_strain_matching.ipynb
     standata_materials:
-      - material_name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993
-        material_index: 2
-      - material_name: BN, Hexagonal Boron Nitride, HEX (P6/mmm) 2D (Monolayer), 2dm-4991
-        material_index: 3
+      - name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993
+        index: 2
+      - name: BN, Hexagonal Boron Nitride, HEX (P6/mmm) 2D (Monolayer), 2dm-4991
+        index: 3
     input_materials:
-      - material_name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993
-        material_index: 2
-      - material_name: BN, Hexagonal Boron Nitride, HEX (P6/mmm) 2D (Monolayer), 2dm-4991
-        material_index: 3
+      - name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993
+        index: 2
+      - name: BN, Hexagonal Boron Nitride, HEX (P6/mmm) 2D (Monolayer), 2dm-4991
+        index: 3
     output_materials:
-      - material_name: BN(001)-C(111), Interface, Strain 807.439pct
-        material_index: 4
+      - name: BN(001)-C(111), Interface, Strain 807.439pct
+        index: 4
     feature_name: create_interface_with_no_strain_matching
 
   - tags: "@notebook_healthcheck"
     notebook_name: create_monolayer.ipynb
     standata_materials:
-      - material_name: WS2, Tungsten Disulfide, HEX (P6_3/mmc) 3D (Bulk), mp-224
-        material_index: 2
+      - name: WS2, Tungsten Disulfide, HEX (P6_3/mmc) 3D (Bulk), mp-224
+        index: 2
     input_materials:
-      - material_name: WS2, Tungsten Disulfide, HEX (P6_3/mmc) 3D (Bulk), mp-224
-        material_index: 2
+      - name: WS2, Tungsten Disulfide, HEX (P6_3/mmc) 3D (Bulk), mp-224
+        index: 2
     output_materials:
-      - material_name: WS2, Tungsten Disulfide, HEX (P6_3/mmc) 3D (Bulk), mp-224 - Monolayer
-        material_index: 3
+      - name: WS2, Tungsten Disulfide, HEX (P6_3/mmc) 3D (Bulk), mp-224 - Monolayer
+        index: 3
     feature_name: create_monolayer
 
   - tags: "@notebook_healthcheck"
     notebook_name: create_nanoribbon.ipynb
     standata_materials:
-      - material_name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993
-        material_index: 2
+      - name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993
+        index: 2
     input_materials:
-      - material_name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993
-        material_index: 2
+      - name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993
+        index: 2
     output_materials:
-      - material_name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993 - Armchair Nanoribbon (11)
-        material_index: 3
+      - name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993 - Armchair Nanoribbon (11)
+        index: 3
     feature_name: create_nanoribbon
 
   - tags: "@notebook_healthcheck"
     notebook_name: create_nanowire.ipynb
     standata_materials:
-      - material_name: Si, Silicon, FCC (Fd-3m) 3D (Bulk), mp-149
-        material_index: 2
+      - name: Si, Silicon, FCC (Fd-3m) 3D (Bulk), mp-149
+        index: 2
     input_materials:
-      - material_name: Si, Silicon, FCC (Fd-3m) 3D (Bulk), mp-149
-        material_index: 2
+      - name: Si, Silicon, FCC (Fd-3m) 3D (Bulk), mp-149
+        index: 2
     output_materials:
-      - material_name: Si(001), termination Si_P4/mmm_2, Slab
-        material_index: 3
+      - name: Si(001), termination Si_P4/mmm_2, Slab
+        index: 3
     feature_name: create_nanowire
 
   - tags: "@notebook_healthcheck"
     notebook_name: create_slab.ipynb
     standata_materials:
-      - material_name: SrTiO3, Strontium Titanate, CUB (Pm-3m) 3D (Bulk), mp-5229
-        material_index: 2
+      - name: SrTiO3, Strontium Titanate, CUB (Pm-3m) 3D (Bulk), mp-5229
+        index: 2
     input_materials:
-      - material_name: SrTiO3, Strontium Titanate, CUB (Pm-3m) 3D (Bulk), mp-5229
-        material_index: 2
+      - name: SrTiO3, Strontium Titanate, CUB (Pm-3m) 3D (Bulk), mp-5229
+        index: 2
     output_materials:
-      - material_name: O3SrTi(001), termination TiO2_P4/mmm_3, Slab
-        material_index: 3
+      - name: O3SrTi(001), termination TiO2_P4/mmm_3, Slab
+        index: 3
     feature_name: create_slab
 
   - tags: "@notebook_healthcheck"
     notebook_name: create_supercell.ipynb
     standata_materials:
-      - material_name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
-        material_index: 2
+      - name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
+        index: 2
     input_materials:
-      - material_name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
-        material_index: 2
+      - name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
+        index: 2
     output_materials:
-      - material_name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
-        material_index: 3
+      - name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
+        index: 3
     feature_name: create_supercell
 
   - tags: "@notebook_healthcheck"
     notebook_name: create_twisted_interface_with_commensurate_lattices.ipynb
     standata_materials:
-      - material_name: BN, Hexagonal Boron Nitride, HEX (P6/mmm) 2D (Monolayer), 2dm-4991
-        material_index: 2
+      - name: BN, Hexagonal Boron Nitride, HEX (P6/mmm) 2D (Monolayer), 2dm-4991
+        index: 2
     input_materials:
-      - material_name: BN, Hexagonal Boron Nitride, HEX (P6/mmm) 2D (Monolayer), 2dm-4991
-        material_index: 2
+      - name: BN, Hexagonal Boron Nitride, HEX (P6/mmm) 2D (Monolayer), 2dm-4991
+        index: 2
     output_materials:
-      - material_name: BN(001)-BN(001), Interface
-        material_index: 3
+      - name: BN(001)-BN(001), Interface
+        index: 3
     feature_name: create_twisted_interface_with_commensurate_lattices
 
   - tags: "@notebook_healthcheck"
     notebook_name: create_twisted_interface_with_nanoribbons.ipynb
     standata_materials:
-      - material_name: BN, Hexagonal Boron Nitride, HEX (P6/mmm) 2D (Monolayer), 2dm-4991
-        material_index: 2
+      - name: BN, Hexagonal Boron Nitride, HEX (P6/mmm) 2D (Monolayer), 2dm-4991
+        index: 2
     input_materials:
-      - material_name: BN, Hexagonal Boron Nitride, HEX (P6/mmm) 2D (Monolayer), 2dm-4991
-        material_index: 2
+      - name: BN, Hexagonal Boron Nitride, HEX (P6/mmm) 2D (Monolayer), 2dm-4991
+        index: 2
     output_materials:
-      - material_name: Twisted Nanoribbon Interface (15.00 degrees)
-        material_index: 3
+      - name: Twisted Nanoribbon Interface (15.00 degrees)
+        index: 3
     feature_name: create_twisted_interface_with_nanoribbons
 
 #  - notebook_name: optimize_film_position.ipynb
 #    standata_materials:
-#      - material_name: Graphene on Ni(111) Interface
-#        material_index: 2
+#      - name: Graphene on Ni(111) Interface
+#        index: 2
 #    input_materials:
-#      - material_name: Graphene on Ni(111) Interface
-#        material_index: 2
+#      - name: Graphene on Ni(111) Interface
+#        index: 2
 #    output_materials:
-#      - material_name: Graphene on Ni(111) Interface Optimized XY
-#        material_index: 4
+#      - name: Graphene on Ni(111) Interface Optimized XY
+#        index: 4
 #    feature_name: optimize_film_position
 
   - tags: "@notebook_healthcheck"
     notebook_name: passivate_edge.ipynb
     standata_materials:
-      - material_name: C, Graphene Zigzag Nanoribbon (W=4 L=10), ORC (Pmm2) 2D (Nanoribbon), m3-z53HK5wLAvRoWDwr6
-        material_index: 2
+      - name: C, Graphene Zigzag Nanoribbon (W=4 L=10), ORC (Pmm2) 2D (Nanoribbon), m3-z53HK5wLAvRoWDwr6
+        index: 2
     input_materials:
-      - material_name: C, Graphene Zigzag Nanoribbon (W=4 L=10), ORC (Pmm2) 2D (Nanoribbon), m3-z53HK5wLAvRoWDwr6
-        material_index: 2
+      - name: C, Graphene Zigzag Nanoribbon (W=4 L=10), ORC (Pmm2) 2D (Nanoribbon), m3-z53HK5wLAvRoWDwr6
+        index: 2
     output_materials:
-      - material_name: C, Graphene Zigzag Nanoribbon (W=4 L=10), ORC (Pmm2) 2D (Nanoribbon), m3-z53HK5wLAvRoWDwr6 H-passivated
-        material_index: 3
+      - name: C, Graphene Zigzag Nanoribbon (W=4 L=10), ORC (Pmm2) 2D (Nanoribbon), m3-z53HK5wLAvRoWDwr6 H-passivated
+        index: 3
     feature_name: passivate_edge
 
   - tags: "@notebook_healthcheck @ignore"
     notebook_name: passivate_slab.ipynb
     standata_materials:
-      - material_name: Si, Silicon, FCC (Fd-3m) 3D (Bulk), mp-149
-        material_index: 2
+      - name: Si, Silicon, FCC (Fd-3m) 3D (Bulk), mp-149
+        index: 2
     input_materials:
-      - material_name: Si, Silicon, FCC (Fd-3m) 3D (Bulk), mp-149
-        material_index: 2
+      - name: Si, Silicon, FCC (Fd-3m) 3D (Bulk), mp-149
+        index: 2
     output_materials:
-      - material_name: Si8(001), termination Si_P4/mmm_2, Slab H-passivated
-        material_index: 3
+      - name: Si8(001), termination Si_P4/mmm_2, Slab H-passivated
+        index: 3
     feature_name: passivate_slab
 
   - tags: "@notebook_healthcheck"
     notebook_name: create_cutout_box.ipynb
     standata_materials:
-      - material_name: Si, Silicon, FCC (Fd-3m) 3D (Bulk), mp-149
-        material_index: 2
+      - name: Si, Silicon, FCC (Fd-3m) 3D (Bulk), mp-149
+        index: 2
     input_materials:
-      - material_name: Si, Silicon, FCC (Fd-3m) 3D (Bulk), mp-149
-        material_index: 2
+      - name: Si, Silicon, FCC (Fd-3m) 3D (Bulk), mp-149
+        index: 2
     output_materials:
-      - material_name: Si(001), termination Si_P4/mmm_2, Slab with box cutout
-        material_index: 3
+      - name: Si(001), termination Si_P4/mmm_2, Slab with box cutout
+        index: 3
     feature_name: create_cutout_box
 
   - tags: "@notebook_healthcheck"
     notebook_name: create_cutout_custom_shape.ipynb
     standata_materials:
-      - material_name: Si, Silicon, FCC (Fd-3m) 3D (Bulk), mp-149
-        material_index: 2
+      - name: Si, Silicon, FCC (Fd-3m) 3D (Bulk), mp-149
+        index: 2
     input_materials:
-      - material_name: Si, Silicon, FCC (Fd-3m) 3D (Bulk), mp-149
-        material_index: 2
+      - name: Si, Silicon, FCC (Fd-3m) 3D (Bulk), mp-149
+        index: 2
     output_materials:
-      - material_name: Custom Shape - Etching Pattern
-        material_index: 3
+      - name: Custom Shape - Etching Pattern
+        index: 3
     feature_name: create_cutout_custom_shape
 
 #  - notebook_name: create_interface_with_relaxation_ase_emt.ipynb
 #    standata_materials:
-#      - material_name: Graphene on Ni(111) Interface
-#        material_index: 2
+#      - name: Graphene on Ni(111) Interface
+#        index: 2
 #    input_materials:
-#      - material_name: Graphene on Ni(111) Interface
-#        material_index: 2
+#      - name: Graphene on Ni(111) Interface
+#        index: 2
 #    output_materials:
-#      - material_name: Graphene on Ni(111) Interface, Relaxed with EMT
-#        material_index: 3
+#      - name: Graphene on Ni(111) Interface, Relaxed with EMT
+#        index: 3
 #    feature_name: create_interface_with_relaxation_ase_emt
 
   - tags: "@notebook_healthcheck"
     notebook_name: create_island_defect.ipynb
     standata_materials:
-      - material_name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
-        material_index: 2
+      - name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
+        index: 2
     input_materials:
-      - material_name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
-        material_index: 2
+      - name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
+        index: 2
     output_materials:
-      - material_name: Ni(001), termination Ni_P4/mmm_2, Slab, Island
-        material_index: 3
+      - name: Ni(001), termination Ni_P4/mmm_2, Slab, Island
+        index: 3
     feature_name: create_island_defect
 
   - tags: "@notebook_healthcheck"
     notebook_name: create_island_defect_custom.ipynb
     standata_materials:
-      - material_name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
-        material_index: 2
+      - name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
+        index: 2
     input_materials:
-      - material_name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
-        material_index: 2
+      - name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
+        index: 2
     output_materials:
-      - material_name: Ni4(001), termination Ni_P4/mmm_2, Slab
-        material_index: 3
+      - name: Ni4(001), termination Ni_P4/mmm_2, Slab
+        index: 3
     feature_name: create_island_defect_custom
 
   - tags: "@notebook_healthcheck"
     notebook_name: create_nanowire_custom_shape.ipynb
     standata_materials:
-      - material_name: Si, Silicon, FCC (Fd-3m) 3D (Bulk), mp-149
-        material_index: 2
+      - name: Si, Silicon, FCC (Fd-3m) 3D (Bulk), mp-149
+        index: 2
     input_materials:
-      - material_name: Si, Silicon, FCC (Fd-3m) 3D (Bulk), mp-149
-        material_index: 2
+      - name: Si, Silicon, FCC (Fd-3m) 3D (Bulk), mp-149
+        index: 2
     output_materials:
-      - material_name: Si8(001), termination Si_P4/mmm_2, Slab
-        material_index: 3
+      - name: Si8(001), termination Si_P4/mmm_2, Slab
+        index: 3
     feature_name: create_nanowire_custom_shape
 
   - tags: "@notebook_healthcheck"
     notebook_name: create_perturbation.ipynb
     standata_materials:
-      - material_name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993
-        material_index: 2
+      - name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993
+        index: 2
     input_materials:
-      - material_name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993
-        material_index: 2
+      - name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993
+        index: 2
     output_materials:
-      - material_name: "C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993 (Perturbation: 0.5*sin(2*pi*x))"
-        material_index: 3
+      - name: "C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993 (Perturbation: 0.5*sin(2*pi*x))"
+        index: 3
     feature_name: create_perturbation
 
   - tags: "@notebook_healthcheck @ignore"
     notebook_name: create_perturbation_custom.ipynb
     standata_materials:
-      - material_name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993
-        material_index: 2
+      - name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993
+        index: 2
     input_materials:
-      - material_name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993
-        material_index: 2
+      - name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993
+        index: 2
     output_materials:
-      - material_name: 'C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993 (Perturbation: PerturbationFunctionHolder)'
-        material_index: 3
+      - name: 'C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993 (Perturbation: PerturbationFunctionHolder)'
+        index: 3
     feature_name: create_perturbation_custom
 
   - tags: "@notebook_healthcheck"
     notebook_name: create_point_defect_pair.ipynb
     standata_materials:
-      - material_name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
-        material_index: 2
+      - name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
+        index: 2
     input_materials:
-      - material_name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
-        material_index: 2
+      - name: Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23
+        index: 2
     output_materials:
-      - material_name: "Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23, Pair Defect: Vac + C"
-        material_index: 3
+      - name: "Ni, Nickel, FCC (Fm-3m) 3D (Bulk), mp-23, Pair Defect: Vac + C"
+        index: 3
     feature_name: create_point_defect_pair
 
   - tags: "@notebook_healthcheck"
     notebook_name: create_terrace_defect.ipynb
     standata_materials:
-      - material_name: Pt, Platinum, FCC (Fm-3m) 3D (Bulk), mp-126
-        material_index: 2
+      - name: Pt, Platinum, FCC (Fm-3m) 3D (Bulk), mp-126
+        index: 2
     input_materials:
-      - material_name: Pt, Platinum, FCC (Fm-3m) 3D (Bulk), mp-126
-        material_index: 2
+      - name: Pt, Platinum, FCC (Fm-3m) 3D (Bulk), mp-126
+        index: 2
     output_materials:
-      - material_name: Pt(001), termination Pt_P4/mmm_2, Slab, Terrace [1, 0, 0]
-        material_index: 3
+      - name: Pt(001), termination Pt_P4/mmm_2, Slab, Terrace [1, 0, 0]
+        index: 3
     feature_name: create_terrace_defect
 
   - tags: "@notebook_healthcheck"
     notebook_name: custom_transformation.ipynb
     standata_materials:
-      - material_name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993
-        material_index: 2
+      - name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993
+        index: 2
     input_materials:
-      - material_name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993
-        material_index: 2
+      - name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993
+        index: 2
     output_materials:
-      - material_name: Custom Transformed Material
-        material_index: 3
+      - name: Custom Transformed Material
+        index: 3
     feature_name: custom_transformation

@@ -6,11 +6,9 @@ Feature: Healthcheck to create ${material_name}
     When I open materials designer page
     Then I see material designer page
     And I import materials from Standata
-      | name | index |
-${standata_materials_table}
+${convertToTable(standata_materials)}
     Then material with following name exists in state
-      | name | index |
-${standata_materials_table}
+${convertToTable(standata_materials)}
 
     # Open
     When I open JupyterLite Transformation dialog
@@ -23,13 +21,11 @@ ${standata_materials_table}
 
     # Select material
     And I select materials in MaterialsSelector
-      | name | index |
-${input_materials_table}
+${convertToTable(input_materials)}
 
     # Run
     And I Run All Cells
     And I see kernel status is Idle
     And I submit materials
     Then material with following name exists in state
-      | name | index |
-${output_materials_table}
+${convertToTable(output_materials)}

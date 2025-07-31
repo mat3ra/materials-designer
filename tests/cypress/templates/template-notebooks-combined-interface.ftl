@@ -19,8 +19,7 @@ Feature: Combined test to create interface with relaxation and optimization
     And I see kernel status is Idle
     And I submit materials
     Then material with following name exists in state
-      | name | index |
-${interface_material_table}
+${convertToTable(interface_material)}
 
     # Optimize film position
     # Open JupyterLite
@@ -31,14 +30,12 @@ ${interface_material_table}
     When I double click on "${optimize_notebook}" entry in sidebar
     And I see file "${optimize_notebook}" opened
     And I select materials in MaterialsSelector
-      | name | index |
-${interface_material_table}
+${convertToTable(interface_material)}
     And I Run All Cells
     And I see kernel status is Idle
     And I submit materials
     Then material with following name exists in state
-      | name | index |
-${optimized_material_table}
+${convertToTable(optimized_material)}
 
     # Relax with EMT
     # Open JupyterLite
@@ -49,13 +46,11 @@ ${optimized_material_table}
     When I double click on "${relax_notebook}" entry in sidebar
     And I see file "${relax_notebook}" opened
     And I select materials in MaterialsSelector
-      | name | index |
-${interface_material_table}
+${convertToTable(interface_material)}
     And I Run All Cells
     And I see kernel status is Idle
     And I submit materials
 
     # Final verification
     Then material with following name exists in state
-      | name | index |
-${relaxed_material_table}
+${convertToTable(relaxed_material)}
