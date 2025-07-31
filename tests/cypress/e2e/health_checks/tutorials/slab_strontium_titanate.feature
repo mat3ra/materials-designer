@@ -1,3 +1,4 @@
+# This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
 Feature: Healthcheck to create O3SrTi(011), termination O2_Pmmm_2, Slab
 

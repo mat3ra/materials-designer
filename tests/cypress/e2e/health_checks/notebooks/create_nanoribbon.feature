@@ -1,5 +1,6 @@
+# This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
-Feature: Healthcheck to create ${material_name}
+Feature: Healthcheck to create material
 
   Scenario:
     When I open materials designer page
@@ -31,4 +32,4 @@ Feature: Healthcheck to create ${material_name}
     And I submit materials
     Then material with following name exists in state
       | name | index |
-      | C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993 (Zigzag nanoribbon) | 3 |
+      | C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993 - Armchair Nanoribbon (11) | 3 |

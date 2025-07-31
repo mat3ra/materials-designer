@@ -1,3 +1,4 @@
+# This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
 Feature: Healthcheck to create C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993, Adatom Li Defect
 

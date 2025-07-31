@@ -1,3 +1,4 @@
+# This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
 Feature: Healthcheck to create Interface (C_P6/mmm_2, O2_P6/mmm_1)
 

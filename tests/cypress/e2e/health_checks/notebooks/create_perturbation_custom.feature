@@ -1,5 +1,6 @@
+# This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck @ignore
-Feature: Healthcheck to create ${material_name}
+Feature: Healthcheck to create material
 
   Scenario:
     When I open materials designer page

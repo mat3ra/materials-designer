@@ -1,3 +1,4 @@
+# This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
 Feature: Healthcheck to create Cu4(310)-Cu4(-3-10), Grain Boundary
 

@@ -1,3 +1,4 @@
+# This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
 Feature: Healthcheck to create N4Ti4(001), termination TiN_P4/mmm_4, Slab
 

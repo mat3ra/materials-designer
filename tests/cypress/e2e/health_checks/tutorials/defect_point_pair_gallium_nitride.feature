@@ -1,3 +1,4 @@
+# This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
 Feature: Healthcheck to create Mg1 Ga35 N35, Vacancy  Defect, Pair  Defect, Substitution and Vacancy Defect Pair
 

@@ -1,3 +1,4 @@
+# This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
 Feature: Combined test to create interface with relaxation and optimization
 
@@ -39,9 +40,6 @@ Feature: Combined test to create interface with relaxation and optimization
       | name | index |
       | C2(001)-Ni4(001), Interface, Strain 0.244pct Optimized XY | 3 |
 
-    # Remove optimized material from list to avoid conflicts
-    Then I delete materials with index "3"
-
     # Relax with EMT
     # Open JupyterLite
     When I open JupyterLite Transformation dialog
@@ -60,4 +58,4 @@ Feature: Combined test to create interface with relaxation and optimization
     # Final verification
     Then material with following name exists in state
       | name | index |
-      | C2(001)-Ni4(001), Interface, Strain 0.244pct, Relaxed with EMT | 3 |
+      | C2(001)-Ni4(001), Interface, Strain 0.244pct, Relaxed with EMT | 4 |

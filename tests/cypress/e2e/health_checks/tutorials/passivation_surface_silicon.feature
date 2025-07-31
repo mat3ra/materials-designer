@@ -1,3 +1,4 @@
+# This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
 Feature: Healthcheck to create Si, Silicon (100) surface (reconstructed), TRI (P1) 2D (Surface), mavrl-si-100-r H-passivated
 
