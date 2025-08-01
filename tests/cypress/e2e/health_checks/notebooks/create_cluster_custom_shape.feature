@@ -24,7 +24,7 @@ Feature: Notebook healthcheck to create "Au Custom Cluster"
     # Select material
     And I select materials in MaterialsSelector
       | name | index |
-      | Au, Gold, FCC (Fm-3m) 3D (Bulk), mp-81 | 2 |
+      | Au, Gold, FCC (Fm-3m) 3D (Bulk), mp-81 Icosahedron | 2 |
 
     # Run
     And I Run All Cells

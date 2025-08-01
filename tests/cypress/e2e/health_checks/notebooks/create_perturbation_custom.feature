@@ -1,6 +1,6 @@
 # This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
-Feature: Notebook healthcheck to create "C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993 (Perturbation: PerturbationFunctionHolder)"
+Feature: Notebook healthcheck to create "C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993 (Perturbation: 0.05*sin(2*pi*x)*sin(2*pi*y))"
 
   Scenario:
     When I open materials designer page
@@ -32,4 +32,4 @@ Feature: Notebook healthcheck to create "C, Graphene, HEX (P6/mmm) 2D (Monolayer
     And I submit materials
     Then material with following name exists in state
       | name | index |
-      | C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993 (Perturbation: PerturbationFunctionHolder) | 3 |
+      | C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993 (Perturbation: 0.05*sin(2*pi*x)*sin(2*pi*y)) | 3 |
