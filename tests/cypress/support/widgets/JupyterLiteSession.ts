@@ -23,6 +23,8 @@ const SELECTORS = {
             output: (index: number) =>
                 `.jp-Notebook .jp-Cell:nth-child(${index}) .jp-OutputArea-output`,
             stdin: ".lm-Widget.p-Widget input.jp-Stdin-input",
+            error: ".jp-Cell .ansi-red-fg",
+            any: ".jp-Cell",
         },
     },
     menu: {
@@ -100,11 +102,11 @@ export default class JupyterLiteSession extends Widget {
         const cellSelector = SELECTORS.notebook.cell.byIndex(cellIndex);
         this.iframeAnchor.waitForExist(cellSelector);
 
-        return this.browser.execute((win) => {
-            const iframe = win.document.querySelector(SELECTORS.iframe);
+        return this.browser.execute((win: any) => {
+            const iframe = win.document.querySelector(SELECTORS.iframe) as any;
             const selector = SELECTORS.notebook.cell.byIndex(cellIndex);
-            const cell = iframe.contentWindow.document.body.querySelector(selector);
-            const codeMirrorInstance = cell.CodeMirror;
+            const cell = iframe?.contentWindow?.document.body.querySelector(selector) as any;
+            const codeMirrorInstance = cell?.CodeMirror;
             if (!codeMirrorInstance) {
                 throw new Error("Unable to access CodeMirror instance.");
             }
@@ -166,7 +168,7 @@ export default class JupyterLiteSession extends Widget {
                 });
             },
             true,
-            Widget.TimeoutType.md,
+            Widget.TimeoutType.sm,
             Widget.TimeoutType.xl,
         );
     }
@@ -191,5 +193,53 @@ export default class JupyterLiteSession extends Widget {
         });
 
         this.iframeAnchor.get(SELECTORS.notebook.cell.stdin).type("{enter}");
+    }
+
+    /**
+     * Checks for error cells and scrolls to the first one found
+     * Fails the test immediately if any errors are detected
+     */
+    checkForErrorsAndScrollToFirst() {
+        return this.browser
+            .execute((win: any) => {
+                try {
+                    const iframe = win.document.querySelector(SELECTORS.iframe) as any;
+                    if (!iframe?.contentWindow?.document) {
+                        return { hasError: false };
+                    }
+
+                    const iframeDoc = iframe.contentWindow.document;
+                    const errorElements = iframeDoc.querySelectorAll(SELECTORS.notebook.cell.error);
+
+                    if (errorElements.length > 0) {
+
+                        const firstErrorCell = errorElements[0].closest(SELECTORS.notebook.cell.any) as any;
+                        if (firstErrorCell) {
+                            firstErrorCell.scrollIntoView({
+                                behavior: "smooth",
+                                block: "center",
+                            });
+                        }
+                        return { hasError: true, errorCount: errorElements.length };
+                    }
+
+                    return { hasError: false };
+                } catch (error) {
+                    return { hasError: false, error };
+                }
+            })
+            .then((result: any) => {
+                if (result.hasError) {
+                    // Wait a moment for smooth scrolling to complete before failing the test
+                    // This ensures the error is visible in the failure screenshot
+                    cy.wait(1000).then(() => {
+                        throw new Error(
+                            `🔴 Notebook execution failed - Found ${
+                                result.errorCount || 1
+                            } error(s) with ansi-red-fg styling`,
+                        );
+                    });
+                }
+            });
     }
 }
