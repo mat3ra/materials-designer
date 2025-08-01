@@ -1,5 +1,5 @@
 # This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
-@notebook_healthcheck @ignore
+@notebook_healthcheck
 Feature: Notebook healthcheck to create "Si8(001), termination Si_P4/mmm_2, Slab H-passivated"
 
   Scenario:

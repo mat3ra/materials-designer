@@ -102,9 +102,8 @@ cases:
         index: 3
     feature_name: create_cluster_sphere
 
-  - tags: "@notebook_healthcheck @ignore"
+  - tags: "@notebook_healthcheck"
     notebook_name: create_cluster_custom_shape.ipynb
-# TODO:    icosphere has no pure wheel
     standata_materials:
       - name: Au, Gold, FCC (Fm-3m) 3D (Bulk), mp-81
         index: 2
@@ -288,7 +287,7 @@ cases:
         index: 3
     feature_name: passivate_edge
 
-  - tags: "@notebook_healthcheck @ignore"
+  - tags: "@notebook_healthcheck"
     notebook_name: passivate_slab.ipynb
     standata_materials:
       - name: Si, Silicon, FCC (Fd-3m) 3D (Bulk), mp-149
@@ -391,7 +390,7 @@ cases:
         index: 3
     feature_name: create_perturbation
 
-  - tags: "@notebook_healthcheck @ignore"
+  - tags: "@notebook_healthcheck"
     notebook_name: create_perturbation_custom.ipynb
     standata_materials:
       - name: C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993

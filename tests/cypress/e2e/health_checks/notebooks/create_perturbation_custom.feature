@@ -1,5 +1,5 @@
 # This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
-@notebook_healthcheck @ignore
+@notebook_healthcheck
 Feature: Notebook healthcheck to create "C, Graphene, HEX (P6/mmm) 2D (Monolayer), 2dm-3993 (Perturbation: PerturbationFunctionHolder)"
 
   Scenario:

@@ -1,5 +1,5 @@
 # This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
-@notebook_healthcheck @ignore
+@notebook_healthcheck
 Feature: Notebook healthcheck to create "Au Custom Cluster"
 
   Scenario:
