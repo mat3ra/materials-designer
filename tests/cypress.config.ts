@@ -13,7 +13,7 @@ export default defineConfig({
         // supportFile: false,
         retries: {
             // Configure retry attempts for `cypress run` (CI/headless mode)
-            runMode: 2,
+            runMode: 1,
             // Configure retry attempts for `cypress open` (local development)
             openMode: 0,
         },
