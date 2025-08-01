@@ -54,5 +54,5 @@ jobs:
             tests/cypress/screenshots/
             tests/cypress/videos/
             tests/cypress/results/
-          retention-days: 2
+          retention-days: 30
           if-no-files-found: ignore
