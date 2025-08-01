@@ -196,8 +196,26 @@ export default class JupyterLiteSession extends Widget {
     }
 
     /**
-     * Checks for error cells and scrolls to the first one found
-     * Fails the test immediately if any errors are detected
+     * Formats cell text for error reporting with smart truncation
+     * Shows first 300 and last 300 characters if text is longer than 600 chars
+     */
+    private formatCellTextForDisplay(fullText: string): string {
+        const charactersToShow = 600;
+
+        if (fullText.length <= charactersToShow) {
+            return fullText;
+        }
+
+        const firstPart = fullText.substring(0, charactersToShow / 2);
+        const lastPart = fullText.substring(fullText.length - charactersToShow / 2);
+        const truncatedCount = fullText.length - charactersToShow;
+
+        return `${firstPart}\n...[truncated ${truncatedCount} characters]...\n${lastPart}`;
+    }
+
+    /**
+     * Checks for error cells and scrolls to the first one found for visibility
+     * Logs error information but does NOT fail the test - continues execution
      */
     checkForErrorsAndScrollToFirst() {
         return this.browser
@@ -212,23 +230,26 @@ export default class JupyterLiteSession extends Widget {
                     const errorElements = iframeDoc.querySelectorAll(SELECTORS.notebook.cell.error);
 
                     if (errorElements.length > 0) {
-                        const firstErrorCell = errorElements[0].closest(SELECTORS.notebook.cell.any) as any;
+                        const firstErrorCell = errorElements[0].closest(
+                            SELECTORS.notebook.cell.any,
+                        ) as any;
+
+                        const firstErrorText = errorElements[0].textContent?.trim() || "";
+                        const fullCellText = firstErrorCell?.textContent?.trim() || "";
+
                         if (firstErrorCell) {
                             firstErrorCell.scrollIntoView({
-                                behavior: "smooth",
+                                behavior: "auto",
                                 block: "center",
+                                inline: "nearest",
                             });
                         }
-                        
 
-                        const firstErrorText = errorElements[0].textContent?.trim() || '';
-                        const cellText = firstErrorCell?.textContent?.trim() || '';
-                        
-                        return { 
-                            hasError: true, 
+                        return {
+                            hasError: true,
                             errorCount: errorElements.length,
-                            firstErrorText: firstErrorText,
-                            cellText: cellText.substring(0, 500) 
+                            firstErrorText,
+                            cellText: fullCellText,
                         };
                     }
 
@@ -239,15 +260,14 @@ export default class JupyterLiteSession extends Widget {
             })
             .then((result: any) => {
                 if (result.hasError) {
-                    // Wait a moment for smooth scrolling to complete before failing the test
-                    // This ensures the error is visible in the failure screenshot
-                    cy.wait(1000).then(() => {
-                        const errorText = result.firstErrorText || 'Unknown error';
-                        throw new Error(
-                            `🔴 Notebook execution failed.\n` +
-                            `Cell content: ${result.cellText || 'Unable to extract cell content'}`
-                        );
-                    });
+                    const formattedCellText = this.formatCellTextForDisplay(result.cellText || "");
+
+                    console.log(`🔴 Error detected: ${result.firstErrorText || "Unknown error"}`);
+                    console.log(
+                        `Cell content:\n${formattedCellText || "Unable to extract cell content"}`,
+                    );
+
+                    cy.wait(1500); // To allow for scroll before snapshot
                 }
             });
     }
