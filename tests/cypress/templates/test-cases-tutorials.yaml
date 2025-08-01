@@ -92,8 +92,7 @@ cases:
     tutorial_material_index: 2
     feature_name: nanocluster_gold
 
-  # TODO: fix in Made (material augmentation fails)
-  - tags: "@notebook_healthcheck @ignore"
+  - tags: "@notebook_healthcheck"
     tutorial_notebook_name: optimization_interface_film_xy_position_graphene_nickel.ipynb
     tutorial_material_name: Graphene_Nickel_interface_optimized_xy
     tutorial_material_file_name: Graphene_Nickel_interface_optimized_xy.json

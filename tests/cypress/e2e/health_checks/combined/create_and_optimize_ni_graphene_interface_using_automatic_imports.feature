@@ -1,5 +1,5 @@
 # This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
-@notebook_healthcheck @ignore
+@notebook_healthcheck @quarantine
 Feature: Combined test to create interface with relaxation and optimization
 
   Scenario:
