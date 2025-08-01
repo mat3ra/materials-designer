@@ -55,7 +55,7 @@ schema:
     description: Name of the feature file without extension
 
 cases:
-  - tags: "@notebook_healthcheck @quarantine"
+  - tags: "@notebook_healthcheck"
     workflow_description: create and optimize Ni-Graphene interface using automatic imports
     interface_notebook: create_interface_with_min_strain_zsl.ipynb
     optimize_notebook: optimize_film_position.ipynb

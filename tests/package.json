@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "test": "CYPRESS_BASE_URL=${CYPRESS_BASE_URL:-'http://localhost:3001'} cypress open",
-        "test:headless": "export TAGS=${TAGS:-'not @ignore'}; CYPRESS_BASE_URL=${CYPRESS_BASE_URL:-'http://localhost:3001'} cypress run -e TAGS=\"$TAGS\"",
+        "test:headless": "export TAGS=${TAGS:-'not @ignore and not @notebook_healthcheck'}; CYPRESS_BASE_URL=${CYPRESS_BASE_URL:-'http://localhost:3001'} cypress run -e TAGS=\"$TAGS\"",
         "test:healthcheck": "TAGS='not @ignore and @notebook_healthcheck' npm run test:headless",
         "lint": "npx eslint cypress && prettier --write cypress"
     },
