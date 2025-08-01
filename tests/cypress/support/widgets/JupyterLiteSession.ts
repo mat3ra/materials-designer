@@ -212,7 +212,6 @@ export default class JupyterLiteSession extends Widget {
                     const errorElements = iframeDoc.querySelectorAll(SELECTORS.notebook.cell.error);
 
                     if (errorElements.length > 0) {
-
                         const firstErrorCell = errorElements[0].closest(SELECTORS.notebook.cell.any) as any;
                         if (firstErrorCell) {
                             firstErrorCell.scrollIntoView({
@@ -220,7 +219,17 @@ export default class JupyterLiteSession extends Widget {
                                 block: "center",
                             });
                         }
-                        return { hasError: true, errorCount: errorElements.length };
+                        
+
+                        const firstErrorText = errorElements[0].textContent?.trim() || '';
+                        const cellText = firstErrorCell?.textContent?.trim() || '';
+                        
+                        return { 
+                            hasError: true, 
+                            errorCount: errorElements.length,
+                            firstErrorText: firstErrorText,
+                            cellText: cellText.substring(0, 500) 
+                        };
                     }
 
                     return { hasError: false };
@@ -233,10 +242,10 @@ export default class JupyterLiteSession extends Widget {
                     // Wait a moment for smooth scrolling to complete before failing the test
                     // This ensures the error is visible in the failure screenshot
                     cy.wait(1000).then(() => {
+                        const errorText = result.firstErrorText || 'Unknown error';
                         throw new Error(
-                            `🔴 Notebook execution failed - Found ${
-                                result.errorCount || 1
-                            } error(s) with ansi-red-fg styling`,
+                            `🔴 Notebook execution failed.\n` +
+                            `Cell content: ${result.cellText || 'Unable to extract cell content'}`
                         );
                     });
                 }
