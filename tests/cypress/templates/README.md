@@ -26,12 +26,12 @@ This tool generates Gherkin feature files from YAML templates for automated test
 4. **Generate Feature Files**
 
    ```
-   cd tests/cypress/templates
+   cd tests
    node generate-features.js
    ```
 
 5. **Output**
-   - Feature files are generated in `tests/cypress/integration/generated` directory
+   - Feature files are generated in `tests/cypress/e2e/health_checks` directory
    - Each feature file contains multiple scenarios based on test cases
 
 6. **Notes**

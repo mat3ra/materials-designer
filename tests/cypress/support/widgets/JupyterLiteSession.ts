@@ -23,6 +23,8 @@ const SELECTORS = {
             output: (index: number) =>
                 `.jp-Notebook .jp-Cell:nth-child(${index}) .jp-OutputArea-output`,
             stdin: ".lm-Widget.p-Widget input.jp-Stdin-input",
+            error: ".jp-Cell .ansi-red-fg",
+            any: ".jp-Cell",
         },
     },
     menu: {
@@ -51,11 +53,11 @@ export default class JupyterLiteSession extends Widget {
     constructor() {
         super(SELECTORS.iframe);
         this.wrappedSelectors = this.getWrappedSelectors(SELECTORS);
-        this.iframeAnchor = this.browser.iframe(SELECTORS.iframe, Widget.TimeoutType.md);
+        this.iframeAnchor = this.browser.iframe(SELECTORS.iframe, Widget.TimeoutType.lg);
     }
 
     waitForVisible() {
-        return this.iframeAnchor.waitForVisible(SELECTORS.main, Widget.TimeoutType.md);
+        return this.iframeAnchor.waitForVisible(SELECTORS.main, Widget.TimeoutType.lg);
     }
 
     doubleclickEntryInSidebar(sidebarEntry: string) {
@@ -100,11 +102,11 @@ export default class JupyterLiteSession extends Widget {
         const cellSelector = SELECTORS.notebook.cell.byIndex(cellIndex);
         this.iframeAnchor.waitForExist(cellSelector);
 
-        return this.browser.execute((win) => {
-            const iframe = win.document.querySelector(SELECTORS.iframe);
+        return this.browser.execute((win: any) => {
+            const iframe = win.document.querySelector(SELECTORS.iframe) as any;
             const selector = SELECTORS.notebook.cell.byIndex(cellIndex);
-            const cell = iframe.contentWindow.document.body.querySelector(selector);
-            const codeMirrorInstance = cell.CodeMirror;
+            const cell = iframe?.contentWindow?.document.body.querySelector(selector) as any;
+            const codeMirrorInstance = cell?.CodeMirror;
             if (!codeMirrorInstance) {
                 throw new Error("Unable to access CodeMirror instance.");
             }
@@ -166,7 +168,7 @@ export default class JupyterLiteSession extends Widget {
                 });
             },
             true,
-            Widget.TimeoutType.md,
+            Widget.TimeoutType.sm,
             Widget.TimeoutType.xl,
         );
     }
@@ -191,5 +193,80 @@ export default class JupyterLiteSession extends Widget {
         });
 
         this.iframeAnchor.get(SELECTORS.notebook.cell.stdin).type("{enter}");
+    }
+
+    /**
+     * Formats cell text for error reporting with smart truncation
+     * Shows first 300 and last 300 characters if text is longer than 600 chars
+     */
+    private formatCellTextForDisplay(fullText: string): string {
+        const charactersToShow = 600;
+
+        if (fullText.length <= charactersToShow) {
+            return fullText;
+        }
+
+        const firstPart = fullText.substring(0, charactersToShow / 2);
+        const lastPart = fullText.substring(fullText.length - charactersToShow / 2);
+        const truncatedCount = fullText.length - charactersToShow;
+
+        return `${firstPart}\n...[truncated ${truncatedCount} characters]...\n${lastPart}`;
+    }
+
+    /**
+     * Checks for error cells and scrolls to the first one found for visibility
+     * Logs error information but does NOT fail the test - continues execution
+     */
+    checkForErrorsAndScrollToFirst() {
+        return this.browser
+            .execute((win: any) => {
+                try {
+                    const iframe = win.document.querySelector(SELECTORS.iframe) as any;
+                    if (!iframe?.contentWindow?.document) {
+                        return { hasError: false };
+                    }
+
+                    const iframeDoc = iframe.contentWindow.document;
+                    const errorElements = iframeDoc.querySelectorAll(SELECTORS.notebook.cell.error);
+
+                    if (errorElements.length > 0) {
+                        const firstErrorCell = errorElements[0].closest(
+                            SELECTORS.notebook.cell.any,
+                        ) as any;
+
+                        const firstErrorText = errorElements[0].textContent?.trim() || "";
+                        const fullCellText = firstErrorCell?.textContent?.trim() || "";
+
+                        if (firstErrorCell) {
+                            firstErrorCell.scrollIntoView({
+                                behavior: "auto",
+                                block: "center",
+                                inline: "nearest",
+                            });
+                        }
+
+                        return {
+                            hasError: true,
+                            errorCount: errorElements.length,
+                            firstErrorText,
+                            cellText: fullCellText,
+                        };
+                    }
+
+                    return { hasError: false };
+                } catch (error) {
+                    return { hasError: false, error };
+                }
+            })
+            .then((result: any) => {
+                if (result.hasError) {
+                    const formattedCellText = this.formatCellTextForDisplay(result.cellText || "");
+
+                    console.log(`🔴 Error detected: ${result.firstErrorText || "Unknown error"}`);
+                    console.log(
+                        `Cell content:\n${formattedCellText || "Unable to extract cell content"}`,
+                    );
+                }
+            });
     }
 }

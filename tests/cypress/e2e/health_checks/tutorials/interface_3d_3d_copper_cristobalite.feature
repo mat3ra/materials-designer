@@ -1,5 +1,6 @@
+# This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
-Feature: Healthcheck to create Cu4(001)-O8Si4(001), Interface, Strain 0.444pct
+Feature: Healthcheck to create Cu(001)-O2Si(001), Interface, Strain 8.787pct
 
   Scenario:
     When I open materials designer page
@@ -19,8 +20,8 @@ Feature: Healthcheck to create Cu4(001)-O8Si4(001), Interface, Strain 0.444pct
     # Run
     And I Run All Cells
     And I see kernel status is Idle
-    Then I see file "interface_2.json" on filesystem
+    Then I see file "Cu(001)-O2Si(001), Interface, Strain 8.787pct.json" on filesystem
     And I submit materials
     Then material with following name exists in state
       | name                      | index                      |
-      | Cu4(001)-O8Si4(001), Interface, Strain 0.444pct | 2 |
+      | Cu(001)-O2Si(001), Interface, Strain 8.787pct | 2 |

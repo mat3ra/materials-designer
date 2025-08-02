@@ -5,6 +5,6 @@ import MaterialDesignerPage from "../../widgets/MaterialDesignerPage";
 When("I open JupyterLite Transformation dialog", () => {
     new MaterialDesignerPage().designerWidget.headerMenu.selectMenuItemByNameAndItemNumber(
         "Advanced",
-        7,
+        6,
     );
 });

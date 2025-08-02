@@ -1,5 +1,6 @@
+# This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
-Feature: Healthcheck to create Cu4(310)-Cu4(-3-10), Grain Boundary
+Feature: Healthcheck to create Cu(-3̂-1̂0)-Cu(310), Grain Boundary
 
   Scenario:
     When I open materials designer page
@@ -23,4 +24,4 @@ Feature: Healthcheck to create Cu4(310)-Cu4(-3-10), Grain Boundary
     And I submit materials
     Then material with following name exists in state
       | name                      | index                      |
-      | Cu4(310)-Cu4(-3-10), Grain Boundary | 2 |
+      | Cu(-3̂-1̂0)-Cu(310), Grain Boundary | 2 |

@@ -1,5 +1,6 @@
+# This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
-Feature: Healthcheck to create ${material_name}
+Feature: Notebook healthcheck to create "C, Graphene Zigzag Nanoribbon (W=4 L=10), ORC (Pmm2) 2D (Nanoribbon), m3-z53HK5wLAvRoWDwr6 H-passivated"
 
   Scenario:
     When I open materials designer page

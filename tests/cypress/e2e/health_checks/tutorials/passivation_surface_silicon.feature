@@ -1,5 +1,6 @@
+# This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
-Feature: Healthcheck to create Si, Silicon (100) surface (reconstructed), TRI (P1) 2D (Surface), mavrl-si-100-r H-passivated
+Feature: Healthcheck to create Si, Silicon (100) surface (reconstructed), TRI (P1) 2D (Surface), mavrl-si-100-r, H-passivated
 
   Scenario:
     When I open materials designer page
@@ -23,4 +24,4 @@ Feature: Healthcheck to create Si, Silicon (100) surface (reconstructed), TRI (P
     And I submit materials
     Then material with following name exists in state
       | name                      | index                      |
-      | Si, Silicon (100) surface (reconstructed), TRI (P1) 2D (Surface), mavrl-si-100-r H-passivated | 2 |
+      | Si, Silicon (100) surface (reconstructed), TRI (P1) 2D (Surface), mavrl-si-100-r, H-passivated | 2 |

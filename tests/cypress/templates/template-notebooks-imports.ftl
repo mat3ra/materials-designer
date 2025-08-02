@@ -1,3 +1,4 @@
+# This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 ${tags}
 Feature: Healthcheck to import ${material_name}
 

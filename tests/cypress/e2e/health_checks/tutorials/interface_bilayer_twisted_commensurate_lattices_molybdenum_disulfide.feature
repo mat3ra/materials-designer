@@ -1,5 +1,6 @@
+# This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
-Feature: Healthcheck to create Twisted Bilayer Interface (21.79 degrees)
+Feature: Healthcheck to create MoS2(001)-MoS2(001), Interface
 
   Scenario:
     When I open materials designer page
@@ -23,4 +24,4 @@ Feature: Healthcheck to create Twisted Bilayer Interface (21.79 degrees)
     And I submit materials
     Then material with following name exists in state
       | name                      | index                      |
-      | Twisted Bilayer Interface (21.79 degrees) | 2 |
+      | MoS2(001)-MoS2(001), Interface | 2 |

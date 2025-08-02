@@ -1,5 +1,6 @@
+# This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
-Feature: Healthcheck to create ${material_name}
+Feature: Notebook healthcheck to create "BN(001)-BN(001), Linear Grain Boundary, 17.90 degrees"
 
   Scenario:
     When I open materials designer page
@@ -31,4 +32,4 @@ Feature: Healthcheck to create ${material_name}
     And I submit materials
     Then material with following name exists in state
       | name | index |
-      | BN, Hexagonal Boron Nitride, HEX (P6/mmm) 2D (Monolayer), 2dm-4991, Grain Boundary (17.90°) | 3 |
+      | BN(001)-BN(001), Linear Grain Boundary, 17.90 degrees | 3 |

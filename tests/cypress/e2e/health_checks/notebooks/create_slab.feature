@@ -1,5 +1,6 @@
+# This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
-Feature: Healthcheck to create ${material_name}
+Feature: Notebook healthcheck to create "O3SrTi(001), termination TiO2_P4/mmm_3, Slab"
 
   Scenario:
     When I open materials designer page

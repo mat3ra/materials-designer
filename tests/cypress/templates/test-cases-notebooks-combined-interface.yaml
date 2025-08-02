@@ -61,12 +61,12 @@ cases:
     optimize_notebook: optimize_film_position.ipynb
     relax_notebook: create_interface_with_relaxation_ase_emt.ipynb
     interface_material:
-      - name: C2(001)-Ni4(001), Interface, Strain 0.244pct
+      - name: C(001)-Ni(001), Interface, Strain 8.308pct
         index: 2
     optimized_material:
-      - name: C2(001)-Ni4(001), Interface, Strain 0.244pct Optimized XY
+      - name: C(001)-Ni(001), Interface, Strain 8.308pct Optimized XY
         index: 3
     relaxed_material:
-      - name: C2(001)-Ni4(001), Interface, Strain 0.244pct, Relaxed with EMT
+      - name: C(001)-Ni(001), Interface, Strain 8.308pct, Relaxed with EMT
         index: 4
     feature_name: create_and_optimize_ni_graphene_interface_using_automatic_imports

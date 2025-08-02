@@ -1,5 +1,6 @@
+# This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
-Feature: Healthcheck to create ${material_name}
+Feature: Notebook healthcheck to create "C(001)-Ni(001), Interface, Strain 8.308pct"
 
   Scenario:
     When I open materials designer page
@@ -34,4 +35,4 @@ Feature: Healthcheck to create ${material_name}
     And I submit materials
     Then material with following name exists in state
       | name | index |
-      | C2(001)-Ni4(001), Interface, Strain 0.244pct | 4 |
+      | C(001)-Ni(001), Interface, Strain 8.308pct | 4 |

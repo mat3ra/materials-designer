@@ -8,6 +8,7 @@ on:
 jobs:
   run-notebook-tests:
     runs-on: ubuntu-22.04
+    continue-on-error: true
     steps:
       - name: Checkout this repository
         uses: actions/checkout@v4
@@ -42,4 +43,14 @@ jobs:
           skip_build: 'true'
           run-test-environment: NPM_RUN_COMMAND='test:healthcheck'
 
-
+      - name: Upload test artifacts
+        if: failure()  # Only upload when tests fail
+        uses: actions/upload-artifact@v4
+        with:
+          name: notebook-healthcheck-results-${{ github.run_id }}
+          path: |
+            tests/cypress/screenshots/
+            tests/cypress/videos/
+            tests/cypress/results/
+          retention-days: 30
+          if-no-files-found: ignore

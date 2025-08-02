@@ -1,5 +1,6 @@
+# This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
-Feature: Healthcheck to create Mg1 Ga35 N35, Vacancy  Defect, Pair  Defect, Substitution and Vacancy Defect Pair
+Feature: Healthcheck to create GaN, Gallium Nitride, HEX (P6_3mc) 3D (Bulk), mp-804, Pair Defect: Mg + Vac
 
   Scenario:
     When I open materials designer page
@@ -23,4 +24,4 @@ Feature: Healthcheck to create Mg1 Ga35 N35, Vacancy  Defect, Pair  Defect, Subs
     And I submit materials
     Then material with following name exists in state
       | name                      | index                      |
-      | Mg1 Ga35 N35, Vacancy  Defect, Pair  Defect, Substitution and Vacancy Defect Pair | 2 |
+      | GaN, Gallium Nitride, HEX (P6_3mc) 3D (Bulk), mp-804, Pair Defect: Mg + Vac | 2 |

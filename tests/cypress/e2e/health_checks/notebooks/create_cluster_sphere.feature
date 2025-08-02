@@ -1,5 +1,6 @@
+# This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
-Feature: Healthcheck to create ${material_name}
+Feature: Notebook healthcheck to create "Au, Gold, FCC (Fm-3m) 3D (Bulk), mp-81 Cluster R=4.5A"
 
   Scenario:
     When I open materials designer page

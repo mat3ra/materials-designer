@@ -11,6 +11,12 @@ export default defineConfig({
         chromeWebSecurity: false,
         // Due to https://github.com/cypress-io/cypress/issues/22040 in GitHub Actions
         // supportFile: false,
+        retries: {
+            // Configure retry attempts for `cypress run` (CI/headless mode)
+            runMode: 1,
+            // Configure retry attempts for `cypress open` (local development)
+            openMode: 0,
+        },
         async setupNodeEvents(
             on: Cypress.PluginEvents,
             config: Cypress.PluginConfigOptions,

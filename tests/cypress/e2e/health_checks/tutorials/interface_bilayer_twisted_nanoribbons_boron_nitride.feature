@@ -1,5 +1,6 @@
+# This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
-Feature: Healthcheck to create Twisted Nanoribbon Interface (2.64 degrees)
+Feature: Healthcheck to create BN(001)-BN(001), Interface (2.64 degrees)
 
   Scenario:
     When I open materials designer page
@@ -23,4 +24,4 @@ Feature: Healthcheck to create Twisted Nanoribbon Interface (2.64 degrees)
     And I submit materials
     Then material with following name exists in state
       | name                      | index                      |
-      | Twisted Nanoribbon Interface (2.64 degrees) | 2 |
+      | BN(001)-BN(001), Interface (2.64 degrees) | 2 |
