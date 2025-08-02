@@ -108,7 +108,7 @@ cases:
       - name: Au, Gold, FCC (Fm-3m) 3D (Bulk), mp-81
         index: 2
     input_materials:
-      - name: Au, Gold, FCC (Fm-3m) 3D (Bulk), mp-81 Icosahedron
+      - name: Au, Gold, FCC (Fm-3m) 3D (Bulk), mp-81
         index: 2
     output_materials:
       - name: Au Custom Cluster

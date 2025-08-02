@@ -266,8 +266,6 @@ export default class JupyterLiteSession extends Widget {
                     console.log(
                         `Cell content:\n${formattedCellText || "Unable to extract cell content"}`,
                     );
-
-                    cy.wait(1500); // To allow for scroll before snapshot
                 }
             });
     }
