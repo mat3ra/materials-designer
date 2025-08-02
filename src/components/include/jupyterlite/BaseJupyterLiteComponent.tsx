@@ -97,7 +97,6 @@ class BaseJupyterLiteSessionComponent<P = never, S = never> extends React.Compon
     render() {
         return (
             <JupyterLiteSession
-                originURL="https://deploy-preview-54--mat3ra-jupyterlite.netlify.app"
                 defaultNotebookPath={this.DEFAULT_NOTEBOOK_PATH}
                 messageHandlerConfigs={this.messageHandlerConfigs}
                 ref={this.jupyterLiteSessionRef}

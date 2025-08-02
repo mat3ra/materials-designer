@@ -71,7 +71,7 @@ class BaseJupyterLiteSessionComponent extends React.Component {
         }
     }
     render() {
-        return (_jsx(JupyterLiteSession, { originURL: "https://deploy-preview-54--mat3ra-jupyterlite.netlify.app", defaultNotebookPath: this.DEFAULT_NOTEBOOK_PATH, messageHandlerConfigs: this.messageHandlerConfigs, ref: this.jupyterLiteSessionRef }));
+        return (_jsx(JupyterLiteSession, { defaultNotebookPath: this.DEFAULT_NOTEBOOK_PATH, messageHandlerConfigs: this.messageHandlerConfigs, ref: this.jupyterLiteSessionRef }));
     }
 }
 export default BaseJupyterLiteSessionComponent;
