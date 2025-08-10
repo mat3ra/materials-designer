@@ -38,7 +38,7 @@ jobs:
       - name: Docker build and test
         uses: ./.github/workflows/docker-build-test
         with:
-          run-test-environment: ${{ github.ref_name != 'main' && 'USE_JUPYTERLITE_DEV_URL=true NPM_RUN_COMMAND=test:healthcheck' || '' }}
+          run-test-environment: ${{ github.ref_name != 'main' && 'NPM_RUN_COMMAND=test:healthcheck' || '' }}
 
       - name: Validate app dockerfile
         uses: ./actions/docker/validate

@@ -6,7 +6,7 @@ import { Action, MaterialSchema } from "@mat3ra/esse/dist/js/types";
 import React from "react";
 
 import { MDMaterial } from "../../../MDMaterial";
-import { ORIGIN_URL } from "../../../settings";
+import { JUPYTERLITE_ORIGIN_URL } from "../../../settings";
 
 export interface BaseJupyterLiteProps {
     // eslint-disable-next-line react/no-unused-prop-types
@@ -98,7 +98,7 @@ class BaseJupyterLiteSessionComponent<P = never, S = never> extends React.Compon
     render() {
         return (
             <JupyterLiteSession
-                originURL={ORIGIN_URL}
+                originURL={JUPYTERLITE_ORIGIN_URL}
                 defaultNotebookPath={this.DEFAULT_NOTEBOOK_PATH}
                 messageHandlerConfigs={this.messageHandlerConfigs}
                 ref={this.jupyterLiteSessionRef}
