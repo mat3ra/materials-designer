@@ -35,10 +35,14 @@ jobs:
           username: $GITHUB_USER
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Check if JL dev mode is enabled
+        id: check-jl-dev-mode
+        run: echo "dev_mode=$(grep -q 'VITE_USE_JUPYTERLITE_DEV_URL.*true' .env && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
+
       - name: Docker build and test
         uses: ./.github/workflows/docker-build-test
         with:
-          run-test-environment: ''
+          run-test-environment: ${{ steps.check-jl-dev-mode.outputs.dev_mode == 'true' && 'VITE_USE_JUPYTERLITE_DEV_URL=true' || '' }}
 
       - name: Validate app dockerfile
         uses: ./actions/docker/validate
