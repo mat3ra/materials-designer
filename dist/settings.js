@@ -1,7 +1,7 @@
 import { DarkMaterialUITheme } from "@exabyte-io/cove.js/dist/theme";
 export const theme = DarkMaterialUITheme;
 // get the number for PR N from  https://github.com/Exabyte-io/jupyterlite/pull/N
-const JUPYTERLITE_DEVELOPMENT_URL = "https://deploy-preview-56--mat3ra-jupyterlite.netlify.app";
+const JUPYTERLITE_DEVELOPMENT_URL = "https://deploy-preview-58--mat3ra-jupyterlite.netlify.app";
 export const JUPYTERLITE_ORIGIN_URL = import.meta.env.VITE_USE_JUPYTERLITE_DEV_URL === "true"
     ? JUPYTERLITE_DEVELOPMENT_URL
     : undefined; // if not set, will use the default URL
