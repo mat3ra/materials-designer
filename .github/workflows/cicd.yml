@@ -39,10 +39,17 @@ jobs:
         id: check-jl-dev-mode
         run: echo "dev_mode=$(grep -q 'VITE_USE_JUPYTERLITE_DEV_URL.*true' .env && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
 
-      - name: Docker build and test
+      - name: Docker build
         uses: ./.github/workflows/docker-build-test
         with:
+          skip_tests: 'true'
           run-test-environment: ${{ steps.check-jl-dev-mode.outputs.dev_mode == 'true' && 'VITE_USE_JUPYTERLITE_DEV_URL=true' || '' }}
+
+      - name: Run healthcheck tests
+        uses: ./.github/workflows/docker-build-test
+        with:
+          skip_build: 'true'
+          run-test-environment: IMAGE_TAG=latest PORT=3001 VNC_PORT=5920 NPM_RUN_COMMAND=test:healthcheck TAGS='not @ignore and @notebook_healthcheck'
 
       - name: Validate app dockerfile
         uses: ./actions/docker/validate
@@ -59,6 +66,18 @@ jobs:
         uses: ./actions/docker/validate
         with:
           dockerfile: ./dockerfiles/tests/Dockerfile
+
+      - name: Upload test artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: healthcheck-results-${{ github.run_id }}
+          path: |
+            tests/cypress/screenshots/
+            tests/cypress/videos/
+            tests/cypress/results/
+          retention-days: 30
+          if-no-files-found: ignore
 
   publish:
     needs: run-tests
