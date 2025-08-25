@@ -35,21 +35,10 @@ jobs:
           username: $GITHUB_USER
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check if JL dev mode is enabled
-        id: check-jl-dev-mode
-        run: echo "dev_mode=$(grep -q 'VITE_USE_JUPYTERLITE_DEV_URL.*true' .env && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
-
-      - name: Docker build
+      - name: Docker build and test
         uses: ./.github/workflows/docker-build-test
         with:
-          skip_tests: 'true'
-          run-test-environment: ${{ steps.check-jl-dev-mode.outputs.dev_mode == 'true' && 'VITE_USE_JUPYTERLITE_DEV_URL=true' || '' }}
-
-      - name: Run healthcheck tests
-        uses: ./.github/workflows/docker-build-test
-        with:
-          skip_build: 'true'
-          run-test-environment: IMAGE_TAG=latest PORT=3001 VNC_PORT=5920 NPM_RUN_COMMAND=test:healthcheck TAGS='not @ignore and @notebook_healthcheck'
+          run-test-environment: VITE_USE_JUPYTERLITE_DEV_URL=${{ env.VITE_USE_JUPYTERLITE_DEV_URL || 'false' }}
 
       - name: Validate app dockerfile
         uses: ./actions/docker/validate
