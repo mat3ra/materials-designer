@@ -1,2 +1,2 @@
 export const theme: import("@mui/material").Theme;
-export const JUPYTERLITE_ORIGIN_URL: "https://deploy-preview-58--mat3ra-jupyterlite.netlify.app" | undefined;
+export const JUPYTERLITE_ORIGIN_URL: any;
