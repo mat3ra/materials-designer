@@ -1,6 +1,6 @@
 # This file was generated. Do not edit it manually, unless temporarily for debugging purposes.
 @notebook_healthcheck
-Feature: Notebook healthcheck to create "Au Custom Cluster"
+Feature: Notebook healthcheck to create "Au, Gold, FCC (Fm-3m) 3D (Bulk), mp-81 Icosahedron"
 
   Scenario:
     When I open materials designer page
@@ -32,4 +32,4 @@ Feature: Notebook healthcheck to create "Au Custom Cluster"
     And I submit materials
     Then material with following name exists in state
       | name | index |
-      | Au Custom Cluster | 3 |
+      | Au, Gold, FCC (Fm-3m) 3D (Bulk), mp-81 Icosahedron | 3 |

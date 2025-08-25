@@ -4,6 +4,7 @@ import JupyterLiteSession from "@exabyte-io/cove.js/dist/other/jupyterlite/Jupyt
 import { Action } from "@mat3ra/esse/dist/js/types";
 import React from "react";
 import { MDMaterial } from "../../../MDMaterial";
+import { JUPYTERLITE_ORIGIN_URL } from "../../../settings";
 class BaseJupyterLiteSessionComponent extends React.Component {
     constructor() {
         super(...arguments);
@@ -71,7 +72,7 @@ class BaseJupyterLiteSessionComponent extends React.Component {
         }
     }
     render() {
-        return (_jsx(JupyterLiteSession, { defaultNotebookPath: this.DEFAULT_NOTEBOOK_PATH, messageHandlerConfigs: this.messageHandlerConfigs, ref: this.jupyterLiteSessionRef }));
+        return (_jsx(JupyterLiteSession, { originURL: JUPYTERLITE_ORIGIN_URL, defaultNotebookPath: this.DEFAULT_NOTEBOOK_PATH, messageHandlerConfigs: this.messageHandlerConfigs, ref: this.jupyterLiteSessionRef }));
     }
 }
 export default BaseJupyterLiteSessionComponent;

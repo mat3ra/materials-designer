@@ -207,6 +207,17 @@ If need to link Cove.js into the app for local development, you need
 ```
 
 If you need to re-link it again, remove node_modules in cove.js and the app, run npm install, then run npm start again.
+### 3.6. Running tests for JupyterLite Notebooks
+
+To run tests for JupyterLite Notebooks, set the environment variable in `.env` file.
+And update the URL for JL dev distribution by getting the URL from the JupyterLite PR preview.
+
+```bash
+VITE_USE_JUPYTERLITE_DEV_URL=true
+VITE_JUPYTERLITE_DEVELOPMENT_URL="https://deploy-preview-56--mat3ra-jupyterlite.netlify.app"
+```
+
+This should source JL from the development distribution and run only notebook healthcheck tests.
 
 ## 4. Links
 
