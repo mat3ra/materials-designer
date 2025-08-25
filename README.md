@@ -214,7 +214,7 @@ And update the URL for JL dev distribution by getting the URL from the JupyterLi
 
 ```bash
 VITE_USE_JUPYTERLITE_DEV_URL=true
-VITE_JUPYTERLITE_DEVELOPMENT_URL = "https://deploy-preview-56--mat3ra-jupyterlite.netlify.app";
+VITE_JUPYTERLITE_DEVELOPMENT_URL="https://deploy-preview-56--mat3ra-jupyterlite.netlify.app"
 ```
 
 This should source JL from the development distribution and run only notebook healthcheck tests.
