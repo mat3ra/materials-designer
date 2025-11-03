@@ -12,28 +12,33 @@ export function materialsAdd(state, action) {
     return { ...state, materials: newMaterials };
 }
 export function materialsRemove(state, action) {
-    let { index } = state;
-    const materials = state.materials.slice(); // clone original array to force update to components
-    // if no indices passed -> remove the material at current index
-    let indices = action.indices.length ? action.indices : [index];
-    // sort indices to implement logic for index decrement in splice below
-    indices = indices.sort();
-    // sanity check
-    if (materials.length === 1) {
-        showWarningAlert("Prevented remove action: only one material in set.");
+    const { index } = state;
+    const { materials } = state; // Use the original materials array
+    // Determine which indices to remove. If action.indices is empty, remove the currently selected material.
+    const indicesToRemove = action.indices.length ? action.indices : [index];
+    // Filter out the materials that are to be removed
+    const newMaterials = materials.filter((_, i) => !indicesToRemove.includes(i));
+    // Adjust the selected index
+    let newIndex = index;
+    indicesToRemove.forEach((removedIndex) => {
+        if (removedIndex < newIndex) {
+            newIndex -= 1;
+        }
+        else if (removedIndex === newIndex) {
+            // If the selected material is removed, select the previous one, or the first if none before
+            newIndex = Math.max(0, newIndex - 1);
+        }
+    });
+    // Ensure the newIndex is within bounds
+    if (newIndex >= newMaterials.length) {
+        newIndex = Math.max(0, newMaterials.length - 1);
+    }
+    if (newMaterials.length === 0) {
+        showWarningAlert("Prevented remove action: cannot remove all materials.");
         return state;
     }
-    // remove elements at indices (array is modified in place => subtract idx within `each`)
-    indices.forEach((indicesArrayElement, idx) => {
-        const currentMaterial = materials[indicesArrayElement - idx];
-        const { formula } = currentMaterial;
-        showSuccessAlert(`Removed material with index ${indicesArrayElement} and formula ${formula} from set.`);
-        materials.splice(indicesArrayElement - idx, 1);
-        // lower the current index if it is above the deleted material's index
-        if (index > 0)
-            index -= 1;
-    });
-    return { ...state, materials, index };
+    showSuccessAlert(`Removed materials at indices ${action.indices.join(", ")}.`);
+    return { ...state, materials: newMaterials, index: newIndex };
 }
 export function materialsExport(state, action) {
     const exportHandlers = {
