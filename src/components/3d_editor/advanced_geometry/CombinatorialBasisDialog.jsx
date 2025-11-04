@@ -45,10 +45,12 @@ class CombinatorialBasisDialog extends React.Component {
             // first set units from existing material, as allBasises() returns no units
             const latticeConfig = material.lattice;
             const lattice = new Made.Lattice(latticeConfig);
-            const basisConfig = { ...material.basis, ...elm };
-            const basis = new Made.Basis({
-                ...basisConfig,
+            const basis = Made.Basis.fromElementsAndCoordinates({
+                elements: elm.elements,
+                coordinates: elm.coordinates,
                 cell: lattice.vectorArrays,
+                units: material.basis.units,
+                labels: material.Basis.atomicLabelsArray,
             });
             // then create material
             const newMaterialConfig = {
