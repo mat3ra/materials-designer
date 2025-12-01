@@ -15,6 +15,12 @@ export default defineConfig({
     ],
     define: {
         __dirname: JSON.stringify(__dirname), // fix for node.js modules in client bundle
+        "process.env.VITE_JUPYTERLITE_DEVELOPMENT_URL": JSON.stringify(
+            process.env.VITE_JUPYTERLITE_DEVELOPMENT_URL,
+        ),
+        "process.env.VITE_USE_JUPYTERLITE_DEV_URL": JSON.stringify(
+            process.env.VITE_USE_JUPYTERLITE_DEV_URL,
+        ),
     },
     server: {
         port: 3001,
