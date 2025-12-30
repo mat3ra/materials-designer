@@ -87,7 +87,7 @@ class ItemsList extends React.Component {
     onDeleteIconClick(e, index) {
         const { onRemove } = this.props;
         e.preventDefault();
-        onRemove([index]);
+        onRemove(index);
     }
 
     /**

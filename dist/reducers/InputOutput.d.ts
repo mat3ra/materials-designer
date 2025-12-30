@@ -5,7 +5,7 @@ export declare function materialsAdd(state: MDState, action: {
     addAtIndex: number;
 }): MDState;
 export declare function materialsRemove(state: MDState, action: {
-    indices: number[];
+    index: number;
 }): MDState;
 export declare function materialsExport(state: MDState, action: {
     format: "json" | "poscar";

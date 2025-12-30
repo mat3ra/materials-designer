@@ -13,23 +13,16 @@ export function materialsAdd(state, action) {
 }
 export function materialsRemove(state, action) {
     const { index } = state;
-    const { materials } = state; // Use the original materials array
-    // Determine which indices to remove. If action.indices is empty, remove the currently selected material.
-    const indicesToRemove = action.indices.length ? action.indices : [index];
-    // Filter out the materials that are to be removed
-    const newMaterials = materials.filter((_, i) => !indicesToRemove.includes(i));
-    // Adjust the selected index
+    const materials = state.materials.slice();
+    const indexToRemove = action.index;
+    const newMaterials = materials.filter((_, i) => i !== indexToRemove);
     let newIndex = index;
-    indicesToRemove.forEach((removedIndex) => {
-        if (removedIndex < newIndex) {
-            newIndex -= 1;
-        }
-        else if (removedIndex === newIndex) {
-            // If the selected material is removed, select the previous one, or the first if none before
-            newIndex = Math.max(0, newIndex - 1);
-        }
-    });
-    // Ensure the newIndex is within bounds
+    if (indexToRemove < index) {
+        newIndex -= 1;
+    }
+    else if (indexToRemove === index) {
+        newIndex = Math.max(0, index - 1);
+    }
     if (newIndex >= newMaterials.length) {
         newIndex = Math.max(0, newMaterials.length - 1);
     }
@@ -37,7 +30,7 @@ export function materialsRemove(state, action) {
         showWarningAlert("Prevented remove action: cannot remove all materials.");
         return state;
     }
-    showSuccessAlert(`Removed materials at indices ${action.indices.join(", ")}.`);
+    showSuccessAlert(`Removed material at index ${indexToRemove}.`);
     return { ...state, materials: newMaterials, index: newIndex };
 }
 export function materialsExport(state, action) {
