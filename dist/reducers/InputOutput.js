@@ -12,28 +12,26 @@ export function materialsAdd(state, action) {
     return { ...state, materials: newMaterials };
 }
 export function materialsRemove(state, action) {
-    let { index } = state;
-    const materials = state.materials.slice(); // clone original array to force update to components
-    // if no indices passed -> remove the material at current index
-    let indices = action.indices.length ? action.indices : [index];
-    // sort indices to implement logic for index decrement in splice below
-    indices = indices.sort();
-    // sanity check
-    if (materials.length === 1) {
-        showWarningAlert("Prevented remove action: only one material in set.");
+    const { index } = state;
+    const materials = state.materials.slice();
+    const indexToRemove = action.index;
+    const newMaterials = materials.filter((_, i) => i !== indexToRemove);
+    let newIndex = index;
+    if (indexToRemove < index) {
+        newIndex -= 1;
+    }
+    else if (indexToRemove === index) {
+        newIndex = Math.max(0, index - 1);
+    }
+    if (newIndex >= newMaterials.length) {
+        newIndex = Math.max(0, newMaterials.length - 1);
+    }
+    if (newMaterials.length === 0) {
+        showWarningAlert("Prevented remove action: cannot remove all materials.");
         return state;
     }
-    // remove elements at indices (array is modified in place => subtract idx within `each`)
-    indices.forEach((indicesArrayElement, idx) => {
-        const currentMaterial = materials[indicesArrayElement - idx];
-        const { formula } = currentMaterial;
-        showSuccessAlert(`Removed material with index ${indicesArrayElement} and formula ${formula} from set.`);
-        materials.splice(indicesArrayElement - idx, 1);
-        // lower the current index if it is above the deleted material's index
-        if (index > 0)
-            index -= 1;
-    });
-    return { ...state, materials, index };
+    showSuccessAlert(`Removed material at index ${indexToRemove}.`);
+    return { ...state, materials: newMaterials, index: newIndex };
 }
 export function materialsExport(state, action) {
     const exportHandlers = {

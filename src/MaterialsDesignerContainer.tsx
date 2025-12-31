@@ -154,8 +154,8 @@ export function MaterialsDesignerContainer({
         setMdState(materialsAdd(mdState.current, { materials, addAtIndex }));
     }, []);
 
-    const onRemove = useCallback((indices: number[]) => {
-        setMdState(materialsRemove(mdState.current, { indices }));
+    const onRemove = useCallback((index: number) => {
+        setMdState(materialsRemove(mdState.current, { index }));
     }, []);
 
     const onExport = useCallback((format: "json" | "poscar", useMultiple: boolean) => {
