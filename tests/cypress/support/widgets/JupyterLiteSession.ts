@@ -168,8 +168,8 @@ export default class JupyterLiteSession extends Widget {
                 });
             },
             true,
-            Widget.TimeoutType.sm,
-            Widget.TimeoutType.xl,
+            Widget.TimeoutType.md,    // delay: 30 seconds (increased from 10s for stability)
+            Widget.TimeoutType.xxl,  // timeout: 10 minutes
         );
     }
 

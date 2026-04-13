@@ -5,19 +5,19 @@ export class ActionDialog extends React.Component<any, any, any> {
 }
 export namespace ActionDialog {
     namespace propTypes {
-        let title: PropTypes.Requireable<string>;
-        let show: PropTypes.Validator<boolean>;
-        let onClose: PropTypes.Validator<(...args: any[]) => any>;
-        let onSubmit: PropTypes.Validator<(...args: any[]) => any>;
-        let children: PropTypes.Requireable<PropTypes.ReactNodeLike>;
-        let isLoading: PropTypes.Requireable<boolean>;
+        const title: PropTypes.Requireable<string>;
+        const show: PropTypes.Validator<boolean>;
+        const onClose: PropTypes.Validator<(...args: any[]) => any>;
+        const onSubmit: PropTypes.Validator<(...args: any[]) => any>;
+        const children: PropTypes.Requireable<PropTypes.ReactNodeLike>;
+        const isLoading: PropTypes.Requireable<boolean>;
     }
     namespace defaultProps {
-        let title_1: string;
+        const title_1: string;
         export { title_1 as title };
-        let children_1: null;
+        const children_1: null;
         export { children_1 as children };
-        let isLoading_1: boolean;
+        const isLoading_1: boolean;
         export { isLoading_1 as isLoading };
     }
 }
