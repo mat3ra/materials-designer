@@ -1,13 +1,13 @@
 declare namespace _default {
     namespace surface {
-        let noBulkId: string;
+        const noBulkId: string;
     }
     namespace basis {
-        let elementsNotEqual: string;
-        let validationError: string;
-        let validationSuccess: string;
+        const elementsNotEqual: string;
+        const validationError: string;
+        const validationSuccess: string;
     }
-    let resetToLast: string;
-    let combinatorialBasesCountExceeded: string;
+    const resetToLast: string;
+    const combinatorialBasesCountExceeded: string;
 }
 export default _default;

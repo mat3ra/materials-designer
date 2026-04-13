@@ -17,32 +17,32 @@ declare class MaterialsDesigner {
 }
 declare namespace MaterialsDesigner {
     namespace propTypes {
-        let mdState: PropTypes.Validator<NonNullable<PropTypes.InferProps<{
+        const mdState: PropTypes.Validator<NonNullable<PropTypes.InferProps<{
             index: PropTypes.Requireable<number>;
             isLoading: PropTypes.Requireable<boolean>;
             materials: PropTypes.Requireable<(object | null | undefined)[]>;
         }>>>;
-        let showToolbar: PropTypes.Requireable<boolean>;
-        let isConventionalCellShown: PropTypes.Requireable<boolean>;
-        let onUpdate: PropTypes.Requireable<(...args: any[]) => any>;
-        let onItemClick: PropTypes.Requireable<(...args: any[]) => any>;
-        let onNameUpdate: PropTypes.Requireable<(...args: any[]) => any>;
-        let onGenerateSupercell: PropTypes.Requireable<(...args: any[]) => any>;
-        let onGenerateSurface: PropTypes.Requireable<(...args: any[]) => any>;
-        let onSetBoundaryConditions: PropTypes.Requireable<(...args: any[]) => any>;
-        let onToggleIsNonPeriodic: PropTypes.Requireable<(...args: any[]) => any>;
-        let onUndo: PropTypes.Requireable<(...args: any[]) => any>;
-        let onRedo: PropTypes.Requireable<(...args: any[]) => any>;
-        let onReset: PropTypes.Requireable<(...args: any[]) => any>;
-        let onAdd: PropTypes.Requireable<(...args: any[]) => any>;
-        let onExport: PropTypes.Requireable<(...args: any[]) => any>;
-        let onExit: PropTypes.Requireable<(...args: any[]) => any>;
-        let openImportModal: PropTypes.Requireable<(...args: any[]) => any>;
-        let closeImportModal: PropTypes.Requireable<(...args: any[]) => any>;
-        let openSaveActionDialog: PropTypes.Requireable<(...args: any[]) => any>;
-        let onRemove: PropTypes.Requireable<(...args: any[]) => any>;
-        let maxCombinatorialBasesCount: PropTypes.Requireable<number>;
-        let defaultMaterialsSet: PropTypes.Requireable<any[]>;
+        const showToolbar: PropTypes.Requireable<boolean>;
+        const isConventionalCellShown: PropTypes.Requireable<boolean>;
+        const onUpdate: PropTypes.Requireable<(...args: any[]) => any>;
+        const onItemClick: PropTypes.Requireable<(...args: any[]) => any>;
+        const onNameUpdate: PropTypes.Requireable<(...args: any[]) => any>;
+        const onGenerateSupercell: PropTypes.Requireable<(...args: any[]) => any>;
+        const onGenerateSurface: PropTypes.Requireable<(...args: any[]) => any>;
+        const onSetBoundaryConditions: PropTypes.Requireable<(...args: any[]) => any>;
+        const onToggleIsNonPeriodic: PropTypes.Requireable<(...args: any[]) => any>;
+        const onUndo: PropTypes.Requireable<(...args: any[]) => any>;
+        const onRedo: PropTypes.Requireable<(...args: any[]) => any>;
+        const onReset: PropTypes.Requireable<(...args: any[]) => any>;
+        const onAdd: PropTypes.Requireable<(...args: any[]) => any>;
+        const onExport: PropTypes.Requireable<(...args: any[]) => any>;
+        const onExit: PropTypes.Requireable<(...args: any[]) => any>;
+        const openImportModal: PropTypes.Requireable<(...args: any[]) => any>;
+        const closeImportModal: PropTypes.Requireable<(...args: any[]) => any>;
+        const openSaveActionDialog: PropTypes.Requireable<(...args: any[]) => any>;
+        const onRemove: PropTypes.Requireable<(...args: any[]) => any>;
+        const maxCombinatorialBasesCount: PropTypes.Requireable<number>;
+        const defaultMaterialsSet: PropTypes.Requireable<any[]>;
     }
     namespace defaultProps {
         export { materialConfigs as defaultMaterialsSet };

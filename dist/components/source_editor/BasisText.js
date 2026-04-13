@@ -39,7 +39,7 @@ class BasisText extends React.Component {
         this.state = {
             content: props.content,
             checks: props.checks,
-            isContentValidated: true, // assuming that initial content is valid
+            isContentValidated: true,
             message: props.message,
         };
         this.updateContent = this.updateContent.bind(this);
