@@ -48,7 +48,7 @@ export enum kernelStatus {
 export default class JupyterLiteSession extends Widget {
     wrappedSelectors: typeof SELECTORS;
     private delayForJupyterKernelRestart: string;
-    private timeoutForJupyterKernelWait: stringa;
+    private timeoutForJupyterKernelWait: string;
 
     private iframeAnchor: IframeBrowser;
 
@@ -56,8 +56,10 @@ export default class JupyterLiteSession extends Widget {
         super(SELECTORS.iframe);
         this.wrappedSelectors = this.getWrappedSelectors(SELECTORS);
         this.iframeAnchor = this.browser.iframe(SELECTORS.iframe, Widget.TimeoutType.lg);
-        this.delayForJupyterKernelRestart = extraConfig.delayForJupyterKernelRestart || Widget.TimeoutType.md;
-        this.timeoutForJupyterKernelWait = extraConfig.timeoutForJupyterKernelWait || Widget.TimeoutType.xl;
+        this.delayForJupyterKernelRestart =
+            extraConfig?.delayForJupyterKernelRestart || Widget.TimeoutType.md;
+        this.timeoutForJupyterKernelWait =
+            extraConfig?.timeoutForJupyterKernelWait || Widget.TimeoutType.xl;
         this.iframeAnchor = this.browser.iframe(SELECTORS.iframe, Widget.TimeoutType.md);
     }
 
