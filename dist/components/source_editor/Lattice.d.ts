@@ -17,8 +17,8 @@ declare class Lattice extends React.Component<any, any, any> {
 }
 declare namespace Lattice {
     namespace propTypes {
-        const material: PropTypes.Validator<object>;
-        const onUpdate: PropTypes.Validator<(...args: any[]) => any>;
+        let material: PropTypes.Validator<object>;
+        let onUpdate: PropTypes.Validator<(...args: any[]) => any>;
     }
 }
 import React from "react";

@@ -47,13 +47,18 @@ export enum kernelStatus {
 
 export default class JupyterLiteSession extends Widget {
     wrappedSelectors: typeof SELECTORS;
+    private delayForJupyterKernelRestart: string;
+    private timeoutForJupyterKernelWait: stringa;
 
     private iframeAnchor: IframeBrowser;
 
-    constructor() {
+    constructor(extraConfig: any) {
         super(SELECTORS.iframe);
         this.wrappedSelectors = this.getWrappedSelectors(SELECTORS);
         this.iframeAnchor = this.browser.iframe(SELECTORS.iframe, Widget.TimeoutType.lg);
+        this.delayForJupyterKernelRestart = extraConfig.delayForJupyterKernelRestart || Widget.TimeoutType.md;
+        this.timeoutForJupyterKernelWait = extraConfig.timeoutForJupyterKernelWait || Widget.TimeoutType.xl;
+        this.iframeAnchor = this.browser.iframe(SELECTORS.iframe, Widget.TimeoutType.md);
     }
 
     waitForVisible() {
@@ -168,8 +173,8 @@ export default class JupyterLiteSession extends Widget {
                 });
             },
             true,
-            Widget.TimeoutType.md,    // delay: 30 seconds (increased from 10s for stability)
-            Widget.TimeoutType.xl,
+            this.delayForJupyterKernelRestart,
+            this.timeoutForJupyterKernelWait,
         );
     }
 

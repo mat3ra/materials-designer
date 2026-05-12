@@ -27,15 +27,15 @@ declare class LatticeConfigurationDialog extends React.Component<any, any, any> 
 }
 declare namespace LatticeConfigurationDialog {
     namespace propTypes {
-        const unitOptions: PropTypes.Validator<any[]>;
-        const typeOptions: PropTypes.Validator<any[]>;
-        const submitButtonTxt: PropTypes.Requireable<string>;
-        const material: PropTypes.Validator<object>;
-        const onUpdate: PropTypes.Validator<(...args: any[]) => any>;
-        const onSubmit: PropTypes.Validator<(...args: any[]) => any>;
+        let unitOptions: PropTypes.Validator<any[]>;
+        let typeOptions: PropTypes.Validator<any[]>;
+        let submitButtonTxt: PropTypes.Requireable<string>;
+        let material: PropTypes.Validator<object>;
+        let onUpdate: PropTypes.Validator<(...args: any[]) => any>;
+        let onSubmit: PropTypes.Validator<(...args: any[]) => any>;
     }
     namespace defaultProps {
-        const submitButtonTxt_1: string;
+        let submitButtonTxt_1: string;
         export { submitButtonTxt_1 as submitButtonTxt };
     }
 }
