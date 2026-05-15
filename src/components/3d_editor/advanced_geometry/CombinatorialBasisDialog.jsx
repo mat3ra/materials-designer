@@ -50,7 +50,7 @@ class CombinatorialBasisDialog extends React.Component {
                 coordinates: elm.coordinates,
                 cell: lattice.vectorArrays,
                 units: material.basis.units,
-                labels: material.Basis.atomicLabelsArray,
+                labels: material.Basis.labels,
             });
             // then create material
             const newMaterialConfig = {
