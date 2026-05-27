@@ -7,6 +7,7 @@ import MaterialsDesignerComponent from "./MaterialsDesigner";
 import { MDMaterial } from "./MDMaterial";
 import { materialsAdd, materialsExport, materialsRemove } from "./reducers/InputOutput";
 import {
+    type BoundaryConditionsType,
     type MDState,
     type SurfaceConfig,
     materialsCloneOne,
@@ -144,7 +145,7 @@ export function MaterialsDesignerContainer({
     }, []);
 
     const onSetBoundaryConditions = useCallback(
-        (config: { boundaryType: string; boundaryOffset: number }) => {
+        (config: { boundaryType: BoundaryConditionsType; boundaryOffset: number }) => {
             setMdState(materialsSetBoundaryConditionsForOne(mdState.current, config));
         },
         [],

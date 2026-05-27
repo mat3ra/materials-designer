@@ -1,1 +1,1 @@
-export function displayMessage(key: any, ...args: any[]): any;
+export function displayMessage(key: any, ...args: any[]): string;

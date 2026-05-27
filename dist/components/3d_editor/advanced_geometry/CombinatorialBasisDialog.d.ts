@@ -12,15 +12,15 @@ declare class CombinatorialBasisDialog extends React.Component<any, any, any> {
 }
 declare namespace CombinatorialBasisDialog {
     namespace propTypes {
-        let isOpen: PropTypes.Validator<boolean>;
-        let material: PropTypes.Validator<object>;
-        let onSubmit: PropTypes.Validator<(...args: any[]) => any>;
-        let onHide: PropTypes.Validator<(...args: any[]) => any>;
-        let maxCombinatorialBasesCount: PropTypes.Requireable<number>;
-        let modalId: PropTypes.Validator<string>;
+        const isOpen: PropTypes.Validator<boolean>;
+        const material: PropTypes.Validator<object>;
+        const onSubmit: PropTypes.Validator<(...args: any[]) => any>;
+        const onHide: PropTypes.Validator<(...args: any[]) => any>;
+        const maxCombinatorialBasesCount: PropTypes.Requireable<number>;
+        const modalId: PropTypes.Validator<string>;
     }
     namespace defaultProps {
-        let maxCombinatorialBasesCount_1: number;
+        const maxCombinatorialBasesCount_1: number;
         export { maxCombinatorialBasesCount_1 as maxCombinatorialBasesCount };
     }
 }
