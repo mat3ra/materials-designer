@@ -1,4 +1,4 @@
-import type { MaterialSchema, Matrix3X3Schema } from "@mat3ra/esse/dist/js/types";
+import type { MaterialMetadataBoundaryConditions, Matrix3X3Schema } from "@mat3ra/esse/dist/js/types";
 import { MDMaterial } from "../MDMaterial";
 export type MDState = {
     index: number;
@@ -28,7 +28,7 @@ export declare function materialsGenerateSupercellForOne(state: MDState, action:
     matrix: Matrix3X3Schema;
 }): MDState;
 export declare function materialsGenerateSurfaceForOne(state: MDState, action: SurfaceConfig): MDState;
-export type BoundaryConditionsType = NonNullable<MaterialSchema["metadata"]["boundaryConditions"]>["type"];
+export type BoundaryConditionsType = NonNullable<MaterialMetadataBoundaryConditions>["type"];
 export declare function materialsSetBoundaryConditionsForOne(state: MDState, action: {
     boundaryType: BoundaryConditionsType;
     boundaryOffset: number;
