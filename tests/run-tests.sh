@@ -7,7 +7,7 @@ else
 fi
 
 # Set default Cypress base URL
-CYPRESS_BASE_URL=${CYPRESS_BASE_URL:-"http://localhost:3001"}
+export CYPRESS_BASE_URL=${CYPRESS_BASE_URL:-"http://localhost:3001"}
 
 # Run Cypress tests
 cypress run -e TAGS="$TAGS"

@@ -4,8 +4,11 @@ import createEsbuildPlugin from "@badeball/cypress-cucumber-preprocessor/esbuild
 import createBundler from "@bahmutov/cypress-esbuild-preprocessor";
 import { defineConfig } from "cypress";
 
+const defaultBaseUrl = "http://localhost:3001";
+
 export default defineConfig({
     e2e: {
+        baseUrl: process.env.CYPRESS_BASE_URL || defaultBaseUrl,
         specPattern: "cypress/e2e/**/*.feature",
         // Reduce security to allow cross-origin JS execution in iframes
         chromeWebSecurity: false,

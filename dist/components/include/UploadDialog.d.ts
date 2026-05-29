@@ -20,11 +20,11 @@ declare class UploadDialog extends React.Component<any, any, any> {
 }
 declare namespace UploadDialog {
     namespace propTypes {
-        let show: PropTypes.Validator<boolean>;
-        let onClose: PropTypes.Validator<(...args: any[]) => any>;
-        let onSubmit: PropTypes.Validator<(...args: any[]) => any>;
+        const show: PropTypes.Validator<boolean>;
+        const onClose: PropTypes.Validator<(...args: any[]) => any>;
+        const onSubmit: PropTypes.Validator<(...args: any[]) => any>;
     }
-    let defaultProps: {};
+    const defaultProps: {};
 }
 import React from "react";
 import PropTypes from "prop-types";

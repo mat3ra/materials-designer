@@ -37,11 +37,11 @@ declare class ItemsList extends React.Component<any, any, any> {
 }
 declare namespace ItemsList {
     namespace propTypes {
-        let materials: PropTypes.Validator<any[]>;
-        let index: PropTypes.Validator<number>;
-        let onItemClick: PropTypes.Validator<(...args: any[]) => any>;
-        let onRemove: PropTypes.Validator<(...args: any[]) => any>;
-        let onNameUpdate: PropTypes.Validator<(...args: any[]) => any>;
+        const materials: PropTypes.Validator<any[]>;
+        const index: PropTypes.Validator<number>;
+        const onItemClick: PropTypes.Validator<(...args: any[]) => any>;
+        const onRemove: PropTypes.Validator<(...args: any[]) => any>;
+        const onNameUpdate: PropTypes.Validator<(...args: any[]) => any>;
     }
 }
 import React from "react";

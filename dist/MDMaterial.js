@@ -16,8 +16,9 @@ export class MDMaterial extends Material {
         ["_id"].forEach((p) => this.unsetProp(p));
     }
     get boundaryConditions() {
+        var _a;
         // @ts-ignore
-        return this.metadata.boundaryConditions || {};
+        return ((_a = this.metadata) === null || _a === void 0 ? void 0 : _a.boundaryConditions) || {};
     }
     toJSON() {
         return {

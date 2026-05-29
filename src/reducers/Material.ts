@@ -1,5 +1,8 @@
 import { showWarningAlert } from "@exabyte-io/cove.js/dist/other/alerts";
-import type { Matrix3X3Schema } from "@mat3ra/esse/dist/js/types";
+import type {
+    MaterialMetadataBoundaryConditions,
+    Matrix3X3Schema,
+} from "@mat3ra/esse/dist/js/types";
 import { Made } from "@mat3ra/made";
 import type { SlabConfigSchema } from "@mat3ra/made/dist/js/tools/surface";
 
@@ -135,9 +138,11 @@ export function materialsGenerateSurfaceForOne(state: MDState, action: SurfaceCo
     });
 }
 
+export type BoundaryConditionsType = NonNullable<MaterialMetadataBoundaryConditions>["type"];
+
 export function materialsSetBoundaryConditionsForOne(
     state: MDState,
-    action: { boundaryType: string; boundaryOffset: number },
+    action: { boundaryType: BoundaryConditionsType; boundaryOffset: number },
 ): MDState {
     const newMaterial = state.materials[state.index].clone();
     newMaterial.metadata = {

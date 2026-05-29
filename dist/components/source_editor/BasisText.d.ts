@@ -17,26 +17,26 @@ declare class BasisText extends React.Component<any, any, any> {
 }
 declare namespace BasisText {
     namespace propTypes {
-        let className: PropTypes.Requireable<string>;
-        let message: PropTypes.Requireable<string>;
-        let content: PropTypes.Requireable<string>;
-        let checks: PropTypes.Requireable<any[]>;
-        let readOnly: PropTypes.Requireable<boolean>;
-        let codeMirrorOptions: PropTypes.Requireable<object>;
-        let onChange: PropTypes.Requireable<(...args: any[]) => any>;
+        const className: PropTypes.Requireable<string>;
+        const message: PropTypes.Requireable<string>;
+        const content: PropTypes.Requireable<string>;
+        const checks: PropTypes.Requireable<any[]>;
+        const readOnly: PropTypes.Requireable<boolean>;
+        const codeMirrorOptions: PropTypes.Requireable<object>;
+        const onChange: PropTypes.Requireable<(...args: any[]) => any>;
     }
     namespace defaultProps {
-        let className_1: string;
+        const className_1: string;
         export { className_1 as className };
-        let message_1: string;
+        const message_1: string;
         export { message_1 as message };
-        let readOnly_1: boolean;
+        const readOnly_1: boolean;
         export { readOnly_1 as readOnly };
-        let content_1: string;
+        const content_1: string;
         export { content_1 as content };
-        let checks_1: never[];
+        const checks_1: never[];
         export { checks_1 as checks };
-        let codeMirrorOptions_1: {};
+        const codeMirrorOptions_1: {};
         export { codeMirrorOptions_1 as codeMirrorOptions };
         export function onChange_1(): void;
         export { onChange_1 as onChange };
