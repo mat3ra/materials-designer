@@ -118,6 +118,9 @@ class StandataImportDialog extends React.Component<
                             value={selectedMaterialConfigs || null}
                             getOptionLabel={(material) => material.name || "Not available"}
                             onChange={(_event, newValues) => this.handleMaterialSelect(newValues)}
+                            ListboxProps={{
+                                style: { maxHeight: 300 },
+                            }}
                             renderOption={(props, option, { selected }) => (
                                 // eslint-disable-next-line react/jsx-props-no-spreading
                                 <li {...props} data-tid="select-material">
