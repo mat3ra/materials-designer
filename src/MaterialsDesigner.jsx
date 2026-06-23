@@ -275,6 +275,7 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                                 this.props.isConventionalCellShown
                                             }
                                             boundaryConditions={globalMaterial.boundaryConditions}
+                                            initialViewSettings={this.props.initialViewSettings}
                                             onUpdate={(material) => {
                                                 const newMaterial = MDMaterial.fromMadeMaterial(
                                                     material,
@@ -351,6 +352,8 @@ MaterialsDesigner.propTypes = {
     maxCombinatorialBasesCount: PropTypes.number,
     // eslint-disable-next-line react/forbid-prop-types
     defaultMaterialsSet: PropTypes.array,
+    // eslint-disable-next-line react/forbid-prop-types
+    initialViewSettings: PropTypes.object,
 };
 
 MaterialsDesigner.defaultProps = {
