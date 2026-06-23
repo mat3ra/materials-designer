@@ -67,7 +67,7 @@
         "@mat3ra/code": "2026.5.27-0",
         "@mat3ra/esse": "2026.5.27-0",
         "@mat3ra/made": "2026.5.28-0",
-        "@mat3ra/standata": "2026.5.28-0",
+        "@mat3ra/standata": "^2026.6.23-0",
         "@mat3ra/tsconfig": "^2024.3.23-2",
         "@types/debug": "^4.1.12",
         "@types/mocha": "^10.0.1",
