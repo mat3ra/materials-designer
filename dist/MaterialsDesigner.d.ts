@@ -43,6 +43,7 @@ declare namespace MaterialsDesigner {
         const onRemove: PropTypes.Requireable<(...args: any[]) => any>;
         const maxCombinatorialBasesCount: PropTypes.Requireable<number>;
         const defaultMaterialsSet: PropTypes.Requireable<any[]>;
+        const initialViewSettings: PropTypes.Requireable<object>;
     }
     namespace defaultProps {
         export { materialConfigs as defaultMaterialsSet };

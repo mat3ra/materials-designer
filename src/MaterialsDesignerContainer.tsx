@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import { AlertProvider } from "@exabyte-io/cove.js/dist/theme/provider";
+import type { ViewSettingsFromUrl } from "@exabyte-io/wave.js/dist/utils/viewSettingsUrl";
 import type { Matrix3X3Schema } from "@mat3ra/esse/dist/js/types";
 import React, { useCallback, useEffect, useState } from "react";
 
@@ -98,6 +99,7 @@ export interface MaterialsDesignerContainerProps {
     isConventionalCellShown?: boolean;
     maxCombinatorialBasesCount?: number;
     onExit?: () => void;
+    initialViewSettings?: ViewSettingsFromUrl;
 }
 
 export function MaterialsDesignerContainer({

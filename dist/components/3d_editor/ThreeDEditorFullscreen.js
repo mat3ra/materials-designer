@@ -9,4 +9,6 @@ ThreeDEditorFullscreen.propTypes = {
     isConventionalCellShown: PropTypes.bool,
     onUpdate: PropTypes.func,
     editable: PropTypes.bool,
+    // eslint-disable-next-line react/forbid-prop-types
+    initialViewSettings: PropTypes.object,
 };
