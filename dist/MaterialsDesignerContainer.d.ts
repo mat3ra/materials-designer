@@ -1,4 +1,4 @@
-import type { ViewSettingsFromUrl } from "@exabyte-io/wave.js/dist/utils/viewSettingsUrl";
+import type { ViewSettingsFromUrl } from "@mat3ra/wave.js/dist/utils/viewSettingsUrl";
 import { MDMaterial } from "./MDMaterial";
 import { type MDState } from "./reducers/Material";
 declare global {

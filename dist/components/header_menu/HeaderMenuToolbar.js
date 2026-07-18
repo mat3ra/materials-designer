@@ -1,7 +1,7 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 /* eslint-disable react/sort-comp */
 import IconByName from "@mat3ra/cove/dist/mui/components/icon/IconByName";
-import { ThreejsEditorModal } from "@exabyte-io/wave.js";
+import { ThreejsEditorModal } from "@mat3ra/wave.js";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 // TODO: rename other menu icons similarly
