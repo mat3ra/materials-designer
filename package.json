@@ -11,7 +11,7 @@
         "test": "echo 'Tests are in the tests subfolder. Use Node 20 (`nvm use 20`) and run `npm i` && `npm test` there'",
         "lint": "eslint src && prettier --write src",
         "lint:fix": "eslint src --fix && prettier --write src",
-        "prestart": "npm-link-shared ./node_modules/@exabyte-io/cove.js/node_modules . react; npm-link-shared ./node_modules/@exabyte-io/wave.js/node_modules . react",
+        "prestart": "npm-link-shared ./node_modules/@mat3ra/cove/node_modules . react; npm-link-shared ./node_modules/@exabyte-io/wave.js/node_modules . react",
         "prettier": "prettier --check src tests"
     },
     "repository": {
@@ -53,7 +53,7 @@
         "underscore.string": "^3.3.4"
     },
     "peerDependencies": {
-        "@exabyte-io/cove.js": "*",
+        "@mat3ra/cove": "*",
         "@mat3ra/code": "*",
         "@mat3ra/esse": "*",
         "@mat3ra/made": "*",
@@ -62,7 +62,7 @@
         "react-dom": "^17.0.0"
     },
     "devDependencies": {
-        "@exabyte-io/cove.js": "2026.5.28-0",
+        "@mat3ra/cove": "2026.7.18-4",
         "@exabyte-io/eslint-config": "^2025.1.15-0",
         "@mat3ra/code": "2026.5.27-0",
         "@mat3ra/esse": "2026.5.27-0",

@@ -1,4 +1,4 @@
-import { DarkMaterialUITheme } from "@exabyte-io/cove.js/dist/theme";
+import { DarkMaterialUITheme } from "@mat3ra/cove/dist/theme";
 
 export const theme = DarkMaterialUITheme;
 const JUPYTERLITE_DEVELOPMENT_URL = process.env.VITE_JUPYTERLITE_DEVELOPMENT_URL;
