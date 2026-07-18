@@ -1,4 +1,4 @@
-import IconByName from "@mat3ra/cove.js/dist/mui/components/icon/IconByName";
+import IconByName from "@mat3ra/cove/dist/mui/components/icon/IconByName";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Avatar from "@mui/material/Avatar";
 import Badge from "@mui/material/Badge";

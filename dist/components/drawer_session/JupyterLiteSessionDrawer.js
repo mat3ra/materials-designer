@@ -1,5 +1,5 @@
 import { jsx as _jsx } from "react/jsx-runtime";
-import ResizableDrawer from "@mat3ra/cove.js/dist/mui/components/custom/resizable-drawer/ResizableDrawer";
+import ResizableDrawer from "@mat3ra/cove/dist/mui/components/custom/resizable-drawer/ResizableDrawer";
 import BaseJupyterLiteSessionComponent from "../include/jupyterlite/BaseJupyterLiteComponent";
 class JupyterLiteSessionDrawer extends BaseJupyterLiteSessionComponent {
     render() {

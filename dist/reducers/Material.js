@@ -1,4 +1,4 @@
-import { showWarningAlert } from "@mat3ra/cove.js/dist/other/alerts";
+import { showWarningAlert } from "@mat3ra/cove/dist/other/alerts";
 import { Made } from "@mat3ra/made";
 import { displayMessage } from "../i18n/messages";
 import { MDMaterial } from "../MDMaterial";

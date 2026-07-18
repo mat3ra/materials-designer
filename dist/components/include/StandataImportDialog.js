@@ -1,6 +1,6 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import Dialog from "@mat3ra/cove.js/dist/mui/components/dialog/Dialog";
-import IconByName from "@mat3ra/cove.js/dist/mui/components/icon/IconByName";
+import Dialog from "@mat3ra/cove/dist/mui/components/dialog/Dialog";
+import IconByName from "@mat3ra/cove/dist/mui/components/icon/IconByName";
 import CheckBoxOutlineBlank from "@mui/icons-material/CheckBoxOutlineBlank";
 import Autocomplete from "@mui/material/Autocomplete";
 import Checkbox from "@mui/material/Checkbox";

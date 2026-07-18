@@ -1,6 +1,6 @@
-import Dialog from "@mat3ra/cove.js/dist/mui/components/dialog/Dialog";
-import IconByName from "@mat3ra/cove.js/dist/mui/components/icon/IconByName";
-import { showErrorAlert, showWarningAlert } from "@mat3ra/cove.js/dist/other/alerts";
+import Dialog from "@mat3ra/cove/dist/mui/components/dialog/Dialog";
+import IconByName from "@mat3ra/cove/dist/mui/components/icon/IconByName";
+import { showErrorAlert, showWarningAlert } from "@mat3ra/cove/dist/other/alerts";
 import { Made } from "@mat3ra/made";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";

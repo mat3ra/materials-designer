@@ -1,5 +1,5 @@
-import Dialog from "@mat3ra/cove.js/dist/mui/components/dialog/Dialog";
-import { showWarningAlert } from "@mat3ra/cove.js/dist/other/alerts";
+import Dialog from "@mat3ra/cove/dist/mui/components/dialog/Dialog";
+import { showWarningAlert } from "@mat3ra/cove/dist/other/alerts";
 import { Made } from "@mat3ra/made";
 import PropTypes from "prop-types";
 import React from "react";

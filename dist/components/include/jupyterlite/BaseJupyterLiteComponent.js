@@ -1,6 +1,6 @@
 import { jsx as _jsx } from "react/jsx-runtime";
-import { showErrorAlert } from "@mat3ra/cove.js/dist/other/alerts";
-import JupyterLiteSession from "@mat3ra/cove.js/dist/other/jupyterlite/JupyterLiteSession";
+import { showErrorAlert } from "@mat3ra/cove/dist/other/alerts";
+import JupyterLiteSession from "@mat3ra/cove/dist/other/jupyterlite/JupyterLiteSession";
 import { Action } from "@mat3ra/esse/dist/js/types";
 import React from "react";
 import { MDMaterial } from "../../../MDMaterial";

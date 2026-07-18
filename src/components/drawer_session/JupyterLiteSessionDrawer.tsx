@@ -1,4 +1,4 @@
-import ResizableDrawer from "@mat3ra/cove.js/dist/mui/components/custom/resizable-drawer/ResizableDrawer";
+import ResizableDrawer from "@mat3ra/cove/dist/mui/components/custom/resizable-drawer/ResizableDrawer";
 import React from "react";
 
 import BaseJupyterLiteSessionComponent from "../include/jupyterlite/BaseJupyterLiteComponent";
