@@ -1,4 +1,5 @@
 import { jsx as _jsx } from "react/jsx-runtime";
+/* eslint-disable react/jsx-props-no-spreading */
 import { AlertProvider } from "@mat3ra/cove/dist/theme/provider";
 import React, { useCallback, useEffect, useState } from "react";
 import MaterialsDesignerComponent from "./MaterialsDesigner";
