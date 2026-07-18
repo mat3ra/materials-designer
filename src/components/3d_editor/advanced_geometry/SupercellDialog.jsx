@@ -1,4 +1,4 @@
-import Dialog from "@exabyte-io/cove.js/dist/mui/components/dialog/Dialog";
+import Dialog from "@mat3ra/cove.js/dist/mui/components/dialog/Dialog";
 import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";

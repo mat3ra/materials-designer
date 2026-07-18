@@ -1,4 +1,4 @@
-import IconByName from "@exabyte-io/cove.js/dist/mui/components/icon/IconByName";
+import IconByName from "@mat3ra/cove.js/dist/mui/components/icon/IconByName";
 import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";

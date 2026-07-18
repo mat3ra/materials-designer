@@ -1,5 +1,5 @@
-import { showErrorAlert } from "@exabyte-io/cove.js/dist/other/alerts";
 import { fetchFilesFromGitHubAPI } from "@mat3ra/code/dist/js/utils";
+import { showErrorAlert } from "@mat3ra/cove.js/dist/other/alerts";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import React, { useEffect, useState } from "react";

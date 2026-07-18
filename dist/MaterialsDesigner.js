@@ -1,7 +1,7 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import IconByName from "@exabyte-io/cove.js/dist/mui/components/icon/IconByName";
-import FullscreenComponentMixin from "@exabyte-io/cove.js/dist/other/fullscreen";
-import ThemeProvider from "@exabyte-io/cove.js/dist/theme/provider";
+import IconByName from "@mat3ra/cove.js/dist/mui/components/icon/IconByName";
+import FullscreenComponentMixin from "@mat3ra/cove.js/dist/other/fullscreen";
+import ThemeProvider from "@mat3ra/cove.js/dist/theme/provider";
 // eslint-disable-next-line import/no-unresolved
 import { MaterialStandata } from "@mat3ra/standata";
 import AppBar from "@mui/material/AppBar";

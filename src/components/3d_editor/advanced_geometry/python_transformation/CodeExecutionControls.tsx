@@ -1,4 +1,4 @@
-import IconByName from "@exabyte-io/cove.js/dist/mui/components/icon/IconByName";
+import IconByName from "@mat3ra/cove.js/dist/mui/components/icon/IconByName";
 import Box from "@mui/material/Box";
 import Button, { ButtonProps } from "@mui/material/Button";
 import Chip from "@mui/material/Chip";

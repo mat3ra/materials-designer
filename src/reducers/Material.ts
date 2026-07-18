@@ -1,4 +1,4 @@
-import { showWarningAlert } from "@exabyte-io/cove.js/dist/other/alerts";
+import { showWarningAlert } from "@mat3ra/cove.js/dist/other/alerts";
 import type {
     MaterialMetadataBoundaryConditions,
     Matrix3X3Schema,

@@ -1,4 +1,4 @@
-import Dialog from "@exabyte-io/cove.js/dist/mui/components/dialog/Dialog";
+import Dialog from "@mat3ra/cove.js/dist/mui/components/dialog/Dialog";
 import { BOUNDARY_CONDITIONS } from "@exabyte-io/wave.js/dist/enums";
 import Grid from "@mui/material/Grid";
 import MenuItem from "@mui/material/MenuItem";

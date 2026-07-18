@@ -1,4 +1,4 @@
-import { showSuccessAlert, showWarningAlert } from "@exabyte-io/cove.js/dist/other/alerts";
+import { showSuccessAlert, showWarningAlert } from "@mat3ra/cove.js/dist/other/alerts";
 import { exportToDisk } from "../utils/downloader";
 export function materialsAdd(state, action) {
     const index = state.index || 0;

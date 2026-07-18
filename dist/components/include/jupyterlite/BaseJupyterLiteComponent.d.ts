@@ -1,4 +1,4 @@
-import JupyterLiteSession, { IMessageHandlerConfigItem } from "@exabyte-io/cove.js/dist/other/jupyterlite/JupyterLiteSession";
+import JupyterLiteSession, { IMessageHandlerConfigItem } from "@mat3ra/cove.js/dist/other/jupyterlite/JupyterLiteSession";
 import { MaterialSchema } from "@mat3ra/esse/dist/js/types";
 import React from "react";
 import { MDMaterial } from "../../../MDMaterial";
