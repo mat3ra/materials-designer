@@ -1,0 +1,2 @@
+declare const _default: "import json as _json\n_repl_changed = [\n    {\"variable_name\": _name, \"config\": _value.to_dict()}\n    for _name, _value in list(globals().items())\n    if isinstance(_value, _ReplMaterial)\n    and not _name.startswith(\"_\")\n    and _name not in _reserved_input_names\n    and _repl_identities_before.get(_name) != id(_value)\n]\n_repl_export = _json.dumps(_repl_changed)\n";
+export default _default;

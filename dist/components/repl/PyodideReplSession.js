@@ -1,5 +1,10 @@
 import { randomAlphanumeric } from "../../utils/str";
 import { PYODIDE_INDEX_URL, REPL_COMPLETION_PACKAGES, REPL_DEFAULT_WHEEL_BASE_URL, REPL_INPUT_VARIABLE_NAMES, REPL_LOAD_PACKAGES, REPL_MAT3RA_PACKAGES, REPL_PYPI_PINNED_PACKAGES, REPL_WHEEL_FILENAMES, REPL_WHEEL_FS_DIR, } from "./constants";
+import PY_COLLECT from "./python/generated/collect";
+import PY_DEFINE_COMPLETER from "./python/generated/completer";
+import PY_HELPER_META from "./python/generated/helper_meta";
+import PY_DEFINE_RUNNER from "./python/generated/runner";
+import PY_SNAPSHOT from "./python/generated/snapshot";
 let scriptLoadPromise = null;
 function injectScriptOnce(src) {
     if (scriptLoadPromise)
@@ -40,112 +45,24 @@ const PY_IMPORT_HELPERS = "from mat3ra.made.tools.helpers import *";
 // Introspect the helper API once so the editor can offer categorized autocomplete that always
 // matches the actually-installed package (no hand-maintained list to drift). One record per
 // callable in __all__; underscore-prefixed locals keep this out of the collected globals.
-const PY_HELPER_META = `
-import inspect as _inspect, json as _json
-from mat3ra.made.tools import helpers as _repl_helpers_mod
-_repl_helper_meta = []
-for _repl_name in getattr(_repl_helpers_mod, "__all__", []):
-    _repl_obj = getattr(_repl_helpers_mod, _repl_name, None)
-    if not callable(_repl_obj):
-        continue
-    try:
-        _repl_sig = str(_inspect.signature(_repl_obj))
-    except (ValueError, TypeError):
-        _repl_sig = "(...)"
-    _repl_doc = (_inspect.getdoc(_repl_obj) or "").strip().split("\\n")[0]
-    _repl_helper_meta.append(
-        {"name": _repl_name, "signature": _repl_sig, "doc": _repl_doc,
-         "module": getattr(_repl_obj, "__module__", "")}
-    )
-_repl_helper_meta_json = _json.dumps(_repl_helper_meta)
-`;
+// (source: ./python/helper_meta.py)
 // Records object identity of every in-scope Material BEFORE user code runs, so we can tell
 // afterwards which bindings this execution actually created or replaced (not merely which exist).
-const PY_SNAPSHOT = `
-_repl_identities_before = {
-    _name: id(_value)
-    for _name, _value in list(globals().items())
-    if isinstance(_value, _ReplMaterial)
-}
-`;
+// (source: ./python/snapshot.py)
 // Emits only Materials whose binding is new or changed, excluding the injected inputs
 // (which "Reload inputs" rebinds) and private names. Wire keys are snake_case (produced by Python).
-const PY_COLLECT = `
-import json as _json
-_repl_changed = [
-    {"variable_name": _name, "config": _value.to_dict()}
-    for _name, _value in list(globals().items())
-    if isinstance(_value, _ReplMaterial)
-    and not _name.startswith("_")
-    and _name not in _reserved_input_names
-    and _repl_identities_before.get(_name) != id(_value)
-]
-_repl_export = _json.dumps(_repl_changed)
-`;
+// (source: ./python/collect.py)
 // Defines the runner used by execute(). Runs user code in the persistent globals (so bindings persist
 // and top-level `await` works, via eval_code_async) and, on failure, records a Jupyter-shaped error
 // in `_repl_last_error` with THIS runner's frame stripped (tb_next) — so the traceback starts at the
 // user's own code instead of the Pyodide internals.
-const PY_DEFINE_RUNNER = `
-from pyodide.code import eval_code_async as _repl_eval_code_async
-import traceback as _repl_traceback
-_repl_last_error = None
-async def _repl_execute(_src):
-    global _repl_last_error
-    _repl_last_error = None
-    try:
-        await _repl_eval_code_async(_src, globals=globals())
-    except Exception as _repl_exc:
-        _repl_tb = _repl_exc.__traceback__
-        _repl_last_error = {
-            "ename": type(_repl_exc).__name__,
-            "evalue": str(_repl_exc),
-            "traceback": "".join(
-                _repl_traceback.format_exception(
-                    type(_repl_exc), _repl_exc, _repl_tb.tb_next if _repl_tb else None
-                )
-            ),
-        }
-`;
+// (source: ./python/runner.py)
 // Defines the Jedi-backed completion helpers used by complete()/describe(). Jedi's Interpreter
 // completes against the live REPL globals — so it offers the user's variables, their attributes,
 // imported modules and keywords, not just the pre-imported helper functions. Signature/docstring are
 // resolved on demand (describe) to keep per-keystroke completion fast. Underscore-prefixed names keep
 // these out of the Material collection.
-const PY_DEFINE_COMPLETER = `
-import jedi as _repl_jedi
-import json as _repl_cjson
-
-def _repl_complete(_src, _line, _col):
-    try:
-        _comps = _repl_jedi.Interpreter(_src, [globals()]).complete(_line, _col)
-    except Exception:
-        return "[]"
-    # Surface the current call's keyword-argument (param) completions first — inside a call Jedi
-    # otherwise returns them alphabetically, buried under builtins. Mirrors how IDEs rank params.
-    _params = [_c for _c in _comps if _c.type == "param"]
-    _others = [_c for _c in _comps if _c.type != "param"]
-    _ordered = (_params + _others)[:60]
-    return _repl_cjson.dumps([{"name": _c.name, "type": _c.type} for _c in _ordered])
-
-def _repl_describe(_src, _line, _col, _name):
-    try:
-        for _c in _repl_jedi.Interpreter(_src, [globals()]).complete(_line, _col):
-            if _c.name == _name:
-                try:
-                    _sigs = _c.get_signatures()
-                    _sig = _sigs[0].to_string() if _sigs else ""
-                except Exception:
-                    _sig = ""
-                try:
-                    _doc = _c.docstring(raw=True)
-                except Exception:
-                    _doc = ""
-                return _repl_cjson.dumps({"signature": _sig, "docstring": _doc})
-    except Exception:
-        pass
-    return _repl_cjson.dumps({"signature": "", "docstring": ""})
-`;
+// (source: ./python/completer.py)
 /**
  * Owns the in-process Pyodide interaction for the Material REPL. Deliberately free of React and
  * cove.js imports so it can be unit-/integration-tested in Node with a Pyodide instance injected
