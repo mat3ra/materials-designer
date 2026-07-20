@@ -6,6 +6,7 @@ declare class MaterialsDesigner {
         isVisibleSourceEditor: boolean;
         isVisibleThreeDEditorFullscreen: boolean;
         isVisibleJupyterLiteSessionDrawer: boolean;
+        isVisiblePythonReplPanel: boolean;
         importMaterialsDialogProps: null;
     };
     containerRef: React.RefObject<any>;
@@ -36,6 +37,7 @@ declare namespace MaterialsDesigner {
         const onReset: PropTypes.Requireable<(...args: any[]) => any>;
         const onAdd: PropTypes.Requireable<(...args: any[]) => any>;
         const onExport: PropTypes.Requireable<(...args: any[]) => any>;
+        const onReplSync: PropTypes.Requireable<(...args: any[]) => any>;
         const onExit: PropTypes.Requireable<(...args: any[]) => any>;
         const openImportModal: PropTypes.Requireable<(...args: any[]) => any>;
         const closeImportModal: PropTypes.Requireable<(...args: any[]) => any>;

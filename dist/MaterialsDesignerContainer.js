@@ -5,7 +5,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import MaterialsDesignerComponent from "./MaterialsDesigner";
 import { MDMaterial } from "./MDMaterial";
 import { materialsAdd, materialsExport, materialsRemove } from "./reducers/InputOutput";
-import { materialsCloneOne, materialsGenerateSupercellForOne, materialsGenerateSurfaceForOne, materialsSetBoundaryConditionsForOne, materialsToggleIsNonPeriodicForOne, materialsUpdateIndex, materialsUpdateNameForOne, materialsUpdateOne, } from "./reducers/Material";
+import { materialsApplyReplSync, materialsCloneOne, materialsGenerateSupercellForOne, materialsGenerateSurfaceForOne, materialsSetBoundaryConditionsForOne, materialsToggleIsNonPeriodicForOne, materialsUpdateIndex, materialsUpdateNameForOne, materialsUpdateOne, } from "./reducers/Material";
 function useUndoableState(initialValue, maxPastSize = 50) {
     const [past, setPast] = useState([]);
     const [future, setFuture] = useState([]);
@@ -87,8 +87,11 @@ export function MaterialsDesignerContainer({ initialMaterials = [new MDMaterial(
     const onExport = useCallback((format, useMultiple) => {
         setMdState(materialsExport(mdState.current, { format, useMultiple }));
     }, []);
+    const onReplSync = useCallback((operations) => {
+        setMdState(materialsApplyReplSync(mdState.current, { operations }));
+    }, []);
     const content = (
     // @ts-ignore
-    _jsx(MaterialsDesignerComponent, { mdState: mdState.current, onUndo: undo, onRedo: redo, onReset: reset, onUpdate: onUpdate, onNameUpdate: onNameUpdate, onItemClick: onItemClick, onClone: onClone, onToggleIsNonPeriodic: onToggleIsNonPeriodic, onGenerateSupercell: onGenerateSupercell, onGenerateSurface: onGenerateSurface, onSetBoundaryConditions: onSetBoundaryConditions, onAdd: onAdd, onRemove: onRemove, onExport: onExport, ...props }));
+    _jsx(MaterialsDesignerComponent, { mdState: mdState.current, onUndo: undo, onRedo: redo, onReset: reset, onUpdate: onUpdate, onNameUpdate: onNameUpdate, onItemClick: onItemClick, onClone: onClone, onToggleIsNonPeriodic: onToggleIsNonPeriodic, onGenerateSupercell: onGenerateSupercell, onGenerateSurface: onGenerateSurface, onSetBoundaryConditions: onSetBoundaryConditions, onAdd: onAdd, onRemove: onRemove, onExport: onExport, onReplSync: onReplSync, ...props }));
     return _jsx("div", { children: skipAlertProvider ? content : _jsx(AlertProvider, { children: content }) });
 }

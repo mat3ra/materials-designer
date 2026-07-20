@@ -94,3 +94,35 @@ export function materialsSetBoundaryConditionsForOne(state, action) {
 export function materialsUpdateIndex(state, action) {
     return { ...state, index: action.index };
 }
+/**
+ * Apply a batch of materials produced by one Python REPL execution, as a single state transition
+ * (one undo step). Each operation carries the ESSE `config` and the stable `clientId` the session
+ * assigned to the Python variable. The current slot is resolved by `replClientId` (robust to the
+ * list being reindexed by removals/clones), so a known variable updates in place and a new/removed
+ * one appends. The last touched material becomes active so the viewer follows it.
+ *
+ * We do not route through `materialsUpdateOne` here: its `action.index || state.index` treats slot 0
+ * as falsy and would misdirect an update to the active material.
+ */
+export function materialsApplyReplSync(state, action) {
+    if (action.operations.length === 0)
+        return state;
+    const materials = state.materials.slice();
+    let activeIndex = state.index;
+    action.operations.forEach(({ variableName, clientId, config }) => {
+        // Name the list item after the Python variable so the mapping is visible to the user.
+        const material = new MDMaterial({ ...config, name: variableName });
+        material.replClientId = clientId;
+        material.isUpdated = true;
+        const existingIndex = materials.findIndex((m) => m.replClientId === clientId);
+        if (existingIndex >= 0) {
+            materials[existingIndex] = material;
+            activeIndex = existingIndex;
+        }
+        else {
+            materials.push(material);
+            activeIndex = materials.length - 1;
+        }
+    });
+    return { ...state, materials, index: activeIndex };
+}

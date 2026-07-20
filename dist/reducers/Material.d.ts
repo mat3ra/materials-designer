@@ -1,4 +1,5 @@
 import type { MaterialMetadataBoundaryConditions, Matrix3X3Schema } from "@mat3ra/esse/dist/js/types";
+import type { ReplSyncOperation } from "../components/repl/PyodideReplSession";
 import { MDMaterial } from "../MDMaterial";
 export type MDState = {
     index: number;
@@ -35,4 +36,17 @@ export declare function materialsSetBoundaryConditionsForOne(state: MDState, act
 }): MDState;
 export declare function materialsUpdateIndex(state: MDState, action: {
     index: number;
+}): MDState;
+/**
+ * Apply a batch of materials produced by one Python REPL execution, as a single state transition
+ * (one undo step). Each operation carries the ESSE `config` and the stable `clientId` the session
+ * assigned to the Python variable. The current slot is resolved by `replClientId` (robust to the
+ * list being reindexed by removals/clones), so a known variable updates in place and a new/removed
+ * one appends. The last touched material becomes active so the viewer follows it.
+ *
+ * We do not route through `materialsUpdateOne` here: its `action.index || state.index` treats slot 0
+ * as falsy and would misdirect an update to the active material.
+ */
+export declare function materialsApplyReplSync(state: MDState, action: {
+    operations: ReplSyncOperation[];
 }): MDState;
