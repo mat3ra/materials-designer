@@ -1,0 +1,66 @@
+{
+    "metadata": {
+        "build": [
+            {
+                "configuration": {
+                    "type": "SupercellConfiguration",
+                    "supercell_matrix": [
+                        [2, 0, 0],
+                        [0, 2, 0],
+                        [0, 0, 1]
+                    ]
+                },
+                "build_parameters": {
+                    "supercell_matrix": [
+                        [2.0, 0.0, 0.0],
+                        [0.0, 2.0, 0.0],
+                        [0.0, 0.0, 1.0]
+                    ]
+                }
+            }
+        ],
+        "boundaryConditions": { "type": "pbc", "offset": 0 }
+    },
+    "name": "Silicon FCC",
+    "isDefault": false,
+    "_id": "",
+    "schemaVersion": "2022.8.16",
+    "basis": {
+        "elements": [
+            { "id": 0, "value": "Si" },
+            { "id": 1, "value": "Si" },
+            { "id": 2, "value": "Si" },
+            { "id": 3, "value": "Si" },
+            { "id": 4, "value": "Si" },
+            { "id": 5, "value": "Si" },
+            { "id": 6, "value": "Si" },
+            { "id": 7, "value": "Si" }
+        ],
+        "coordinates": [
+            { "id": 0, "value": [0.0, 0.0, 0.0] },
+            { "id": 1, "value": [0.125, 0.125, 0.25] },
+            { "id": 2, "value": [0.0, 0.5, 0.0] },
+            { "id": 3, "value": [0.125, 0.625, 0.25] },
+            { "id": 4, "value": [0.5, 0.0, 0.0] },
+            { "id": 5, "value": [0.625, 0.125, 0.25] },
+            { "id": 6, "value": [0.5, 0.5, 0.0] },
+            { "id": 7, "value": [0.625, 0.625, 0.25] }
+        ],
+        "units": "crystal",
+        "labels": [],
+        "constraints": []
+    },
+    "lattice": {
+        "a": 7.734,
+        "b": 7.734,
+        "c": 3.867,
+        "alpha": 60.0,
+        "beta": 60.0,
+        "gamma": 60.0,
+        "units": { "length": "angstrom", "angle": "degree" },
+        "type": "TRI"
+    },
+    "scaledHash": "03d84d0c9b8731f4da10a14b1dff6522",
+    "isNonPeriodic": false,
+    "hash": "75258ca7ed5a467a9cd9e6cd8da508f7"
+}
