@@ -15,3 +15,6 @@ tests/cypress/downloads/*
 .idea/
 .DS_Store
 src/react-app-env.d.ts
+
+# Provisioned Pyodide REPL wheels (copied from jupyterlite/content/packages)
+public/repl-wheels/

@@ -1,3 +1,9 @@
 {
-  "extends": "@mat3ra/tsconfig/tsconfig-react-jsx.json"
+  "extends": "@mat3ra/tsconfig/tsconfig-react-jsx.json",
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx"
+  ]
 }
