@@ -18,3 +18,6 @@ src/react-app-env.d.ts
 
 # Provisioned Pyodide REPL wheels (copied from jupyterlite/content/packages)
 public/repl-wheels/
+
+# Generated from src/components/repl/python/*.py by scripts/generate-repl-python.mjs
+src/components/repl/python/generated/

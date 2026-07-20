@@ -14,6 +14,7 @@ import { theme } from "../../settings";
 import { ExecutionStatus } from "../3d_editor/advanced_geometry/python_transformation/CodeExecutionControls";
 import { makeReplCompletionSource } from "./completions";
 import { type ReplError, type ReplSyncOperation, replSession } from "./PyodideReplSession";
+import DEFAULT_CODE from "./python/generated/default_snippet";
 import ReplConsole from "./ReplConsole";
 
 interface PythonReplProps {
@@ -24,12 +25,6 @@ interface PythonReplProps {
     /** Override where prebuilt wheels are served from (default same-origin `/repl-wheels`). */
     wheelBaseUrl?: string;
 }
-
-const DEFAULT_CODE = `# Materials from the designer are available as \`materials_in\` and \`material\`.
-# All mat3ra.made.tools helpers are pre-imported — start typing (e.g. "create_") to autocomplete.
-# Any Material you create or reassign is synced back into the list and viewer.
-supercell = create_supercell(materials_in[0], scaling_factor=[2, 2, 1])
-`;
 
 const STATUS_LABEL: Record<ExecutionStatus, string> = {
     [ExecutionStatus.Loading]: "Preparing Python environment…",

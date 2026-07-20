@@ -4,10 +4,12 @@
     "description": "Materials Designer",
     "scripts": {
         "start": "vite",
-        "prebuild": "node scripts/provision-repl-wheels.mjs",
+        "prebuild": "node scripts/provision-repl-wheels.mjs && node scripts/generate-repl-python.mjs",
         "build": "vite build",
         "provision-repl-wheels": "node scripts/provision-repl-wheels.mjs",
+        "generate-repl-python": "node scripts/generate-repl-python.mjs",
         "prepare": "husky install",
+        "pretranspile": "node scripts/generate-repl-python.mjs",
         "transpile": "tsc && npm run copy-css",
         "copy-css": "mkdir -p dist/stylesheets && cp src/stylesheets/* dist/stylesheets/",
         "test": "echo 'Tests are in the tests subfolder. Use Node 20 (`nvm use 20`) and run `npm i` && `npm test` there'",
@@ -16,7 +18,7 @@
         "test:pyodide": "node tests-pyodide/supercell.pyodide.cjs",
         "lint": "eslint src && prettier --write src",
         "lint:fix": "eslint src --fix && prettier --write src",
-        "prestart": "npm-link-shared ./node_modules/@exabyte-io/cove.js/node_modules . react; npm-link-shared ./node_modules/@exabyte-io/wave.js/node_modules . react; npm run provision-repl-wheels",
+        "prestart": "npm-link-shared ./node_modules/@exabyte-io/cove.js/node_modules . react; npm-link-shared ./node_modules/@exabyte-io/wave.js/node_modules . react; npm run provision-repl-wheels; npm run generate-repl-python",
         "prettier": "prettier --check src tests"
     },
     "repository": {

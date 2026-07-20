@@ -1,6 +1,6 @@
 {
     "extends": ["@exabyte-io/eslint-config"],
-    "ignorePatterns": ["dist/**/*.js", "dist/**/*.ts"],
+    "ignorePatterns": ["dist/**/*.js", "dist/**/*.ts", "src/components/repl/python/generated/**"],
     "rules": {
         "jsx-a11y/label-has-associated-control": "off",
         "react/function-component-definition": "off",
