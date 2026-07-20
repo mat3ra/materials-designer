@@ -23,6 +23,7 @@ import EditorSelectionInfo, {
 import JupyterLiteSessionDrawer from "./components/drawer_session/JupyterLiteSessionDrawer";
 import HeaderMenuToolbar from "./components/header_menu/HeaderMenuToolbar";
 import ItemsList from "./components/items_list/ItemsList";
+import PythonReplPanel from "./components/repl/PythonReplPanel";
 import BasisEditor from "./components/source_editor/Basis";
 import LatticeEditor from "./components/source_editor/Lattice";
 import { MDMaterial } from "./MDMaterial";
@@ -80,6 +81,7 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
             isVisibleSourceEditor: true,
             isVisibleThreeDEditorFullscreen: true,
             isVisibleJupyterLiteSessionDrawer: false,
+            isVisiblePythonReplPanel: false,
             importMaterialsDialogProps: null,
         };
         this.containerRef = React.createRef();
@@ -173,6 +175,7 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                 isVisibleJupyterLiteSessionDrawer={
                                     this.state.isVisibleJupyterLiteSessionDrawer
                                 }
+                                isVisiblePythonReplPanel={this.state.isVisiblePythonReplPanel}
                             >
                                 <IconButton
                                     color="inherit"
@@ -201,107 +204,119 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                 [theme.breakpoints.down("md")]: {
                                     maxHeight: mainContainerHeightDirective,
                                 },
-                                overflowY: "auto",
+                                display: "flex",
+                                flexDirection: "column",
+                                overflow: "hidden",
                             }}
                         >
-                            <Grid
-                                container
-                                justifyContent="flex-start"
-                                id="materials-designer-container"
-                                sx={{ height: "100%" }}
-                                ref={this.containerRef}
-                            >
-                                {isVisibleItemsList && (
-                                    <Grid
-                                        item
-                                        // eslint-disable-next-line react/jsx-props-no-spreading
-                                        {...gridConfig[1]}
-                                        sx={{
-                                            borderRight: `1px solid ${theme.palette.grey[800]}`,
-                                            height: "100%",
-                                            overflowY: "auto",
-                                        }}
-                                    >
+                            <Box sx={{ flex: "1 1 auto", minHeight: 0, overflowY: "auto" }}>
+                                <Grid
+                                    container
+                                    justifyContent="flex-start"
+                                    id="materials-designer-container"
+                                    sx={{ height: "100%" }}
+                                    ref={this.containerRef}
+                                >
+                                    {isVisibleItemsList && (
                                         <Grid
                                             item
-                                            className="materials-designer-items-list"
-                                            xs={12}
-                                            mt={0.25}
-                                        >
-                                            <ItemsList
-                                                materials={mdState.materials}
-                                                index={mdState.index}
-                                                onItemClick={this.props.onItemClick}
-                                                onRemove={this.props.onRemove}
-                                                onNameUpdate={this.props.onNameUpdate}
-                                            />
-                                        </Grid>
-                                    </Grid>
-                                )}
-                                {isVisibleSourceEditor && (
-                                    <Grid
-                                        item
-                                        // eslint-disable-next-line react/jsx-props-no-spreading
-                                        {...gridConfig[2]}
-                                        sx={{
-                                            borderRight: `1px solid ${theme.palette.grey[800]}`,
-                                            height: "100%",
-                                            width: "100%",
-                                            overflowY: "auto",
-                                        }}
-                                        className="materials-designer-source-editor"
-                                    >
-                                        <Grid item xs={12} mt={0.25}>
-                                            <LatticeEditor
-                                                material={globalMaterial}
-                                                onUpdate={this.props.onUpdate}
-                                            />
-                                        </Grid>
-                                        <Grid item xs={12} mt={0.25}>
-                                            <BasisEditor
-                                                material={globalMaterial}
-                                                onUpdate={this.props.onUpdate}
-                                            />
-                                        </Grid>
-                                    </Grid>
-                                )}
-                                {isVisibleThreeDEditorFullscreen && (
-                                    // eslint-disable-next-line react/jsx-props-no-spreading
-                                    <Grid item {...gridConfig[3]} mt={0.25}>
-                                        <ThreeDEditorFullscreen
-                                            editable
-                                            material={globalMaterial}
-                                            isConventionalCellShown={
-                                                this.props.isConventionalCellShown
-                                            }
-                                            boundaryConditions={globalMaterial.boundaryConditions}
-                                            initialViewSettings={this.props.initialViewSettings}
-                                            onUpdate={(material) => {
-                                                const newMaterial = MDMaterial.fromMadeMaterial(
-                                                    material,
-                                                    globalMaterial.metadata,
-                                                );
-                                                this.props.onUpdate(newMaterial);
+                                            // eslint-disable-next-line react/jsx-props-no-spreading
+                                            {...gridConfig[1]}
+                                            sx={{
+                                                borderRight: `1px solid ${theme.palette.grey[800]}`,
+                                                height: "100%",
+                                                overflowY: "auto",
                                             }}
+                                        >
+                                            <Grid
+                                                item
+                                                className="materials-designer-items-list"
+                                                xs={12}
+                                                mt={0.25}
+                                            >
+                                                <ItemsList
+                                                    materials={mdState.materials}
+                                                    index={mdState.index}
+                                                    onItemClick={this.props.onItemClick}
+                                                    onRemove={this.props.onRemove}
+                                                    onNameUpdate={this.props.onNameUpdate}
+                                                />
+                                            </Grid>
+                                        </Grid>
+                                    )}
+                                    {isVisibleSourceEditor && (
+                                        <Grid
+                                            item
+                                            // eslint-disable-next-line react/jsx-props-no-spreading
+                                            {...gridConfig[2]}
+                                            sx={{
+                                                borderRight: `1px solid ${theme.palette.grey[800]}`,
+                                                height: "100%",
+                                                width: "100%",
+                                                overflowY: "auto",
+                                            }}
+                                            className="materials-designer-source-editor"
+                                        >
+                                            <Grid item xs={12} mt={0.25}>
+                                                <LatticeEditor
+                                                    material={globalMaterial}
+                                                    onUpdate={this.props.onUpdate}
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12} mt={0.25}>
+                                                <BasisEditor
+                                                    material={globalMaterial}
+                                                    onUpdate={this.props.onUpdate}
+                                                />
+                                            </Grid>
+                                        </Grid>
+                                    )}
+                                    {isVisibleThreeDEditorFullscreen && (
+                                        // eslint-disable-next-line react/jsx-props-no-spreading
+                                        <Grid item {...gridConfig[3]} mt={0.25}>
+                                            <ThreeDEditorFullscreen
+                                                editable
+                                                material={globalMaterial}
+                                                isConventionalCellShown={
+                                                    this.props.isConventionalCellShown
+                                                }
+                                                boundaryConditions={
+                                                    globalMaterial.boundaryConditions
+                                                }
+                                                initialViewSettings={this.props.initialViewSettings}
+                                                onUpdate={(material) => {
+                                                    const newMaterial = MDMaterial.fromMadeMaterial(
+                                                        material,
+                                                        globalMaterial.metadata,
+                                                    );
+                                                    this.props.onUpdate(newMaterial);
+                                                }}
+                                            />
+                                        </Grid>
+                                    )}
+                                    {this.state.isVisibleJupyterLiteSessionDrawer && (
+                                        <JupyterLiteSessionDrawer
+                                            materials={mdState.materials}
+                                            show={this.state.isVisibleJupyterLiteSessionDrawer}
+                                            onMaterialsUpdate={(...args) => {
+                                                this.props.onAdd(...args);
+                                            }}
+                                            onHide={() => {
+                                                this.setState({
+                                                    isVisibleJupyterLiteSessionDrawer: false,
+                                                });
+                                            }}
+                                            containerRef={this.containerRef}
                                         />
-                                    </Grid>
-                                )}
-                                {this.state.isVisibleJupyterLiteSessionDrawer && (
-                                    <JupyterLiteSessionDrawer
-                                        materials={mdState.materials}
-                                        show={this.state.isVisibleJupyterLiteSessionDrawer}
-                                        onMaterialsUpdate={(...args) => {
-                                            this.props.onAdd(...args);
-                                        }}
-                                        onHide={() => {
-                                            this.setState({
-                                                isVisibleJupyterLiteSessionDrawer: false,
-                                            });
-                                        }}
-                                        containerRef={this.containerRef}
-                                    />
-                                )}
-                            </Grid>
+                                    )}
+                                </Grid>
+                            </Box>
+                            <PythonReplPanel
+                                show={this.state.isVisiblePythonReplPanel}
+                                materials={mdState.materials}
+                                activeIndex={mdState.index}
+                                onReplSync={this.props.onReplSync}
+                            />
                         </Box>
                         <EditorSelectionInfo />
                     </Paper>
@@ -341,6 +356,7 @@ MaterialsDesigner.propTypes = {
 
     onAdd: PropTypes.func,
     onExport: PropTypes.func,
+    onReplSync: PropTypes.func,
     onExit: PropTypes.func,
 
     openImportModal: PropTypes.func,

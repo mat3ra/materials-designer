@@ -169,6 +169,7 @@ class HeaderMenuToolbar extends React.Component {
             isVisibleItemsList,
             isVisibleSourceEditor,
             isVisibleThreeDEditorFullscreen,
+            isVisiblePythonReplPanel,
         } = this.props;
         return (
             <ButtonActivatedMenuMaterialUI title="View">
@@ -206,6 +207,12 @@ class HeaderMenuToolbar extends React.Component {
                         <Terminal />
                     </ListItemIcon>
                     JupyterLite Session
+                </MenuItem>
+                <MenuItem onClick={() => onSectionVisibilityToggle("PythonReplPanel")}>
+                    <ListItemIcon>
+                        {isVisiblePythonReplPanel ? <VisibilityOffIcon /> : <Terminal />}
+                    </ListItemIcon>
+                    Python REPL
                 </MenuItem>
             </ButtonActivatedMenuMaterialUI>
         );
@@ -533,6 +540,7 @@ HeaderMenuToolbar.propTypes = {
     isVisibleItemsList: PropTypes.bool.isRequired,
     isVisibleSourceEditor: PropTypes.bool.isRequired,
     isVisibleThreeDEditorFullscreen: PropTypes.bool.isRequired,
+    isVisiblePythonReplPanel: PropTypes.bool.isRequired,
 
     openImportModal: PropTypes.func,
     closeImportModal: PropTypes.func,
