@@ -4,23 +4,21 @@
 // already present. These wheels are custom pure-Python builds not published on PyPI, so they must be
 // self-hosted; the source defaults to the jupyterlite deploy that already hosts them.
 import { createWriteStream } from "node:fs";
-import { mkdir, stat } from "node:fs/promises";
+import { mkdir, readFile, stat } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
+import { fileURLToPath } from "node:url";
 
 const SOURCE_BASE_URL =
     process.env.REPL_WHEELS_SOURCE_URL || "https://mat3ra-jupyterlite.netlify.app/files/packages";
 
-// Keep in sync with REPL_WHEEL_FILENAMES in src/components/repl/constants.ts.
-const WHEEL_FILENAMES = [
-    "pydantic_core-2.18.2-py3-none-any.whl",
-    "pydantic-2.7.1-py3-none-any.whl",
-    "spglib-2.0.2-py3-none-any.whl",
-    "ruamel.yaml-0.17.32-py3-none-any.whl",
-    "pymatgen-2024.4.13-py3-none-any.whl",
-];
+const REPL_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "src", "components", "repl");
+// Single source of truth: src/components/repl/repl-packages.json (also read by constants.ts and
+// tests-pyodide/supercell.pyodide.cjs — plain JSON so all three can load it without a build step).
+const { wheelFilenames: WHEEL_FILENAMES } = JSON.parse(
+    await readFile(join(REPL_DIR, "repl-packages.json"), "utf8"),
+);
 
 const outDir = join(dirname(fileURLToPath(import.meta.url)), "..", "public", "repl-wheels");
 

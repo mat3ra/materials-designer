@@ -32,25 +32,15 @@ if (!WHEELS_DIR || !fs.existsSync(WHEELS_DIR)) {
     process.exit(0);
 }
 
-// Mirror of src/components/repl/constants.ts (kept in sync; this file cannot import the TS module).
-const LOAD_PACKAGES = ["numpy", "scipy", "typing-extensions", "lzma", "sqlite3", "ssl"];
-const PYPI_PINS = [
-    "annotated_types>=0.6.0",
-    "networkx==3.2.1",
-    "monty==2023.11.3",
-    "tabulate==0.9.0",
-    "sympy==1.12",
-    "uncertainties==3.1.6",
-    "ase==3.25.0",
-];
-const WHEELS = [
-    "pydantic_core-2.18.2-py3-none-any.whl",
-    "pydantic-2.7.1-py3-none-any.whl",
-    "spglib-2.0.2-py3-none-any.whl",
-    "ruamel.yaml-0.17.32-py3-none-any.whl",
-    "pymatgen-2024.4.13-py3-none-any.whl",
-];
-const MAT3RA = ["pymatgen-analysis-defects<=2024.4.23", "mat3ra-periodic-table", "mat3ra-made"];
+// Single source of truth: src/components/repl/repl-packages.json (also read by constants.ts and
+// scripts/provision-repl-wheels.mjs — plain JSON so all three can load it without a build step; this
+// file is CommonJS and runs standalone, so it can't import the .ts module directly).
+const {
+    loadPackages: LOAD_PACKAGES,
+    pypiPinnedPackages: PYPI_PINS,
+    wheelFilenames: WHEELS,
+    mat3raPackages: MAT3RA,
+} = require("../src/components/repl/repl-packages.json");
 
 const startWheelServer = () =>
     new Promise((resolve) => {
