@@ -1,13 +1,3 @@
-/**
- * Single source of truth for the Python REPL environment.
- *
- * The package set mirrors the `made` profile of the production JupyterLite kernel
- * (api-examples / jupyterlite `config.yml`) and is spike-verified under Pyodide 0.24.0.
- * It is intentionally NOT `mat3ra-made[tools]`: that extra resolves pymatgen/ase/scipy
- * from PyPI, which do not build under Pyodide. Instead we load Pyodide-native built-ins,
- * install pinned pure-Python deps from PyPI, and install the non-buildable deps from
- * prebuilt pure-Python wheels served over HTTP.
- */
 /** Names bound by {@link PyodideReplSession.injectMaterials}; excluded from auto-sync so re-injection does not re-add them. */
 export declare const REPL_INPUT_VARIABLE_NAMES: readonly ["materials_in", "material"];
 /**
