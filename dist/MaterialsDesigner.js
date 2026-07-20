@@ -134,7 +134,7 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                             borderRight: `1px solid ${theme.palette.grey[800]}`,
                                             height: "100%",
                                             overflowY: "auto",
-                                        }, children: _jsx(Grid, { item: true, className: "materials-designer-items-list", xs: 12, mt: 0.25, children: _jsx(ItemsList, { materials: mdState.materials, index: mdState.index, onItemClick: this.props.onItemClick, onRemove: this.props.onRemove, onNameUpdate: this.props.onNameUpdate }) }) })), isVisibleSourceEditor && (_jsxs(Grid, { item: true, ...gridConfig[2], sx: {
+                                        }, children: _jsx(Grid, { item: true, className: "materials-designer-items-list", xs: 12, mt: 0.25, children: _jsx(ItemsList, { materials: mdState.materials, index: mdState.index, updatedIndices: mdState.updatedIndices, onItemClick: this.props.onItemClick, onRemove: this.props.onRemove, onNameUpdate: this.props.onNameUpdate }) }) })), isVisibleSourceEditor && (_jsxs(Grid, { item: true, ...gridConfig[2], sx: {
                                             borderRight: `1px solid ${theme.palette.grey[800]}`,
                                             height: "100%",
                                             width: "100%",
@@ -158,6 +158,7 @@ MaterialsDesigner.propTypes = {
         index: PropTypes.number,
         isLoading: PropTypes.bool,
         materials: PropTypes.arrayOf(PropTypes.object),
+        updatedIndices: PropTypes.arrayOf(PropTypes.number),
     }).isRequired,
     showToolbar: PropTypes.bool,
     isConventionalCellShown: PropTypes.bool,

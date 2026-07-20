@@ -4,7 +4,12 @@ export type MDState = {
     index: number;
     isLoading: boolean;
     materials: MDMaterial[];
+    updatedIndices: number[];
 };
+export declare function addUpdatedIndices(state: MDState, indices: number[]): MDState;
+export declare function isMaterialUpdated(state: MDState, index: number): boolean;
+export declare function indicesForAddedMaterials(state: MDState, count: number, addAtIndex?: boolean): number[];
+export declare function adjustUpdatedIndicesForRemove(state: MDState, removedIndex: number): MDState;
 export type SurfaceConfig = {
     h: number;
     k: number;

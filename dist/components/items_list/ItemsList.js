@@ -95,8 +95,9 @@ class ItemsList extends React.Component {
         e.preventDefault();
         onItemClick(index);
     }
-    renderListItem(entity, index, indexFromState) {
-        const { name, isUpdated, isNonPeriodic } = entity;
+    renderListItem(entity, index, indexFromState, updatedIndices) {
+        const { name, isNonPeriodic } = entity;
+        const isUpdated = updatedIndices.includes(index);
         const { editedIndex, editedName } = this.state;
         const isBeingEdited = editedIndex === index;
         const isBeingActive = index === indexFromState;
@@ -127,17 +128,18 @@ class ItemsList extends React.Component {
                         _jsxs(Typography, { variant: "caption", sx: { fontSize: "0.8em" }, children: ["Formula: ", _jsx("code", { children: entity.formula })] }) })] }) }, name + "-" + index));
     }
     render() {
-        const { materials, index } = this.props;
+        const { materials, index, updatedIndices } = this.props;
         return (_jsx(List, { sx: {
                 // TODO: figure out why "dense" prop doesn't work and remove this
                 paddingY: 0,
-            }, children: materials.map((m, i) => this.renderListItem(m, i, index)) }));
+            }, children: materials.map((m, i) => this.renderListItem(m, i, index, updatedIndices)) }));
     }
 }
 ItemsList.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     materials: PropTypes.array.isRequired,
     index: PropTypes.number.isRequired,
+    updatedIndices: PropTypes.arrayOf(PropTypes.number).isRequired,
     onItemClick: PropTypes.func.isRequired,
     onRemove: PropTypes.func.isRequired,
     onNameUpdate: PropTypes.func.isRequired,

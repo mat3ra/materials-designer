@@ -32,13 +32,14 @@ declare class ItemsList extends React.Component<any, any, any> {
      * @param {Number} index - index of element that should be removed
      */
     onItemListClick(e: React.MouseEvent, index: number): void;
-    renderListItem(entity: any, index: any, indexFromState: any): import("react/jsx-runtime").JSX.Element;
+    renderListItem(entity: any, index: any, indexFromState: any, updatedIndices: any): import("react/jsx-runtime").JSX.Element;
     render(): import("react/jsx-runtime").JSX.Element;
 }
 declare namespace ItemsList {
     namespace propTypes {
         const materials: PropTypes.Validator<any[]>;
         const index: PropTypes.Validator<number>;
+        const updatedIndices: PropTypes.Validator<(number | null | undefined)[]>;
         const onItemClick: PropTypes.Validator<(...args: any[]) => any>;
         const onRemove: PropTypes.Validator<(...args: any[]) => any>;
         const onNameUpdate: PropTypes.Validator<(...args: any[]) => any>;

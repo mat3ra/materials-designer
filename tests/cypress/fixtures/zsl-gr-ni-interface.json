@@ -66,7 +66,6 @@
             }
         ],
         "units": "crystal",
-
         "constraints": []
     },
     "lattice": {
@@ -202,5 +201,6 @@
         },
         "mean_abs_strain": 0.00127
     },
-    "isUpdated": true
+    "isUpdated": true,
+    "hash": "7e720f57a2ce9879279196b6a7638f8c"
 }

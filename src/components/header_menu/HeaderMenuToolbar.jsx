@@ -36,6 +36,7 @@ import setClass from "classnames";
 import PropTypes from "prop-types";
 import React from "react";
 
+import { MDMaterial } from "../../MDMaterial";
 import { BoundaryConditionsDialog } from "../3d_editor/advanced_geometry/BoundaryConditionsDialog";
 import CombinatorialBasisDialog from "../3d_editor/advanced_geometry/CombinatorialBasisDialog";
 import InterpolateBasesDialog from "../3d_editor/advanced_geometry/InterpolateBasesDialog";
@@ -346,7 +347,7 @@ class HeaderMenuToolbar extends React.Component {
     renderThreejsEditorModal() {
         const {
             onAdd,
-            mdState: { materials },
+            mdState: { materials, index },
         } = this.props;
         const { showThreejsEditorModal } = this.state;
         return (
@@ -355,8 +356,10 @@ class HeaderMenuToolbar extends React.Component {
                 onHide={(material) => {
                     this.setState({ showThreejsEditorModal: !showThreejsEditorModal });
                     if (material) {
-                        const newMaterial = material;
-                        newMaterial.isUpdated = true; // to show it as new (yellow color)
+                        const newMaterial = MDMaterial.fromMadeMaterial(
+                            material,
+                            materials[index].metadata,
+                        );
                         onAdd(newMaterial);
                     }
                 }}
@@ -509,6 +512,7 @@ HeaderMenuToolbar.propTypes = {
         index: PropTypes.number,
         isLoading: PropTypes.bool,
         materials: PropTypes.arrayOf(PropTypes.object),
+        updatedIndices: PropTypes.arrayOf(PropTypes.number),
     }).isRequired,
 
     className: PropTypes.string,

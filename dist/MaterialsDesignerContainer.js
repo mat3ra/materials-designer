@@ -50,6 +50,7 @@ export function MaterialsDesignerContainer({ initialMaterials = [new MDMaterial(
         index: 0,
         isLoading: false,
         materials: initialMaterials,
+        updatedIndices: [],
     });
     useEffect(() => {
         setMdState({ ...mdState.current, isLoading });
