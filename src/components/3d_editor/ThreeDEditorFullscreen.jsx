@@ -1,4 +1,4 @@
-import { ThreeDEditor } from "@exabyte-io/wave.js";
+import { ThreeDEditor } from "@mat3ra/wave.js";
 import PropTypes from "prop-types";
 
 // TODO: clean up when touching this next time
@@ -10,4 +10,6 @@ ThreeDEditorFullscreen.propTypes = {
     isConventionalCellShown: PropTypes.bool,
     onUpdate: PropTypes.func,
     editable: PropTypes.bool,
+    // eslint-disable-next-line react/forbid-prop-types
+    initialViewSettings: PropTypes.object,
 };

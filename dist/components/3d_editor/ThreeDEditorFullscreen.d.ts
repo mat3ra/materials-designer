@@ -6,7 +6,8 @@ export namespace ThreeDEditorFullscreen {
         const isConventionalCellShown: PropTypes.Requireable<boolean>;
         const onUpdate: PropTypes.Requireable<(...args: any[]) => any>;
         const editable: PropTypes.Requireable<boolean>;
+        const initialViewSettings: PropTypes.Requireable<object>;
     }
 }
-import { ThreeDEditor } from "@exabyte-io/wave.js";
+import { ThreeDEditor } from "@mat3ra/wave.js";
 import PropTypes from "prop-types";

@@ -44,6 +44,7 @@ declare namespace MaterialsDesigner {
         const onRemove: PropTypes.Requireable<(...args: any[]) => any>;
         const maxCombinatorialBasesCount: PropTypes.Requireable<number>;
         const defaultMaterialsSet: PropTypes.Requireable<any[]>;
+        const initialViewSettings: PropTypes.Requireable<object>;
     }
     namespace defaultProps {
         export { materialConfigs as defaultMaterialsSet };
@@ -54,7 +55,6 @@ import PropTypes from "prop-types";
 declare const materialConfigs: ({
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -65,9 +65,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -76,6 +76,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -88,7 +91,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -99,9 +101,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -110,6 +112,49 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
+    };
+    external: {
+        id: string;
+        source: string;
+        doi: string;
+        url: string;
+        origin: boolean;
+    };
+    isNonPeriodic: boolean;
+    metadata: {
+        element: string;
+    };
+    tags: string[];
+} | {
+    name: string;
+    lattice: {
+        a: number;
+        b: number;
+        c: number;
+        alpha: number;
+        beta: number;
+        gamma: number;
+        units: {
+            length: string;
+            angle: string;
+        };
+        type: string;
+    };
+    basis: {
+        elements: {
+            id: number;
+            value: string;
+        }[];
+        coordinates: {
+            id: number;
+            value: number[];
+        }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -122,7 +167,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -133,43 +177,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
-    };
-    basis: {
-        units: string;
-        elements: {
-            id: number;
-            value: string;
-        }[];
-        coordinates: {
-            id: number;
-            value: number[];
-        }[];
-    };
-    external: {
-        id: string;
-        source: string;
-        doi: string;
-        url: string;
-        origin: boolean;
-    };
-    isNonPeriodic: boolean;
-} | {
-    name: string;
-    lattice: {
         type: string;
-        a: number;
-        b: number;
-        c: number;
-        alpha: number;
-        beta: number;
-        gamma: number;
-        units: {
-            length: string;
-            angle: string;
-        };
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -178,6 +188,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -190,7 +203,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -201,9 +213,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -212,6 +224,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -224,7 +239,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -235,9 +249,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -246,6 +260,49 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
+    };
+    external: {
+        id: string;
+        source: string;
+        doi: string;
+        url: string;
+        origin: boolean;
+    };
+    isNonPeriodic: boolean;
+    metadata: {
+        element: string;
+    };
+    tags: string[];
+} | {
+    name: string;
+    lattice: {
+        a: number;
+        b: number;
+        c: number;
+        alpha: number;
+        beta: number;
+        gamma: number;
+        units: {
+            length: string;
+            angle: string;
+        };
+        type: string;
+    };
+    basis: {
+        elements: {
+            id: number;
+            value: string;
+        }[];
+        coordinates: {
+            id: number;
+            value: number[];
+        }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -258,7 +315,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -269,9 +325,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -280,6 +336,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -292,7 +351,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -303,9 +361,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -314,6 +372,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -326,7 +387,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -337,9 +397,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -348,6 +408,129 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
+    };
+    external: {
+        id: string;
+        source: string;
+        doi: string;
+        url: string;
+        origin: boolean;
+    };
+    isNonPeriodic: boolean;
+    metadata: {
+        element: string;
+    };
+    tags: string[];
+} | {
+    name: string;
+    lattice: {
+        a: number;
+        b: number;
+        c: number;
+        alpha: number;
+        beta: number;
+        gamma: number;
+        units: {
+            length: string;
+            angle: string;
+        };
+        type: string;
+    };
+    basis: {
+        elements: {
+            id: number;
+            value: string;
+        }[];
+        coordinates: {
+            id: number;
+            value: number[];
+        }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
+    };
+    external: {
+        id: string;
+        source: string;
+        doi: string;
+        url: string;
+        origin: boolean;
+    };
+    isNonPeriodic: boolean;
+    metadata: {
+        element: string;
+    };
+    tags: string[];
+} | {
+    name: string;
+    lattice: {
+        a: number;
+        b: number;
+        c: number;
+        alpha: number;
+        beta: number;
+        gamma: number;
+        units: {
+            length: string;
+            angle: string;
+        };
+        type: string;
+    };
+    basis: {
+        elements: {
+            id: number;
+            value: string;
+        }[];
+        coordinates: {
+            id: number;
+            value: number[];
+        }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
+    };
+    external: {
+        id: string;
+        source: string;
+        doi: string;
+        url: string;
+        origin: boolean;
+    };
+    isNonPeriodic: boolean;
+    metadata: {
+        element: string;
+    };
+    tags: string[];
+} | {
+    name: string;
+    lattice: {
+        a: number;
+        b: number;
+        c: number;
+        alpha: number;
+        beta: number;
+        gamma: number;
+        units: {
+            length: string;
+            angle: string;
+        };
+        type: string;
+    };
+    basis: {
+        elements: {
+            id: number;
+            value: string;
+        }[];
+        coordinates: {
+            id: number;
+            value: number[];
+        }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -360,7 +543,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -371,9 +553,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -382,6 +564,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -394,7 +579,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -405,9 +589,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -416,6 +600,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -428,7 +615,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -439,9 +625,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -450,6 +636,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -462,7 +651,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -473,9 +661,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -484,6 +672,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -496,7 +687,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -507,9 +697,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -518,6 +708,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -530,7 +723,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -541,43 +733,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
-    };
-    basis: {
-        units: string;
-        elements: {
-            id: number;
-            value: string;
-        }[];
-        coordinates: {
-            id: number;
-            value: number[];
-        }[];
-    };
-    external: {
-        id: string;
-        source: string;
-        doi: string;
-        url: string;
-        origin: boolean;
-    };
-    isNonPeriodic: boolean;
-} | {
-    name: string;
-    lattice: {
         type: string;
-        a: number;
-        b: number;
-        c: number;
-        alpha: number;
-        beta: number;
-        gamma: number;
-        units: {
-            length: string;
-            angle: string;
-        };
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -586,108 +744,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
-    };
-    external: {
-        id: string;
-        source: string;
-        doi: string;
-        url: string;
-        origin: boolean;
-    };
-    isNonPeriodic: boolean;
-} | {
-    name: string;
-    lattice: {
-        type: string;
-        a: number;
-        b: number;
-        c: number;
-        alpha: number;
-        beta: number;
-        gamma: number;
-        units: {
-            length: string;
-            angle: string;
-        };
-    };
-    basis: {
         units: string;
-        elements: {
-            id: number;
-            value: string;
-        }[];
-        coordinates: {
-            id: number;
-            value: number[];
-        }[];
-    };
-    external: {
-        id: string;
-        source: string;
-        doi: string;
-        url: string;
-        origin: boolean;
-    };
-    isNonPeriodic: boolean;
-} | {
-    name: string;
-    lattice: {
-        type: string;
-        a: number;
-        b: number;
-        c: number;
-        alpha: number;
-        beta: number;
-        gamma: number;
-        units: {
-            length: string;
-            angle: string;
-        };
-    };
-    basis: {
-        units: string;
-        elements: {
-            id: number;
-            value: string;
-        }[];
-        coordinates: {
-            id: number;
-            value: number[];
-        }[];
-    };
-    external: {
-        id: string;
-        source: string;
-        doi: string;
-        url: string;
-        origin: boolean;
-    };
-    isNonPeriodic: boolean;
-} | {
-    name: string;
-    lattice: {
-        type: string;
-        a: number;
-        b: number;
-        c: number;
-        alpha: number;
-        beta: number;
-        gamma: number;
-        units: {
-            length: string;
-            angle: string;
-        };
-    };
-    basis: {
-        units: string;
-        elements: {
-            id: number;
-            value: string;
-        }[];
-        coordinates: {
-            id: number;
-            value: number[];
-        }[];
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -700,7 +759,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -711,9 +769,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -722,6 +780,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -734,7 +795,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -745,9 +805,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -756,6 +816,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -768,7 +831,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -779,9 +841,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -790,6 +852,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -802,7 +867,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -813,9 +877,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -824,6 +888,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -836,7 +903,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -847,9 +913,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -858,6 +924,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -870,7 +939,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -881,9 +949,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -892,6 +960,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -904,7 +975,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -915,9 +985,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -926,6 +996,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -938,7 +1011,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -949,9 +1021,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -960,6 +1032,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -972,7 +1047,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -983,9 +1057,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -994,6 +1068,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -1006,7 +1083,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -1017,9 +1093,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -1028,6 +1104,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -1040,7 +1119,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -1051,9 +1129,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -1062,6 +1140,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -1074,7 +1155,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -1085,9 +1165,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -1096,6 +1176,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -1108,7 +1191,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -1119,9 +1201,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -1130,6 +1212,49 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
+    };
+    external: {
+        id: string;
+        source: string;
+        doi: string;
+        url: string;
+        origin: boolean;
+    };
+    isNonPeriodic: boolean;
+    metadata: {
+        element: string;
+    };
+    tags: string[];
+} | {
+    name: string;
+    lattice: {
+        a: number;
+        b: number;
+        c: number;
+        alpha: number;
+        beta: number;
+        gamma: number;
+        units: {
+            length: string;
+            angle: string;
+        };
+        type: string;
+    };
+    basis: {
+        elements: {
+            id: number;
+            value: string;
+        }[];
+        coordinates: {
+            id: number;
+            value: number[];
+        }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -1142,7 +1267,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -1153,9 +1277,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -1164,6 +1288,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -1176,7 +1303,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -1187,9 +1313,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -1198,6 +1324,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -1210,7 +1339,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -1221,9 +1349,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -1232,6 +1360,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -1244,7 +1375,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -1255,9 +1385,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -1266,6 +1396,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -1278,7 +1411,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -1289,9 +1421,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -1300,6 +1432,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -1312,7 +1447,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -1323,9 +1457,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -1334,6 +1468,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -1346,7 +1483,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -1357,9 +1493,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -1368,6 +1504,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -1380,7 +1519,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -1391,9 +1529,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -1402,6 +1540,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -1414,7 +1555,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -1425,9 +1565,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -1436,6 +1576,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -1448,7 +1591,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -1459,9 +1601,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -1470,6 +1612,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -1482,7 +1627,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -1493,9 +1637,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -1504,6 +1648,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -1516,7 +1663,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -1527,9 +1673,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
+        type: string;
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -1538,6 +1684,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -1550,7 +1699,6 @@ declare const materialConfigs: ({
 } | {
     name: string;
     lattice: {
-        type: string;
         a: number;
         b: number;
         c: number;
@@ -1561,43 +1709,9 @@ declare const materialConfigs: ({
             length: string;
             angle: string;
         };
-    };
-    basis: {
-        units: string;
-        elements: {
-            id: number;
-            value: string;
-        }[];
-        coordinates: {
-            id: number;
-            value: number[];
-        }[];
-    };
-    external: {
-        id: string;
-        source: string;
-        doi: string;
-        url: string;
-        origin: boolean;
-    };
-    isNonPeriodic: boolean;
-} | {
-    name: string;
-    lattice: {
         type: string;
-        a: number;
-        b: number;
-        c: number;
-        alpha: number;
-        beta: number;
-        gamma: number;
-        units: {
-            length: string;
-            angle: string;
-        };
     };
     basis: {
-        units: string;
         elements: {
             id: number;
             value: string;
@@ -1606,6 +1720,9 @@ declare const materialConfigs: ({
             id: number;
             value: number[];
         }[];
+        units: string;
+        constraints: never[];
+        labels: never[];
     };
     external: {
         id: string;
@@ -1615,4 +1732,8 @@ declare const materialConfigs: ({
         origin: boolean;
     };
     isNonPeriodic: boolean;
+    metadata: {
+        element: string;
+    };
+    tags: string[];
 })[];

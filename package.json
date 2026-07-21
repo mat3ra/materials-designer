@@ -11,7 +11,7 @@
         "test": "echo 'Tests are in the tests subfolder. Use Node 20 (`nvm use 20`) and run `npm i` && `npm test` there'",
         "lint": "eslint src && prettier --write src",
         "lint:fix": "eslint src --fix && prettier --write src",
-        "prestart": "npm-link-shared ./node_modules/@exabyte-io/cove.js/node_modules . react; npm-link-shared ./node_modules/@exabyte-io/wave.js/node_modules . react",
+        "prestart": "npm-link-shared ./node_modules/@mat3ra/cove/node_modules . react; npm-link-shared ./node_modules/@mat3ra/wave.js/node_modules . react",
         "prettier": "prettier --check src tests"
     },
     "repository": {
@@ -32,7 +32,6 @@
         "@babel/runtime-corejs2": "7.16.7",
         "@emotion/react": "^11.13.0",
         "@emotion/styled": "^11.13.0",
-        "@exabyte-io/wave.js": "https://github.com/Exabyte-io/wave.js/archive/1bae5551d50a62664c3b508a464c83c71ac16557.tar.gz",
         "@mat3ra/utils": "^2026.7.8-0",
         "@mui/icons-material": "^5.11.0",
         "@mui/lab": "^5.0.0-alpha.120",
@@ -53,22 +52,24 @@
         "underscore.string": "^3.3.4"
     },
     "peerDependencies": {
-        "@exabyte-io/cove.js": "*",
         "@mat3ra/code": "*",
+        "@mat3ra/cove": "*",
         "@mat3ra/esse": "*",
         "@mat3ra/made": "*",
         "@mat3ra/standata": "*",
+        "@mat3ra/wave.js": "*",
         "react": "^17.0.0",
         "react-dom": "^17.0.0"
     },
     "devDependencies": {
-        "@exabyte-io/cove.js": "2026.5.28-0",
         "@exabyte-io/eslint-config": "^2025.1.15-0",
         "@mat3ra/code": "https://github.com/Exabyte-io/code/archive/e5f03b02102f51a5792e0b8c4fedac3860aaf7ed.tar.gz",
+        "@mat3ra/cove": "2026.7.18-4",
         "@mat3ra/esse": "https://github.com/Exabyte-io/esse/archive/55306425f1d697aa150ee5ed8cf5cbca3cfa5b5e.tar.gz",
-        "@mat3ra/made": "https://github.com/Exabyte-io/made/archive/85d8fdb9f3fb1b4692fa8c802da07e2de241fae9.tar.gz",
-        "@mat3ra/standata": "2026.5.28-0",
+        "@mat3ra/made": "file:../made/mat3ra-made-0.0.0.tgz",
+        "@mat3ra/standata": "2026.6.23-0",
         "@mat3ra/tsconfig": "^2024.3.23-2",
+        "@mat3ra/wave.js": "https://github.com/Exabyte-io/wave.js/archive/1bae5551d50a62664c3b508a464c83c71ac16557.tar.gz",
         "@types/debug": "^4.1.12",
         "@types/mocha": "^10.0.1",
         "@types/node": "^20.4.2",

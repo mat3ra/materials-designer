@@ -1,7 +1,7 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import IconByName from "@exabyte-io/cove.js/dist/mui/components/icon/IconByName";
-import FullscreenComponentMixin from "@exabyte-io/cove.js/dist/other/fullscreen";
-import ThemeProvider from "@exabyte-io/cove.js/dist/theme/provider";
+import IconByName from "@mat3ra/cove/dist/mui/components/icon/IconByName";
+import FullscreenComponentMixin from "@mat3ra/cove/dist/other/fullscreen";
+import ThemeProvider from "@mat3ra/cove/dist/theme/provider";
 // eslint-disable-next-line import/no-unresolved
 import { MaterialStandata } from "@mat3ra/standata";
 import AppBar from "@mui/material/AppBar";
@@ -141,7 +141,7 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                             overflowY: "auto",
                                         }, className: "materials-designer-source-editor", children: [_jsx(Grid, { item: true, xs: 12, mt: 0.25, children: _jsx(LatticeEditor, { material: globalMaterial, onUpdate: this.props.onUpdate }) }), _jsx(Grid, { item: true, xs: 12, mt: 0.25, children: _jsx(BasisEditor, { material: globalMaterial, onUpdate: this.props.onUpdate }) })] })), isVisibleThreeDEditorFullscreen && (
                                     // eslint-disable-next-line react/jsx-props-no-spreading
-                                    _jsx(Grid, { item: true, ...gridConfig[3], mt: 0.25, children: _jsx(ThreeDEditorFullscreen, { editable: true, material: globalMaterial, isConventionalCellShown: this.props.isConventionalCellShown, boundaryConditions: globalMaterial.boundaryConditions, onUpdate: (material) => {
+                                    _jsx(Grid, { item: true, ...gridConfig[3], mt: 0.25, children: _jsx(ThreeDEditorFullscreen, { editable: true, material: globalMaterial, isConventionalCellShown: this.props.isConventionalCellShown, boundaryConditions: globalMaterial.boundaryConditions, initialViewSettings: this.props.initialViewSettings, onUpdate: (material) => {
                                                 const newMaterial = MDMaterial.fromMadeMaterial(material, globalMaterial.metadata);
                                                 this.props.onUpdate(newMaterial);
                                             } }) })), this.state.isVisibleJupyterLiteSessionDrawer && (_jsx(JupyterLiteSessionDrawer, { materials: mdState.materials, show: this.state.isVisibleJupyterLiteSessionDrawer, onMaterialsUpdate: (...args) => {
@@ -185,6 +185,8 @@ MaterialsDesigner.propTypes = {
     maxCombinatorialBasesCount: PropTypes.number,
     // eslint-disable-next-line react/forbid-prop-types
     defaultMaterialsSet: PropTypes.array,
+    // eslint-disable-next-line react/forbid-prop-types
+    initialViewSettings: PropTypes.object,
 };
 MaterialsDesigner.defaultProps = {
     defaultMaterialsSet: materialConfigs,

@@ -100,6 +100,5 @@
         "constraints": []
     },
     "name": "Ni C ",
-    "isNonPeriodic": false,
-    "hash": "c873d14aa09d2c408e79eefab9a96f11"
+    "isNonPeriodic": false
 }

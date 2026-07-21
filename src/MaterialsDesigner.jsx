@@ -1,6 +1,6 @@
-import IconByName from "@exabyte-io/cove.js/dist/mui/components/icon/IconByName";
-import FullscreenComponentMixin from "@exabyte-io/cove.js/dist/other/fullscreen";
-import ThemeProvider from "@exabyte-io/cove.js/dist/theme/provider";
+import IconByName from "@mat3ra/cove/dist/mui/components/icon/IconByName";
+import FullscreenComponentMixin from "@mat3ra/cove/dist/other/fullscreen";
+import ThemeProvider from "@mat3ra/cove/dist/theme/provider";
 // eslint-disable-next-line import/no-unresolved
 import { MaterialStandata } from "@mat3ra/standata";
 import AppBar from "@mui/material/AppBar";
@@ -276,6 +276,7 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                                 this.props.isConventionalCellShown
                                             }
                                             boundaryConditions={globalMaterial.boundaryConditions}
+                                            initialViewSettings={this.props.initialViewSettings}
                                             onUpdate={(material) => {
                                                 const newMaterial = MDMaterial.fromMadeMaterial(
                                                     material,
@@ -353,6 +354,8 @@ MaterialsDesigner.propTypes = {
     maxCombinatorialBasesCount: PropTypes.number,
     // eslint-disable-next-line react/forbid-prop-types
     defaultMaterialsSet: PropTypes.array,
+    // eslint-disable-next-line react/forbid-prop-types
+    initialViewSettings: PropTypes.object,
 };
 
 MaterialsDesigner.defaultProps = {

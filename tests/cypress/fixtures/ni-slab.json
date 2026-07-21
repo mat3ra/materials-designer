@@ -76,6 +76,5 @@
         "constraints": []
     },
     "name": "Ni",
-    "isNonPeriodic": false,
-    "hash": "3c7d03445841088bb94a2b44a51577d2"
+    "isNonPeriodic": false
 }

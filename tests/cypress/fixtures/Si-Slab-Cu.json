@@ -123,6 +123,5 @@
         "units": "crystal",
         "constraints": []
     },
-    "name": "Si-Slab-Cu",
-    "hash": "c048e6f34aa41b68e21764327440de7c"
+    "name": "Si-Slab-Cu"
 }

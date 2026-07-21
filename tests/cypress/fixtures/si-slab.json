@@ -1,5 +1,4 @@
 {
-    "_id": "",
     "basis": {
         "constraints": [],
         "coordinates": [
@@ -122,6 +121,5 @@
         "vx": 1,
         "vy": 1
     },
-    "name": "Silicon FCC - slab [1,1,1]",
-    "hash": "7580d05ecdfe45e9e55a85d8ccc75b17"
+    "name": "Silicon FCC - slab [1,1,1]"
 }

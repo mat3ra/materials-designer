@@ -1,4 +1,4 @@
-import { showSuccessAlert, showWarningAlert } from "@exabyte-io/cove.js/dist/other/alerts";
+import { showSuccessAlert, showWarningAlert } from "@mat3ra/cove/dist/other/alerts";
 import { exportToDisk } from "../utils/downloader";
 import { addUpdatedIndices, adjustUpdatedIndicesForRemove, indicesForAddedMaterials, } from "./Material";
 export function materialsAdd(state, action) {

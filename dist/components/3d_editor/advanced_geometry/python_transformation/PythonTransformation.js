@@ -1,8 +1,8 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import Dialog from "@exabyte-io/cove.js/dist/mui/components/dialog/Dialog";
-import IconByName from "@exabyte-io/cove.js/dist/mui/components/icon/IconByName";
-import { showErrorAlert } from "@exabyte-io/cove.js/dist/other/alerts";
-import PyodideLoader from "@exabyte-io/cove.js/dist/other/pyodide";
+import Dialog from "@mat3ra/cove/dist/mui/components/dialog/Dialog";
+import IconByName from "@mat3ra/cove/dist/mui/components/icon/IconByName";
+import { showErrorAlert } from "@mat3ra/cove/dist/other/alerts";
+import PyodideLoader from "@mat3ra/cove/dist/other/pyodide";
 import { Made } from "@mat3ra/made";
 import { darkScrollbar } from "@mui/material";
 import Button from "@mui/material/Button";

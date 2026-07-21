@@ -1,5 +1,4 @@
 {
-    "_id": "",
     "basis": {
         "constraints": [],
         "coordinates": [
@@ -89,6 +88,5 @@
         }
     },
     "metadata": {},
-    "name": "supercell - supercell [[2,0,0],[0,1,0],[0,0,1]]",
-    "hash": "7d8af4e0ef8acc27c0b5e700af8f828f"
+    "name": "supercell - supercell [[2,0,0],[0,1,0],[0,0,1]]"
 }
