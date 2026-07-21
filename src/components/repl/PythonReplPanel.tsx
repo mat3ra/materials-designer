@@ -1,8 +1,7 @@
-import Paper from "@mui/material/Paper";
+import ResizableDrawer from "@exabyte-io/cove.js/dist/mui/components/custom/resizable-drawer/ResizableDrawer";
 import React from "react";
 
 import type { MDMaterial } from "../../MDMaterial";
-import { theme } from "../../settings";
 import type { ReplSyncOperation } from "./PyodideReplSession";
 import PythonRepl from "./PythonRepl";
 
@@ -11,39 +10,39 @@ interface PythonReplPanelProps {
     activeIndex: number;
     onReplSync: (operations: ReplSyncOperation[]) => void;
     show: boolean;
+    onHide: () => void;
     wheelBaseUrl?: string;
 }
 
 /**
- * Placement wrapper for {@link PythonRepl}. Phase 1 docks it as a bottom panel so the 3D viewer
- * stays visible above while typing. Follow-up (Track A): a draggable splitter + a viewer↔middle
- * relocation toggle; Track B replaces this with a react-mosaic tile — neither touches PythonRepl.
+ * Docks {@link PythonRepl} in cove.js's bottom {@link ResizableDrawer} — exactly like the JupyterLite
+ * session drawer, so the REPL behaves like the rest of the app. Kept mounted (hidden via display) when
+ * closed so the persistent Pyodide session survives toggling.
+ *
+ * Note: no `containerRef` is passed to ResizableDrawer, matching JupyterLiteSessionDrawer — passing it
+ * makes the drawer position absolutely inside the MD container and stick ~100px above the viewport
+ * bottom instead of anchoring to it.
  */
 function PythonReplPanel({
     materials,
     activeIndex,
     onReplSync,
     show,
+    onHide,
     wheelBaseUrl,
 }: PythonReplPanelProps) {
-    if (!show) return null;
     return (
-        <Paper
-            id="python-repl-panel"
-            square
-            sx={{
-                height: 320,
-                borderTop: `2px solid ${theme.palette.grey[800]}`,
-            }}
-        >
-            <PythonRepl
-                materials={materials}
-                activeIndex={activeIndex}
-                onReplSync={onReplSync}
-                show={show}
-                wheelBaseUrl={wheelBaseUrl}
-            />
-        </Paper>
+        <div style={{ display: show ? "block" : "none" }}>
+            <ResizableDrawer open={show} onClose={onHide}>
+                <PythonRepl
+                    materials={materials}
+                    activeIndex={activeIndex}
+                    onReplSync={onReplSync}
+                    show={show}
+                    wheelBaseUrl={wheelBaseUrl}
+                />
+            </ResizableDrawer>
+        </div>
     );
 }
 

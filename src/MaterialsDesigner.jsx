@@ -17,9 +17,7 @@ import React from "react";
 // TODO: use when converting to typescript
 // import {MaterialSchema} from "@mat3ra/code/dist/js/types";
 import { ThreeDEditorFullscreen } from "./components/3d_editor/ThreeDEditorFullscreen";
-import EditorSelectionInfo, {
-    FOOTER_HEIGHT,
-} from "./components/3d_editor_selection_info/EditorSelectionInfo";
+import EditorSelectionInfo from "./components/3d_editor_selection_info/EditorSelectionInfo";
 import JupyterLiteSessionDrawer from "./components/drawer_session/JupyterLiteSessionDrawer";
 import HeaderMenuToolbar from "./components/header_menu/HeaderMenuToolbar";
 import ItemsList from "./components/items_list/ItemsList";
@@ -31,8 +29,6 @@ import { theme } from "./settings";
 
 const data = MaterialStandata.runtimeData;
 const materialConfigs = Object.values(data.filesMapByName);
-
-const APP_BAR_HEIGHT = 54;
 
 const GRID_CONFIG_BY_VISIBILITY = {
     // "111" means that all three components are visible
@@ -136,9 +132,6 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
         const { isVisibleItemsList, isVisibleSourceEditor, isVisibleThreeDEditorFullscreen } =
             this.state;
         const gridConfig = this.getGridConfig();
-        const mainContainerHeightDirective = `calc(100vh - ${
-            APP_BAR_HEIGHT + FOOTER_HEIGHT - 8
-        }px)`; // 8px is the padding + borders
 
         const { mdState } = this.props;
         const globalMaterial = mdState.materials[mdState.index];
@@ -146,7 +139,15 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
         return (
             <ThemeProvider theme={theme}>
                 <ScopedCssBaseline enableColorScheme>
-                    <Paper id="materials-designer">
+                    <Paper
+                        id="materials-designer"
+                        sx={{
+                            height: "100vh",
+                            display: "flex",
+                            flexDirection: "column",
+                            overflow: "hidden",
+                        }}
+                    >
                         <AppBar position="static" className={setClass("", this.props.className)}>
                             {/* TODO: find out how to avoid passing material to header */}
                             <HeaderMenuToolbar
@@ -198,12 +199,8 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                         <Box
                             component="main"
                             sx={{
-                                [theme.breakpoints.up("md")]: {
-                                    height: mainContainerHeightDirective,
-                                },
-                                [theme.breakpoints.down("md")]: {
-                                    maxHeight: mainContainerHeightDirective,
-                                },
+                                flex: "1 1 auto",
+                                minHeight: 0,
                                 display: "flex",
                                 flexDirection: "column",
                                 overflow: "hidden",
@@ -309,14 +306,17 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                             containerRef={this.containerRef}
                                         />
                                     )}
+                                    <PythonReplPanel
+                                        show={this.state.isVisiblePythonReplPanel}
+                                        materials={mdState.materials}
+                                        activeIndex={mdState.index}
+                                        onReplSync={this.props.onReplSync}
+                                        onHide={() => {
+                                            this.setState({ isVisiblePythonReplPanel: false });
+                                        }}
+                                    />
                                 </Grid>
                             </Box>
-                            <PythonReplPanel
-                                show={this.state.isVisiblePythonReplPanel}
-                                materials={mdState.materials}
-                                activeIndex={mdState.index}
-                                onReplSync={this.props.onReplSync}
-                            />
                         </Box>
                         <EditorSelectionInfo />
                     </Paper>

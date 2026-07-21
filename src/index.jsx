@@ -7,16 +7,21 @@ import React from "react";
 import ReactDOM from "react-dom";
 
 import { MaterialsDesignerContainer } from "./MaterialsDesignerContainer";
+import { parseViewSettingsFromUrlParams } from "./exports";
 
 /*
  * Set timeout to ensure Codemirror CSS is loaded: https://github.com/graphql/graphiql/issues/33#issuecomment-318188555
  * CSS is loaded in the component using CodeMirror (eg. `Basis`).
  */
 setTimeout(() => {
+    const initialViewSettings = parseViewSettingsFromUrlParams(
+        Object.fromEntries(new URLSearchParams(window.location.search)),
+    );
+
     // Store component reference in window to access it in console for debugging/tests purposes
     // eslint-disable-next-line react/no-render-return-value
     window.MDContainer = ReactDOM.render(
-        <MaterialsDesignerContainer />,
+        <MaterialsDesignerContainer initialViewSettings={initialViewSettings} />,
         document.getElementById("root"),
     );
 }, 0);

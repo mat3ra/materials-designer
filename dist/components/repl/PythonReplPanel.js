@@ -1,18 +1,16 @@
 import { jsx as _jsx } from "react/jsx-runtime";
-import Paper from "@mui/material/Paper";
-import { theme } from "../../settings";
+import ResizableDrawer from "@exabyte-io/cove.js/dist/mui/components/custom/resizable-drawer/ResizableDrawer";
 import PythonRepl from "./PythonRepl";
 /**
- * Placement wrapper for {@link PythonRepl}. Phase 1 docks it as a bottom panel so the 3D viewer
- * stays visible above while typing. Follow-up (Track A): a draggable splitter + a viewer↔middle
- * relocation toggle; Track B replaces this with a react-mosaic tile — neither touches PythonRepl.
+ * Docks {@link PythonRepl} in cove.js's bottom {@link ResizableDrawer} — exactly like the JupyterLite
+ * session drawer, so the REPL behaves like the rest of the app. Kept mounted (hidden via display) when
+ * closed so the persistent Pyodide session survives toggling.
+ *
+ * Note: no `containerRef` is passed to ResizableDrawer, matching JupyterLiteSessionDrawer — passing it
+ * makes the drawer position absolutely inside the MD container and stick ~100px above the viewport
+ * bottom instead of anchoring to it.
  */
-function PythonReplPanel({ materials, activeIndex, onReplSync, show, wheelBaseUrl, }) {
-    if (!show)
-        return null;
-    return (_jsx(Paper, { id: "python-repl-panel", square: true, sx: {
-            height: 320,
-            borderTop: `2px solid ${theme.palette.grey[800]}`,
-        }, children: _jsx(PythonRepl, { materials: materials, activeIndex: activeIndex, onReplSync: onReplSync, show: show, wheelBaseUrl: wheelBaseUrl }) }));
+function PythonReplPanel({ materials, activeIndex, onReplSync, show, onHide, wheelBaseUrl, }) {
+    return (_jsx("div", { style: { display: show ? "block" : "none" }, children: _jsx(ResizableDrawer, { open: show, onClose: onHide, children: _jsx(PythonRepl, { materials: materials, activeIndex: activeIndex, onReplSync: onReplSync, show: show, wheelBaseUrl: wheelBaseUrl }) }) }));
 }
 export default PythonReplPanel;
