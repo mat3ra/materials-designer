@@ -9,5 +9,5 @@ export namespace ThreeDEditorFullscreen {
         const initialViewSettings: PropTypes.Requireable<object>;
     }
 }
-import { ThreeDEditor } from "@exabyte-io/wave.js";
+import { ThreeDEditor } from "@mat3ra/wave.js";
 import PropTypes from "prop-types";

@@ -1,4 +1,4 @@
-import Dialog from "@exabyte-io/cove.js/dist/mui/components/dialog/Dialog";
+import Dialog from "@mat3ra/cove/dist/mui/components/dialog/Dialog";
 import { Made } from "@mat3ra/made";
 import Grid from "@mui/material/Grid";
 import MenuItem from "@mui/material/MenuItem";

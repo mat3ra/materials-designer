@@ -1,7 +1,7 @@
-import { showErrorAlert } from "@exabyte-io/cove.js/dist/other/alerts";
+import { showErrorAlert } from "@mat3ra/cove/dist/other/alerts";
 import JupyterLiteSession, {
     IMessageHandlerConfigItem,
-} from "@exabyte-io/cove.js/dist/other/jupyterlite/JupyterLiteSession";
+} from "@mat3ra/cove/dist/other/jupyterlite/JupyterLiteSession";
 import { Action, MaterialSchema } from "@mat3ra/esse/dist/js/types";
 import React from "react";
 

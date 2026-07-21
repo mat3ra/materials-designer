@@ -1,5 +1,5 @@
 import { jsxs as _jsxs, jsx as _jsx } from "react/jsx-runtime";
-import IconByName from "@exabyte-io/cove.js/dist/mui/components/icon/IconByName";
+import IconByName from "@mat3ra/cove/dist/mui/components/icon/IconByName";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";

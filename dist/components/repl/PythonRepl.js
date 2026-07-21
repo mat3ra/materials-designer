@@ -1,7 +1,7 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import IconByName from "@exabyte-io/cove.js/dist/mui/components/icon/IconByName";
-import { showErrorAlert } from "@exabyte-io/cove.js/dist/other/alerts";
-import CodeMirror from "@exabyte-io/cove.js/dist/other/codemirror";
+import IconByName from "@mat3ra/cove/dist/mui/components/icon/IconByName";
+import { showErrorAlert } from "@mat3ra/cove/dist/other/alerts";
+import CodeMirror from "@mat3ra/cove/dist/other/codemirror";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";

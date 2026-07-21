@@ -1,5 +1,5 @@
 import { jsx as _jsx } from "react/jsx-runtime";
-import ResizableDrawer from "@exabyte-io/cove.js/dist/mui/components/custom/resizable-drawer/ResizableDrawer";
+import ResizableDrawer from "@mat3ra/cove/dist/mui/components/custom/resizable-drawer/ResizableDrawer";
 import PythonRepl from "./PythonRepl";
 /**
  * Docks {@link PythonRepl} in cove.js's bottom {@link ResizableDrawer} — exactly like the JupyterLite

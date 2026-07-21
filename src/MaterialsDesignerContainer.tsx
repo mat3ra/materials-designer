@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import { AlertProvider } from "@exabyte-io/cove.js/dist/theme/provider";
-import type { ViewSettingsFromUrl } from "@exabyte-io/wave.js/dist/utils/viewSettingsUrl";
+import { AlertProvider } from "@mat3ra/cove/dist/theme/provider";
 import type { Matrix3X3Schema } from "@mat3ra/esse/dist/js/types";
+import type { ViewSettingsFromUrl } from "@mat3ra/wave.js/dist/utils/viewSettingsUrl";
 import React, { useCallback, useEffect, useState } from "react";
 
 import type { ReplSyncOperation } from "./components/repl/PyodideReplSession";

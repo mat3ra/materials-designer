@@ -1,5 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import Dialog from "@exabyte-io/cove.js/dist/mui/components/dialog/Dialog";
+import Dialog from "@mat3ra/cove/dist/mui/components/dialog/Dialog";
 import Grid from "@mui/material/Grid";
 import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
