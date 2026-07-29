@@ -1,3 +1,4 @@
+import type { ReplCompletion, ReplDescription } from "@mat3ra/cove/dist/other/codemirror";
 import type { MaterialSchema } from "@mat3ra/esse/dist/js/types";
 
 import { randomAlphanumeric } from "../../utils/str";
@@ -91,18 +92,6 @@ export interface ReplExecutionResult {
     ok: boolean;
     output: string;
     error: ReplError | null;
-}
-
-/** One editor completion candidate from Jedi. `type` is Jedi's kind (function/instance/module/…). */
-export interface ReplCompletion {
-    name: string;
-    type: string;
-}
-
-/** On-demand signature + docstring for a highlighted completion (from Jedi). */
-export interface ReplDescription {
-    signature: string;
-    docstring: string;
 }
 
 // Private alias so user code that rebinds `Material` cannot break our isinstance checks;

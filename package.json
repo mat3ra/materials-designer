@@ -69,7 +69,7 @@
         "react-dom": "^17.0.0"
     },
     "devDependencies": {
-        "@mat3ra/cove": "2026.7.18-4",
+        "@mat3ra/cove": "git+https://github.com/mat3ra/cove.git#4b525427273924c354a7453cd35f9cb6641842a6",
         "@exabyte-io/eslint-config": "^2025.1.15-0",
         "@mat3ra/code": "2026.5.27-0",
         "@mat3ra/esse": "2026.5.27-0",

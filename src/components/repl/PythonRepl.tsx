@@ -1,6 +1,9 @@
 import IconByName from "@mat3ra/cove/dist/mui/components/icon/IconByName";
 import { showErrorAlert } from "@mat3ra/cove/dist/other/alerts";
-import CodeMirror, { type CodeMirrorProps } from "@mat3ra/cove/dist/other/codemirror";
+import CodeMirror, {
+    type CodeMirrorProps,
+    makeReplCompletionSource,
+} from "@mat3ra/cove/dist/other/codemirror";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
@@ -12,7 +15,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import type { MDMaterial } from "../../MDMaterial";
 import { theme } from "../../settings";
 import { ExecutionStatus } from "../3d_editor/advanced_geometry/python_transformation/CodeExecutionControls";
-import { makeReplCompletionSource } from "./completions";
 import { type ReplError, type ReplSyncOperation, replSession } from "./PyodideReplSession";
 import DEFAULT_CODE from "./python/generated/default_snippet";
 import ReplConsole from "./ReplConsole";

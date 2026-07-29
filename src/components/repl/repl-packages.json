@@ -16,6 +16,10 @@
         "ruamel.yaml-0.17.32-py3-none-any.whl",
         "pymatgen-2024.4.13-py3-none-any.whl"
     ],
-    "mat3raPackages": ["pymatgen-analysis-defects<=2024.4.23", "mat3ra-periodic-table", "mat3ra-made"],
+    "mat3raPackages": [
+        "pymatgen-analysis-defects<=2024.4.23",
+        "mat3ra-periodic-table",
+        "mat3ra-made"
+    ],
     "completionPackages": ["jedi==0.19.2"]
 }
