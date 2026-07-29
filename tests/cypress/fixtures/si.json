@@ -60,8 +60,7 @@
                 ]
             }
         ],
-        "units": "crystal",
-        "constraints": []
+        "units": "crystal"
     },
     "name": "Silicon FCC",
     "metadata": {}

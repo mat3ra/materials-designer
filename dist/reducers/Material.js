@@ -68,7 +68,7 @@ export function materialsGenerateSupercellForOne(state, action) {
     const matrixAsNestedArray = action.matrix;
     const material = state.materials[state.index]; // only using currently active material
     const supercellConfig = Made.tools.supercell.generateConfig(material, matrixAsNestedArray);
-    const supercell = new MDMaterial(supercellConfig);
+    const supercell = MDMaterial.fromConfig(supercellConfig);
     return materialsUpdateOne(state, { ...action, material: supercell });
 }
 function _setMetadataForSlabConfig(slabConfig, { h, k, l, thickness, vacuumRatio, vx, vy, material }) {
@@ -98,7 +98,7 @@ export function materialsGenerateSurfaceForOne(state, action) {
         ...action,
         material,
     });
-    const newMaterial = new MDMaterial(supercellConfig);
+    const newMaterial = MDMaterial.fromConfig(supercellConfig);
     Made.tools.material.scaleOneLatticeVector(newMaterial, ["a", "b", "c"][outOfPlaneAxisIndex], 1 / (1 - vacuumRatio));
     return materialsUpdateOne(state, {
         ...action,

@@ -6,31 +6,51 @@ type BasisWithConstraints = MaterialSchema["basis"] & {
     constraints?: AtomicConstraintsSchema;
 };
 
-type MaterialConfig = ConstructorParameters<typeof Material>[0];
+/** ESSE material config plus optional constraints (top-level or legacy `basis.constraints`). */
+export type MaterialConfigWithOptionalConstraints = Partial<MaterialSchema> & {
+    constraints?: AtomicConstraintsSchema;
+    basis?: BasisWithConstraints;
+};
 
-function liftConstraintsFromConfig(config: Partial<MaterialSchema>): {
-    config: MaterialConfig;
+/**
+ * Split optional constraints off a config for Material's second constructor arg.
+ * Prefer top-level `constraints`; fall back to legacy `basis.constraints`.
+ */
+function splitConstraintsFromConfig(config: MaterialConfigWithOptionalConstraints): {
+    config: Partial<MaterialSchema>;
     constraints: AtomicConstraintsSchema;
 } {
-    const merged = { ...defaultMaterialConfig, ...config };
-    const basisConfig = merged.basis as BasisWithConstraints | undefined;
-    const constraints = basisConfig?.constraints ?? [];
-    const basis = basisConfig ? { ...basisConfig, constraints: undefined } : basisConfig;
+    const { constraints: topLevelConstraints, ...rest } = config;
+    const basisConfig = rest.basis;
+    const constraintsFromBasis = basisConfig?.constraints;
+    let basis = basisConfig;
+    if (basisConfig && "constraints" in basisConfig) {
+        basis = { ...basisConfig };
+        delete (basis as BasisWithConstraints).constraints;
+    }
 
     return {
-        config: { ...merged, basis } as MaterialConfig,
-        constraints,
+        config: { ...rest, ...(basis !== undefined ? { basis } : {}) },
+        constraints: topLevelConstraints ?? constraintsFromBasis ?? [],
     };
 }
 
 export class MDMaterial extends Material {
-    constructor(config: Partial<MaterialSchema> = {}) {
-        const { config: materialConfig, constraints } = liftConstraintsFromConfig(config);
-        super(materialConfig, constraints);
+    constructor(config: Partial<MaterialSchema> = {}, constraints: AtomicConstraintsSchema = []) {
+        super({ ...defaultMaterialConfig, ...config }, constraints);
+    }
+
+    /**
+     * Build from a config that may carry constraints at the top level (parsers)
+     * or on `basis` (legacy / ConstrainedBasis.toJSON).
+     */
+    static fromConfig(config: MaterialConfigWithOptionalConstraints = {}) {
+        const { config: materialConfig, constraints } = splitConstraintsFromConfig(config);
+        return new MDMaterial(materialConfig, constraints);
     }
 
     static fromMadeMaterial(madeMaterial: Material, metadata: Partial<MaterialSchema> = {}) {
-        return new MDMaterial({ ...madeMaterial.toJSON(), ...metadata });
+        return new MDMaterial({ ...madeMaterial.toJSON(), ...metadata }, madeMaterial.constraints);
     }
 
     cleanOnCopy() {
@@ -48,6 +68,7 @@ export class MDMaterial extends Material {
             ...super.toJSON(),
             _id: this.id,
             metadata: this.metadata,
+            ...(this.constraints.length ? { constraints: this.constraints } : {}),
         };
     }
 }

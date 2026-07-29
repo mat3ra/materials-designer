@@ -1,7 +1,6 @@
 {
     "name": "Silicon FCC - slab [1,1,1]",
     "basis": {
-        "constraints": [],
         "coordinates": [
             {
                 "id": 0,

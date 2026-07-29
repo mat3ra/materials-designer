@@ -50,7 +50,7 @@ class StandataImportDialog extends React.Component<
 
     addMaterials = () => {
         const { selectedMaterialConfigs } = this.state;
-        const materials = selectedMaterialConfigs.map((config) => new MDMaterial(config));
+        const materials = selectedMaterialConfigs.map((config) => MDMaterial.fromConfig(config));
         const { onSubmit } = this.props;
         onSubmit(materials);
         this.setState({ selectedMaterialConfigs: [] });
@@ -60,7 +60,9 @@ class StandataImportDialog extends React.Component<
         const { show, onClose, defaultMaterialConfigs } = this.props;
         const { selectedMaterialConfigs } = this.state;
 
-        const selectedMaterials = selectedMaterialConfigs.map((config) => new MDMaterial(config));
+        const selectedMaterials = selectedMaterialConfigs.map((config) =>
+            MDMaterial.fromConfig(config),
+        );
 
         const columns: GridColDef[] = [
             { field: "name", headerName: "Name", flex: 1, headerAlign: "center", align: "center" },

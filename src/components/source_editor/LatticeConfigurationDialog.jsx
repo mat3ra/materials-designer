@@ -132,7 +132,7 @@ class LatticeConfigurationDialog extends React.Component {
         };
 
         // preserve basis if asked to do so (eg. when constructing a slab)
-        const newMaterial = new MDMaterial(newMaterialConfig);
+        const newMaterial = new MDMaterial(newMaterialConfig, oldMaterialCopy.constraints);
         // assert basis is stored in 'crystal' units
         newMaterial.toCrystal();
         onUpdate(newMaterial);

@@ -116,7 +116,7 @@ export function materialsGenerateSupercellForOne(
     const matrixAsNestedArray = action.matrix;
     const material = state.materials[state.index]; // only using currently active material
     const supercellConfig = Made.tools.supercell.generateConfig(material, matrixAsNestedArray);
-    const supercell = new MDMaterial(supercellConfig);
+    const supercell = MDMaterial.fromConfig(supercellConfig);
     return materialsUpdateOne(state, { ...action, material: supercell });
 }
 
@@ -160,7 +160,7 @@ export function materialsGenerateSurfaceForOne(state: MDState, action: SurfaceCo
         material,
     });
 
-    const newMaterial = new MDMaterial(supercellConfig);
+    const newMaterial = MDMaterial.fromConfig(supercellConfig);
     Made.tools.material.scaleOneLatticeVector(
         newMaterial,
         ["a", "b", "c"][outOfPlaneAxisIndex] as "a" | "b" | "c",

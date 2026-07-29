@@ -57,7 +57,7 @@ class InterpolateBasesDialog extends React.Component {
                 basis: newBasis.toJSON(),
                 name: `${idx} - ${material.name} - ${newBasis.formula}`,
             };
-            const newMaterial = new MDMaterial(newMaterialConfig);
+            const newMaterial = MDMaterial.fromConfig(newMaterialConfig);
             newMaterial.cleanOnCopy();
             newMaterials.push(newMaterial);
         });

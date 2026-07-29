@@ -120,8 +120,7 @@
                 ]
             }
         ],
-        "units": "crystal",
-        "constraints": []
+        "units": "crystal"
     },
     "name": "Si-Slab-Cu"
 }

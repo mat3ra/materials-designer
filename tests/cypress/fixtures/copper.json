@@ -48,8 +48,7 @@
                 ]
             }
         ],
-        "units": "crystal",
-        "constraints": []
+        "units": "crystal"
     },
     "name": "Copper",
     "metadata": {}
