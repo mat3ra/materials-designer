@@ -15,8 +15,6 @@ class FakePyodide {
     /** JSON that `_repl_export` resolves to — i.e. what collect_changed_materials.py produced. */
     exportJson = "[]";
 
-    helperCount = 42;
-
     globals = {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         store: new Map<string, any>(),
@@ -24,10 +22,7 @@ class FakePyodide {
         set: (name: string, value: any) => {
             this.globals.store.set(name, value);
         },
-        get: (name: string) => {
-            if (name === "_repl_helper_count") return this.helperCount;
-            return this.globals.store.get(name);
-        },
+        get: (name: string) => this.globals.store.get(name),
     };
 
     FS = {
@@ -119,7 +114,8 @@ describe("MaterialsReplSession", () => {
 
             expect(operations).toHaveLength(1);
             expect(operations[0].variableName).toBe("supercell");
-            expect(operations[0].clientId).toMatch(/^[0-9a-zA-Z]{12}$/);
+            // randomAlphanumeric returns up to `length` chars, so match shape, not exact width.
+            expect(operations[0].clientId).toMatch(/^[a-z][0-9a-z]{1,11}$/);
         });
 
         it("reuses the clientId for the same variable, so a re-run updates in place", () => {
@@ -203,6 +199,19 @@ describe("MaterialsReplSession", () => {
     });
 
     describe("bootstrapNamespace", () => {
+        it("runs every script in python/bootstrap/, so dropping one in needs no TS change", async () => {
+            const bootstrapScripts = (
+                await import("../../src/components/repl/python/generated/bootstrap")
+            ).default;
+
+            // Whatever the generated index lists must actually have been executed — that equality is
+            // the whole drop-in guarantee.
+            expect(bootstrapScripts.length).toBeGreaterThan(0);
+            bootstrapScripts.forEach(({ source }) => {
+                expect(fake.runPythonCalls).toContain(source);
+            });
+        });
+
         it("reserves the injected input names so they are never synced back as user output", () => {
             expect(fake.globals.store.get("_reserved_input_names")).toEqual([
                 "materials_in",

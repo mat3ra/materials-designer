@@ -1,12 +1,7 @@
-# Emits only the Materials whose binding is new or changed since snapshot_material_identities.py ran,
-# so a run that doesn't touch a given variable never re-syncs it. Two kinds of name are excluded:
-#   - private/internal names (leading underscore) - that is everything this REPL session itself binds,
-#     including the `_ReplMaterial` alias, so our own plumbing is never mistaken for user output;
-#   - the injected input names (`materials_in`, `material`) - inject_materials.py rebinds these before
-#     every run, and without this exclusion that rebind would look like the user created new Materials,
-#     so the designer's own list would be appended back into itself on every execution.
-# Wire keys are snake_case here because this dict becomes JSON consumed directly by the JS side
-# (MaterialsReplSession.collectChangedMaterials), which expects `variable_name`/`config` verbatim.
+# Materials the run created or rebound (identity differs from the snapshot). Skips `_` names, which is
+# all of our own plumbing, and the reserved inputs — inject_materials.py rebinds those every run, so
+# without the exclusion the designer's own list would be appended back into itself each execution.
+# snake_case keys: this JSON is read verbatim by MaterialsReplSession.collectChangedMaterials.
 import json as _repl_json
 
 _repl_changed = [

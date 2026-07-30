@@ -1,12 +1,9 @@
-// Downloads the prebuilt pure-Python wheels the Python REPL installs at runtime into
-// public/<wheelsDirectoryName>/, so they are served same-origin by the built site (Vite copies
-// public/ into the build output). Runs on `prebuild` (Netlify) and `prestart` (local); idempotent —
-// skips files already present. These wheels are custom pure-Python builds not published on PyPI, so
-// they have to be self-hosted.
+// Downloads the REPL's prebuilt wheels into public/<wheelsDirectoryName>/ so the built site serves
+// them same-origin (Vite copies public/). Runs on `prebuild` and `prestart`; skips files present.
+// These are custom pure-Python builds, not on PyPI, so they must be self-hosted.
 //
-// The default source is the jupyterlite deploy that already hosts them, which makes that deploy a
-// build-time dependency of this one: if it is down, `prebuild` fails. Override with
-// REPL_WHEELS_SOURCE_URL, and see README.md for the note on hosting these properly.
+// The default source is the jupyterlite deploy, which makes it a build-time dependency: if it is down,
+// `prebuild` fails. Override with REPL_WHEELS_SOURCE_URL — see README.md on hosting these properly.
 import { createWriteStream } from "node:fs";
 import { mkdir, readFile, rename, rm, stat } from "node:fs/promises";
 import { dirname, join } from "node:path";

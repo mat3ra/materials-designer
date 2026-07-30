@@ -219,6 +219,52 @@ describe("MaterialsReplSession against real Pyodide", () => {
         RUN_TIMEOUT_MS,
     );
 
+    it(
+        "pre-imports the helper API's enums, so a shape can be named without an import line",
+        async () => {
+            // These are bound by NAME from deep internal module paths, so nothing fails loudly if an
+            // upstream refactor moves them — this assertion is the only thing that would notice.
+            const result = await replSession.execute(
+                "print(NanoparticleShapesEnum.ICOSAHEDRON.value, SurfaceTypesEnum.TOP.value)",
+            );
+
+            expect(result.error).toBeNull();
+            expect(result.output).toContain("icosahedron");
+            expect(result.output).toContain("top");
+        },
+        RUN_TIMEOUT_MS,
+    );
+
+    it(
+        "keeps syncing after a user shadows `Material` — this is why _ReplMaterial is aliased",
+        async () => {
+            // Collapse the two names in import_helpers.py and this test fails: collect's
+            // isinstance(value, Material) becomes isinstance(value, 5) -> TypeError.
+            await replSession.execute("Material = 5");
+            const result = await replSession.execute(
+                "shadow_check = create_supercell(materials_in[0], scaling_factor=[2, 1, 1])",
+            );
+
+            expect(result.error).toBeNull();
+            expect(replSession.collectChangedMaterials().map((op) => op.variableName)).toContain(
+                "shadow_check",
+            );
+
+            // Put the namespace back for the tests that follow.
+            await replSession.execute("from mat3ra.made.material import Material");
+        },
+        RUN_TIMEOUT_MS,
+    );
+
+    it("offers those enums as completions too", () => {
+        const source = "Nanopart";
+        const completions = replSession.complete(source, 1, source.length);
+
+        expect(completions.map((completion) => completion.name)).toContain(
+            "NanoparticleShapesEnum",
+        );
+    });
+
     it("completes helper names and user variables against the live namespace", () => {
         const source = "create_sup";
         const completions = replSession.complete(source, 1, source.length);

@@ -15,6 +15,8 @@ export declare class MaterialsReplSession extends PyodideSession {
     private variableNameToClientId;
     constructor();
     /**
+     * Runs every script in python/bootstrap/ — adding one there is a drop-in, nothing to register here.
+     *
      * `_reserved_input_names` is what stops a re-injection of the designer's materials from looking
      * like the user created them — see collect_changed_materials.py.
      */

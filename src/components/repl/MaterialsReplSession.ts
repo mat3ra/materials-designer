@@ -12,8 +12,8 @@ import {
     REPL_PYPI_PINNED_PACKAGES,
     REPL_WHEEL_FILENAMES,
 } from "./constants";
+import PY_BOOTSTRAP_SCRIPTS from "./python/generated/bootstrap";
 import PY_COLLECT_CHANGED_MATERIALS from "./python/generated/collect_changed_materials";
-import PY_IMPORT_HELPERS from "./python/generated/import_helpers";
 import PY_INJECT_MATERIALS from "./python/generated/inject_materials";
 import PY_SNAPSHOT_MATERIAL_IDENTITIES from "./python/generated/snapshot_material_identities";
 
@@ -54,15 +54,18 @@ export class MaterialsReplSession extends PyodideSession {
     }
 
     /**
+     * Runs every script in python/bootstrap/ — adding one there is a drop-in, nothing to register here.
+     *
      * `_reserved_input_names` is what stops a re-injection of the designer's materials from looking
      * like the user created them — see collect_changed_materials.py.
      */
     protected async bootstrapNamespace(log: (message: string) => void): Promise<void> {
-        log("Importing mat3ra.made.tools helpers…");
-        this.py.runPython(PY_IMPORT_HELPERS);
+        PY_BOOTSTRAP_SCRIPTS.forEach(({ name, source }) => {
+            log(`Preparing namespace (${name})…`);
+            this.py.runPython(source);
+        });
         this.py.globals.set("_reserved_input_names", this.py.toPy([...REPL_INPUT_VARIABLE_NAMES]));
-        const helperCount = this.py.globals.get("_repl_helper_count") as number;
-        log(`Environment ready — ${helperCount} helpers pre-imported. Type to autocomplete.`);
+        log("Environment ready. Type to autocomplete.");
     }
 
     /** Snapshot identities so {@link collectChangedMaterials} can tell what the run changed. */
