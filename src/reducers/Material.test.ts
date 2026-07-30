@@ -108,4 +108,13 @@ describe("materialsApplyReplSync — the 'supercell' REPL action", () => {
         expect(next.index).toBe(2);
         expect(next.materials[2].name).toBe("b");
     });
+
+    // clone() rebuilds from config, so MDMaterial overrides it to carry replClientId across. Without
+    // that override a reassigned REPL variable stops matching its material and appends a duplicate
+    // instead of updating in place — which is exactly what the update tests above depend on.
+    it("clone() carries replClientId, so update-in-place keeps matching", () => {
+        const material = new MDMaterial({ name: "supercell" });
+        material.replClientId = "cid-sc";
+        expect(material.clone().replClientId).toBe("cid-sc");
+    });
 });
