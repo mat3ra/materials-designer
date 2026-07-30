@@ -40,6 +40,14 @@ jobs:
         with:
           run-test-environment: VITE_USE_JUPYTERLITE_DEV_URL=${{ env.VITE_USE_JUPYTERLITE_DEV_URL || 'false' }}
 
+      - name: Run JS tests
+        shell: bash -l {0}
+        run: |
+          npm install --legacy-peer-deps
+          npm run provision-repl-wheels
+          npm run test:unit
+          npm run test:pyodide
+
       - name: Validate app dockerfile
         uses: ./actions/docker/validate
         with:

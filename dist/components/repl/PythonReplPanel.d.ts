@@ -9,13 +9,11 @@ interface PythonReplPanelProps {
     wheelBaseUrl?: string;
 }
 /**
- * Docks {@link PythonRepl} in cove.js's bottom {@link ResizableDrawer} — exactly like the JupyterLite
- * session drawer, so the REPL behaves like the rest of the app. Kept mounted (hidden via display) when
- * closed so the persistent Pyodide session survives toggling.
+ * Docks the REPL in cove's bottom drawer, like the JupyterLite session. Stays mounted (hidden) when
+ * closed so the Pyodide session survives toggling.
  *
- * Note: no `containerRef` is passed to ResizableDrawer, matching JupyterLiteSessionDrawer — passing it
- * makes the drawer position absolutely inside the MD container and stick ~100px above the viewport
- * bottom instead of anchoring to it.
+ * No `containerRef` — matching JupyterLiteSessionDrawer. Passing it positions the drawer absolutely
+ * inside the MD container, leaving it stuck ~100px above the viewport bottom.
  */
 declare function PythonReplPanel({ materials, activeIndex, onReplSync, show, onHide, wheelBaseUrl, }: PythonReplPanelProps): import("react/jsx-runtime").JSX.Element;
 export default PythonReplPanel;

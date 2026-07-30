@@ -70,7 +70,7 @@
     "devDependencies": {
         "@exabyte-io/eslint-config": "^2025.1.15-0",
         "@mat3ra/code": "2026.5.27-0",
-        "@mat3ra/cove": "git+https://github.com/mat3ra/cove.git#fbf3a7d46df89833c2622c1f7740c277798228f8",
+        "@mat3ra/cove": "git+https://github.com/mat3ra/cove.git#4133424b0341c75611ddd6dfa0ef438f3163bddd",
         "@mat3ra/esse": "2026.5.27-0",
         "@mat3ra/made": "2026.5.28-0",
         "@mat3ra/standata": "^2026.6.23-0",
@@ -102,6 +102,7 @@
         "lint-staged": "12.1.2",
         "npm-link-shared": "^0.5.6",
         "prettier": "2.5.1",
+        "pyodide": "^0.24.0",
         "random-seed": "^0.3.0",
         "react": "^17.0.0",
         "react-dom": "^17.0.0",

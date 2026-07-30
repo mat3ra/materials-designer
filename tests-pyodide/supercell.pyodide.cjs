@@ -1,36 +1,25 @@
 /**
- * End-to-end integration test for the REPL "supercell" action.
+ * Integration test for the REPL "supercell" action in a real Pyodide (cove.js's pinned 0.24.0): runs
+ * `create_supercell` through the public tools API and asserts the result round-trips through the wire
+ * contract (Python to_dict() -> JS Material).
  *
- * Exercises the exact provisioning recipe from src/components/repl/constants.ts in a real Pyodide
- * (matching cove.js's pinned 0.24.0), runs `create_supercell` via the public tools API, and asserts
- * the result round-trips through the plan's wire contract (Python to_dict() -> JS Material).
+ * Slow (~60s: installs the environment from PyPI + the local wheels), so it is a separate script from
+ * the vitest suite rather than part of it. It FAILS rather than skips — a test that cannot fail is
+ * not a test.
  *
- * Opt-in (heavy: downloads Pyodide packages). Run with:
- *   npm i -D pyodide@0.24.0
- *   REPL_WHEELS_DIR=/path/to/jupyterlite/content/packages npm run test:pyodide
- * Skips cleanly (exit 0) when pyodide or the wheels dir are unavailable, so CI never breaks on it.
+ * NOTE: this re-declares the install sequence instead of driving MaterialsReplSession, because that is
+ * TypeScript ESM and this is a plain-node script (MD has no TS test runner, and the committed dist uses
+ * extensionless imports Node cannot resolve). Keep it in step with cove's PyodideSession.initialize.
  */
 const assert = require("assert");
 const fs = require("fs");
 const http = require("http");
 const path = require("path");
 
-let loadPyodide;
-try {
-    ({ loadPyodide } = require("pyodide"));
-} catch {
-    console.log("SKIP: pyodide not installed. Run `npm i -D pyodide@0.24.0` to enable this test.");
-    process.exit(0);
-}
+const { loadPyodide } = require("pyodide");
 
-const WHEELS_DIR = process.env.REPL_WHEELS_DIR;
-if (!WHEELS_DIR || !fs.existsSync(WHEELS_DIR)) {
-    console.log(
-        "SKIP: set REPL_WHEELS_DIR to a directory containing the prebuilt wheels " +
-            "(e.g. <jupyterlite>/content/packages).",
-    );
-    process.exit(0);
-}
+// Where `npm run provision-repl-wheels` puts them (also run by prestart/prebuild).
+const WHEELS_DIR = process.env.REPL_WHEELS_DIR || path.join(__dirname, "..", "public", "repl-wheels");
 
 // Single source of truth: src/components/repl/repl-packages.json (also read by constants.ts and
 // scripts/provision-repl-wheels.mjs — plain JSON so all three can load it without a build step; this
@@ -61,7 +50,7 @@ const startWheelServer = () =>
     assert.strictEqual(
         missing.length,
         0,
-        `missing wheels in REPL_WHEELS_DIR: ${missing.join(", ")}`,
+        `missing wheels in ${WHEELS_DIR} — run \`npm run provision-repl-wheels\`: ${missing.join(", ")}`,
     );
 
     const server = await startWheelServer();
