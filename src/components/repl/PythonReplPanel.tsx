@@ -2,7 +2,7 @@ import ResizableDrawer from "@mat3ra/cove/dist/mui/components/custom/resizable-d
 import React from "react";
 
 import type { MDMaterial } from "../../MDMaterial";
-import type { ReplSyncOperation } from "./PyodideReplSession";
+import type { ReplSyncOperation } from "./MaterialsReplSession";
 import PythonRepl from "./PythonRepl";
 
 interface PythonReplPanelProps {

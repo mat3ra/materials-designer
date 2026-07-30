@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { ReplSyncOperation } from "../components/repl/PyodideReplSession";
+import type { ReplSyncOperation } from "../components/repl/MaterialsReplSession";
 import { MDMaterial } from "../MDMaterial";
 import { type MDState, materialsApplyReplSync } from "./Material";
 // Real config produced by `create_supercell(materials_in[0], scaling_factor=[2,2,1])` in the

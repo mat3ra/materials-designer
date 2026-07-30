@@ -1,6 +1,6 @@
 # Introspects the helper API once at startup so the editor can offer categorized autocomplete that
 # always matches the actually-installed mat3ra.made version (no hand-maintained list to drift out of
-# sync). One record per callable in helpers.__all__, read by PyodideReplSession and surfaced as
+# sync). One record per callable in helpers.__all__, read by MaterialsReplSession and surfaced as
 # ReplHelperMeta on the JS side. Underscore-prefixed locals keep all of this out of the Material
 # collection in collect.py (which only looks at non-underscore globals).
 import inspect as _repl_inspect, json as _repl_json

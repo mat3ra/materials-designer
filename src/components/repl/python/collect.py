@@ -4,7 +4,7 @@
 #   - the injected input names (`materials_in`, `material`) — "Reload inputs" rebinds these, and
 #     without this exclusion that rebind would look like the user created a new Material
 # Wire keys are snake_case here because this dict becomes JSON consumed directly by the JS side
-# (PyodideReplSession.collectChangedMaterials), which expects `variable_name`/`config` verbatim.
+# (MaterialsReplSession.collectChangedMaterials), which expects `variable_name`/`config` verbatim.
 import json as _json
 _repl_changed = [
     {"variable_name": _name, "config": _value.to_dict()}

@@ -1,4 +1,4 @@
-/** Names bound by {@link PyodideReplSession.injectMaterials}; excluded from auto-sync so re-injection does not re-add them. */
+/** Names bound by {@link MaterialsReplSession.injectMaterials}; excluded from auto-sync so re-injection does not re-add them. */
 export declare const REPL_INPUT_VARIABLE_NAMES: readonly ["materials_in", "material"];
 /**
  * Pyodide CDN base (must match cove.js's pinned Pyodide version). We load Pyodide ourselves and pass
@@ -29,7 +29,7 @@ export declare const REPL_COMPLETION_PACKAGES: string[];
 /**
  * Where the prebuilt wheels are served. Same-origin is recommended (no CORS). The host app must
  * serve the {@link REPL_WHEEL_FILENAMES} files under this path (e.g. copy them into `public/`).
- * Overridable via {@link PyodideReplSession.configure}.
+ * Overridable via {@link PyodideSession.configure}.
  */
 export declare const REPL_DEFAULT_WHEEL_BASE_URL = "/repl-wheels";
 /**

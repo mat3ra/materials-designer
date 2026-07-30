@@ -1,5 +1,5 @@
 import type { MDMaterial } from "../../MDMaterial";
-import type { ReplSyncOperation } from "./PyodideReplSession";
+import type { ReplSyncOperation } from "./MaterialsReplSession";
 interface PythonReplPanelProps {
     materials: MDMaterial[];
     activeIndex: number;

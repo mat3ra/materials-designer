@@ -4,7 +4,7 @@ import type { Matrix3X3Schema } from "@mat3ra/esse/dist/js/types";
 import type { ViewSettingsFromUrl } from "@mat3ra/wave.js/dist/utils/viewSettingsUrl";
 import React, { useCallback, useEffect, useState } from "react";
 
-import type { ReplSyncOperation } from "./components/repl/PyodideReplSession";
+import type { ReplSyncOperation } from "./components/repl/MaterialsReplSession";
 import MaterialsDesignerComponent from "./MaterialsDesigner";
 import { MDMaterial } from "./MDMaterial";
 import { materialsAdd, materialsExport, materialsRemove } from "./reducers/InputOutput";

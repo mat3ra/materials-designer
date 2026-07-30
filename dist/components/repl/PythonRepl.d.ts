@@ -1,5 +1,5 @@
 import type { MDMaterial } from "../../MDMaterial";
-import { type ReplSyncOperation } from "./PyodideReplSession";
+import { type ReplSyncOperation } from "./MaterialsReplSession";
 interface PythonReplProps {
     materials: MDMaterial[];
     activeIndex: number;
@@ -9,9 +9,9 @@ interface PythonReplProps {
     wheelBaseUrl?: string;
 }
 /**
- * Layout-agnostic terminal-like Python REPL. Renders the loader + editor + output and delegates all
- * Pyodide work to the {@link replSession} singleton. On run it executes in the persistent namespace,
- * collects the Materials that changed, and hands them to `onReplSync` for the reducer to upsert.
+ * Wires the designer's materials into cove's generic {@link CovePythonRepl}. The REPL shell (editor,
+ * Run, status, console) and the Pyodide runtime are both cove's; everything here is the materials
+ * half: inject the current stash before each run, and push whatever the user created back into it.
  */
 declare function PythonRepl({ materials, activeIndex, onReplSync, show, wheelBaseUrl }: PythonReplProps): import("react/jsx-runtime").JSX.Element;
 export default PythonRepl;

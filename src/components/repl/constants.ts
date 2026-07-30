@@ -14,7 +14,7 @@
  */
 import replPackages from "./repl-packages.json";
 
-/** Names bound by {@link PyodideReplSession.injectMaterials}; excluded from auto-sync so re-injection does not re-add them. */
+/** Names bound by {@link MaterialsReplSession.injectMaterials}; excluded from auto-sync so re-injection does not re-add them. */
 export const REPL_INPUT_VARIABLE_NAMES = ["materials_in", "material"] as const;
 
 /**
@@ -52,7 +52,7 @@ export const REPL_COMPLETION_PACKAGES = replPackages.completionPackages;
 /**
  * Where the prebuilt wheels are served. Same-origin is recommended (no CORS). The host app must
  * serve the {@link REPL_WHEEL_FILENAMES} files under this path (e.g. copy them into `public/`).
- * Overridable via {@link PyodideReplSession.configure}.
+ * Overridable via {@link PyodideSession.configure}.
  */
 export const REPL_DEFAULT_WHEEL_BASE_URL = "/repl-wheels";
 

@@ -1,5 +1,5 @@
 import type { MaterialMetadataBoundaryConditions, Matrix3X3Schema } from "@mat3ra/esse/dist/js/types";
-import type { ReplSyncOperation } from "../components/repl/PyodideReplSession";
+import type { ReplSyncOperation } from "../components/repl/MaterialsReplSession";
 import { MDMaterial } from "../MDMaterial";
 export type MDState = {
     index: number;

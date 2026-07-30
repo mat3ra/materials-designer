@@ -1,4 +1,4 @@
-import type { ReplCompletion, ReplDescription } from "@mat3ra/cove/dist/other/codemirror";
+import type { PythonCompletion, PythonSignatureInfo } from "@mat3ra/cove/dist/other/codemirror";
 import type { MaterialSchema } from "@mat3ra/esse/dist/js/types";
 type Pyodide = any;
 /**
@@ -93,9 +93,9 @@ export declare class PyodideReplSession {
      * Jedi completions for `source` at 1-based `line` / 0-based `column`, resolved against the live
      * REPL namespace (variables, attributes, modules, keywords, helpers). Returns [] if not ready.
      */
-    complete(source: string, line: number, column: number): ReplCompletion[];
+    complete(source: string, line: number, column: number): PythonCompletion[];
     /** On-demand signature + docstring for one completion `name` at the same position (for the info popup). */
-    describe(source: string, line: number, column: number, name: string): ReplDescription | null;
+    describe(source: string, line: number, column: number, name: string): PythonSignatureInfo | null;
     private assertReady;
 }
 /** Module-level singleton — survives panel toggles alongside the persistent `window.pyodide`. */
