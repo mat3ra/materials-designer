@@ -15,10 +15,10 @@
         "test": "echo 'Tests are in the tests subfolder. Use Node 20 (`nvm use 20`) and run `npm i` && `npm test` there'",
         "test:unit": "vitest run",
         "test:pyodide": "node tests-pyodide/supercell.pyodide.cjs",
-        "lint": "eslint src && prettier --write src",
-        "lint:fix": "eslint src --fix && prettier --write src",
+        "lint": "eslint src && prettier --write src --ignore-path .gitignore",
+        "lint:fix": "eslint src --fix && prettier --write src --ignore-path .gitignore",
         "prestart": "npm-link-shared ./node_modules/@mat3ra/cove/node_modules . react; npm-link-shared ./node_modules/@mat3ra/wave.js/node_modules . react; npm run provision-repl-wheels; npm run generate-repl-python",
-        "prettier": "prettier --check src tests"
+        "prettier": "prettier --check src tests --ignore-path .gitignore"
     },
     "repository": {
         "type": "git",
