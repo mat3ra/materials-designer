@@ -127,13 +127,21 @@ npm start
 
 ### 3.2. Tests
 
-Unit tests are Vitest and sit next to the code they cover. Both suites share `vite.config.mts` as two
-vitest projects; the `*.pyodide.test.ts` suffix is what routes a file between them:
+All tests live under `tests/`, so `src/` contains only shipped source:
+
+```
+tests/
+  vitest/    <- run by THIS package (npm run test:unit / test:pyodide)
+  cypress/   <- run by tests/package.json (its own package, Node v20)
+```
+
+The two Vitest suites share `vite.config.mts` as two projects; the `*.pyodide.test.ts` suffix routes a
+file between them:
 
 | Command | What it covers | Speed |
 | --- | --- | --- |
-| `npm run test:unit` (= `npm test`) | `src/**/*.test.ts` — reducers, the REPL session's JS half | seconds |
-| `npm run test:pyodide` | `src/**/*.pyodide.test.ts` — the REPL against a real Pyodide interpreter (see 3.7) | minutes |
+| `npm run test:unit` (= `npm test`) | `tests/vitest/*.test.ts` — reducers, the REPL session's JS half | seconds |
+| `npm run test:pyodide` | `tests/vitest/*.pyodide.test.ts` — the REPL against a real Pyodide interpreter (see 3.7) | minutes |
 
 End-to-end tests are Cypress and live in their own package; use Node v20:
 

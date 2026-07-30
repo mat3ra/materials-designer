@@ -1,9 +1,8 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { MDMaterial } from "../../MDMaterial";
-import { MaterialsReplSession } from "./MaterialsReplSession";
-import replPackages from "./repl-packages.json";
+import { MaterialsReplSession } from "../../src/components/repl/MaterialsReplSession";
+import replPackages from "../../src/components/repl/repl-packages.json";
+import { MDMaterial } from "../../src/MDMaterial";
 
 /**
  * Stands in for Pyodide so the JS half of the session — the variable-name -> clientId mapping and the
@@ -219,7 +218,7 @@ describe("REPL environment configuration", () => {
         // package the integration test loads. The pin must be EXACT — with a `^` range, npm resolved
         // 0.24.1 while the browser kept loading v0.24.0, so the two halves of this feature were
         // silently running different Pyodide builds.
-        const { devDependencies } = await import("../../../package.json");
+        const { devDependencies } = await import("../../package.json");
         expect(devDependencies.pyodide).toBe(replPackages.pyodideVersion);
     });
 

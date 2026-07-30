@@ -11,6 +11,10 @@
  * vitest project (see vite.config.mts); `npm run test:unit` deliberately skips it. Timeouts are set
  * per hook/test below rather than in config, so this file is self-explanatory on its own.
  *
+ * NOTE: `tests/` is also a separate npm package (the Cypress suite). This file is run by the ROOT
+ * package's vitest, not by anything in tests/package.json — it just lives here so `src/` holds only
+ * shipped source.
+ *
  * It FAILS rather than skips when the wheels are missing — a test that cannot fail is not a test.
  */
 import { createReadStream } from "node:fs";
@@ -20,16 +24,12 @@ import { createRequire } from "node:module";
 import type { AddressInfo } from "node:net";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-
-// Both are devDependencies by design — this file is a test and is excluded from the published build.
-/* eslint-disable import/no-extraneous-dependencies */
 import { loadPyodide, version as installedPyodideVersion } from "pyodide";
 import { afterAll, assert, beforeAll, describe, expect, it } from "vitest";
-/* eslint-enable import/no-extraneous-dependencies */
 
-import { MDMaterial } from "../../MDMaterial";
-import { replSession } from "./MaterialsReplSession";
-import replPackages from "./repl-packages.json";
+import { replSession } from "../../src/components/repl/MaterialsReplSession";
+import replPackages from "../../src/components/repl/repl-packages.json";
+import { MDMaterial } from "../../src/MDMaterial";
 
 /** Building the environment (WASM CPython + pinned PyPI packages + local wheels) takes minutes. */
 const ENVIRONMENT_BUILD_TIMEOUT_MS = 15 * 60 * 1000;
@@ -37,8 +37,8 @@ const ENVIRONMENT_BUILD_TIMEOUT_MS = 15 * 60 * 1000;
 /** Individual runs are fast once the environment exists, but the first import of pymatgen is not. */
 const RUN_TIMEOUT_MS = 3 * 60 * 1000;
 
-/** This file lives next to the code it tests, so the project root is three levels up. */
-const PROJECT_ROOT = join(fileURLToPath(new URL(".", import.meta.url)), "..", "..", "..");
+/** tests/vitest/ -> project root. */
+const PROJECT_ROOT = join(fileURLToPath(new URL(".", import.meta.url)), "..", "..");
 
 /**
  * Where the npm `pyodide` package keeps pyodide.asm.js / .wasm / python_stdlib.zip. Passed to

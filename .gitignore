@@ -16,7 +16,9 @@ tests/cypress/downloads/*
 .DS_Store
 src/react-app-env.d.ts
 
-# Provisioned Pyodide REPL wheels (copied from jupyterlite/content/packages)
+# Provisioned Pyodide REPL wheels, downloaded by scripts/provision-repl-wheels.mjs.
+# The directory name is owned by `wheelsDirectoryName` in src/components/repl/repl-packages.json;
+# it has to be repeated literally here because .gitignore cannot read JSON.
 public/repl-wheels/
 
 # Generated from src/components/repl/python/*.py by scripts/generate-repl-python.mjs

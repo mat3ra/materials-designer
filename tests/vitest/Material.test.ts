@@ -1,9 +1,8 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { describe, expect, it } from "vitest";
 
-import type { ReplSyncOperation } from "../components/repl/MaterialsReplSession";
-import { MDMaterial } from "../MDMaterial";
-import { type MDState, materialsApplyReplSync } from "./Material";
+import type { ReplSyncOperation } from "../../src/components/repl/MaterialsReplSession";
+import { MDMaterial } from "../../src/MDMaterial";
+import { type MDState, materialsApplyReplSync } from "../../src/reducers/Material";
 // Real config produced by `create_supercell(materials_in[0], scaling_factor=[2,2,1])` in the
 // Phase-0 Pyodide spike (2x2x1 of the 2-atom Si primitive → 8 atoms). Regenerate via `test:pyodide`.
 import supercellConfig from "./supercell.config.json";
