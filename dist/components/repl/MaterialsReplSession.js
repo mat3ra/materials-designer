@@ -7,23 +7,11 @@ import PY_SNAPSHOT from "./python/generated/snapshot";
 // Private alias so user code that rebinds `Material` cannot break our isinstance checks;
 // the leading underscore also excludes it from the collected globals.
 const PY_IMPORT_MATERIAL = "from mat3ra.made.material import Material as _ReplMaterial";
-// Pull the full curated helper API (create_supercell, create_slab, create_interface_*, the defect
-// helpers, …) into the namespace so users never have to write import lines. `helpers.__all__`
-// bounds the `*`, so only the ~45 public names land — not private internals.
+// Pre-imported so users never write import lines. `__all__` bounds the `*` to the public helpers.
 const PY_IMPORT_HELPERS = "from mat3ra.made.tools.helpers import *";
 /**
- * The Materials Designer flavour of cove's {@link PyodideSession}: everything Material-specific and
- * nothing else. The generic half — loading Pyodide, installing the environment, running code in a
- * persistent namespace, Jupyter-shaped errors, Jedi completions — lives in cove and is shared.
- *
- * What this adds:
- *  - pre-imports `mat3ra.made.tools.helpers` and introspects it for autocomplete ({@link helpers})
- *  - binds the designer's materials into the namespace ({@link injectMaterials})
- *  - diffs the namespace after each run and reports Materials the user created or reassigned
- *    ({@link collectChangedMaterials}), keyed by a stable per-variable client id
- *
- * A module-level singleton ({@link replSession}) is exported so the persistent Python namespace and
- * the variable->clientId map survive the panel being toggled closed and open again.
+ * Used via the {@link replSession} singleton: the persistent Python namespace and the
+ * variable->clientId map have to survive the panel being toggled closed and open again.
  */
 export class MaterialsReplSession extends PyodideSession {
     constructor() {
@@ -37,18 +25,16 @@ export class MaterialsReplSession extends PyodideSession {
             wheelBaseUrl: REPL_DEFAULT_WHEEL_BASE_URL,
             wheelFsDir: REPL_WHEEL_FS_DIR,
         });
-        /** variableName -> stable client id. Authoritative for add (new name) vs update (known name). */
+        /** A known variable name means update; an unknown one means append. */
         this.variableNameToClientId = new Map();
-        /** Introspected helper-function metadata for editor autocomplete; populated on bootstrap. */
         this.helperMeta = [];
     }
-    /** The pre-imported helper functions available in the namespace (for editor autocomplete). */
     get helpers() {
         return this.helperMeta;
     }
     /**
-     * Pre-import the made helper API and introspect it, and hand the collector the list of injected
-     * input names so a "reload inputs" rebind is never mistaken for a user-created Material.
+     * `_reserved_input_names` is what stops a re-injection of the designer's materials from looking
+     * like the user created them.
      */
     async bootstrapNamespace(log) {
         log("Importing mat3ra.made.tools helpers…");
@@ -59,14 +45,11 @@ export class MaterialsReplSession extends PyodideSession {
         this.py.globals.set("_reserved_input_names", this.py.toPy([...REPL_INPUT_VARIABLE_NAMES]));
         log(`Environment ready — ${this.helperMeta.length} helpers pre-imported. Type to autocomplete.`);
     }
-    /** Snapshot Material identities before each run so {@link collectChangedMaterials} can diff. */
+    /** Snapshot identities so {@link collectChangedMaterials} can tell what the run changed. */
     beforeExecute() {
         this.py.runPython(PY_SNAPSHOT);
     }
-    /**
-     * Bind the current designer materials into the namespace as `materials_in` (list) and
-     * `material` (first/active), reconstructed from their ESSE configs.
-     */
+    /** Binds `materials_in` (list) and `material` (the active one). */
     injectMaterials(configs, activeIndex = 0) {
         this.assertReady();
         this.py.globals.set("_repl_injected_json", JSON.stringify(configs));
@@ -78,10 +61,7 @@ materials_in = _repl_in
 material = _repl_in[_repl_active_index] if (_repl_in and 0 <= _repl_active_index < len(_repl_in)) else (_repl_in[0] if _repl_in else None)
 `);
     }
-    /**
-     * Diff the namespace and return one {@link ReplSyncOperation} per newly-created or reassigned
-     * Material, resolving/assigning the stable client id per variable name.
-     */
+    /** One operation per Material the run created or reassigned. */
     collectChangedMaterials() {
         this.assertReady();
         this.py.runPython(PY_COLLECT);
@@ -96,5 +76,5 @@ material = _repl_in[_repl_active_index] if (_repl_in and 0 <= _repl_active_index
         });
     }
 }
-/** Module-level singleton — survives panel toggles alongside the persistent `window.pyodide`. */
+/** Singleton, matching the lifetime of the persistent `window.pyodide`. */
 export const replSession = new MaterialsReplSession();

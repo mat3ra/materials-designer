@@ -95,14 +95,12 @@ export function materialsUpdateIndex(state, action) {
     return { ...state, index: action.index };
 }
 /**
- * Apply a batch of materials produced by one Python REPL execution, as a single state transition
- * (one undo step). Each operation carries the ESSE `config` and the stable `clientId` the session
- * assigned to the Python variable. The current slot is resolved by `replClientId` (robust to the
- * list being reindexed by removals/clones), so a known variable updates in place and a new/removed
- * one appends. The last touched material becomes active so the viewer follows it.
+ * One state transition per execution, so a run is a single undo step. Slots are resolved by
+ * `replClientId` rather than index, which survives the list being reindexed by removals/clones.
+ * The last touched material becomes active so the viewer follows it.
  *
- * We do not route through `materialsUpdateOne` here: its `action.index || state.index` treats slot 0
- * as falsy and would misdirect an update to the active material.
+ * Deliberately not routed through `materialsUpdateOne`: its `action.index || state.index` treats
+ * slot 0 as falsy and would misdirect an update to the active material.
  */
 export function materialsApplyReplSync(state, action) {
     if (action.operations.length === 0)

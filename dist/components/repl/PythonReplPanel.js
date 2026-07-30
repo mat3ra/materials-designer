@@ -2,8 +2,7 @@ import { jsx as _jsx } from "react/jsx-runtime";
 import ResizableDrawer from "@mat3ra/cove/dist/mui/components/custom/resizable-drawer/ResizableDrawer";
 import PythonRepl from "./PythonRepl";
 /**
- * Docks the REPL in cove's bottom drawer, like the JupyterLite session. Stays mounted (hidden) when
- * closed so the Pyodide session survives toggling.
+ * Stays mounted (hidden) when closed, so the Pyodide session survives toggling.
  *
  * No `containerRef` — matching JupyterLiteSessionDrawer. Passing it positions the drawer absolutely
  * inside the MD container, leaving it stuck ~100px above the viewport bottom.
