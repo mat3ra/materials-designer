@@ -40,12 +40,35 @@ jobs:
         with:
           run-test-environment: VITE_USE_JUPYTERLITE_DEV_URL=${{ env.VITE_USE_JUPYTERLITE_DEV_URL || 'false' }}
 
-      - name: Run JS tests
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+
+      - name: Install dependencies
+        shell: bash -l {0}
+        run: npm install --legacy-peer-deps
+
+      # Separate steps so a failure names itself in the run summary instead of both hiding behind
+      # one "Run JS tests".
+      - name: Run unit tests
+        shell: bash -l {0}
+        run: npm run test:unit
+
+      # The wheel filenames carry their versions, so the package manifest is a complete cache key.
+      # Without this, every run re-downloads them from the jupyterlite deploy — slow, and an outage
+      # there would fail builds that have nothing to do with it.
+      - name: Cache provisioned REPL wheels
+        uses: actions/cache@v4
+        with:
+          path: public/repl-wheels
+          key: repl-wheels-${{ hashFiles('src/components/repl/repl-packages.json') }}
+
+      - name: Run Python REPL integration test (real Pyodide)
         shell: bash -l {0}
         run: |
-          npm install --legacy-peer-deps
           npm run provision-repl-wheels
-          npm run test:unit
           npm run test:pyodide
 
       - name: Validate app dockerfile

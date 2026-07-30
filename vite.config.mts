@@ -25,6 +25,26 @@ export default defineConfig({
     server: {
         port: 3001,
     },
+
+    test: {
+        projects: [
+            {
+                extends: true,
+                test: {
+                    name: "unit",
+                    include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
+                    exclude: ["**/*.pyodide.test.ts"],
+                },
+            },
+            {
+                test: {
+                    name: "pyodide",
+                    include: ["src/**/*.pyodide.test.ts"],
+                    fileParallelism: false,
+                },
+            },
+        ],
+    },
     build: {
         outDir: "build",
         rollupOptions: {

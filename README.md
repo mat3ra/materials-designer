@@ -127,7 +127,15 @@ npm start
 
 ### 3.2. Tests
 
-Tests are implemented using Cypress. To launch it use Node v20 and run:
+Unit tests are Vitest and sit next to the code they cover. Both suites share `vite.config.mts` as two
+vitest projects; the `*.pyodide.test.ts` suffix is what routes a file between them:
+
+| Command | What it covers | Speed |
+| --- | --- | --- |
+| `npm run test:unit` (= `npm test`) | `src/**/*.test.ts` — reducers, the REPL session's JS half | seconds |
+| `npm run test:pyodide` | `src/**/*.pyodide.test.ts` — the REPL against a real Pyodide interpreter (see 3.7) | minutes |
+
+End-to-end tests are Cypress and live in their own package; use Node v20:
 
 ```bash
 cd tests
@@ -218,6 +226,59 @@ VITE_JUPYTERLITE_DEVELOPMENT_URL="https://deploy-preview-56--mat3ra-jupyterlite.
 ```
 
 This should source JL from the development distribution and run only notebook healthcheck tests.
+
+### 3.7. Python REPL (Pyodide)
+
+The **View → Python REPL** panel runs `mat3ra.made.tools` in the browser via
+[Pyodide](https://pyodide.org). Materials in the designer are bound as `materials_in` (list order) and
+`material` (the active one); any `Material` the user creates or reassigns is synced back into the list.
+
+**The environment is defined in one place:**
+[`src/components/repl/repl-packages.json`](src/components/repl/repl-packages.json) — Pyodide version,
+package lists and wheel filenames. `constants.ts`, `scripts/provision-repl-wheels.mjs` and the
+integration test all read it, so a version bump happens once.
+
+Not everything comes from PyPI: `pymatgen`, `pydantic`, `spglib` and friends do not build under
+Pyodide, so the REPL installs **prebuilt pure-Python wheels** that are not published on PyPI.
+
+#### Hosting requirement (important when embedding this package)
+
+Those wheels must be served at **`/repl-wheels/`** on the same origin as the app, or the REPL fails at
+load time with `Failed to fetch wheel …: HTTP 404`.
+
+- **In this repo** it is automatic: `provision-repl-wheels` runs on `prestart` and `prebuild`,
+  downloading them into `public/repl-wheels/` (gitignored), which Vite copies into the build output.
+- **In a host application** that consumes `@mat3ra/materials-designer`, nothing runs on your behalf.
+  Either serve the wheels yourself at that path, or pass a different location:
+
+  ```jsx
+  <MaterialsDesignerContainer wheelBaseUrl="https://your-cdn.example/wheels" />
+  ```
+
+The default download source is the JupyterLite deploy that already hosts these wheels, which makes it
+a build-time dependency of this repo. Override it with `REPL_WHEELS_SOURCE_URL`:
+
+```bash
+REPL_WHEELS_SOURCE_URL=https://your-mirror.example/packages npm run provision-repl-wheels
+```
+
+#### Authoring the REPL's Python
+
+The Python that runs inside the interpreter lives in
+[`src/components/repl/python/*.py`](src/components/repl/python) as **real `.py` files** (syntax
+highlighting, no JS-string escaping). `scripts/generate-repl-python.mjs` turns each into a
+`generated/<name>.ts` string module on `prestart`/`prebuild`/`pretranspile`; `generated/` is gitignored,
+so run `npm run generate-repl-python` after editing a `.py` file.
+
+#### Running the integration test
+
+```bash
+npm run provision-repl-wheels   # once; wheels are cached on disk
+npm run test:pyodide            # builds a real Pyodide env — minutes
+```
+
+It drives the real `MaterialsReplSession`, so it also covers the install ordering, the wheel handling
+and the error/completion paths rather than re-declaring them.
 
 ## 4. Links
 

@@ -1,10 +1,14 @@
 // Downloads the prebuilt pure-Python wheels the Python REPL installs at runtime into
-// public/repl-wheels/, so they are served same-origin by the built site (Vite copies public/ into
-// the build output). Runs on `prebuild` (Netlify) and `prestart` (local); idempotent — skips files
-// already present. These wheels are custom pure-Python builds not published on PyPI, so they must be
-// self-hosted; the source defaults to the jupyterlite deploy that already hosts them.
+// public/<wheelsDirectoryName>/, so they are served same-origin by the built site (Vite copies
+// public/ into the build output). Runs on `prebuild` (Netlify) and `prestart` (local); idempotent —
+// skips files already present. These wheels are custom pure-Python builds not published on PyPI, so
+// they have to be self-hosted.
+//
+// The default source is the jupyterlite deploy that already hosts them, which makes that deploy a
+// build-time dependency of this one: if it is down, `prebuild` fails. Override with
+// REPL_WHEELS_SOURCE_URL, and see README.md for the note on hosting these properly.
 import { createWriteStream } from "node:fs";
-import { mkdir, readFile, stat } from "node:fs/promises";
+import { mkdir, readFile, rename, rm, stat } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
@@ -13,16 +17,16 @@ import { fileURLToPath } from "node:url";
 const SOURCE_BASE_URL =
     process.env.REPL_WHEELS_SOURCE_URL || "https://mat3ra-jupyterlite.netlify.app/files/packages";
 
-const REPL_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "src", "components", "repl");
-// Single source of truth: src/components/repl/repl-packages.json (also read by constants.ts and
-// tests-pyodide/supercell.pyodide.cjs — plain JSON so all three can load it without a build step).
-const { wheelFilenames: WHEEL_FILENAMES } = JSON.parse(
-    await readFile(join(REPL_DIR, "repl-packages.json"), "utf8"),
+const PROJECT_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+// Single source of truth: src/components/repl/repl-packages.json (also read by constants.ts and the
+// Pyodide integration test — plain JSON so all of them can load it without a build step).
+const { wheelFilenames: WHEEL_FILENAMES, wheelsDirectoryName: WHEELS_DIRECTORY_NAME } = JSON.parse(
+    await readFile(join(PROJECT_ROOT, "src", "components", "repl", "repl-packages.json"), "utf8"),
 );
 
-const outDir = join(dirname(fileURLToPath(import.meta.url)), "..", "public", "repl-wheels");
+const outputDirectory = join(PROJECT_ROOT, "public", WHEELS_DIRECTORY_NAME);
 
-async function exists(path) {
+async function isNonEmptyFile(path) {
     try {
         const info = await stat(path);
         return info.size > 0;
@@ -31,25 +35,36 @@ async function exists(path) {
     }
 }
 
-async function download(filename) {
-    const target = join(outDir, filename);
-    if (await exists(target)) {
-        console.log(`repl-wheels: ${filename} already present, skipping`);
+async function downloadWheel(wheelFilename) {
+    const targetPath = join(outputDirectory, wheelFilename);
+    if (await isNonEmptyFile(targetPath)) {
+        console.log(`repl-wheels: ${wheelFilename} already present, skipping`);
         return;
     }
-    const url = `${SOURCE_BASE_URL}/${filename}`;
+    const url = `${SOURCE_BASE_URL}/${wheelFilename}`;
     console.log(`repl-wheels: fetching ${url}`);
     const response = await fetch(url);
     if (!response.ok || !response.body) {
         throw new Error(`Failed to fetch ${url}: HTTP ${response.status}`);
     }
-    await pipeline(Readable.fromWeb(response.body), createWriteStream(target));
+    // Download to a temporary name and rename only on success. Writing straight to targetPath would
+    // leave a truncated .whl behind if the stream broke mid-transfer, and because the "already
+    // present" check above only tests for a non-empty file, every later run would skip that corrupt
+    // wheel — surfacing much later, and very confusingly, as `BadZipFile` inside micropip.
+    const partialPath = `${targetPath}.part`;
+    try {
+        await pipeline(Readable.fromWeb(response.body), createWriteStream(partialPath));
+        await rename(partialPath, targetPath);
+    } catch (error) {
+        await rm(partialPath, { force: true });
+        throw error;
+    }
 }
 
-await mkdir(outDir, { recursive: true });
+await mkdir(outputDirectory, { recursive: true });
 // Sequential to keep the log readable; the set is small.
 await WHEEL_FILENAMES.reduce(
-    (previous, filename) => previous.then(() => download(filename)),
+    (previous, wheelFilename) => previous.then(() => downloadWheel(wheelFilename)),
     Promise.resolve(),
 );
 console.log("repl-wheels: ready");

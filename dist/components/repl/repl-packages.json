@@ -1,4 +1,6 @@
 {
+    "pyodideVersion": "0.24.0",
+    "wheelsDirectoryName": "repl-wheels",
     "loadPackages": ["numpy", "scipy", "typing-extensions", "lzma", "sqlite3", "ssl"],
     "pypiPinnedPackages": [
         "annotated_types>=0.6.0",

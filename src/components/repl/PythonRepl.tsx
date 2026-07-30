@@ -1,5 +1,5 @@
 import CovePythonRepl from "@mat3ra/cove/dist/other/repl/PythonRepl";
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect } from "react";
 
 import type { MDMaterial } from "../../MDMaterial";
 import { type ReplSyncOperation, replSession } from "./MaterialsReplSession";
@@ -15,29 +15,26 @@ interface PythonReplProps {
 }
 
 function PythonRepl({ materials, activeIndex, onReplSync, show, wheelBaseUrl }: PythonReplProps) {
-    // A ref, not deps: re-binding the callbacks would re-trigger the environment load.
-    const materialsRef = useRef({ materials, activeIndex });
-    materialsRef.current = { materials, activeIndex };
-
     useEffect(() => {
-        if (wheelBaseUrl) replSession.configure({ wheelBaseUrl });
+        if (wheelBaseUrl) replSession.setWheelBaseUrl(wheelBaseUrl);
     }, [wheelBaseUrl]);
 
     const injectCurrentMaterials = useCallback(() => {
-        const { materials: currentMaterials, activeIndex: currentIndex } = materialsRef.current;
-        if (!currentMaterials.length) return;
         // Stable list order, deliberately NOT active-first: after a run the active index moves to the
         // REPL's own output, which would then feed back in as `materials_in[0]` on the next run.
         // `material` still tracks the active one.
         replSession.injectMaterials(
-            currentMaterials.map((material) => material.toJSON()),
-            currentIndex,
+            materials.map((material) => material.toJSON()),
+            activeIndex,
         );
-    }, []);
+    }, [materials, activeIndex]);
 
+    // Keep the namespace in step while the panel is already open — e.g. the user selects a different
+    // material, or a previous run appended one. Before the session is up there is nothing to inject
+    // into; the `onReady` pass below covers that case.
     useEffect(() => {
         if (show && replSession.isInitialized) injectCurrentMaterials();
-    }, [show, activeIndex, injectCurrentMaterials]);
+    }, [show, injectCurrentMaterials]);
 
     const syncChangedMaterials = useCallback(() => {
         const operations = replSession.collectChangedMaterials();

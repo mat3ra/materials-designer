@@ -9,10 +9,12 @@ interface PythonReplPanelProps {
     wheelBaseUrl?: string;
 }
 /**
- * Stays mounted (hidden) when closed, so the Pyodide session survives toggling.
+ * Hidden with `display: none` rather than unmounted, so the ~30s Pyodide environment and the REPL's
+ * persistent namespace survive the panel being toggled closed and open again.
  *
- * No `containerRef` — matching JupyterLiteSessionDrawer. Passing it positions the drawer absolutely
- * inside the MD container, leaving it stuck ~100px above the viewport bottom.
+ * No `containerRef` — matching JupyterLiteSessionDrawer's own default. Passing it makes ResizableDrawer
+ * position the paper absolutely against the MD container, which leaves it stuck ~100px above the
+ * viewport bottom; without it the paper stays viewport-fixed at the bottom, which is what we want.
  */
 declare function PythonReplPanel({ materials, activeIndex, onReplSync, show, onHide, wheelBaseUrl, }: PythonReplPanelProps): import("react/jsx-runtime").JSX.Element;
 export default PythonReplPanel;

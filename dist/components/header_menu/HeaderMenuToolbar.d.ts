@@ -52,6 +52,7 @@ declare namespace HeaderMenuToolbar {
         const isVisibleItemsList: PropTypes.Validator<boolean>;
         const isVisibleSourceEditor: PropTypes.Validator<boolean>;
         const isVisibleThreeDEditorFullscreen: PropTypes.Validator<boolean>;
+        const isVisibleJupyterLiteSessionDrawer: PropTypes.Validator<boolean>;
         const isVisiblePythonReplPanel: PropTypes.Validator<boolean>;
         const openImportModal: PropTypes.Requireable<(...args: any[]) => any>;
         const closeImportModal: PropTypes.Requireable<(...args: any[]) => any>;

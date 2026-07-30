@@ -17,7 +17,9 @@ import React from "react";
 // TODO: use when converting to typescript
 // import {MaterialSchema} from "@mat3ra/code/dist/js/types";
 import { ThreeDEditorFullscreen } from "./components/3d_editor/ThreeDEditorFullscreen";
-import EditorSelectionInfo from "./components/3d_editor_selection_info/EditorSelectionInfo";
+import EditorSelectionInfo, {
+    FOOTER_HEIGHT,
+} from "./components/3d_editor_selection_info/EditorSelectionInfo";
 import JupyterLiteSessionDrawer from "./components/drawer_session/JupyterLiteSessionDrawer";
 import HeaderMenuToolbar from "./components/header_menu/HeaderMenuToolbar";
 import ItemsList from "./components/items_list/ItemsList";
@@ -29,6 +31,8 @@ import { theme } from "./settings";
 
 const data = MaterialStandata.runtimeData;
 const materialConfigs = Object.values(data.filesMapByName);
+
+const APP_BAR_HEIGHT = 54;
 
 const GRID_CONFIG_BY_VISIBILITY = {
     // "111" means that all three components are visible
@@ -132,6 +136,9 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
         const { isVisibleItemsList, isVisibleSourceEditor, isVisibleThreeDEditorFullscreen } =
             this.state;
         const gridConfig = this.getGridConfig();
+        const mainContainerHeightDirective = `calc(100vh - ${
+            APP_BAR_HEIGHT + FOOTER_HEIGHT - 8
+        }px)`; // 8px is the padding + borders
 
         const { mdState } = this.props;
         const globalMaterial = mdState.materials[mdState.index];
@@ -139,15 +146,7 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
         return (
             <ThemeProvider theme={theme}>
                 <ScopedCssBaseline enableColorScheme>
-                    <Paper
-                        id="materials-designer"
-                        sx={{
-                            height: "100vh",
-                            display: "flex",
-                            flexDirection: "column",
-                            overflow: "hidden",
-                        }}
-                    >
+                    <Paper id="materials-designer">
                         <AppBar position="static" className={setClass("", this.props.className)}>
                             {/* TODO: find out how to avoid passing material to header */}
                             <HeaderMenuToolbar
@@ -199,126 +198,131 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                         <Box
                             component="main"
                             sx={{
-                                flex: "1 1 auto",
-                                minHeight: 0,
-                                display: "flex",
-                                flexDirection: "column",
-                                overflow: "hidden",
+                                [theme.breakpoints.up("md")]: {
+                                    height: mainContainerHeightDirective,
+                                },
+                                [theme.breakpoints.down("md")]: {
+                                    maxHeight: mainContainerHeightDirective,
+                                },
+                                overflowY: "auto",
                             }}
                         >
-                            <Box sx={{ flex: "1 1 auto", minHeight: 0, overflowY: "auto" }}>
-                                <Grid
-                                    container
-                                    justifyContent="flex-start"
-                                    id="materials-designer-container"
-                                    sx={{ height: "100%" }}
-                                    ref={this.containerRef}
-                                >
-                                    {isVisibleItemsList && (
-                                        <Grid
-                                            item
-                                            // eslint-disable-next-line react/jsx-props-no-spreading
-                                            {...gridConfig[1]}
-                                            sx={{
-                                                borderRight: `1px solid ${theme.palette.grey[800]}`,
-                                                height: "100%",
-                                                overflowY: "auto",
-                                            }}
-                                        >
-                                            <Grid
-                                                item
-                                                className="materials-designer-items-list"
-                                                xs={12}
-                                                mt={0.25}
-                                            >
-                                                <ItemsList
-                                                    materials={mdState.materials}
-                                                    index={mdState.index}
-                                                    onItemClick={this.props.onItemClick}
-                                                    onRemove={this.props.onRemove}
-                                                    onNameUpdate={this.props.onNameUpdate}
-                                                />
-                                            </Grid>
-                                        </Grid>
-                                    )}
-                                    {isVisibleSourceEditor && (
-                                        <Grid
-                                            item
-                                            // eslint-disable-next-line react/jsx-props-no-spreading
-                                            {...gridConfig[2]}
-                                            sx={{
-                                                borderRight: `1px solid ${theme.palette.grey[800]}`,
-                                                height: "100%",
-                                                width: "100%",
-                                                overflowY: "auto",
-                                            }}
-                                            className="materials-designer-source-editor"
-                                        >
-                                            <Grid item xs={12} mt={0.25}>
-                                                <LatticeEditor
-                                                    material={globalMaterial}
-                                                    onUpdate={this.props.onUpdate}
-                                                />
-                                            </Grid>
-                                            <Grid item xs={12} mt={0.25}>
-                                                <BasisEditor
-                                                    material={globalMaterial}
-                                                    onUpdate={this.props.onUpdate}
-                                                />
-                                            </Grid>
-                                        </Grid>
-                                    )}
-                                    {isVisibleThreeDEditorFullscreen && (
+                            <Grid
+                                container
+                                justifyContent="flex-start"
+                                id="materials-designer-container"
+                                sx={{ height: "100%" }}
+                                ref={this.containerRef}
+                            >
+                                {isVisibleItemsList && (
+                                    <Grid
+                                        item
                                         // eslint-disable-next-line react/jsx-props-no-spreading
-                                        <Grid item {...gridConfig[3]} mt={0.25}>
-                                            <ThreeDEditorFullscreen
-                                                editable
-                                                material={globalMaterial}
-                                                isConventionalCellShown={
-                                                    this.props.isConventionalCellShown
-                                                }
-                                                boundaryConditions={
-                                                    globalMaterial.boundaryConditions
-                                                }
-                                                initialViewSettings={this.props.initialViewSettings}
-                                                onUpdate={(material) => {
-                                                    const newMaterial = MDMaterial.fromMadeMaterial(
-                                                        material,
-                                                        globalMaterial.metadata,
-                                                    );
-                                                    this.props.onUpdate(newMaterial);
-                                                }}
+                                        {...gridConfig[1]}
+                                        sx={{
+                                            borderRight: `1px solid ${theme.palette.grey[800]}`,
+                                            height: "100%",
+                                            overflowY: "auto",
+                                        }}
+                                    >
+                                        <Grid
+                                            item
+                                            className="materials-designer-items-list"
+                                            xs={12}
+                                            mt={0.25}
+                                        >
+                                            <ItemsList
+                                                materials={mdState.materials}
+                                                index={mdState.index}
+                                                onItemClick={this.props.onItemClick}
+                                                onRemove={this.props.onRemove}
+                                                onNameUpdate={this.props.onNameUpdate}
                                             />
                                         </Grid>
-                                    )}
-                                    {this.state.isVisibleJupyterLiteSessionDrawer && (
-                                        <JupyterLiteSessionDrawer
-                                            materials={mdState.materials}
-                                            show={this.state.isVisibleJupyterLiteSessionDrawer}
-                                            onMaterialsUpdate={(...args) => {
-                                                this.props.onAdd(...args);
-                                            }}
-                                            onHide={() => {
-                                                this.setState({
-                                                    isVisibleJupyterLiteSessionDrawer: false,
-                                                });
-                                            }}
-                                            containerRef={this.containerRef}
-                                        />
-                                    )}
-                                    <PythonReplPanel
-                                        show={this.state.isVisiblePythonReplPanel}
-                                        materials={mdState.materials}
-                                        activeIndex={mdState.index}
-                                        onReplSync={this.props.onReplSync}
-                                        onHide={() => {
-                                            this.setState({ isVisiblePythonReplPanel: false });
+                                    </Grid>
+                                )}
+                                {isVisibleSourceEditor && (
+                                    <Grid
+                                        item
+                                        // eslint-disable-next-line react/jsx-props-no-spreading
+                                        {...gridConfig[2]}
+                                        sx={{
+                                            borderRight: `1px solid ${theme.palette.grey[800]}`,
+                                            height: "100%",
+                                            width: "100%",
+                                            overflowY: "auto",
                                         }}
+                                        className="materials-designer-source-editor"
+                                    >
+                                        <Grid item xs={12} mt={0.25}>
+                                            <LatticeEditor
+                                                material={globalMaterial}
+                                                onUpdate={this.props.onUpdate}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} mt={0.25}>
+                                            <BasisEditor
+                                                material={globalMaterial}
+                                                onUpdate={this.props.onUpdate}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                )}
+                                {isVisibleThreeDEditorFullscreen && (
+                                    // eslint-disable-next-line react/jsx-props-no-spreading
+                                    <Grid item {...gridConfig[3]} mt={0.25}>
+                                        <ThreeDEditorFullscreen
+                                            editable
+                                            material={globalMaterial}
+                                            isConventionalCellShown={
+                                                this.props.isConventionalCellShown
+                                            }
+                                            boundaryConditions={globalMaterial.boundaryConditions}
+                                            initialViewSettings={this.props.initialViewSettings}
+                                            onUpdate={(material) => {
+                                                const newMaterial = MDMaterial.fromMadeMaterial(
+                                                    material,
+                                                    globalMaterial.metadata,
+                                                );
+                                                this.props.onUpdate(newMaterial);
+                                            }}
+                                        />
+                                    </Grid>
+                                )}
+                                {this.state.isVisibleJupyterLiteSessionDrawer && (
+                                    <JupyterLiteSessionDrawer
+                                        materials={mdState.materials}
+                                        show={this.state.isVisibleJupyterLiteSessionDrawer}
+                                        onMaterialsUpdate={(...args) => {
+                                            this.props.onAdd(...args);
+                                        }}
+                                        onHide={() => {
+                                            this.setState({
+                                                isVisibleJupyterLiteSessionDrawer: false,
+                                            });
+                                        }}
+                                        containerRef={this.containerRef}
                                     />
-                                </Grid>
-                            </Box>
+                                )}
+                            </Grid>
                         </Box>
                         <EditorSelectionInfo />
+                        {/*
+                         * Outside the layout Grid on purpose: this renders a viewport-fixed bottom
+                         * drawer, so it takes no space in the grid and must not be a non-`Grid item`
+                         * child of the `Grid container` above. It also stays mounted while hidden so
+                         * the ~30s Pyodide environment survives toggling the panel closed.
+                         */}
+                        <PythonReplPanel
+                            show={this.state.isVisiblePythonReplPanel}
+                            materials={mdState.materials}
+                            activeIndex={mdState.index}
+                            onReplSync={this.props.onReplSync}
+                            wheelBaseUrl={this.props.wheelBaseUrl}
+                            onHide={() => {
+                                this.setState({ isVisiblePythonReplPanel: false });
+                            }}
+                        />
                     </Paper>
                 </ScopedCssBaseline>
             </ThemeProvider>
@@ -358,6 +362,12 @@ MaterialsDesigner.propTypes = {
     onExport: PropTypes.func,
     onReplSync: PropTypes.func,
     onExit: PropTypes.func,
+
+    /**
+     * Where the Python REPL fetches its prebuilt wheels from. Only needed by host apps that serve them
+     * somewhere other than the same-origin `/repl-wheels` default — see README section 3.7.
+     */
+    wheelBaseUrl: PropTypes.string,
 
     openImportModal: PropTypes.func,
     closeImportModal: PropTypes.func,

@@ -180,7 +180,9 @@ export function materialsApplyReplSync(
         const material = new MDMaterial({ ...config, name: variableName });
         material.replClientId = clientId;
         material.isUpdated = true;
-        const existingIndex = materials.findIndex((m) => m.replClientId === clientId);
+        const existingIndex = materials.findIndex(
+            (candidate) => candidate.replClientId === clientId,
+        );
         if (existingIndex >= 0) {
             materials[existingIndex] = material;
             activeIndex = existingIndex;

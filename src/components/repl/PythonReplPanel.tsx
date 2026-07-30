@@ -1,4 +1,5 @@
 import ResizableDrawer from "@mat3ra/cove/dist/mui/components/custom/resizable-drawer/ResizableDrawer";
+import Box from "@mui/material/Box";
 import React from "react";
 
 import type { MDMaterial } from "../../MDMaterial";
@@ -15,10 +16,12 @@ interface PythonReplPanelProps {
 }
 
 /**
- * Stays mounted (hidden) when closed, so the Pyodide session survives toggling.
+ * Hidden with `display: none` rather than unmounted, so the ~30s Pyodide environment and the REPL's
+ * persistent namespace survive the panel being toggled closed and open again.
  *
- * No `containerRef` — matching JupyterLiteSessionDrawer. Passing it positions the drawer absolutely
- * inside the MD container, leaving it stuck ~100px above the viewport bottom.
+ * No `containerRef` — matching JupyterLiteSessionDrawer's own default. Passing it makes ResizableDrawer
+ * position the paper absolutely against the MD container, which leaves it stuck ~100px above the
+ * viewport bottom; without it the paper stays viewport-fixed at the bottom, which is what we want.
  */
 function PythonReplPanel({
     materials,
@@ -29,7 +32,7 @@ function PythonReplPanel({
     wheelBaseUrl,
 }: PythonReplPanelProps) {
     return (
-        <div style={{ display: show ? "block" : "none" }}>
+        <Box sx={{ display: show ? "block" : "none" }}>
             <ResizableDrawer open={show} onClose={onHide}>
                 <PythonRepl
                     materials={materials}
@@ -39,7 +42,7 @@ function PythonReplPanel({
                     wheelBaseUrl={wheelBaseUrl}
                 />
             </ResizableDrawer>
-        </div>
+        </Box>
     );
 }
 

@@ -6,13 +6,6 @@ export interface ReplSyncOperation {
     clientId: string;
     config: MaterialSchema;
 }
-/** `module` is the Python dotted path. */
-export interface ReplHelperMeta {
-    name: string;
-    signature: string;
-    doc: string;
-    module: string;
-}
 /**
  * Used via the {@link replSession} singleton: the persistent Python namespace and the
  * variable->clientId map have to survive the panel being toggled closed and open again.
@@ -20,17 +13,18 @@ export interface ReplHelperMeta {
 export declare class MaterialsReplSession extends PyodideSession {
     /** A known variable name means update; an unknown one means append. */
     private variableNameToClientId;
-    private helperMeta;
     constructor();
-    get helpers(): ReplHelperMeta[];
     /**
      * `_reserved_input_names` is what stops a re-injection of the designer's materials from looking
-     * like the user created them.
+     * like the user created them — see collect_changed_materials.py.
      */
     protected bootstrapNamespace(log: (message: string) => void): Promise<void>;
     /** Snapshot identities so {@link collectChangedMaterials} can tell what the run changed. */
     protected beforeExecute(): void;
-    /** Binds `materials_in` (list) and `material` (the active one). */
+    /**
+     * Binds `materials_in` (list, in designer order) and `material` (the active one). No-op for an
+     * empty list: inject_materials.py relies on there being at least one material to fall back to.
+     */
     injectMaterials(configs: MaterialSchema[], activeIndex?: number): void;
     /** One operation per Material the run created or reassigned. */
     collectChangedMaterials(): ReplSyncOperation[];
