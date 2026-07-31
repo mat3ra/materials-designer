@@ -263,8 +263,9 @@ load time with `Failed to fetch wheel …: HTTP 404`.
   <MaterialsDesignerContainer wheelBaseUrl="https://your-cdn.example/wheels" />
   ```
 
-The default download source is the JupyterLite deploy that already hosts these wheels, which makes it
-a build-time dependency of this repo. Override it with `REPL_WHEELS_SOURCE_URL`:
+They are downloaded from [jupyterlite.mat3ra.com](https://jupyterlite.mat3ra.com/files/packages/),
+which already hosts them for the JupyterLite kernel — so that site is a build-time dependency of this
+repo. Override with `REPL_WHEELS_SOURCE_URL`:
 
 ```bash
 REPL_WHEELS_SOURCE_URL=https://your-mirror.example/packages npm run provision-repl-wheels

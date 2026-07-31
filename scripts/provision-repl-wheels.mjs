@@ -2,8 +2,10 @@
 // them same-origin (Vite copies public/). Runs on `prebuild` and `prestart`; skips files present.
 // These are custom pure-Python builds, not on PyPI, so they must be self-hosted.
 //
-// The default source is the jupyterlite deploy, which makes it a build-time dependency: if it is down,
-// `prebuild` fails. Override with REPL_WHEELS_SOURCE_URL — see README.md on hosting these properly.
+// Default source is the production JupyterLite site, which makes it a build-time dependency: if it is
+// down, `prebuild` fails. Override with REPL_WHEELS_SOURCE_URL — see README.md on hosting these
+// properly. Use the branded domain, not the netlify.app one: that is a deploy detail, and preview
+// deploys share it.
 import { createWriteStream } from "node:fs";
 import { mkdir, readFile, rename, rm, stat } from "node:fs/promises";
 import { dirname, join } from "node:path";
@@ -12,7 +14,7 @@ import { pipeline } from "node:stream/promises";
 import { fileURLToPath } from "node:url";
 
 const SOURCE_BASE_URL =
-    process.env.REPL_WHEELS_SOURCE_URL || "https://mat3ra-jupyterlite.netlify.app/files/packages";
+    process.env.REPL_WHEELS_SOURCE_URL || "https://jupyterlite.mat3ra.com/files/packages";
 
 const PROJECT_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 // Single source of truth: src/components/repl/repl-packages.json (also read by constants.ts and the
