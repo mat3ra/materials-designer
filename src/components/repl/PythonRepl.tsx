@@ -10,7 +10,6 @@ interface PythonReplProps {
     activeIndex: number;
     onReplSync: (operations: ReplSyncOperation[]) => void;
     show: boolean;
-    /** Override where prebuilt wheels are served from (default same-origin `/repl-wheels`). */
     wheelBaseUrl?: string;
 }
 
@@ -20,18 +19,12 @@ function PythonRepl({ materials, activeIndex, onReplSync, show, wheelBaseUrl }: 
     }, [wheelBaseUrl]);
 
     const injectCurrentMaterials = useCallback(() => {
-        // Stable list order, deliberately NOT active-first: after a run the active index moves to the
-        // REPL's own output, which would then feed back in as `materials_in[0]` on the next run.
-        // `material` still tracks the active one.
         replSession.injectMaterials(
             materials.map((material) => material.toJSON()),
             activeIndex,
         );
     }, [materials, activeIndex]);
 
-    // Keep the namespace in step while the panel is already open — e.g. the user selects a different
-    // material, or a previous run appended one. Before the session is up there is nothing to inject
-    // into; the `onReady` pass below covers that case.
     useEffect(() => {
         if (show && replSession.isInitialized) injectCurrentMaterials();
     }, [show, injectCurrentMaterials]);
