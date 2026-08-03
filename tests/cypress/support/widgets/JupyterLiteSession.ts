@@ -69,9 +69,15 @@ export default class JupyterLiteSession extends Widget {
 
     doubleclickEntryInSidebar(sidebarEntry: string) {
         this.iframeAnchor.waitForExist(SELECTORS.sidebar.listing);
-        this.iframeAnchor.doubleClickOnText(sidebarEntry, SELECTORS.sidebar.listing, {
-            force: true,
-        });
+        // JupyterLab sets each item's `title` attribute to "Name: <exact name>\n...".
+        // Matching on that (rather than cy.contains(text), a substring match over the
+        // rendered text) means a shorter name never accidentally matches a longer one
+        // that merely starts with it (e.g. "formation_energy.ipynb" vs
+        // "defect_formation_energy.ipynb" in the same folder).
+        const escaped = sidebarEntry.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+        this.iframeAnchor
+            .get(`${SELECTORS.sidebar.listing}[title^="Name: ${escaped}\n"]`)
+            .dblclick({ force: true });
     }
 
     assertPathInSidebar(path: string) {
