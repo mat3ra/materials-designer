@@ -69,10 +69,10 @@ export default class JupyterLiteSession extends Widget {
 
     doubleclickEntryInSidebar(sidebarEntry: string) {
         this.iframeAnchor.waitForExist(SELECTORS.sidebar.listing);
-        // title^= anchors on the exact name, avoiding cy.contains' substring match.
-        this.iframeAnchor
-            .get(`${SELECTORS.sidebar.listing}[title^="Name: ${sidebarEntry}\n"]`)
-            .dblclick({ force: true });
+        // title starts with "Name: <exact name>\n", so narrowing the selector on it
+        // keeps this an exact match instead of doubleClickOnText's own substring one.
+        const selector = `${SELECTORS.sidebar.listing}[title^="Name: ${sidebarEntry}\n"]`;
+        this.iframeAnchor.doubleClickOnText(sidebarEntry, selector, { force: true });
     }
 
     assertPathInSidebar(path: string) {
