@@ -1,56 +1,64 @@
 import type { AnyObject } from "@mat3ra/esse/dist/js/esse/types";
-import type { AtomicConstraintsSchema, MaterialSchema } from "@mat3ra/esse/dist/js/types";
-import { defaultMaterialConfig, Material } from "@mat3ra/made/dist/js/material";
+import type { MaterialConstrainedSchema, MaterialSchema } from "@mat3ra/esse/dist/js/types";
+import type Material from "@mat3ra/made/dist/js/Material";
+import MaterialConstrained, {
+    defaultMaterialConstrainedConfig,
+} from "@mat3ra/made/dist/js/MaterialConstrained";
 
-type BasisWithConstraints = MaterialSchema["basis"] & {
-    constraints?: AtomicConstraintsSchema;
-};
+/** Plain or constrained material config (constraints optional on `basis`). */
+export type MaterialConfigWithOptionalConstraints =
+    | Partial<MaterialSchema>
+    | Partial<MaterialConstrainedSchema>;
 
-/** ESSE material config plus optional constraints (top-level or legacy `basis.constraints`). */
-export type MaterialConfigWithOptionalConstraints = Partial<MaterialSchema> & {
-    constraints?: AtomicConstraintsSchema;
-    basis?: BasisWithConstraints;
-};
-
-/**
- * Split optional constraints off a config for Material's second constructor arg.
- * Prefer top-level `constraints`; fall back to legacy `basis.constraints`.
- */
-function splitConstraintsFromConfig(config: MaterialConfigWithOptionalConstraints): {
-    config: Partial<MaterialSchema>;
-    constraints: AtomicConstraintsSchema;
-} {
-    const { constraints: topLevelConstraints, ...rest } = config;
-    const basisConfig = rest.basis;
-    const constraintsFromBasis = basisConfig?.constraints;
-    let basis = basisConfig;
-    if (basisConfig && "constraints" in basisConfig) {
-        basis = { ...basisConfig };
-        delete (basis as BasisWithConstraints).constraints;
-    }
+function toMaterialConstrainedConfig(
+    config: MaterialConfigWithOptionalConstraints = {},
+): MaterialConstrainedSchema {
+    const { basis } = config;
+    const constraints =
+        basis && "constraints" in basis && basis.constraints !== undefined ? basis.constraints : [];
 
     return {
-        config: { ...rest, ...(basis !== undefined ? { basis } : {}) },
-        constraints: topLevelConstraints ?? constraintsFromBasis ?? [],
+        ...defaultMaterialConstrainedConfig,
+        ...config,
+        basis: {
+            ...defaultMaterialConstrainedConfig.basis,
+            ...basis,
+            constraints,
+        },
     };
 }
 
-export class MDMaterial extends Material {
-    constructor(config: Partial<MaterialSchema> = {}, constraints: AtomicConstraintsSchema = []) {
-        super({ ...defaultMaterialConfig, ...config }, constraints);
+export class MDMaterial extends MaterialConstrained {
+    constructor(config: MaterialConfigWithOptionalConstraints = {}) {
+        super(toMaterialConstrainedConfig(config));
     }
 
     /**
-     * Build from a config that may carry constraints at the top level (parsers)
-     * or on `basis` (legacy / ConstrainedBasis.toJSON).
+     * Build from a parser / standata / notebook config.
+     * Constraints live on `basis.constraints` (MaterialConstrained).
      */
     static fromConfig(config: MaterialConfigWithOptionalConstraints = {}) {
-        const { config: materialConfig, constraints } = splitConstraintsFromConfig(config);
-        return new MDMaterial(materialConfig, constraints);
+        return new MDMaterial(config);
     }
 
-    static fromMadeMaterial(madeMaterial: Material, metadata: Partial<MaterialSchema> = {}) {
-        return new MDMaterial({ ...madeMaterial.toJSON(), ...metadata }, madeMaterial.constraints);
+    static fromMadeMaterial(
+        madeMaterial: Material | MaterialConstrained,
+        metadata: Partial<MaterialSchema> = {},
+    ) {
+        return new MDMaterial({
+            ...MaterialConstrained.fromMaterial(madeMaterial).toJSON(),
+            ...metadata,
+        });
+    }
+
+    get isUpdated() {
+        // @ts-expect-error MD-only runtime prop, not on MaterialConstrainedSchema
+        return this.prop("isUpdated", false) as boolean;
+    }
+
+    set isUpdated(bool: boolean) {
+        // @ts-expect-error MD-only runtime prop, not on MaterialConstrainedSchema
+        this.setProp("isUpdated", bool);
     }
 
     cleanOnCopy() {
@@ -63,12 +71,11 @@ export class MDMaterial extends Material {
         return this.metadata?.boundaryConditions || {};
     }
 
-    toJSON(): MaterialSchema & AnyObject {
+    toJSON(): MaterialConstrainedSchema & AnyObject {
         return {
             ...super.toJSON(),
             _id: this.id,
             metadata: this.metadata,
-            ...(this.constraints.length ? { constraints: this.constraints } : {}),
         };
     }
 }

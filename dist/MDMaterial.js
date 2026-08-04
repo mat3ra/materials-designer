@@ -1,37 +1,41 @@
-import { defaultMaterialConfig, Material } from "@mat3ra/made/dist/js/material";
-/**
- * Split optional constraints off a config for Material's second constructor arg.
- * Prefer top-level `constraints`; fall back to legacy `basis.constraints`.
- */
-function splitConstraintsFromConfig(config) {
-    var _a;
-    const { constraints: topLevelConstraints, ...rest } = config;
-    const basisConfig = rest.basis;
-    const constraintsFromBasis = basisConfig === null || basisConfig === void 0 ? void 0 : basisConfig.constraints;
-    let basis = basisConfig;
-    if (basisConfig && "constraints" in basisConfig) {
-        basis = { ...basisConfig };
-        delete basis.constraints;
-    }
+import MaterialConstrained, { defaultMaterialConstrainedConfig, } from "@mat3ra/made/dist/js/MaterialConstrained";
+function toMaterialConstrainedConfig(config = {}) {
+    const { basis } = config;
+    const constraints = basis && "constraints" in basis && basis.constraints !== undefined ? basis.constraints : [];
     return {
-        config: { ...rest, ...(basis !== undefined ? { basis } : {}) },
-        constraints: (_a = topLevelConstraints !== null && topLevelConstraints !== void 0 ? topLevelConstraints : constraintsFromBasis) !== null && _a !== void 0 ? _a : [],
+        ...defaultMaterialConstrainedConfig,
+        ...config,
+        basis: {
+            ...defaultMaterialConstrainedConfig.basis,
+            ...basis,
+            constraints,
+        },
     };
 }
-export class MDMaterial extends Material {
-    constructor(config = {}, constraints = []) {
-        super({ ...defaultMaterialConfig, ...config }, constraints);
+export class MDMaterial extends MaterialConstrained {
+    constructor(config = {}) {
+        super(toMaterialConstrainedConfig(config));
     }
     /**
-     * Build from a config that may carry constraints at the top level (parsers)
-     * or on `basis` (legacy / ConstrainedBasis.toJSON).
+     * Build from a parser / standata / notebook config.
+     * Constraints live on `basis.constraints` (MaterialConstrained).
      */
     static fromConfig(config = {}) {
-        const { config: materialConfig, constraints } = splitConstraintsFromConfig(config);
-        return new MDMaterial(materialConfig, constraints);
+        return new MDMaterial(config);
     }
     static fromMadeMaterial(madeMaterial, metadata = {}) {
-        return new MDMaterial({ ...madeMaterial.toJSON(), ...metadata }, madeMaterial.constraints);
+        return new MDMaterial({
+            ...MaterialConstrained.fromMaterial(madeMaterial).toJSON(),
+            ...metadata,
+        });
+    }
+    get isUpdated() {
+        // @ts-expect-error MD-only runtime prop, not on MaterialConstrainedSchema
+        return this.prop("isUpdated", false);
+    }
+    set isUpdated(bool) {
+        // @ts-expect-error MD-only runtime prop, not on MaterialConstrainedSchema
+        this.setProp("isUpdated", bool);
     }
     cleanOnCopy() {
         // @ts-expect-error MD-only runtime prop, not on MaterialSchema
@@ -47,7 +51,6 @@ export class MDMaterial extends Material {
             ...super.toJSON(),
             _id: this.id,
             metadata: this.metadata,
-            ...(this.constraints.length ? { constraints: this.constraints } : {}),
         };
     }
 }
