@@ -94,7 +94,7 @@ class PythonTransformation extends React.Component {
                         const material = this.mapToObject(m);
                         // material structure is returned in POSCAR format in python code
                         const config = Made.parsers.poscar.fromPoscar(material.poscar);
-                        const newMaterial = MDMaterial.fromConfig(config);
+                        const newMaterial = new MDMaterial(config);
                         return newMaterial;
                     });
                     this.setState({ newMaterials, executionStatus: ExecutionStatus.Ready });

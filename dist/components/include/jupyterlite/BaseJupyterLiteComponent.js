@@ -27,7 +27,7 @@ class BaseJupyterLiteSessionComponent extends React.Component {
             const validationErrors = [];
             const validatedMaterials = configs.reduce((validMaterials, config) => {
                 try {
-                    const material = MDMaterial.fromConfig(config);
+                    const material = new MDMaterial(config);
                     material.validate();
                     validMaterials.push(material);
                 }

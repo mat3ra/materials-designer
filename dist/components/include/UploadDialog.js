@@ -102,7 +102,7 @@ class UploadDialog extends React.Component {
             return;
         }
         const newMaterials = newMaterialConfigs.map((config) => {
-            const newMaterial = MDMaterial.fromConfig(config);
+            const newMaterial = new MDMaterial(config);
             newMaterial.cleanOnCopy();
             return newMaterial;
         });

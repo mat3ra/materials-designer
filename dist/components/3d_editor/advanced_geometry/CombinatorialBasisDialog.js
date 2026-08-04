@@ -52,7 +52,7 @@ class CombinatorialBasisDialog extends React.Component {
                 basis: basis.toJSON(),
                 name: `${material.name} - ${basis.formula}`,
             };
-            const newMaterial = MDMaterial.fromConfig(newMaterialConfig);
+            const newMaterial = new MDMaterial(newMaterialConfig);
             newMaterial.cleanOnCopy();
             newMaterials.push(newMaterial);
         });

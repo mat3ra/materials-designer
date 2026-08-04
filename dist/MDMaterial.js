@@ -16,13 +16,6 @@ export class MDMaterial extends MaterialConstrained {
     constructor(config = {}) {
         super(toMaterialConstrainedConfig(config));
     }
-    /**
-     * Build from a parser / standata / notebook config.
-     * Constraints live on `basis.constraints` (MaterialConstrained).
-     */
-    static fromConfig(config = {}) {
-        return new MDMaterial(config);
-    }
     static fromMadeMaterial(madeMaterial, metadata = {}) {
         return new MDMaterial({
             ...MaterialConstrained.fromMaterial(madeMaterial).toJSON(),

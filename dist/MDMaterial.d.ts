@@ -6,11 +6,6 @@ import MaterialConstrained from "@mat3ra/made/dist/js/MaterialConstrained";
 export type MaterialConfigWithOptionalConstraints = Partial<MaterialSchema> | Partial<MaterialConstrainedSchema>;
 export declare class MDMaterial extends MaterialConstrained {
     constructor(config?: MaterialConfigWithOptionalConstraints);
-    /**
-     * Build from a parser / standata / notebook config.
-     * Constraints live on `basis.constraints` (MaterialConstrained).
-     */
-    static fromConfig(config?: MaterialConfigWithOptionalConstraints): MDMaterial;
     static fromMadeMaterial(madeMaterial: Material | MaterialConstrained, metadata?: Partial<MaterialSchema>): MDMaterial;
     get isUpdated(): boolean;
     set isUpdated(bool: boolean);

@@ -33,14 +33,6 @@ export class MDMaterial extends MaterialConstrained {
         super(toMaterialConstrainedConfig(config));
     }
 
-    /**
-     * Build from a parser / standata / notebook config.
-     * Constraints live on `basis.constraints` (MaterialConstrained).
-     */
-    static fromConfig(config: MaterialConfigWithOptionalConstraints = {}) {
-        return new MDMaterial(config);
-    }
-
     static fromMadeMaterial(
         madeMaterial: Material | MaterialConstrained,
         metadata: Partial<MaterialSchema> = {},
