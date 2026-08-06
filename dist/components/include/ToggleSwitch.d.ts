@@ -7,7 +7,7 @@ declare function ToggleSwitch({ color, id, title, name, checked, disabled, onSta
     checked: any;
     disabled: any;
     onStateChange: any;
-}): React.JSX.Element;
+}): import("react/jsx-runtime").JSX.Element;
 declare namespace ToggleSwitch {
     namespace propTypes {
         const color: PropTypes.Validator<string>;
@@ -25,5 +25,4 @@ declare namespace ToggleSwitch {
         export { disabled_1 as disabled };
     }
 }
-import React from "react";
 import PropTypes from "prop-types";

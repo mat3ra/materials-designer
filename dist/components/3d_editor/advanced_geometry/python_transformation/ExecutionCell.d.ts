@@ -1,4 +1,3 @@
-import React from "react";
 import { ExecutionStatus } from "./CodeExecutionControls";
 export interface ExecutionCellState {
     id: number;
@@ -13,5 +12,5 @@ interface ExecutionCellProps extends ExecutionCellState {
     setPythonCode: (pythonCode: string) => void;
     clearPythonOutput: () => void;
 }
-declare function ExecutionCell(props: ExecutionCellProps): React.JSX.Element;
+declare function ExecutionCell(props: ExecutionCellProps): import("react/jsx-runtime").JSX.Element;
 export default ExecutionCell;

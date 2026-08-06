@@ -15,7 +15,7 @@ declare class UploadDialog extends React.Component<any, any, any> {
     formatDate: (date: any) => string;
     handleFileRemove: (fileNameToRemove: any) => void;
     onSubmit: () => void;
-    render(): React.JSX.Element;
+    render(): import("react/jsx-runtime").JSX.Element;
     inputFileReaderRef: HTMLInputElement | null | undefined;
 }
 declare namespace UploadDialog {

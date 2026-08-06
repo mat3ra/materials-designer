@@ -23,7 +23,7 @@ declare class LatticeConfigurationDialog extends React.Component<any, any, any> 
     handleLatticeTypeSelected: (e: any) => void;
     handleLatticeInputChanged: (e: any) => void;
     handleUpdateLattice: () => void;
-    render(): React.JSX.Element;
+    render(): import("react/jsx-runtime").JSX.Element;
 }
 declare namespace LatticeConfigurationDialog {
     namespace propTypes {

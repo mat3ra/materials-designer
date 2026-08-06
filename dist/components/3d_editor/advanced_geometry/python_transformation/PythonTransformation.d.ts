@@ -36,6 +36,6 @@ declare class PythonTransformation extends React.Component<PythonTransformationP
     handleDownload: () => void;
     parseAndSetExecutionCells: (pythonCode: string) => void;
     mapToObject(map: Map<string, MapValue>): PyodideDataMap;
-    render(): React.JSX.Element;
+    render(): import("react/jsx-runtime").JSX.Element;
 }
 export default PythonTransformation;

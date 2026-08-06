@@ -7,7 +7,7 @@ declare class ExportActionDialog extends React.Component<any, any, any> {
     };
     handleChange: (name: any) => (event: any) => void;
     onSubmit: () => void;
-    render(): React.JSX.Element;
+    render(): import("react/jsx-runtime").JSX.Element;
 }
 declare namespace ExportActionDialog {
     namespace propTypes {

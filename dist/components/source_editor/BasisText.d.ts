@@ -13,7 +13,7 @@ declare class BasisText extends React.Component<any, any, any> {
     validateContent: (content: any) => boolean;
     isContentPassingValidation(content: any): boolean;
     reformatContentAndUpdateStateIfNoManualEdit: (newContent: any) => void;
-    render(): React.JSX.Element;
+    render(): import("react/jsx-runtime").JSX.Element;
 }
 declare namespace BasisText {
     namespace propTypes {

@@ -1,7 +1,7 @@
 export class ActionDialog extends React.Component<any, any, any> {
     constructor(props: any);
     constructor(props: any, context: any);
-    render(): React.JSX.Element;
+    render(): import("react/jsx-runtime").JSX.Element;
 }
 export namespace ActionDialog {
     namespace propTypes {

@@ -7,7 +7,7 @@ declare class CombinatorialBasisDialog extends React.Component<any, any, any> {
     handleSubmit(): void;
     handleChange(content: any): void;
     assertCombinatorialBasesCount(bases: any): boolean;
-    render(): React.JSX.Element;
+    render(): import("react/jsx-runtime").JSX.Element;
     BasisTextComponent: BasisText | null | undefined;
 }
 declare namespace CombinatorialBasisDialog {

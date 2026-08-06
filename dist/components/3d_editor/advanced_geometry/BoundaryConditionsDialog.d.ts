@@ -2,9 +2,9 @@ export class BoundaryConditionsDialog extends React.Component<any, any, any> {
     constructor(props: any);
     handleSetBoundaryConditions(): void;
     UNSAFE_componentWillReceiveProps(nextProps: any, nextContext: any): void;
-    getBoundaryTypeOptions: () => React.JSX.Element[];
+    getBoundaryTypeOptions: () => import("react/jsx-runtime").JSX.Element[];
     initializeState(isUpdating?: boolean): void;
-    render(): React.JSX.Element;
+    render(): import("react/jsx-runtime").JSX.Element;
 }
 export namespace BoundaryConditionsDialog {
     namespace propTypes {

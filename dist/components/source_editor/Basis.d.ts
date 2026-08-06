@@ -9,8 +9,8 @@ declare class BasisEditor extends React.Component<any, any, any> {
     handleBasisTextChange(content: any): void;
     UNSAFE_componentWillReceiveProps(nextProps: any, nextContext: any): void;
     getXYZInCoordUnits: (material: any, coordinateUnits: any) => any;
-    renderBasisUnitsLabel: (unitsType?: string) => React.JSX.Element;
-    render(): React.JSX.Element;
+    renderBasisUnitsLabel: (unitsType?: string) => import("react/jsx-runtime").JSX.Element;
+    render(): import("react/jsx-runtime").JSX.Element;
 }
 declare namespace BasisEditor {
     namespace propTypes {

@@ -8,8 +8,8 @@ declare class InterpolateBasesDialog extends React.Component<any, any, any> {
     };
     handleSubmit(): void;
     UNSAFE_componentWillReceiveProps(nextProps: any, nextContext: any): void;
-    getOptions: () => React.JSX.Element[];
-    render(): React.JSX.Element;
+    getOptions: () => import("react/jsx-runtime").JSX.Element[];
+    render(): import("react/jsx-runtime").JSX.Element;
 }
 declare namespace InterpolateBasesDialog {
     namespace propTypes {

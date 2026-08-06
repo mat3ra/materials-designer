@@ -15,6 +15,6 @@ declare class StandataImportDialog extends React.Component<StandataImportDialogP
     handleMaterialSelect: (materialConfigs: MaterialSchema[] | []) => void;
     handleRemoveMaterial: (index: number) => void;
     addMaterials: () => void;
-    render(): React.JSX.Element;
+    render(): import("react/jsx-runtime").JSX.Element;
 }
 export default StandataImportDialog;

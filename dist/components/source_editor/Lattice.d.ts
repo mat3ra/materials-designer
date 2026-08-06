@@ -13,7 +13,7 @@ declare class Lattice extends React.Component<any, any, any> {
         label: string;
         value: string;
     }[];
-    render(): React.JSX.Element;
+    render(): import("react/jsx-runtime").JSX.Element;
 }
 declare namespace Lattice {
     namespace propTypes {
