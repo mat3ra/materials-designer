@@ -16,7 +16,10 @@ import {
 import { getNotebooksUtilsWheelFilename } from "./requirements";
 
 const MATERIAL_PREAMBLE = `
-from mat3ra.made.tools.helpers import *
+try:
+    from mat3ra.notebooks_utils.preamble.material import *
+except ModuleNotFoundError:
+    from mat3ra.made.tools.helpers import *
 from mat3ra.notebooks_utils.core.entity.material.io import get_materials as _get_materials, sync_materials as _sync_materials
 `;
 
@@ -41,7 +44,7 @@ export class MaterialsReplSession extends PyodideSession {
     constructor() {
         super({
             indexUrl: PYODIDE_INDEX_URL,
-            loadPackages: ["pyyaml"],
+            loadPackages: ["pyyaml", "typing-extensions", "sqlite3"],
             postWheelPackages: REPL_COMPLETION_PACKAGES,
             wheelBaseUrl: REPL_DEFAULT_WHEEL_BASE_URL,
             wheelFsDir: "/drive/packages",
@@ -157,7 +160,7 @@ material = materials_in[_repl_active_index] if 0 <= _repl_active_index < len(mat
     }
 
     protected async afterExecute(): Promise<void> {
-        this.py.runPython("_sync_materials(globals())");
+        await this.py.runPythonAsync("_sync_materials(globals())");
     }
 
     dispose(): void {

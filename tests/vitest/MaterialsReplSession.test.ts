@@ -63,6 +63,9 @@ class FakePyodide {
                 "mat3ra-made",
             ]);
         }
+        if (code.includes('"syncScope": "python-repl"')) {
+            return JSON.stringify({ syncScope: "python-repl", entities: [] });
+        }
         return undefined;
     }
 
@@ -103,13 +106,31 @@ async function startSession() {
 describe("MaterialsReplSession", () => {
     beforeEach(startSession);
 
-    it("loads the package-owned material preamble", () => {
-        expect(fake.runPythonCalls.some((code) => code.includes("mat3ra.made.tools.helpers"))).toBe(
-            true,
+    it("loads the package-owned material preamble on first execution", async () => {
+        session.connect(
+            () => [new MDMaterial({ name: "Si" })],
+            () => 0,
+            vi.fn(),
         );
+        await session.execute("print('ready')");
+
+        expect(
+            fake.runPythonCalls.some(
+                (code) =>
+                    code.includes("notebooks_utils.preamble.material") &&
+                    code.includes("mat3ra.made.tools.helpers"),
+            ),
+        ).toBe(true);
     });
 
-    it("installs the selected AX profile from the same YAML exposed to the editor", () => {
+    it("installs the selected AX profile from the same YAML exposed to the editor", async () => {
+        session.connect(
+            () => [new MDMaterial({ name: "Si" })],
+            () => 0,
+            vi.fn(),
+        );
+        await session.execute("print('ready')");
+
         expect(fake.writtenFiles.get("/drive/config.yml")).toBe(REQUIREMENTS);
         expect(
             fake.runPythonAsyncCalls.some((code) => code.includes("install_packages_pyodide")),
@@ -136,7 +157,9 @@ describe("MaterialsReplSession", () => {
         expect(
             fake.runPythonCalls.some((code) => code.includes("materials_in = _get_materials")),
         ).toBe(true);
-        expect(fake.runPythonCalls).toContain("_sync_materials(globals())");
+        expect(
+            fake.runPythonAsyncCalls.some((code) => code.includes('"syncScope": "python-repl"')),
+        ).toBe(true);
     });
 
     it("routes direct Python payloads through the shared set-data handler", () => {

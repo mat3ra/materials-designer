@@ -6,7 +6,10 @@ import { PYODIDE_INDEX_URL, REPL_COMPLETION_PACKAGES, REPL_DEFAULT_WHEEL_BASE_UR
 import { createMaterialsDataBridgeHandlers, } from "./materialsDataBridge";
 import { getNotebooksUtilsWheelFilename } from "./requirements";
 const MATERIAL_PREAMBLE = `
-from mat3ra.made.tools.helpers import *
+try:
+    from mat3ra.notebooks_utils.preamble.material import *
+except ModuleNotFoundError:
+    from mat3ra.made.tools.helpers import *
 from mat3ra.notebooks_utils.core.entity.material.io import get_materials as _get_materials, sync_materials as _sync_materials
 `;
 /** Persistent Materials Designer namespace connected through the generic in-page data bridge. */
@@ -14,7 +17,7 @@ export class MaterialsReplSession extends PyodideSession {
     constructor() {
         super({
             indexUrl: PYODIDE_INDEX_URL,
-            loadPackages: ["pyyaml"],
+            loadPackages: ["pyyaml", "typing-extensions", "sqlite3"],
             postWheelPackages: REPL_COMPLETION_PACKAGES,
             wheelBaseUrl: REPL_DEFAULT_WHEEL_BASE_URL,
             wheelFsDir: "/drive/packages",
@@ -113,7 +116,7 @@ material = materials_in[_repl_active_index] if 0 <= _repl_active_index < len(mat
 `);
     }
     async afterExecute() {
-        this.py.runPython("_sync_materials(globals())");
+        await this.py.runPythonAsync("_sync_materials(globals())");
     }
     dispose() {
         var _a;
