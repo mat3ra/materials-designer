@@ -15,7 +15,7 @@ declare class SupercellDialog extends React.Component<any, any, any> {
     };
     handleGenerateSupercell(): void;
     getMatrix(): math.Matrix;
-    render(): import("react/jsx-runtime").JSX.Element;
+    render(): React.JSX.Element;
 }
 declare namespace SupercellDialog {
     namespace propTypes {

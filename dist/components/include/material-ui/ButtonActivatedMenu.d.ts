@@ -6,7 +6,7 @@ export class ButtonActivatedMenuMaterialUI extends React.Component<any, any, any
     };
     handleClick: (event: any) => void;
     handleClose: () => void;
-    render(): import("react/jsx-runtime").JSX.Element;
+    render(): React.JSX.Element;
 }
 export namespace ButtonActivatedMenuMaterialUI {
     namespace propTypes {

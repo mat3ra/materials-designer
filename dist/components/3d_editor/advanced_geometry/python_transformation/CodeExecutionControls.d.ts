@@ -1,4 +1,5 @@
 import { ButtonProps } from "@mui/material/Button";
+import React from "react";
 export declare enum ExecutionStatus {
     Idle = "idle",
     Loading = "loading",
@@ -11,5 +12,5 @@ interface CodeExecutionControlsProps {
     executionStatus: ExecutionStatus;
     handleRun: () => void;
 }
-declare function CodeExecutionControls(props: CodeExecutionControlsProps): import("react/jsx-runtime").JSX.Element;
+declare function CodeExecutionControls(props: CodeExecutionControlsProps): React.JSX.Element;
 export default CodeExecutionControls;

@@ -14,7 +14,7 @@ declare class MaterialsDesigner {
     getGridConfig: () => any;
     checkIfOnlyOneGridItemIsVisible: () => boolean;
     onSectionVisibilityToggle: (componentName: any) => void;
-    render(): import("react/jsx-runtime").JSX.Element;
+    render(): React.JSX.Element;
 }
 declare namespace MaterialsDesigner {
     namespace propTypes {

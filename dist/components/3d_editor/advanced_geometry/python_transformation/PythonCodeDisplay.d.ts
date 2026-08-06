@@ -1,3 +1,4 @@
+import React from "react";
 interface PythonCodeDisplayProps {
     name?: string;
     pythonCode: string;
@@ -5,5 +6,5 @@ interface PythonCodeDisplayProps {
     setPythonCode: (pythonCode: string) => void;
     clearPythonOutput: () => void;
 }
-declare const PythonCodeDisplay: (props: PythonCodeDisplayProps) => import("react/jsx-runtime").JSX.Element;
+declare const PythonCodeDisplay: (props: PythonCodeDisplayProps) => React.JSX.Element;
 export default PythonCodeDisplay;

@@ -12,7 +12,7 @@ declare class SurfaceDialog extends React.Component<any, any, any> {
         message: string;
     };
     handleGenerateSurface(): void;
-    render(): import("react/jsx-runtime").JSX.Element;
+    render(): React.JSX.Element;
 }
 declare namespace SurfaceDialog {
     namespace propTypes {

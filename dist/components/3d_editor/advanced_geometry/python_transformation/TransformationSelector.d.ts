@@ -1,3 +1,4 @@
+import React from "react";
 export interface Transformation {
     id: string;
     title: string;
@@ -10,5 +11,5 @@ interface TransformationSelectorProps {
     setTransformation: (transformation: Transformation | null) => void;
     url?: string;
 }
-declare function TransformationSelector(props: TransformationSelectorProps): import("react/jsx-runtime").JSX.Element;
+declare function TransformationSelector(props: TransformationSelectorProps): React.JSX.Element;
 export default TransformationSelector;

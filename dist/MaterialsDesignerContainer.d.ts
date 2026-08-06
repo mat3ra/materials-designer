@@ -1,4 +1,5 @@
 import type { ViewSettingsFromUrl } from "@mat3ra/wave.js/dist/utils/viewSettingsUrl";
+import React from "react";
 import { MDMaterial } from "./MDMaterial";
 import { type MDState } from "./reducers/Material";
 declare global {
@@ -22,4 +23,4 @@ export interface MaterialsDesignerContainerProps {
     onExit?: () => void;
     initialViewSettings?: ViewSettingsFromUrl;
 }
-export declare function MaterialsDesignerContainer({ initialMaterials, skipAlertProvider, isLoading, ...props }: MaterialsDesignerContainerProps): import("react/jsx-runtime").JSX.Element;
+export declare function MaterialsDesignerContainer({ initialMaterials, skipAlertProvider, isLoading, ...props }: MaterialsDesignerContainerProps): React.JSX.Element;

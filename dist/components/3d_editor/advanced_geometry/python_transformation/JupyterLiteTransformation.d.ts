@@ -1,3 +1,4 @@
+import React from "react";
 import { MDMaterial } from "../../../../MDMaterial";
 import BaseJupyterLiteSessionComponent, { BaseJupyterLiteProps } from "../../../include/jupyterlite/BaseJupyterLiteComponent";
 interface JupyterLiteTransformationDialogState {
@@ -10,6 +11,6 @@ declare class JupyterLiteTransformationDialog extends BaseJupyterLiteSessionComp
     handleSubmit: () => void;
     setMaterials: (newMaterials: MDMaterial[]) => void;
     getMaterialsToUse: () => MDMaterial[];
-    render(): import("react/jsx-runtime").JSX.Element;
+    render(): React.JSX.Element;
 }
 export default JupyterLiteTransformationDialog;

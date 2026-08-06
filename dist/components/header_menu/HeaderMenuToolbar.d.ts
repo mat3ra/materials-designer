@@ -14,17 +14,17 @@ declare class HeaderMenuToolbar extends React.Component<any, any, any> {
         showJupyterLiteTransformation: boolean;
     };
     _handleConventionalCellSelect: () => any;
-    renderIOMenu(): import("react/jsx-runtime").JSX.Element;
-    renderEditMenu(): import("react/jsx-runtime").JSX.Element;
-    renderViewMenu(): import("react/jsx-runtime").JSX.Element;
-    renderAdvancedMenu(): import("react/jsx-runtime").JSX.Element;
+    renderIOMenu(): React.JSX.Element;
+    renderEditMenu(): React.JSX.Element;
+    renderViewMenu(): React.JSX.Element;
+    renderAdvancedMenu(): React.JSX.Element;
     openPageByURL: (url: any) => void;
-    renderHelpMenu(): import("react/jsx-runtime").JSX.Element;
-    renderSpinner(): import("react/jsx-runtime").JSX.Element;
+    renderHelpMenu(): React.JSX.Element;
+    renderSpinner(): React.JSX.Element;
     renderImportModal: () => any;
     renderSaveActionDialog: () => any;
-    renderThreejsEditorModal(): import("react/jsx-runtime").JSX.Element;
-    render(): import("react/jsx-runtime").JSX.Element;
+    renderThreejsEditorModal(): React.JSX.Element;
+    render(): React.JSX.Element;
 }
 declare namespace HeaderMenuToolbar {
     namespace propTypes {

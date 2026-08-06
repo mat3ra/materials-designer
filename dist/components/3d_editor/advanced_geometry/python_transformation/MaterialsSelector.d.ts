@@ -1,3 +1,4 @@
+import React from "react";
 import { MDMaterial } from "../../../../MDMaterial";
 interface MaterialsSelectorProps {
     materials: MDMaterial[];
@@ -5,5 +6,5 @@ interface MaterialsSelectorProps {
     setSelectedMaterials: (selectedMaterials: MDMaterial[]) => void;
     testId?: string;
 }
-declare function MaterialsSelector(props: MaterialsSelectorProps): import("react/jsx-runtime").JSX.Element;
+declare function MaterialsSelector(props: MaterialsSelectorProps): React.JSX.Element;
 export default MaterialsSelector;

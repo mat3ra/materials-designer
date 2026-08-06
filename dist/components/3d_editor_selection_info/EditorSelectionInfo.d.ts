@@ -1,3 +1,4 @@
 export const FOOTER_HEIGHT: 54;
 export default EditorSelectionInfo;
-declare function EditorSelectionInfo(): import("react/jsx-runtime").JSX.Element;
+declare function EditorSelectionInfo(): React.JSX.Element;
+import React from "react";

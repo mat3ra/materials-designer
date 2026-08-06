@@ -32,8 +32,8 @@ declare class ItemsList extends React.Component<any, any, any> {
      * @param {Number} index - index of element that should be removed
      */
     onItemListClick(e: React.MouseEvent, index: number): void;
-    renderListItem(entity: any, index: any, indexFromState: any): import("react/jsx-runtime").JSX.Element;
-    render(): import("react/jsx-runtime").JSX.Element;
+    renderListItem(entity: any, index: any, indexFromState: any): React.JSX.Element;
+    render(): React.JSX.Element;
 }
 declare namespace ItemsList {
     namespace propTypes {
