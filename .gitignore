@@ -19,7 +19,8 @@ src/react-app-env.d.ts
 # Provisioned Pyodide REPL wheels, downloaded by scripts/provision-repl-wheels.mjs.
 # The directory name is owned by `wheelsDirectoryName` in src/components/repl/repl-packages.json;
 # it has to be repeated literally here because .gitignore cannot read JSON.
-public/repl-wheels/
+public/repl-wheels/*
+!public/repl-wheels/mat3ra_notebooks_utils-2026.7.28.post1.dev3+g64b0ccd3-py3-none-any.whl
 
 # Generated from src/components/repl/python/*.py by scripts/generate-repl-python.mjs
 src/components/repl/python/generated/

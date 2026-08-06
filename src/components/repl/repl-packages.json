@@ -1,5 +1,6 @@
 {
     "pyodideVersion": "0.24.0",
+    "notebooksUtilsGitRevision": "64b0ccd33f6789e1293d8aca0b34e31befba27e1",
     "wheelsDirectoryName": "repl-wheels",
     "loadPackages": ["numpy", "scipy", "typing-extensions", "lzma", "sqlite3", "ssl"],
     "pypiPinnedPackages": [
@@ -16,13 +17,13 @@
         "pydantic-2.7.1-py3-none-any.whl",
         "spglib-2.0.2-py3-none-any.whl",
         "ruamel.yaml-0.17.32-py3-none-any.whl",
-        "pymatgen-2024.4.13-py3-none-any.whl"
+        "pymatgen-2024.4.13-py3-none-any.whl",
+        "mat3ra_notebooks_utils-2026.7.28.post1.dev3+g64b0ccd3-py3-none-any.whl"
     ],
     "mat3raPackages": [
         "pymatgen-analysis-defects<=2024.4.23",
         "mat3ra-periodic-table",
-        "mat3ra-made",
-        "mat3ra-notebooks-utils"
+        "mat3ra-made"
     ],
     "completionPackages": ["jedi==0.19.2"]
 }

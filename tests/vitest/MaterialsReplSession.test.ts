@@ -108,7 +108,13 @@ describe("REPL environment configuration", () => {
         expect(devDependencies.pyodide).toBe(replPackages.pyodideVersion);
     });
 
-    it("installs notebooks-utils with the other Mat3ra packages", () => {
-        expect(replPackages.mat3raPackages).toContain("mat3ra-notebooks-utils");
+    it("installs notebooks-utils from the pinned API wheel", () => {
+        expect(replPackages.notebooksUtilsGitRevision).toBe(
+            "64b0ccd33f6789e1293d8aca0b34e31befba27e1",
+        );
+        expect(replPackages.wheelFilenames).toContain(
+            "mat3ra_notebooks_utils-2026.7.28.post1.dev3+g64b0ccd3-py3-none-any.whl",
+        );
+        expect(replPackages.mat3raPackages).not.toContain("mat3ra-notebooks-utils");
     });
 });

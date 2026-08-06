@@ -77,7 +77,10 @@ describe("MaterialsReplSession against real Pyodide", () => {
         wheelServer = await startWheelServer();
         const { port } = wheelServer.address() as AddressInfo;
         replSession.setWheelBaseUrl(`http://127.0.0.1:${port}`);
-        await replSession.initialize(await loadPyodide({ indexURL: PYODIDE_PACKAGE_DIRECTORY }));
+        await replSession.initialize(
+            await loadPyodide({ indexURL: PYODIDE_PACKAGE_DIRECTORY }),
+            (message) => process.stdout.write(`${message}\n`),
+        );
     }, ENVIRONMENT_BUILD_TIMEOUT_MS);
 
     afterAll(() => {

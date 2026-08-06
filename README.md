@@ -255,7 +255,9 @@ Those wheels must be served at **`/repl-wheels/`** on the same origin as the app
 load time with `Failed to fetch wheel …: HTTP 404`.
 
 - **In this repo** it is automatic: `provision-repl-wheels` runs on `prestart` and `prebuild`,
-  downloading them into `public/repl-wheels/` (gitignored), which Vite copies into the build output.
+  downloading them into `public/repl-wheels/`, which Vite copies into the build output. The
+  notebooks-utils wheel is committed there because it pins the unreleased API revision recorded in
+  the package manifest; the remaining generated downloads are gitignored.
 - **In a host application** that consumes `@mat3ra/materials-designer`, nothing runs on your behalf.
   Either serve the wheels yourself at that path, or pass a different location:
 
