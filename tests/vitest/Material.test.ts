@@ -89,10 +89,20 @@ describe("materialsSyncScope", () => {
         expect(next.index).toBe(0);
     });
 
-    it("does not carry the ephemeral scope when a derived material is cloned", () => {
+    it("preserves the ephemeral scope through internal clones", () => {
         const derived = new MDMaterial({ name: "derived" });
         derived.syncScope = SCOPE;
 
-        expect(derived.clone().syncScope).toBeUndefined();
+        expect(derived.clone().syncScope).toBe(SCOPE);
+    });
+
+    it("clears the ephemeral scope when the user creates an authored copy", () => {
+        const derived = new MDMaterial({ name: "derived" });
+        derived.syncScope = SCOPE;
+        const copy = derived.clone();
+
+        copy.cleanOnCopy();
+
+        expect(copy.syncScope).toBeUndefined();
     });
 });

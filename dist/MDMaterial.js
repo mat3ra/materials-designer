@@ -3,6 +3,11 @@ export class MDMaterial extends Material {
     constructor(config = {}) {
         super({ ...defaultMaterialConfig, ...config });
     }
+    clone(extraContext) {
+        const material = super.clone(extraContext);
+        material.syncScope = this.syncScope;
+        return material;
+    }
     static fromMadeMaterial(madeMaterial, metadata = {}) {
         return new MDMaterial({ ...madeMaterial.toJSON(), ...metadata });
     }
@@ -14,6 +19,7 @@ export class MDMaterial extends Material {
     }
     cleanOnCopy() {
         ["_id"].forEach((p) => this.unsetProp(p));
+        this.syncScope = undefined;
     }
     get boundaryConditions() {
         var _a;

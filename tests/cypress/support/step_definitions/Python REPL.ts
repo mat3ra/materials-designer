@@ -22,3 +22,13 @@ Then("the Python REPL adds a scoped material", () => {
         expect(materials[1].syncScope).to.equal("python-repl");
     });
 });
+
+Then("the Python REPL replaces its scoped material", () => {
+    cy.get("#python-repl", { timeout: 180_000 }).contains("Ready", { timeout: 180_000 });
+    cy.window({ timeout: 180_000 }).should((window) => {
+        // @ts-ignore Materials Designer exposes its state for Cypress assertions.
+        const { materials } = window.MDState;
+        expect(materials).to.have.length(2);
+        expect(materials[1].syncScope).to.equal("python-repl");
+    });
+});
