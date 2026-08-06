@@ -1,9 +1,9 @@
 import type { MDMaterial } from "../../MDMaterial";
-import type { ReplSyncOperation } from "./MaterialsReplSession";
+import type { MaterialsSyncPayload } from "./materialsDataBridge";
 interface PythonReplPanelProps {
     materials: MDMaterial[];
     activeIndex: number;
-    onReplSync: (operations: ReplSyncOperation[]) => void;
+    onReplSync: (payload: MaterialsSyncPayload) => void;
     show: boolean;
     onHide: () => void;
     wheelBaseUrl?: string;

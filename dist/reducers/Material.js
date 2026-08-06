@@ -94,33 +94,39 @@ export function materialsSetBoundaryConditionsForOne(state, action) {
 export function materialsUpdateIndex(state, action) {
     return { ...state, index: action.index };
 }
-/**
- * One state transition per execution, so a run is a single undo step. Slots are resolved by
- * `replClientId` rather than index, which survives the list being reindexed by removals/clones.
- * The last touched material becomes active so the viewer follows it.
- *
- * Deliberately not routed through `materialsUpdateOne`: its `action.index || state.index` treats
- * slot 0 as falsy and would misdirect an update to the active material.
- */
-export function materialsApplyReplSync(state, action) {
-    if (action.operations.length === 0)
-        return state;
-    const materials = state.materials.slice();
-    let activeIndex = state.index;
-    action.operations.forEach(({ variableName, clientId, config }) => {
-        // Name the list item after the Python variable so the mapping is visible to the user.
-        const material = new MDMaterial({ ...config, name: variableName });
-        material.replClientId = clientId;
+/** Replace one producer-owned region, while upserting round-tripped authored materials by id. */
+export function materialsSyncScope(state, action) {
+    const selected = state.materials[state.index];
+    const selectedId = (selected === null || selected === void 0 ? void 0 : selected.id) || (selected === null || selected === void 0 ? void 0 : selected._id);
+    const materials = state.materials.filter((material) => material.syncScope !== action.syncScope);
+    const derived = [];
+    action.entities
+        .filter((entity) => entity.type === "material")
+        .forEach(({ name, config }) => {
+        const id = config._id;
+        const existingIndex = id
+            ? materials.findIndex((candidate) => (candidate.id || candidate._id) === id)
+            : -1;
+        const existing = existingIndex >= 0 ? materials[existingIndex] : undefined;
+        const material = new MDMaterial({
+            ...config,
+            name,
+            metadata: { ...existing === null || existing === void 0 ? void 0 : existing.metadata, ...config.metadata },
+        });
         material.isUpdated = true;
-        const existingIndex = materials.findIndex((candidate) => candidate.replClientId === clientId);
-        if (existingIndex >= 0) {
+        if (existingIndex >= 0)
             materials[existingIndex] = material;
-            activeIndex = existingIndex;
-        }
-        else {
-            materials.push(material);
-            activeIndex = materials.length - 1;
+        else if (!id) {
+            material.syncScope = action.syncScope;
+            derived.push(material);
         }
     });
-    return { ...state, materials, index: activeIndex };
+    materials.push(...derived);
+    const survivingSelection = selectedId
+        ? materials.findIndex((material) => (material.id || material._id) === selectedId)
+        : materials.indexOf(selected);
+    const index = survivingSelection >= 0
+        ? survivingSelection
+        : Math.max(0, Math.min(state.index, materials.length - 1));
+    return { ...state, materials, index };
 }

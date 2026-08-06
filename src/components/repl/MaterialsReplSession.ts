@@ -1,45 +1,37 @@
+import DataBridge from "@mat3ra/cove/dist/other/iframe-messaging/DataBridge";
+import InPageTransport from "@mat3ra/cove/dist/other/iframe-messaging/InPageTransport";
 import PyodideSession from "@mat3ra/cove/dist/other/pyodide/PyodideSession";
-import type { MaterialSchema } from "@mat3ra/esse/dist/js/types";
+import { Action } from "@mat3ra/esse/dist/js/types";
 
-import { randomAlphanumeric } from "../../utils/str";
+import type { MDMaterial } from "../../MDMaterial";
 import {
     PYODIDE_INDEX_URL,
     REPL_COMPLETION_PACKAGES,
     REPL_DEFAULT_WHEEL_BASE_URL,
-    REPL_INPUT_VARIABLE_NAMES,
     REPL_LOAD_PACKAGES,
     REPL_MAT3RA_PACKAGES,
     REPL_PYPI_PINNED_PACKAGES,
     REPL_WHEEL_FILENAMES,
 } from "./constants";
-import PY_BOOTSTRAP_SCRIPTS from "./python/generated/bootstrap";
-import PY_COLLECT_CHANGED_MATERIALS from "./python/generated/collect_changed_materials";
-import PY_INJECT_MATERIALS from "./python/generated/inject_materials";
-import PY_SNAPSHOT_MATERIAL_IDENTITIES from "./python/generated/snapshot_material_identities";
+import {
+    type MaterialsSyncPayload,
+    createMaterialsDataBridgeHandlers,
+} from "./materialsDataBridge";
 
-/** Length of the generated {@link ReplSyncOperation.clientId}; wide enough that collisions are moot. */
-const CLIENT_ID_LENGTH = 12;
+const MATERIAL_PREAMBLE = `
+from mat3ra.notebooks_utils.preamble.material import *
+from mat3ra.notebooks_utils.core.entity.material.io import get_materials as _get_materials, sync_materials as _sync_materials
+`;
 
-/** `variableName` is for display only — add-vs-update is decided by `clientId`. */
-export interface ReplSyncOperation {
-    variableName: string;
-    clientId: string;
-    config: MaterialSchema;
-}
-
-/** Shape of one record emitted by collect_changed_materials.py — snake_case is the wire format. */
-interface ChangedMaterialRecord {
-    variable_name: string;
-    config: MaterialSchema;
-}
-
-/**
- * Used via the {@link replSession} singleton: the persistent Python namespace and the
- * variable->clientId map have to survive the panel being toggled closed and open again.
- */
+/** Persistent Materials Designer namespace connected through the generic in-page data bridge. */
 export class MaterialsReplSession extends PyodideSession {
-    /** A known variable name means update; an unknown one means append. */
-    private variableNameToClientId = new Map<string, string>();
+    private bridge?: DataBridge;
+
+    private getMaterials: () => MDMaterial[] = () => [];
+
+    private getActiveIndex = () => 0;
+
+    private syncMaterials: (payload: MaterialsSyncPayload) => void = () => undefined;
 
     constructor() {
         super({
@@ -47,59 +39,57 @@ export class MaterialsReplSession extends PyodideSession {
             loadPackages: REPL_LOAD_PACKAGES,
             pypiPinnedPackages: REPL_PYPI_PINNED_PACKAGES,
             wheelFilenames: REPL_WHEEL_FILENAMES,
-            // Jedi installs alongside the mat3ra packages; both need the wheels present first.
             postWheelPackages: [...REPL_MAT3RA_PACKAGES, ...REPL_COMPLETION_PACKAGES],
             wheelBaseUrl: REPL_DEFAULT_WHEEL_BASE_URL,
         });
     }
 
-    /**
-     * Runs every script in python/bootstrap/ — adding one there is a drop-in, nothing to register here.
-     *
-     * `_reserved_input_names` is what stops a re-injection of the designer's materials from looking
-     * like the user created them — see collect_changed_materials.py.
-     */
-    protected async bootstrapNamespace(log: (message: string) => void): Promise<void> {
-        PY_BOOTSTRAP_SCRIPTS.forEach(({ name, source }) => {
-            log(`Preparing namespace (${name})…`);
-            this.py.runPython(source);
+    connect(
+        getMaterials: () => MDMaterial[],
+        getActiveIndex: () => number,
+        syncMaterials: (payload: MaterialsSyncPayload) => void,
+    ): void {
+        this.getMaterials = getMaterials;
+        this.getActiveIndex = getActiveIndex;
+        this.syncMaterials = syncMaterials;
+        if (this.bridge) return;
+
+        const transport = new InPageTransport((action, payload) => {
+            this.py.globals.set("data_from_host_action", action);
+            this.py.globals.set("data_from_host", this.py.toPy(payload));
         });
-        this.py.globals.set("_reserved_input_names", this.py.toPy([...REPL_INPUT_VARIABLE_NAMES]));
+        this.bridge = new DataBridge(transport);
+        createMaterialsDataBridgeHandlers({
+            getMaterials: () => this.getMaterials(),
+            syncMaterials: (payload) => this.syncMaterials(payload),
+        }).forEach(({ action, handlers }) => this.bridge?.addHandlers(action, handlers));
+    }
+
+    protected async bootstrapNamespace(log: (message: string) => void): Promise<void> {
+        log("Preparing material namespace…");
+        this.py.runPython(MATERIAL_PREAMBLE);
         log("Environment ready. Type to autocomplete.");
     }
 
-    /** Snapshot identities so {@link collectChangedMaterials} can tell what the run changed. */
-    protected beforeExecute(): void {
-        this.py.runPython(PY_SNAPSHOT_MATERIAL_IDENTITIES);
+    protected async beforeExecute(): Promise<void> {
+        if (!this.bridge) throw new Error("MaterialsReplSession is not connected to a host.");
+        await this.bridge.receive(Action.getData);
+        this.py.globals.set("_repl_active_index", this.getActiveIndex());
+        this.py.runPython(`
+materials_in = _get_materials(globals())
+material = materials_in[_repl_active_index] if 0 <= _repl_active_index < len(materials_in) else None
+`);
     }
 
-    /**
-     * Binds `materials_in` (list, in designer order) and `material` (the active one). No-op for an
-     * empty list: inject_materials.py relies on there being at least one material to fall back to.
-     */
-    injectMaterials(configs: MaterialSchema[], activeIndex = 0): void {
-        this.assertReady();
-        if (configs.length === 0) return;
-        this.py.globals.set("_repl_injected_json", JSON.stringify(configs));
-        this.py.globals.set("_repl_active_index", activeIndex);
-        this.py.runPython(PY_INJECT_MATERIALS);
+    protected async afterExecute(): Promise<void> {
+        this.py.runPython("_sync_materials(globals())");
     }
 
-    /** One operation per Material the run created or reassigned. */
-    collectChangedMaterials(): ReplSyncOperation[] {
-        this.assertReady();
-        this.py.runPython(PY_COLLECT_CHANGED_MATERIALS);
-        const changed: ChangedMaterialRecord[] = JSON.parse(this.py.runPython("_repl_export"));
-        return changed.map(({ variable_name: variableName, config }) => {
-            let clientId = this.variableNameToClientId.get(variableName);
-            if (!clientId) {
-                clientId = randomAlphanumeric(CLIENT_ID_LENGTH);
-                this.variableNameToClientId.set(variableName, clientId);
-            }
-            return { variableName, clientId, config };
-        });
+    dispose(): void {
+        this.bridge?.destroy();
+        this.bridge = undefined;
+        super.dispose();
     }
 }
 
-/** Singleton, matching the lifetime of the persistent `window.pyodide`. */
 export const replSession = new MaterialsReplSession();

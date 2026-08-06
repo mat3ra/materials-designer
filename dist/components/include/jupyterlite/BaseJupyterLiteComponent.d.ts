@@ -1,5 +1,4 @@
 import JupyterLiteSession, { IMessageHandlerConfigItem } from "@mat3ra/cove/dist/other/jupyterlite/JupyterLiteSession";
-import { MaterialSchema } from "@mat3ra/esse/dist/js/types";
 import React from "react";
 import { MDMaterial } from "../../../MDMaterial";
 export interface BaseJupyterLiteProps {
@@ -15,15 +14,10 @@ declare class BaseJupyterLiteSessionComponent<P = never, S = never> extends Reac
     jupyterLiteSessionRef: React.RefObject<JupyterLiteSession>;
     componentDidUpdate(prevProps: P & BaseJupyterLiteProps, prevState: S): void;
     sendMaterials: () => void;
-    getMaterialsForMessage: () => (MaterialSchema & import("@mat3ra/esse/dist/js/esse/types").AnyObject)[];
+    getMaterialsForMessage: () => (import("@mat3ra/esse/dist/js/types").MaterialSchema & import("@mat3ra/esse/dist/js/esse/types").AnyObject)[];
     getMaterialsToUse: () => (P & BaseJupyterLiteProps)["materials"];
-    validateMaterialConfigs: (configs: MaterialSchema[]) => {
-        validatedMaterials: MDMaterial[];
-        validationErrors: string[];
-    };
-    handleSetMaterials: (data: any) => void;
-    messageHandlerConfigs: IMessageHandlerConfigItem[];
     setMaterials: (materials: MDMaterial[]) => void;
+    messageHandlerConfigs: IMessageHandlerConfigItem[];
     render(): import("react/jsx-runtime").JSX.Element;
 }
 export default BaseJupyterLiteSessionComponent;

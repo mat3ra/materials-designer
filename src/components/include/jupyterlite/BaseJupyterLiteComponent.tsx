@@ -1,12 +1,11 @@
-import { showErrorAlert } from "@mat3ra/cove/dist/other/alerts";
 import JupyterLiteSession, {
     IMessageHandlerConfigItem,
 } from "@mat3ra/cove/dist/other/jupyterlite/JupyterLiteSession";
-import { Action, MaterialSchema } from "@mat3ra/esse/dist/js/types";
 import React from "react";
 
 import { MDMaterial } from "../../../MDMaterial";
 import { JUPYTERLITE_ORIGIN_URL } from "../../../settings";
+import { createMaterialsDataBridgeHandlers } from "../../repl/materialsDataBridge";
 
 export interface BaseJupyterLiteProps {
     // eslint-disable-next-line react/no-unused-prop-types
@@ -30,6 +29,7 @@ class BaseJupyterLiteSessionComponent<P = never, S = never> extends React.Compon
 
     jupyterLiteSessionRef = React.createRef<JupyterLiteSession>();
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     componentDidUpdate(prevProps: P & BaseJupyterLiteProps, prevState: S) {
         const { materials } = this.props;
         if (prevProps.materials !== materials) {
@@ -52,48 +52,16 @@ class BaseJupyterLiteSessionComponent<P = never, S = never> extends React.Compon
         return materials;
     };
 
-    validateMaterialConfigs = (configs: MaterialSchema[]) => {
-        const validationErrors: string[] = [];
-        const validatedMaterials = configs.reduce((validMaterials, config) => {
-            try {
-                const material = new MDMaterial(config);
-                material.validate();
-                validMaterials.push(material);
-            } catch (e: any) {
-                validationErrors.push(`Failed to create material ${config.name}: ${e.message}`);
-            }
-            return validMaterials;
-        }, [] as MDMaterial[]);
-        return { validatedMaterials, validationErrors };
-    };
-
-    handleSetMaterials = (data: any) => {
-        const configs = data.materials as MaterialSchema[];
-        if (Array.isArray(configs)) {
-            const { validatedMaterials, validationErrors } = this.validateMaterialConfigs(configs);
-            this.setMaterials(validatedMaterials);
-            validationErrors.forEach(showErrorAlert);
-        } else {
-            showErrorAlert("Invalid material data received");
-        }
-    };
-
-    // eslint-disable-next-line react/sort-comp
-    messageHandlerConfigs: IMessageHandlerConfigItem[] = [
-        {
-            action: Action.setData,
-            handlers: [this.handleSetMaterials],
-        },
-        {
-            action: Action.getData,
-            handlers: [this.getMaterialsForMessage],
-        },
-    ];
-
     setMaterials = (materials: MDMaterial[]): void => {
         const { onMaterialsUpdate } = this.props;
         onMaterialsUpdate(materials);
     };
+
+    // eslint-disable-next-line react/sort-comp
+    messageHandlerConfigs: IMessageHandlerConfigItem[] = createMaterialsDataBridgeHandlers({
+        getMaterials: this.getMaterialsToUse,
+        setMaterials: this.setMaterials,
+    });
 
     render() {
         return (

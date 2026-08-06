@@ -273,11 +273,9 @@ REPL_WHEELS_SOURCE_URL=https://your-mirror.example/packages npm run provision-re
 
 #### Authoring the REPL's Python
 
-The Python that runs inside the interpreter lives in
-[`src/components/repl/python/*.py`](src/components/repl/python) as **real `.py` files** (syntax
-highlighting, no JS-string escaping). `scripts/generate-repl-python.mjs` turns each into a
-`generated/<name>.ts` string module on `prestart`/`prebuild`/`pretranspile`; `generated/` is gitignored,
-so run `npm run generate-repl-python` after editing a `.py` file.
+The reusable preamble and host-sync helpers live in the `mat3ra-notebooks-utils` package. Materials
+Designer only owns the environment manifest and the hooks that call those helpers before and after a
+run.
 
 #### Running the integration test
 

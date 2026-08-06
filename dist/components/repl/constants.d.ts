@@ -1,5 +1,3 @@
-/** Bound by {@link MaterialsReplSession.injectMaterials}; excluded from auto-sync on re-injection. */
-export declare const REPL_INPUT_VARIABLE_NAMES: readonly ["materials_in", "material"];
 /** Must match the `pyodide` devDependency — a unit test asserts it rather than trusting a comment. */
 export declare const PYODIDE_VERSION: string;
 export declare const PYODIDE_INDEX_URL: string;

@@ -5,7 +5,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import MaterialsDesignerComponent from "./MaterialsDesigner";
 import { MDMaterial } from "./MDMaterial";
 import { materialsAdd, materialsExport, materialsRemove } from "./reducers/InputOutput";
-import { materialsApplyReplSync, materialsCloneOne, materialsGenerateSupercellForOne, materialsGenerateSurfaceForOne, materialsSetBoundaryConditionsForOne, materialsToggleIsNonPeriodicForOne, materialsUpdateIndex, materialsUpdateNameForOne, materialsUpdateOne, } from "./reducers/Material";
+import { materialsCloneOne, materialsGenerateSupercellForOne, materialsGenerateSurfaceForOne, materialsSetBoundaryConditionsForOne, materialsSyncScope, materialsToggleIsNonPeriodicForOne, materialsUpdateIndex, materialsUpdateNameForOne, materialsUpdateOne, } from "./reducers/Material";
 function useUndoableState(initialValue, maxPastSize = 50) {
     const [past, setPast] = useState([]);
     const [future, setFuture] = useState([]);
@@ -87,8 +87,8 @@ export function MaterialsDesignerContainer({ initialMaterials = [new MDMaterial(
     const onExport = useCallback((format, useMultiple) => {
         setMdState(materialsExport(mdState.current, { format, useMultiple }));
     }, []);
-    const onReplSync = useCallback((operations) => {
-        setMdState(materialsApplyReplSync(mdState.current, { operations }));
+    const onReplSync = useCallback((payload) => {
+        setMdState(materialsSyncScope(mdState.current, payload));
     }, []);
     const content = (
     // @ts-ignore

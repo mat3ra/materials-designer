@@ -1,5 +1,5 @@
 import type { MaterialMetadataBoundaryConditions, Matrix3X3Schema } from "@mat3ra/esse/dist/js/types";
-import type { ReplSyncOperation } from "../components/repl/MaterialsReplSession";
+import type { MaterialsSyncPayload } from "../components/repl/materialsDataBridge";
 import { MDMaterial } from "../MDMaterial";
 export type MDState = {
     index: number;
@@ -37,14 +37,5 @@ export declare function materialsSetBoundaryConditionsForOne(state: MDState, act
 export declare function materialsUpdateIndex(state: MDState, action: {
     index: number;
 }): MDState;
-/**
- * One state transition per execution, so a run is a single undo step. Slots are resolved by
- * `replClientId` rather than index, which survives the list being reindexed by removals/clones.
- * The last touched material becomes active so the viewer follows it.
- *
- * Deliberately not routed through `materialsUpdateOne`: its `action.index || state.index` treats
- * slot 0 as falsy and would misdirect an update to the active material.
- */
-export declare function materialsApplyReplSync(state: MDState, action: {
-    operations: ReplSyncOperation[];
-}): MDState;
+/** Replace one producer-owned region, while upserting round-tripped authored materials by id. */
+export declare function materialsSyncScope(state: MDState, action: MaterialsSyncPayload): MDState;

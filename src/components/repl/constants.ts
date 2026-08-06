@@ -13,9 +13,6 @@
  */
 import replPackages from "./repl-packages.json";
 
-/** Bound by {@link MaterialsReplSession.injectMaterials}; excluded from auto-sync on re-injection. */
-export const REPL_INPUT_VARIABLE_NAMES = ["materials_in", "material"] as const;
-
 /** Must match the `pyodide` devDependency — a unit test asserts it rather than trusting a comment. */
 export const PYODIDE_VERSION = replPackages.pyodideVersion;
 

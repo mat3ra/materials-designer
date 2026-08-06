@@ -1,2 +1,0 @@
-declare const _default: "# materials_in = the designer's list, material = the selected one. Both refresh on every run.\n# Helpers and enums are pre-imported — type \"create_\" to autocomplete. Shift+Enter to run.\n# Any Material you create or reassign is synced back into the list and viewer.\nsupercell = create_supercell(materials_in[0], scaling_factor=[2, 2, 1])\n";
-export default _default;

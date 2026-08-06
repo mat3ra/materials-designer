@@ -1,2 +1,0 @@
-declare const _default: "# Material identities before user code runs, so collect_changed_materials.py can tell what changed.\n# id() not equality: a rebind counts even when the new value happens to == the old one.\n_repl_identities_before = {\n    _repl_name: id(_repl_value)\n    for _repl_name, _repl_value in list(globals().items())\n    if isinstance(_repl_value, _ReplMaterial)\n}\n";
-export default _default;

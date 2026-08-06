@@ -6,12 +6,6 @@ export class MDMaterial extends Material {
     static fromMadeMaterial(madeMaterial, metadata = {}) {
         return new MDMaterial({ ...madeMaterial.toJSON(), ...metadata });
     }
-    // clone() rebuilds from config and would otherwise drop the non-config replClientId, so carry it.
-    clone(extraContext) {
-        const cloned = super.clone(extraContext);
-        cloned.replClientId = this.replClientId;
-        return cloned;
-    }
     get isUpdated() {
         return this.prop("isUpdated", false);
     }
