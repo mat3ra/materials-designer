@@ -56,14 +56,14 @@ jobs:
         shell: bash -l {0}
         run: npm run test:unit
 
-      # The wheel filenames carry their versions, so the package manifest is a complete cache key.
+      # The bootstrap wheel embeds the AX revision used to fetch config.yml.
       # Without this, every run re-downloads them from the jupyterlite deploy — slow, and an outage
       # there would fail builds that have nothing to do with it.
       - name: Cache provisioned REPL wheels
         uses: actions/cache@v4
         with:
           path: public/repl-wheels
-          key: repl-wheels-${{ hashFiles('src/components/repl/repl-packages.json') }}
+          key: repl-wheels-${{ hashFiles('public/repl-wheels/mat3ra_notebooks_utils-*.whl', 'scripts/provision-repl-wheels.mjs') }}
 
       - name: Run Python REPL integration test (real Pyodide)
         shell: bash -l {0}

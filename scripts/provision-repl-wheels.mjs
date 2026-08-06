@@ -1,55 +1,51 @@
-// Downloads the REPL's prebuilt wheels into public/<wheelsDirectoryName>/ so the built site serves
-// them same-origin (Vite copies public/). Runs on `prebuild` and `prestart`; skips files present.
-// These are custom pure-Python builds, not on PyPI, so they must be self-hosted.
-//
-// Default source is the production JupyterLite site, which makes it a build-time dependency: if it is
-// down, `prebuild` fails. Override with REPL_WHEELS_SOURCE_URL — see README.md on hosting these
-// properly. Use the branded domain, not the netlify.app one: that is a deploy detail, and preview
-// deploys share it.
+// Cache the AX-owned Pyodide manifest and the wheels needed by its `made` profile. Vite serves the
+// generated files same-origin, so an MD deployment remains reproducible even if AX later changes.
 import { createWriteStream } from "node:fs";
-import { mkdir, readFile, rename, rm, stat } from "node:fs/promises";
+import { mkdir, readFile, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { fileURLToPath } from "node:url";
+import { parse } from "yaml";
 
-const SOURCE_BASE_URL =
-    process.env.REPL_WHEELS_SOURCE_URL || "https://jupyterlite.mat3ra.com/files/packages";
-
-const PROJECT_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-// Single source of truth: src/components/repl/repl-packages.json (also read by constants.ts and the
-// Pyodide integration test — plain JSON so all of them can load it without a build step).
-const { wheelFilenames: WHEEL_FILENAMES, wheelsDirectoryName: WHEELS_DIRECTORY_NAME } = JSON.parse(
-    await readFile(join(PROJECT_ROOT, "src", "components", "repl", "repl-packages.json"), "utf8"),
+const AX_BASE_URL = (process.env.REPL_AX_BASE_URL || "https://jupyterlite.mat3ra.com").replace(
+    /\/$/,
+    "",
 );
+const PYODIDE_LOCK_URL = `${AX_BASE_URL}/pyodide/pyodide-lock.json`;
+const CONTENT_WHEELS_URL =
+    process.env.REPL_WHEELS_SOURCE_URL || `${AX_BASE_URL}/files/packages`;
+const PROFILE = "made";
+const PROJECT_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+const PUBLIC_DIRECTORY = join(PROJECT_ROOT, "public");
+const WHEELS_DIRECTORY = join(PUBLIC_DIRECTORY, "repl-wheels");
 
-const outputDirectory = join(PROJECT_ROOT, "public", WHEELS_DIRECTORY_NAME);
+async function fetchText(url) {
+    const response = await fetch(url, { cache: "no-store" });
+    if (!response.ok) throw new Error(`Failed to fetch ${url}: HTTP ${response.status}`);
+    return response.text();
+}
 
 async function isNonEmptyFile(path) {
     try {
-        const info = await stat(path);
-        return info.size > 0;
+        return (await stat(path)).size > 0;
     } catch {
         return false;
     }
 }
 
-async function downloadWheel(wheelFilename) {
-    const targetPath = join(outputDirectory, wheelFilename);
+async function downloadWheel(wheelFilename, sourceBaseUrl) {
+    const targetPath = join(WHEELS_DIRECTORY, wheelFilename);
     if (await isNonEmptyFile(targetPath)) {
-        console.log(`repl-wheels: ${wheelFilename} already present, skipping`);
+        console.log(`repl-environment: ${wheelFilename} already present, skipping`);
         return;
     }
-    const url = `${SOURCE_BASE_URL}/${wheelFilename}`;
-    console.log(`repl-wheels: fetching ${url}`);
+    const url = `${sourceBaseUrl}/${wheelFilename}`;
+    console.log(`repl-environment: fetching ${url}`);
     const response = await fetch(url);
     if (!response.ok || !response.body) {
         throw new Error(`Failed to fetch ${url}: HTTP ${response.status}`);
     }
-    // Download to a temporary name and rename only on success. Writing straight to targetPath would
-    // leave a truncated .whl behind if the stream broke mid-transfer, and because the "already
-    // present" check above only tests for a non-empty file, every later run would skip that corrupt
-    // wheel — surfacing much later, and very confusingly, as `BadZipFile` inside micropip.
     const partialPath = `${targetPath}.part`;
     try {
         await pipeline(Readable.fromWeb(response.body), createWriteStream(partialPath));
@@ -60,10 +56,53 @@ async function downloadWheel(wheelFilename) {
     }
 }
 
-await mkdir(outputDirectory, { recursive: true });
-// Sequential to keep the log readable; the set is small.
-await WHEEL_FILENAMES.reduce(
-    (previous, wheelFilename) => previous.then(() => downloadWheel(wheelFilename)),
-    Promise.resolve(),
-);
-console.log("repl-wheels: ready");
+await mkdir(WHEELS_DIRECTORY, { recursive: true });
+const localNotebooksUtilsWheels = (await readdir(WHEELS_DIRECTORY))
+    .filter((filename) => /^mat3ra_notebooks_utils-.*\.whl$/.test(filename))
+    .sort();
+const localNotebooksUtilsWheel = localNotebooksUtilsWheels.at(-1);
+const embeddedApiRevision = localNotebooksUtilsWheel?.match(/\+g([a-f0-9]+)-/)?.[1];
+const configUrl =
+    process.env.REPL_AX_CONFIG_URL ||
+    (embeddedApiRevision
+        ? `https://raw.githubusercontent.com/mat3ra/api-examples/${embeddedApiRevision}/config.yml`
+        : `${AX_BASE_URL}/files/config.yml`);
+
+const [configContent, lockContent] = await Promise.all([
+    process.env.REPL_AX_CONFIG_FILE
+        ? readFile(process.env.REPL_AX_CONFIG_FILE, "utf8")
+        : fetchText(configUrl),
+    fetchText(PYODIDE_LOCK_URL),
+]);
+const config = parse(configContent);
+const selectedProfile = config.notebooks?.find(({ name }) => name === PROFILE);
+if (!selectedProfile) throw new Error(`AX config.yml has no '${PROFILE}' profile.`);
+
+const emfsPrefix = "emfs:/drive/packages/";
+const profilePackages = [
+    ...(config.default?.packages_pyodide || []),
+    ...(selectedProfile.packages_pyodide || []),
+];
+const contentWheelFilenames = profilePackages
+    .filter((requirement) => requirement.startsWith(emfsPrefix))
+    .map((requirement) => requirement.slice(emfsPrefix.length));
+
+const lock = JSON.parse(lockContent);
+const notebooksUtilsWheel =
+    localNotebooksUtilsWheel || lock.packages?.mat3ra?.file_name;
+if (!notebooksUtilsWheel) {
+    throw new Error("AX Pyodide lock has no notebooks-utils ('mat3ra') package.");
+}
+lock.packages.mat3ra.file_name = notebooksUtilsWheel;
+const resolvedLockContent = JSON.stringify(lock, null, 2);
+
+await writeFile(join(PUBLIC_DIRECTORY, "repl-config.yml"), configContent);
+await writeFile(join(PUBLIC_DIRECTORY, "repl-pyodide-lock.json"), resolvedLockContent);
+
+for (const filename of [...new Set(contentWheelFilenames)]) {
+    await downloadWheel(filename, CONTENT_WHEELS_URL);
+}
+if (!localNotebooksUtilsWheels.includes(notebooksUtilsWheel)) {
+    await downloadWheel(notebooksUtilsWheel, `${AX_BASE_URL}/pyodide`);
+}
+console.log(`repl-environment: cached AX '${PROFILE}' profile`);

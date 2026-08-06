@@ -14,7 +14,7 @@ declare class MaterialsDesigner {
     getGridConfig: () => any;
     checkIfOnlyOneGridItemIsVisible: () => boolean;
     onSectionVisibilityToggle: (componentName: any) => void;
-    render(): React.JSX.Element;
+    render(): import("react/jsx-runtime").JSX.Element;
 }
 declare namespace MaterialsDesigner {
     namespace propTypes {
@@ -40,6 +40,8 @@ declare namespace MaterialsDesigner {
         const onReplSync: PropTypes.Requireable<(...args: any[]) => any>;
         const onExit: PropTypes.Requireable<(...args: any[]) => any>;
         const wheelBaseUrl: PropTypes.Requireable<string>;
+        const requirementsUrl: PropTypes.Requireable<string>;
+        const pyodideLockUrl: PropTypes.Requireable<string>;
         const openImportModal: PropTypes.Requireable<(...args: any[]) => any>;
         const closeImportModal: PropTypes.Requireable<(...args: any[]) => any>;
         const openSaveActionDialog: PropTypes.Requireable<(...args: any[]) => any>;

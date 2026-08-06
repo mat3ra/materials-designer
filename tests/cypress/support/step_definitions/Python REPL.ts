@@ -9,6 +9,13 @@ Then("the Python REPL becomes ready", () => {
     cy.get("#python-repl", { timeout: 180_000 }).contains("Ready", { timeout: 180_000 });
 });
 
+Then("the REPL requirements show the AX made profile", () => {
+    cy.get("#python-repl").contains('[role="tab"]', "Requirements").click();
+    cy.get("#python-repl").contains("mat3ra-notebooks-utils");
+    cy.get("#python-repl").contains("made");
+    cy.get("#python-repl").contains('[role="tab"]', "Console").click();
+});
+
 When("I run the Python REPL code", () => {
     cy.get("#python-repl-run").should("be.enabled").click();
 });

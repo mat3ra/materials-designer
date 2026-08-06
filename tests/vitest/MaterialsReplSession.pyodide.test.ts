@@ -1,5 +1,5 @@
 import { createReadStream } from "node:fs";
-import { access } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import http from "node:http";
 import { createRequire } from "node:module";
 import type { AddressInfo } from "node:net";
@@ -8,17 +8,17 @@ import { fileURLToPath } from "node:url";
 import { loadPyodide, version as installedPyodideVersion } from "pyodide";
 import { afterAll, assert, beforeAll, describe, expect, it } from "vitest";
 
+import { PYODIDE_VERSION } from "../../src/components/repl/constants";
 import type { MaterialsSyncPayload } from "../../src/components/repl/materialsDataBridge";
 import { replSession } from "../../src/components/repl/MaterialsReplSession";
-import replPackages from "../../src/components/repl/repl-packages.json";
+import { getNotebooksUtilsWheelFilename } from "../../src/components/repl/requirements";
 import { MDMaterial } from "../../src/MDMaterial";
 
 const ENVIRONMENT_BUILD_TIMEOUT_MS = 15 * 60 * 1000;
 const RUN_TIMEOUT_MS = 3 * 60 * 1000;
 const PROJECT_ROOT = join(fileURLToPath(new URL(".", import.meta.url)), "..", "..");
 const PYODIDE_PACKAGE_DIRECTORY = dirname(createRequire(import.meta.url).resolve("pyodide"));
-const WHEELS_DIRECTORY =
-    process.env.REPL_WHEELS_DIR || join(PROJECT_ROOT, "public", replPackages.wheelsDirectoryName);
+const WHEELS_DIRECTORY = process.env.REPL_WHEELS_DIR || join(PROJECT_ROOT, "public", "repl-wheels");
 
 function startWheelServer(): Promise<http.Server> {
     return new Promise((resolve) => {
@@ -44,13 +44,23 @@ function startWheelServer(): Promise<http.Server> {
 }
 
 let wheelServer: http.Server;
+let requirementsContent: string;
 const payloads: MaterialsSyncPayload[] = [];
 
 describe("MaterialsReplSession against real Pyodide", () => {
     beforeAll(async () => {
+        requirementsContent = await readFile(
+            join(PROJECT_ROOT, "public", "repl-config.yml"),
+            "utf8",
+        );
+        const lockContent = await readFile(
+            join(PROJECT_ROOT, "public", "repl-pyodide-lock.json"),
+            "utf8",
+        );
+        const notebooksUtilsWheel = getNotebooksUtilsWheelFilename(lockContent);
         const missingWheels: string[] = [];
         await Promise.all(
-            replPackages.wheelFilenames.map(async (wheelFilename) => {
+            [notebooksUtilsWheel].map(async (wheelFilename) => {
                 try {
                     await access(join(WHEELS_DIRECTORY, wheelFilename));
                 } catch {
@@ -74,6 +84,7 @@ describe("MaterialsReplSession against real Pyodide", () => {
             () => 0,
             (payload) => payloads.push(payload),
         );
+        replSession.configureRequirements(requirementsContent, "made", lockContent);
         wheelServer = await startWheelServer();
         const { port } = wheelServer.address() as AddressInfo;
         replSession.setWheelBaseUrl(`http://127.0.0.1:${port}`);
@@ -89,7 +100,7 @@ describe("MaterialsReplSession against real Pyodide", () => {
     });
 
     it("runs the same Pyodide version the browser loads", () => {
-        expect(installedPyodideVersion).toBe(replPackages.pyodideVersion);
+        expect(installedPyodideVersion).toBe(PYODIDE_VERSION);
     });
 
     it(
@@ -144,4 +155,21 @@ describe("MaterialsReplSession against real Pyodide", () => {
             "create_supercell",
         );
     });
+
+    it(
+        "applies an edited requirement without reinstalling unchanged pinned packages",
+        async () => {
+            const editedRequirements = requirementsContent.replace(
+                "      - mat3ra-made",
+                "      - more-itertools==10.2.0\n      - mat3ra-made",
+            );
+
+            await replSession.applyRequirements(editedRequirements, "made", () => undefined);
+            const result = await replSession.execute("import more_itertools; print('installed')");
+
+            expect(result.ok).toBe(true);
+            expect(result.output).toContain("installed");
+        },
+        RUN_TIMEOUT_MS,
+    );
 });

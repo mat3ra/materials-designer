@@ -1,4 +1,3 @@
-import React from "react";
 import type { MDMaterial } from "../../MDMaterial";
 import type { MaterialsSyncPayload } from "./materialsDataBridge";
 interface PythonReplPanelProps {
@@ -8,6 +7,8 @@ interface PythonReplPanelProps {
     show: boolean;
     onHide: () => void;
     wheelBaseUrl?: string;
+    requirementsUrl?: string;
+    pyodideLockUrl?: string;
 }
-declare function PythonReplPanel({ materials, activeIndex, onReplSync, show, onHide, wheelBaseUrl, }: PythonReplPanelProps): React.JSX.Element;
+declare function PythonReplPanel({ materials, activeIndex, onReplSync, show, onHide, wheelBaseUrl, requirementsUrl, pyodideLockUrl, }: PythonReplPanelProps): import("react/jsx-runtime").JSX.Element;
 export default PythonReplPanel;

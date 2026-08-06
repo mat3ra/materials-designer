@@ -152,7 +152,7 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                             this.setState({
                                                 isVisibleJupyterLiteSessionDrawer: false,
                                             });
-                                        }, containerRef: this.containerRef }))] }) }), _jsx(EditorSelectionInfo, {}), _jsx(PythonReplPanel, { show: this.state.isVisiblePythonReplPanel, materials: mdState.materials, activeIndex: mdState.index, onReplSync: this.props.onReplSync, wheelBaseUrl: this.props.wheelBaseUrl, onHide: () => {
+                                        }, containerRef: this.containerRef }))] }) }), _jsx(EditorSelectionInfo, {}), _jsx(PythonReplPanel, { show: this.state.isVisiblePythonReplPanel, materials: mdState.materials, activeIndex: mdState.index, onReplSync: this.props.onReplSync, wheelBaseUrl: this.props.wheelBaseUrl, requirementsUrl: this.props.requirementsUrl, pyodideLockUrl: this.props.pyodideLockUrl, onHide: () => {
                                 this.setState({ isVisiblePythonReplPanel: false });
                             } })] }) }) }));
     }
@@ -187,6 +187,8 @@ MaterialsDesigner.propTypes = {
      * somewhere other than the same-origin `/repl-wheels` default — see README section 3.7.
      */
     wheelBaseUrl: PropTypes.string,
+    requirementsUrl: PropTypes.string,
+    pyodideLockUrl: PropTypes.string,
     openImportModal: PropTypes.func,
     closeImportModal: PropTypes.func,
     openSaveActionDialog: PropTypes.func,

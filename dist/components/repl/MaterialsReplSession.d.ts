@@ -7,9 +7,16 @@ export declare class MaterialsReplSession extends PyodideSession {
     private getMaterials;
     private getActiveIndex;
     private syncMaterials;
+    private requirementsContent;
+    private requirementsProfile;
+    private pyodideLockPackages;
+    private stagedWheelFilenames;
     constructor();
+    configureRequirements(content: string, profile: string, pyodideLockContent: string): void;
     connect(getMaterials: () => MDMaterial[], getActiveIndex: () => number, syncMaterials: (payload: MaterialsSyncPayload) => void): void;
     protected bootstrapNamespace(log: (message: string) => void): Promise<void>;
+    applyRequirements(content: string, profile: string, log: (message: string) => void): Promise<void>;
+    private installRequirements;
     protected beforeExecute(): Promise<void>;
     protected afterExecute(): Promise<void>;
     dispose(): void;

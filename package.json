@@ -66,7 +66,7 @@
         "react-dom": "^17.0.0"
     },
     "devDependencies": {
-        "@mat3ra/cove": "git+https://github.com/mat3ra/cove.git#76db735068c5c3ff3be06c5ee7f568950aa10436",
+        "@mat3ra/cove": "git+https://github.com/mat3ra/cove.git#7dd8b7456b1dc27d0f6a945faa23755bb435ccb1",
         "@exabyte-io/eslint-config": "^2025.1.15-0",
         "@mat3ra/code": "2026.5.27-0",
         "@mat3ra/esse": "2026.5.27-0",
@@ -100,7 +100,7 @@
         "lint-staged": "12.1.2",
         "npm-link-shared": "^0.5.6",
         "prettier": "2.5.1",
-        "pyodide": "0.24.0",
+        "pyodide": "0.24.1",
         "random-seed": "^0.3.0",
         "react": "^17.0.0",
         "react-dom": "^17.0.0",
@@ -110,7 +110,8 @@
         "vite-plugin-node-polyfills": "^0.25.0",
         "vite-plugin-svgr": "^4.3.0",
         "vite-tsconfig-paths": "^5.1.4",
-        "vitest": "^4.1.10"
+        "vitest": "^4.1.10",
+        "yaml": "^2.8.1"
     },
     "lint-staged": {
         "*.{js,jsx}": "eslint --cache --fix",

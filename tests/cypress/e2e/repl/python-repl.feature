@@ -4,6 +4,7 @@ Feature: Python REPL synchronizes generated materials
     Given I open materials designer page
     When I open the Python REPL
     Then the Python REPL becomes ready
+    And the REPL requirements show the AX made profile
     When I run the Python REPL code
     Then the Python REPL adds a scoped material
     When I select material with index "2" from material designer items list

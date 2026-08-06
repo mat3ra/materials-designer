@@ -1,12 +1,29 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { PYODIDE_VERSION } from "../../src/components/repl/constants";
 import { MaterialsReplSession } from "../../src/components/repl/MaterialsReplSession";
-import replPackages from "../../src/components/repl/repl-packages.json";
 import { MDMaterial } from "../../src/MDMaterial";
+
+const REQUIREMENTS = `default:
+  packages_pyodide:
+    - mat3ra-notebooks-utils
+notebooks:
+  - name: made
+    packages_pyodide:
+      - emfs:/drive/packages/pymatgen.whl
+      - scipy==1.11.2
+      - mat3ra-made
+`;
 
 /* eslint-disable class-methods-use-this, @typescript-eslint/no-empty-function */
 class FakePyodide {
     runPythonCalls: string[] = [];
+
+    runPythonAsyncCalls: string[] = [];
+
+    loadedPackages: string[][] = [];
+
+    writtenFiles = new Map<string, unknown>();
 
     globals = {
         store: new Map<string, unknown>(),
@@ -14,13 +31,18 @@ class FakePyodide {
         get: (name: string) => this.globals.store.get(name),
     };
 
-    FS = { mkdirTree: () => undefined, writeFile: () => undefined };
+    FS = {
+        mkdirTree: () => undefined,
+        writeFile: (path: string, value: unknown) => this.writtenFiles.set(path, value),
+    };
 
     setStdout() {}
 
     setStderr() {}
 
-    async loadPackage() {}
+    async loadPackage(packages: string[]) {
+        this.loadedPackages.push(packages);
+    }
 
     pyimport() {
         return { install: { callKwargs: async () => undefined } };
@@ -31,7 +53,18 @@ class FakePyodide {
         return "";
     }
 
-    async runPythonAsync() {}
+    async runPythonAsync(code: string) {
+        this.runPythonAsyncCalls.push(code);
+        if (code.includes("get_package_list_from_config")) {
+            return JSON.stringify([
+                "mat3ra-notebooks-utils",
+                "emfs:/drive/packages/pymatgen.whl",
+                "scipy==1.11.2",
+                "mat3ra-made",
+            ]);
+        }
+        return undefined;
+    }
 
     toPy(value: unknown) {
         return value;
@@ -53,6 +86,16 @@ async function startSession() {
     });
     session = new MaterialsReplSession();
     session.setWheelBaseUrl("http://127.0.0.1/repl-wheels");
+    session.configureRequirements(
+        REQUIREMENTS,
+        "made",
+        JSON.stringify({
+            packages: {
+                mat3ra: { file_name: "mat3ra_notebooks_utils.whl" },
+                scipy: { file_name: "scipy.whl" },
+            },
+        }),
+    );
     fake = new FakePyodide();
     await session.initialize(fake);
 }
@@ -64,6 +107,15 @@ describe("MaterialsReplSession", () => {
         expect(
             fake.runPythonCalls.some((code) => code.includes("notebooks_utils.preamble.material")),
         ).toBe(true);
+    });
+
+    it("installs the selected AX profile from the same YAML exposed to the editor", () => {
+        expect(fake.writtenFiles.get("/drive/config.yml")).toBe(REQUIREMENTS);
+        expect(
+            fake.runPythonAsyncCalls.some((code) => code.includes("install_packages_pyodide")),
+        ).toBe(true);
+        expect(fake.globals.store.get("_repl_requirements_profile")).toBe("made");
+        expect(fake.loadedPackages).toContainEqual(["scipy"]);
     });
 
     it("refreshes host materials before a run and syncs the namespace afterward", async () => {
@@ -105,16 +157,6 @@ describe("MaterialsReplSession", () => {
 describe("REPL environment configuration", () => {
     it("pins the browser and npm Pyodide versions exactly", async () => {
         const { devDependencies } = await import("../../package.json");
-        expect(devDependencies.pyodide).toBe(replPackages.pyodideVersion);
-    });
-
-    it("installs notebooks-utils from the pinned API wheel", () => {
-        expect(replPackages.notebooksUtilsGitRevision).toBe(
-            "64b0ccd33f6789e1293d8aca0b34e31befba27e1",
-        );
-        expect(replPackages.wheelFilenames).toContain(
-            "mat3ra_notebooks_utils-2026.7.28.post1.dev3+g64b0ccd3-py3-none-any.whl",
-        );
-        expect(replPackages.mat3raPackages).not.toContain("mat3ra-notebooks-utils");
+        expect(devDependencies.pyodide).toBe(PYODIDE_VERSION);
     });
 });
