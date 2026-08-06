@@ -104,9 +104,9 @@ describe("MaterialsReplSession", () => {
     beforeEach(startSession);
 
     it("loads the package-owned material preamble", () => {
-        expect(
-            fake.runPythonCalls.some((code) => code.includes("notebooks_utils.preamble.material")),
-        ).toBe(true);
+        expect(fake.runPythonCalls.some((code) => code.includes("mat3ra.made.tools.helpers"))).toBe(
+            true,
+        );
     });
 
     it("installs the selected AX profile from the same YAML exposed to the editor", () => {

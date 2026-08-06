@@ -6,7 +6,7 @@ import { PYODIDE_INDEX_URL, REPL_COMPLETION_PACKAGES, REPL_DEFAULT_WHEEL_BASE_UR
 import { createMaterialsDataBridgeHandlers, } from "./materialsDataBridge";
 import { getNotebooksUtilsWheelFilename } from "./requirements";
 const MATERIAL_PREAMBLE = `
-from mat3ra.notebooks_utils.preamble.material import *
+from mat3ra.made.tools.helpers import *
 from mat3ra.notebooks_utils.core.entity.material.io import get_materials as _get_materials, sync_materials as _sync_materials
 `;
 /** Persistent Materials Designer namespace connected through the generic in-page data bridge. */
