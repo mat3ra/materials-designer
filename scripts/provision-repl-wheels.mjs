@@ -15,7 +15,7 @@ const AX_BASE_URL = (process.env.REPL_AX_BASE_URL || "https://jupyterlite.mat3ra
 const PYODIDE_LOCK_URL = `${AX_BASE_URL}/pyodide/pyodide-lock.json`;
 const CONTENT_WHEELS_URL =
     process.env.REPL_WHEELS_SOURCE_URL || `${AX_BASE_URL}/files/packages`;
-const PROFILE = "made";
+const PROFILE = "repl"; // keep in step with REPL_DEFAULT_PROFILE in src/components/repl/constants.ts
 const PROJECT_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const PUBLIC_DIRECTORY = join(PROJECT_ROOT, "public");
 const WHEELS_DIRECTORY = join(PUBLIC_DIRECTORY, "repl-wheels");

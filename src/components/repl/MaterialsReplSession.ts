@@ -16,10 +16,8 @@ import {
 import { getNotebooksUtilsWheelFilename } from "./requirements";
 
 const MATERIAL_PREAMBLE = `
-try:
-    from mat3ra.notebooks_utils.preamble.material import *
-except ModuleNotFoundError:
-    from mat3ra.made.tools.helpers import *
+from mat3ra.notebooks_utils.preamble.material import *
+from mat3ra.made.tools.helpers import *
 from mat3ra.notebooks_utils.core.entity.material.io import get_materials as _get_materials, sync_materials as _sync_materials
 `;
 
