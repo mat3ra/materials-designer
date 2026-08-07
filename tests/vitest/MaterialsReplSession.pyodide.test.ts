@@ -8,10 +8,13 @@ import { fileURLToPath } from "node:url";
 import { loadPyodide, version as installedPyodideVersion } from "pyodide";
 import { afterAll, assert, beforeAll, describe, expect, it } from "vitest";
 
-import { PYODIDE_VERSION, REPL_DEFAULT_PROFILE } from "../../src/components/repl/constants";
+import {
+    getNotebooksUtilsWheelFilename,
+    PYODIDE_VERSION,
+    REPL_DEFAULT_PROFILE,
+} from "../../src/components/repl/constants";
 import type { MaterialsSyncPayload } from "../../src/components/repl/materialsDataBridge";
 import { replSession } from "../../src/components/repl/MaterialsReplSession";
-import { getNotebooksUtilsWheelFilename } from "../../src/components/repl/requirements";
 import { MDMaterial } from "../../src/MDMaterial";
 
 const ENVIRONMENT_BUILD_TIMEOUT_MS = 15 * 60 * 1000;

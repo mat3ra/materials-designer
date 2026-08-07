@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { PYODIDE_VERSION } from "../../src/components/repl/constants";
+import {
+    getNotebooksUtilsWheelFilename,
+    PYODIDE_VERSION,
+} from "../../src/components/repl/constants";
 import { MaterialsReplSession } from "../../src/components/repl/MaterialsReplSession";
 import { MDMaterial } from "../../src/MDMaterial";
 
@@ -111,16 +114,17 @@ describe("MaterialsReplSession", () => {
         );
         await session.execute("print('ready')");
 
-        // Eager, with no fallback: a lazy or guarded preamble moves ~15s of import onto the user's
-        // first run instead of the loading progress bar.
+        // Helpers must be imported eagerly here, not lazily: otherwise ~15s of mat3ra.made.tools
+        // import lands on the user's first run instead of the loading progress bar. The preamble
+        // module is optional because released notebooks-utils wheels do not ship it.
         expect(
             fake.runPythonCalls.some((code) =>
-                code.includes("from mat3ra.notebooks_utils.preamble.material import *"),
+                code.includes("from mat3ra.made.tools.helpers import *"),
             ),
         ).toBe(true);
         expect(
             fake.runPythonCalls.some((code) => code.includes("except ModuleNotFoundError")),
-        ).toBe(false);
+        ).toBe(true);
     });
 
     it("installs the selected AX profile from the same YAML exposed to the editor", async () => {
@@ -181,5 +185,11 @@ describe("REPL environment configuration", () => {
     it("pins the browser and npm Pyodide versions exactly", async () => {
         const { devDependencies } = await import("../../package.json");
         expect(devDependencies.pyodide).toBe(PYODIDE_VERSION);
+    });
+
+    it("takes the bootstrap wheel from AX's Pyodide lock", () => {
+        const lock = JSON.stringify({ packages: { mat3ra: { file_name: "notebooks.whl" } } });
+        expect(getNotebooksUtilsWheelFilename(lock)).toBe("notebooks.whl");
+        expect(() => getNotebooksUtilsWheelFilename("{}")).toThrow();
     });
 });
