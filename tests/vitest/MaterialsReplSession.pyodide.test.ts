@@ -118,6 +118,11 @@ describe("MaterialsReplSession against real Pyodide", () => {
             expect(payload?.syncScope).toBe("python-repl");
             expect(payload?.entities.map(({ name }) => name)).toEqual(["supercell"]);
             expect(payload?.entities[0].config.metadata?.build).toBeDefined();
+            // materialsSyncScope trusts an incoming `_id` to mean "same entity, update in place".
+            // That is only safe because made's helpers never copy the source's _id onto a derived
+            // result — pin it here so an upstream change that broke this would fail loudly instead
+            // of silently overwriting the wrong row in the designer.
+            expect(payload?.entities[0].config._id).toBeFalsy();
         },
         RUN_TIMEOUT_MS,
     );
