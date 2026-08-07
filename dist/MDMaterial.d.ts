@@ -1,4 +1,4 @@
-import type { MaterialEnrichedHashedSchema, MaterialSchema } from "@mat3ra/esse/dist/js/types";
+import type { MaterialEnhancedHashedSchema, MaterialSchema } from "@mat3ra/esse/dist/js/types";
 import Material, { type MaterialConfig } from "@mat3ra/made/dist/js/Material";
 export declare class MDMaterial extends Material {
     constructor(config?: MaterialConfig);
@@ -7,5 +7,5 @@ export declare class MDMaterial extends Material {
     set isUpdated(bool: boolean);
     cleanOnCopy(): void;
     get boundaryConditions(): object;
-    toJSON(): MaterialEnrichedHashedSchema;
+    toJSON(): MaterialEnhancedHashedSchema;
 }
