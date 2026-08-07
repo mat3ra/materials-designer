@@ -63,9 +63,6 @@ class FakePyodide {
                 "mat3ra-made",
             ]);
         }
-        if (code.includes('"syncScope": "python-repl"')) {
-            return JSON.stringify({ syncScope: "python-repl", entities: [] });
-        }
         return undefined;
     }
 
@@ -114,13 +111,16 @@ describe("MaterialsReplSession", () => {
         );
         await session.execute("print('ready')");
 
+        // Eager, with no fallback: a lazy or guarded preamble moves ~15s of import onto the user's
+        // first run instead of the loading progress bar.
         expect(
-            fake.runPythonCalls.some(
-                (code) =>
-                    code.includes("notebooks_utils.preamble.material") &&
-                    code.includes("mat3ra.made.tools.helpers"),
+            fake.runPythonCalls.some((code) =>
+                code.includes("from mat3ra.notebooks_utils.preamble.material import *"),
             ),
         ).toBe(true);
+        expect(
+            fake.runPythonCalls.some((code) => code.includes("except ModuleNotFoundError")),
+        ).toBe(false);
     });
 
     it("installs the selected AX profile from the same YAML exposed to the editor", async () => {
@@ -158,7 +158,7 @@ describe("MaterialsReplSession", () => {
             fake.runPythonCalls.some((code) => code.includes("materials_in = _get_materials")),
         ).toBe(true);
         expect(
-            fake.runPythonAsyncCalls.some((code) => code.includes('"syncScope": "python-repl"')),
+            fake.runPythonAsyncCalls.some((code) => code.includes("_sync_materials(globals())")),
         ).toBe(true);
     });
 

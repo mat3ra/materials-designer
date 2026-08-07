@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 import { loadPyodide, version as installedPyodideVersion } from "pyodide";
 import { afterAll, assert, beforeAll, describe, expect, it } from "vitest";
 
-import { PYODIDE_VERSION } from "../../src/components/repl/constants";
+import { PYODIDE_VERSION, REPL_DEFAULT_PROFILE } from "../../src/components/repl/constants";
 import type { MaterialsSyncPayload } from "../../src/components/repl/materialsDataBridge";
 import { replSession } from "../../src/components/repl/MaterialsReplSession";
 import { getNotebooksUtilsWheelFilename } from "../../src/components/repl/requirements";
@@ -84,7 +84,7 @@ describe("MaterialsReplSession against real Pyodide", () => {
             () => 0,
             (payload) => payloads.push(payload),
         );
-        replSession.configureRequirements(requirementsContent, "made", lockContent);
+        replSession.configureRequirements(requirementsContent, REPL_DEFAULT_PROFILE, lockContent);
         wheelServer = await startWheelServer();
         const { port } = wheelServer.address() as AddressInfo;
         replSession.setWheelBaseUrl(`http://127.0.0.1:${port}`);
@@ -164,7 +164,11 @@ describe("MaterialsReplSession against real Pyodide", () => {
                 "      - more-itertools==10.2.0\n      - mat3ra-made",
             );
 
-            await replSession.applyRequirements(editedRequirements, "made", () => undefined);
+            await replSession.applyRequirements(
+                editedRequirements,
+                REPL_DEFAULT_PROFILE,
+                () => undefined,
+            );
             const result = await replSession.execute("import more_itertools; print('installed')");
 
             expect(result.ok).toBe(true);
