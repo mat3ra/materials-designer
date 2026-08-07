@@ -10,4 +10,4 @@ export const REPL_DEFAULT_WHEEL_BASE_URL = `/${REPL_WHEELS_DIRECTORY_NAME}`;
 /** Generated from AX during prestart/prebuild; neither file is an MD-owned package manifest. */
 export const REPL_REQUIREMENTS_URL = "/repl-config.yml";
 export const REPL_PYODIDE_LOCK_URL = "/repl-pyodide-lock.json";
-export const REPL_DEFAULT_PROFILE = "repl";
+export const REPL_DEFAULT_PROFILE = "made";

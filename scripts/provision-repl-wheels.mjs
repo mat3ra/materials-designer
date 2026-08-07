@@ -15,10 +15,14 @@ const AX_BASE_URL = (process.env.REPL_AX_BASE_URL || "https://jupyterlite.mat3ra
 const PYODIDE_LOCK_URL = `${AX_BASE_URL}/pyodide/pyodide-lock.json`;
 const CONTENT_WHEELS_URL =
     process.env.REPL_WHEELS_SOURCE_URL || `${AX_BASE_URL}/files/packages`;
-const PROFILE = "repl"; // keep in step with REPL_DEFAULT_PROFILE in src/components/repl/constants.ts
 const PROJECT_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const PUBLIC_DIRECTORY = join(PROJECT_ROOT, "public");
 const WHEELS_DIRECTORY = join(PUBLIC_DIRECTORY, "repl-wheels");
+const CONSTANTS_PATH = join(PROJECT_ROOT, "src", "components", "repl", "constants.ts");
+const PROFILE = (await readFile(CONSTANTS_PATH, "utf8")).match(
+    /REPL_DEFAULT_PROFILE = "([^"]+)"/,
+)?.[1];
+if (!PROFILE) throw new Error(`${CONSTANTS_PATH} does not define REPL_DEFAULT_PROFILE.`);
 
 async function fetchText(url) {
     const response = await fetch(url, { cache: "no-store" });
