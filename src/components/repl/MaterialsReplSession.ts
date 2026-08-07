@@ -5,7 +5,7 @@ import { Action } from "@mat3ra/esse/dist/js/types";
 
 import type { MDMaterial } from "../../MDMaterial";
 import {
-    getNotebooksUtilsWheelFilename,
+    type PyodideLock,
     PYODIDE_INDEX_URL,
     REPL_COMPLETION_PACKAGES,
     REPL_DEFAULT_WHEEL_BASE_URL,
@@ -56,15 +56,17 @@ export class MaterialsReplSession extends PyodideSession {
         if (this.isInitialized) return;
         this.requirementsContent = content;
         this.requirementsProfile = profile;
-        const pyodideLock = JSON.parse(pyodideLockContent) as {
-            packages?: Record<string, { file_name?: string }>;
-        };
+        const pyodideLock = JSON.parse(pyodideLockContent) as PyodideLock;
         this.pyodideLockPackages = new Set(
             Object.entries(pyodideLock.packages || {})
                 .filter(([, entry]) => !entry.file_name?.endsWith("none-any.whl"))
                 .map(([name]) => name),
         );
-        this.spec.wheelFilenames = [getNotebooksUtilsWheelFilename(pyodideLockContent)];
+        const notebooksUtilsWheel = pyodideLock.packages?.mat3ra?.file_name;
+        if (!notebooksUtilsWheel) {
+            throw new Error("AX Pyodide lock does not contain the notebooks-utils wheel.");
+        }
+        this.spec.wheelFilenames = [notebooksUtilsWheel];
     }
 
     connect(

@@ -48,7 +48,7 @@ jobs:
 
       - name: Install dependencies
         shell: bash -l {0}
-        run: npm install --legacy-peer-deps
+        run: npm ci --legacy-peer-deps
 
       # Separate steps so a failure names itself in the run summary instead of both hiding behind
       # one "Run JS tests".

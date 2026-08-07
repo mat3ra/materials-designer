@@ -10,7 +10,7 @@ export const REPL_DEFAULT_WHEEL_BASE_URL = `/${REPL_WHEELS_DIRECTORY_NAME}`;
 /** Generated from AX during prestart/prebuild; neither file is an MD-owned package manifest. */
 export const REPL_REQUIREMENTS_URL = "/repl-config.yml";
 export const REPL_PYODIDE_LOCK_URL = "/repl-pyodide-lock.json";
-export const REPL_DEFAULT_PROFILE = "made";
+export const REPL_DEFAULT_PROFILE = "made"; // change to "repl" when ready
 /** The bootstrap wheel AX ships in its Pyodide lock under the `mat3ra` package. */
 export function getNotebooksUtilsWheelFilename(lockContent) {
     var _a, _b;

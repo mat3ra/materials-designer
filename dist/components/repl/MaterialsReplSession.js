@@ -2,7 +2,7 @@ import DataBridge from "@mat3ra/cove/dist/other/iframe-messaging/DataBridge";
 import InPageTransport from "@mat3ra/cove/dist/other/iframe-messaging/InPageTransport";
 import PyodideSession from "@mat3ra/cove/dist/other/pyodide/PyodideSession";
 import { Action } from "@mat3ra/esse/dist/js/types";
-import { getNotebooksUtilsWheelFilename, PYODIDE_INDEX_URL, REPL_COMPLETION_PACKAGES, REPL_DEFAULT_WHEEL_BASE_URL, } from "./constants";
+import { PYODIDE_INDEX_URL, REPL_COMPLETION_PACKAGES, REPL_DEFAULT_WHEEL_BASE_URL, } from "./constants";
 import { createMaterialsDataBridgeHandlers, } from "./materialsDataBridge";
 const MATERIAL_PREAMBLE = `
 try:
@@ -31,6 +31,7 @@ export class MaterialsReplSession extends PyodideSession {
         this.stagedWheelFilenames = new Set();
     }
     configureRequirements(content, profile, pyodideLockContent) {
+        var _a, _b;
         if (this.isInitialized)
             return;
         this.requirementsContent = content;
@@ -39,7 +40,11 @@ export class MaterialsReplSession extends PyodideSession {
         this.pyodideLockPackages = new Set(Object.entries(pyodideLock.packages || {})
             .filter(([, entry]) => { var _a; return !((_a = entry.file_name) === null || _a === void 0 ? void 0 : _a.endsWith("none-any.whl")); })
             .map(([name]) => name));
-        this.spec.wheelFilenames = [getNotebooksUtilsWheelFilename(pyodideLockContent)];
+        const notebooksUtilsWheel = (_b = (_a = pyodideLock.packages) === null || _a === void 0 ? void 0 : _a.mat3ra) === null || _b === void 0 ? void 0 : _b.file_name;
+        if (!notebooksUtilsWheel) {
+            throw new Error("AX Pyodide lock does not contain the notebooks-utils wheel.");
+        }
+        this.spec.wheelFilenames = [notebooksUtilsWheel];
     }
     connect(getMaterials, getActiveIndex, syncMaterials) {
         this.getMaterials = getMaterials;

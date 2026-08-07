@@ -92,10 +92,12 @@ const contentWheelFilenames = profilePackages
     .map((requirement) => requirement.slice(emfsPrefix.length));
 
 const lock = JSON.parse(lockContent);
-const notebooksUtilsWheel =
-    localNotebooksUtilsWheel || lock.packages?.mat3ra?.file_name;
-if (!notebooksUtilsWheel) {
+if (!lock.packages?.mat3ra) {
     throw new Error("AX Pyodide lock has no notebooks-utils ('mat3ra') package.");
+}
+const notebooksUtilsWheel = localNotebooksUtilsWheel || lock.packages.mat3ra.file_name;
+if (!notebooksUtilsWheel) {
+    throw new Error("AX Pyodide lock's notebooks-utils ('mat3ra') package has no file_name.");
 }
 lock.packages.mat3ra.file_name = notebooksUtilsWheel;
 const resolvedLockContent = JSON.stringify(lock, null, 2);

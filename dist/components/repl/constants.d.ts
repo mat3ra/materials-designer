@@ -11,5 +11,10 @@ export declare const REPL_DEFAULT_WHEEL_BASE_URL: string;
 export declare const REPL_REQUIREMENTS_URL = "/repl-config.yml";
 export declare const REPL_PYODIDE_LOCK_URL = "/repl-pyodide-lock.json";
 export declare const REPL_DEFAULT_PROFILE = "made";
+export interface PyodideLock {
+    packages?: Record<string, {
+        file_name?: string;
+    }>;
+}
 /** The bootstrap wheel AX ships in its Pyodide lock under the `mat3ra` package. */
 export declare function getNotebooksUtilsWheelFilename(lockContent: string): string;
