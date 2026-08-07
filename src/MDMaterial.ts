@@ -1,44 +1,17 @@
-import type { AnyObject } from "@mat3ra/esse/dist/js/esse/types";
-import type { MaterialConstrainedSchema, MaterialSchema } from "@mat3ra/esse/dist/js/types";
-import type Material from "@mat3ra/made/dist/js/Material";
-import MaterialConstrained, {
-    defaultMaterialConstrainedConfig,
-} from "@mat3ra/made/dist/js/MaterialConstrained";
+import type { MaterialConstrainedHashedSchema, MaterialSchema } from "@mat3ra/esse/dist/js/types";
+import Material, {
+    type MaterialConfig,
+    defaultMaterialConfig,
+} from "@mat3ra/made/dist/js/Material";
 
-/** Plain or constrained material config (constraints optional on `basis`). */
-export type MaterialConfigWithOptionalConstraints =
-    | Partial<MaterialSchema>
-    | Partial<MaterialConstrainedSchema>;
-
-function toMaterialConstrainedConfig(
-    config: MaterialConfigWithOptionalConstraints = {},
-): MaterialConstrainedSchema {
-    const { basis } = config;
-    const constraints =
-        basis && "constraints" in basis && basis.constraints !== undefined ? basis.constraints : [];
-
-    return {
-        ...defaultMaterialConstrainedConfig,
-        ...config,
-        basis: {
-            ...defaultMaterialConstrainedConfig.basis,
-            ...basis,
-            constraints,
-        },
-    };
-}
-
-export class MDMaterial extends MaterialConstrained {
-    constructor(config: MaterialConfigWithOptionalConstraints = {}) {
-        super(toMaterialConstrainedConfig(config));
+export class MDMaterial extends Material {
+    constructor(config: MaterialConfig = defaultMaterialConfig) {
+        super(config);
     }
 
-    static fromMadeMaterial(
-        madeMaterial: Material | MaterialConstrained,
-        metadata: Partial<MaterialSchema> = {},
-    ) {
+    static fromMadeMaterial(madeMaterial: Material, metadata: Partial<MaterialSchema> = {}) {
         return new MDMaterial({
-            ...MaterialConstrained.fromMaterial(madeMaterial).toJSON(),
+            ...madeMaterial.toJSONConstrained(),
             ...metadata,
         });
     }
@@ -63,7 +36,7 @@ export class MDMaterial extends MaterialConstrained {
         return this.metadata?.boundaryConditions || {};
     }
 
-    toJSON(): MaterialConstrainedSchema & AnyObject {
+    toJSON(): MaterialConstrainedHashedSchema {
         return {
             ...super.toJSON(),
             _id: this.id,

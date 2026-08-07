@@ -1,24 +1,11 @@
-import MaterialConstrained, { defaultMaterialConstrainedConfig, } from "@mat3ra/made/dist/js/MaterialConstrained";
-function toMaterialConstrainedConfig(config = {}) {
-    const { basis } = config;
-    const constraints = basis && "constraints" in basis && basis.constraints !== undefined ? basis.constraints : [];
-    return {
-        ...defaultMaterialConstrainedConfig,
-        ...config,
-        basis: {
-            ...defaultMaterialConstrainedConfig.basis,
-            ...basis,
-            constraints,
-        },
-    };
-}
-export class MDMaterial extends MaterialConstrained {
-    constructor(config = {}) {
-        super(toMaterialConstrainedConfig(config));
+import Material, { defaultMaterialConfig, } from "@mat3ra/made/dist/js/Material";
+export class MDMaterial extends Material {
+    constructor(config = defaultMaterialConfig) {
+        super(config);
     }
     static fromMadeMaterial(madeMaterial, metadata = {}) {
         return new MDMaterial({
-            ...MaterialConstrained.fromMaterial(madeMaterial).toJSON(),
+            ...madeMaterial.toJSONConstrained(),
             ...metadata,
         });
     }
