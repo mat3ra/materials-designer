@@ -5,6 +5,7 @@ import { Action } from "@mat3ra/esse/dist/js/types";
 
 import type { MDMaterial } from "../../MDMaterial";
 import {
+    getNotebooksUtilsWheelFilename,
     PYODIDE_INDEX_URL,
     REPL_COMPLETION_PACKAGES,
     REPL_DEFAULT_WHEEL_BASE_URL,
@@ -13,10 +14,12 @@ import {
     type MaterialsSyncPayload,
     createMaterialsDataBridgeHandlers,
 } from "./materialsDataBridge";
-import { getNotebooksUtilsWheelFilename } from "./requirements";
 
 const MATERIAL_PREAMBLE = `
-from mat3ra.notebooks_utils.preamble.material import *
+try:
+    from mat3ra.notebooks_utils.preamble.material import *
+except ModuleNotFoundError:
+    from mat3ra.made.material import Material
 from mat3ra.made.tools.helpers import *
 from mat3ra.notebooks_utils.core.entity.material.io import get_materials as _get_materials, sync_materials as _sync_materials
 `;

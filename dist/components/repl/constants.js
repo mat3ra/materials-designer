@@ -11,3 +11,11 @@ export const REPL_DEFAULT_WHEEL_BASE_URL = `/${REPL_WHEELS_DIRECTORY_NAME}`;
 export const REPL_REQUIREMENTS_URL = "/repl-config.yml";
 export const REPL_PYODIDE_LOCK_URL = "/repl-pyodide-lock.json";
 export const REPL_DEFAULT_PROFILE = "made";
+/** The bootstrap wheel AX ships in its Pyodide lock under the `mat3ra` package. */
+export function getNotebooksUtilsWheelFilename(lockContent) {
+    var _a, _b;
+    const filename = (_b = (_a = JSON.parse(lockContent).packages) === null || _a === void 0 ? void 0 : _a.mat3ra) === null || _b === void 0 ? void 0 : _b.file_name;
+    if (!filename)
+        throw new Error("AX Pyodide lock does not contain the notebooks-utils wheel.");
+    return filename;
+}
