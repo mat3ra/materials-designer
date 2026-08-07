@@ -85,6 +85,8 @@ function _setMetadataForSlabConfig(slabConfig, { h, k, l, thickness, vacuumRatio
             vacuumRatio,
             vx,
             vy,
+            // Persist here: Material.toJSON schema-cleans top-level extras like outOfPlaneAxisIndex.
+            outOfPlaneAxisIndex: slabConfig.outOfPlaneAxisIndex,
             bulkId,
         },
     });

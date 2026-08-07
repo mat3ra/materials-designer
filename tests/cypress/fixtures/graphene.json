@@ -66,10 +66,9 @@
     "isNonPeriodic": false,
     "external": {
         "id": "mp-1040425",
-        "source": "materials project",
+        "source": "MaterialsProject",
         "doi": "10.17188/1405723",
         "url": "https://next-gen.materialsproject.org/materials/mp-1040425/",
         "origin": true
-    },
-    "metadata": {}
+    }
 }

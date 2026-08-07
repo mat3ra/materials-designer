@@ -92,5 +92,7 @@
             "length": "angstrom"
         }
     },
-    "outOfPlaneAxisIndex": 2
+    "metadata": {
+        "outOfPlaneAxisIndex": 2
+    }
 }
