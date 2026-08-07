@@ -5,16 +5,16 @@ export class MDMaterial extends Material {
     }
     static fromMadeMaterial(madeMaterial, metadata = {}) {
         return new MDMaterial({
-            ...madeMaterial.toJSONConstrained(),
+            ...madeMaterial.toJSONEnriched(),
             ...metadata,
         });
     }
     get isUpdated() {
-        // @ts-expect-error MD-only runtime prop, not on MaterialConstrainedSchema
+        // @ts-expect-error MD-only runtime prop, not on MaterialEnrichedSchema
         return this.prop("isUpdated", false);
     }
     set isUpdated(bool) {
-        // @ts-expect-error MD-only runtime prop, not on MaterialConstrainedSchema
+        // @ts-expect-error MD-only runtime prop, not on MaterialEnrichedSchema
         this.setProp("isUpdated", bool);
     }
     cleanOnCopy() {

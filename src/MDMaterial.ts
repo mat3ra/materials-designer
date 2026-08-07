@@ -1,4 +1,4 @@
-import type { MaterialConstrainedHashedSchema, MaterialSchema } from "@mat3ra/esse/dist/js/types";
+import type { MaterialEnrichedHashedSchema, MaterialSchema } from "@mat3ra/esse/dist/js/types";
 import Material, {
     type MaterialConfig,
     defaultMaterialConfig,
@@ -11,18 +11,18 @@ export class MDMaterial extends Material {
 
     static fromMadeMaterial(madeMaterial: Material, metadata: Partial<MaterialSchema> = {}) {
         return new MDMaterial({
-            ...madeMaterial.toJSONConstrained(),
+            ...madeMaterial.toJSONEnriched(),
             ...metadata,
         });
     }
 
     get isUpdated() {
-        // @ts-expect-error MD-only runtime prop, not on MaterialConstrainedSchema
+        // @ts-expect-error MD-only runtime prop, not on MaterialEnrichedSchema
         return this.prop("isUpdated", false) as boolean;
     }
 
     set isUpdated(bool: boolean) {
-        // @ts-expect-error MD-only runtime prop, not on MaterialConstrainedSchema
+        // @ts-expect-error MD-only runtime prop, not on MaterialEnrichedSchema
         this.setProp("isUpdated", bool);
     }
 
@@ -36,7 +36,7 @@ export class MDMaterial extends Material {
         return this.metadata?.boundaryConditions || {};
     }
 
-    toJSON(): MaterialConstrainedHashedSchema {
+    toJSON(): MaterialEnrichedHashedSchema {
         return {
             ...super.toJSON(),
             _id: this.id,
