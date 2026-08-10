@@ -1,9 +1,6 @@
 # Committing dist to allow installation from github commits and avoid tsconfig paths
 # resolution issues when using this package as a library
 # dist/
-# except the tests tarball the build emits for Netlify to serve: the pre-commit hook
-# runs `git add dist`, and this keeps that binary out of the repo.
-dist/*.tgz
 build/
 node_modules/
 .eslintcache
