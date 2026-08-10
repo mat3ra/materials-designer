@@ -12,9 +12,9 @@ RUN npm install && chmod +x run-tests.sh
 
 COPY ./tests/cypress cypress
 
-ENV NPM_RUN_COMMAND=${NPM_RUN_COMMAND:-'test:headless'}
-ENV CYPRESS_BASE_URL=${CYPRESS_BASE_URL:-'http://localhost:3001'}
+ARG NPM_RUN_COMMAND=test:headless
+ARG CYPRESS_BASE_URL=http://localhost:3001
+ENV NPM_RUN_COMMAND=${NPM_RUN_COMMAND}
+ENV CYPRESS_BASE_URL=${CYPRESS_BASE_URL}
 
-# Ignore the list notation for the ENTRYPOINT instruction
-# hadolint ignore=DL3025
-ENTRYPOINT npm run ${NPM_RUN_COMMAND}
+ENTRYPOINT ["sh", "-c", "npm run ${NPM_RUN_COMMAND}"]
