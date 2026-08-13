@@ -15,7 +15,7 @@ declare class BaseJupyterLiteSessionComponent<P = never, S = never> extends Reac
     jupyterLiteSessionRef: React.RefObject<JupyterLiteSession>;
     componentDidUpdate(prevProps: P & BaseJupyterLiteProps, prevState: S): void;
     sendMaterials: () => void;
-    getMaterialsForMessage: () => (MaterialSchema & import("@mat3ra/esse/dist/js/esse/types").AnyObject)[];
+    getMaterialsForMessage: () => import("@mat3ra/esse/dist/js/types").MaterialEnhancedHashedSchema[];
     getMaterialsToUse: () => (P & BaseJupyterLiteProps)["materials"];
     validateMaterialConfigs: (configs: MaterialSchema[]) => {
         validatedMaterials: MDMaterial[];

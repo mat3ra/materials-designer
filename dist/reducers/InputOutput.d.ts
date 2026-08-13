@@ -1,8 +1,8 @@
 import type { MDMaterial } from "src/MDMaterial";
-import type { MDState } from "./Material";
+import { type MDState } from "./Material";
 export declare function materialsAdd(state: MDState, action: {
-    materials: MDMaterial[];
-    addAtIndex: number;
+    materials: MDMaterial | MDMaterial[];
+    addAtIndex?: boolean;
 }): MDState;
 export declare function materialsRemove(state: MDState, action: {
     index: number;

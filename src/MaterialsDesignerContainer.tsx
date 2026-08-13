@@ -112,6 +112,7 @@ export function MaterialsDesignerContainer({
         index: 0,
         isLoading: false,
         materials: initialMaterials,
+        updatedIndices: [],
     });
 
     useEffect(() => {
@@ -153,7 +154,7 @@ export function MaterialsDesignerContainer({
         [],
     );
 
-    const onAdd = useCallback((materials: MDMaterial[], addAtIndex: number) => {
+    const onAdd = useCallback((materials: MDMaterial | MDMaterial[], addAtIndex?: boolean) => {
         setMdState(materialsAdd(mdState.current, { materials, addAtIndex }));
     }, []);
 

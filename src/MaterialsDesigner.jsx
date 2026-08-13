@@ -86,13 +86,19 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        const [nextProps_, thisProps_, nextState_, thisState_] = [
-            nextProps,
-            this.props,
-            nextState,
-            this.state,
-        ].map(JSON.stringify);
-        return !(nextProps_ === thisProps_) || !(nextState_ === thisState_);
+        try {
+            const [nextProps_, thisProps_, nextState_, thisState_] = [
+                nextProps,
+                this.props,
+                nextState,
+                this.state,
+            ].map(JSON.stringify);
+            return !(nextProps_ === thisProps_) || !(nextState_ === thisState_);
+        } catch (error) {
+            // JSON.stringify calls material.toJSON(); schema failures must not white-screen the app.
+            console.error("MaterialsDesigner.shouldComponentUpdate stringify failed", error);
+            return true;
+        }
     }
 
     getGridConfig = () => {
@@ -231,6 +237,7 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                             <ItemsList
                                                 materials={mdState.materials}
                                                 index={mdState.index}
+                                                updatedIndices={mdState.updatedIndices}
                                                 onItemClick={this.props.onItemClick}
                                                 onRemove={this.props.onRemove}
                                                 onNameUpdate={this.props.onNameUpdate}
@@ -316,6 +323,7 @@ MaterialsDesigner.propTypes = {
         index: PropTypes.number,
         isLoading: PropTypes.bool,
         materials: PropTypes.arrayOf(PropTypes.object),
+        updatedIndices: PropTypes.arrayOf(PropTypes.number),
     }).isRequired,
 
     showToolbar: PropTypes.bool,

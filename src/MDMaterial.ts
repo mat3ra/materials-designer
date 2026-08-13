@@ -1,25 +1,33 @@
-import type { AnyObject } from "@mat3ra/esse/dist/js/esse/types";
-import type { MaterialSchema } from "@mat3ra/esse/dist/js/types";
-import { defaultMaterialConfig, Material } from "@mat3ra/made/dist/js/material";
+import type { MaterialEnhancedHashedSchema, MaterialSchema } from "@mat3ra/esse/dist/js/types";
+import Material, {
+    type MaterialConfig,
+    defaultMaterialConfig,
+} from "@mat3ra/made/dist/js/Material";
 
 export class MDMaterial extends Material {
-    constructor(config: Partial<MaterialSchema> = {}) {
-        super({ ...defaultMaterialConfig, ...config });
+    constructor(config: MaterialConfig = defaultMaterialConfig) {
+        super(config);
     }
 
-    static fromMadeMaterial(madeMaterial: Material, metadata = {}) {
-        return new MDMaterial({ ...madeMaterial.toJSON(), ...metadata });
+    static fromMadeMaterial(madeMaterial: Material, metadata: Partial<MaterialSchema> = {}) {
+        return new MDMaterial({
+            ...madeMaterial.toJSONEnhanced(),
+            ...metadata,
+        });
     }
 
     get isUpdated() {
-        return this.prop("isUpdated", false);
+        // @ts-expect-error MD-only runtime prop, not on MaterialEnhancedSchema
+        return this.prop("isUpdated", false) as boolean;
     }
 
-    set isUpdated(bool) {
+    set isUpdated(bool: boolean) {
+        // @ts-expect-error MD-only runtime prop, not on MaterialEnhancedSchema
         this.setProp("isUpdated", bool);
     }
 
     cleanOnCopy() {
+        // @ts-expect-error MD-only runtime prop, not on MaterialSchema
         ["_id"].forEach((p) => this.unsetProp(p));
     }
 
@@ -28,7 +36,7 @@ export class MDMaterial extends Material {
         return this.metadata?.boundaryConditions || {};
     }
 
-    toJSON(): MaterialSchema & AnyObject {
+    toJSON(): MaterialEnhancedHashedSchema {
         return {
             ...super.toJSON(),
             _id: this.id,

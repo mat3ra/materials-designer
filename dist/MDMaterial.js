@@ -1,18 +1,24 @@
-import { defaultMaterialConfig, Material } from "@mat3ra/made/dist/js/material";
+import Material, { defaultMaterialConfig, } from "@mat3ra/made/dist/js/Material";
 export class MDMaterial extends Material {
-    constructor(config = {}) {
-        super({ ...defaultMaterialConfig, ...config });
+    constructor(config = defaultMaterialConfig) {
+        super(config);
     }
     static fromMadeMaterial(madeMaterial, metadata = {}) {
-        return new MDMaterial({ ...madeMaterial.toJSON(), ...metadata });
+        return new MDMaterial({
+            ...madeMaterial.toJSONEnhanced(),
+            ...metadata,
+        });
     }
     get isUpdated() {
+        // @ts-expect-error MD-only runtime prop, not on MaterialEnhancedSchema
         return this.prop("isUpdated", false);
     }
     set isUpdated(bool) {
+        // @ts-expect-error MD-only runtime prop, not on MaterialEnhancedSchema
         this.setProp("isUpdated", bool);
     }
     cleanOnCopy() {
+        // @ts-expect-error MD-only runtime prop, not on MaterialSchema
         ["_id"].forEach((p) => this.unsetProp(p));
     }
     get boundaryConditions() {

@@ -1,15 +1,17 @@
 import { showSuccessAlert, showWarningAlert } from "@mat3ra/cove/dist/other/alerts";
 import { exportToDisk } from "../utils/downloader";
+import { addUpdatedIndices, adjustUpdatedIndicesForRemove, indicesForAddedMaterials, } from "./Material";
 export function materialsAdd(state, action) {
     const index = state.index || 0;
-    const actionMaterials = action.materials;
+    const actionMaterials = Array.isArray(action.materials) ? action.materials : [action.materials];
     const newMaterials = action.addAtIndex
         ? state.materials
             .slice(0, index + 1)
             .concat(actionMaterials)
             .concat(state.materials.slice(index + 1))
         : state.materials.concat(actionMaterials);
-    return { ...state, materials: newMaterials };
+    const addedIndices = indicesForAddedMaterials(state, actionMaterials.length, action.addAtIndex);
+    return addUpdatedIndices({ ...state, materials: newMaterials }, addedIndices);
 }
 export function materialsRemove(state, action) {
     const { index } = state;
@@ -31,7 +33,7 @@ export function materialsRemove(state, action) {
         return state;
     }
     showSuccessAlert(`Removed material at index ${indexToRemove}.`);
-    return { ...state, materials: newMaterials, index: newIndex };
+    return adjustUpdatedIndicesForRemove({ ...state, materials: newMaterials, index: newIndex }, indexToRemove);
 }
 export function materialsExport(state, action) {
     const exportHandlers = {

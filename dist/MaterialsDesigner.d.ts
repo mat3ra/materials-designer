@@ -21,6 +21,7 @@ declare namespace MaterialsDesigner {
             index: PropTypes.Requireable<number>;
             isLoading: PropTypes.Requireable<boolean>;
             materials: PropTypes.Requireable<(object | null | undefined)[]>;
+            updatedIndices: PropTypes.Requireable<(number | null | undefined)[]>;
         }>>>;
         const showToolbar: PropTypes.Requireable<boolean>;
         const isConventionalCellShown: PropTypes.Requireable<boolean>;

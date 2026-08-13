@@ -2,23 +2,48 @@ import { showWarningAlert } from "@mat3ra/cove/dist/other/alerts";
 import { Made } from "@mat3ra/made";
 import { displayMessage } from "../i18n/messages";
 import { MDMaterial } from "../MDMaterial";
+export function addUpdatedIndices(state, indices) {
+    const updated = new Set(state.updatedIndices);
+    indices.forEach((i) => updated.add(i));
+    return { ...state, updatedIndices: [...updated] };
+}
+export function isMaterialUpdated(state, index) {
+    return state.updatedIndices.includes(index);
+}
+function adjustUpdatedIndicesOnRemove(updatedIndices, removedIndex) {
+    return updatedIndices
+        .filter((i) => i !== removedIndex)
+        .map((i) => (i > removedIndex ? i - 1 : i));
+}
+export function indicesForAddedMaterials(state, count, addAtIndex) {
+    const index = state.index || 0;
+    if (addAtIndex) {
+        return Array.from({ length: count }, (_, i) => index + 1 + i);
+    }
+    const start = state.materials.length;
+    return Array.from({ length: count }, (_, i) => start + i);
+}
+export function adjustUpdatedIndicesForRemove(state, removedIndex) {
+    return {
+        ...state,
+        updatedIndices: adjustUpdatedIndicesOnRemove(state.updatedIndices, removedIndex),
+    };
+}
 export function materialsUpdateOne(state, action) {
     const materials = state.materials.slice(); // get copy of array
     const index = action.index || state.index; // not passing index when modifying currently displayed material
     const material = action.material.clone(); // clone material to assert props re-render
-    material.isUpdated = true; // to be used inside components
     // TODO: consider adjusting the logic to avoid expensive cloning procedure below
     materials[index] = material;
-    return { ...state, materials };
+    return addUpdatedIndices({ ...state, materials }, [index]);
 }
 export function materialsCloneOne(state) {
     const materials = state.materials.slice(); // get copy of array
     const material = materials[state.index].clone();
     material.cleanOnCopy();
     material.name = "New Material";
-    material.isUpdated = true;
     materials.push(material);
-    return { ...state, materials };
+    return addUpdatedIndices({ ...state, materials }, [materials.length - 1]);
 }
 export function materialsToggleIsNonPeriodicForOne(state) {
     const newMaterial = state.materials[state.index].clone({ hash: "", scaledHash: "" });
@@ -33,11 +58,11 @@ export function materialsToggleIsNonPeriodicForOne(state) {
     return materialsUpdateOne(state, { ...state, material: newMaterial });
 }
 export function materialsUpdateNameForOne(state, action) {
-    const config = { name: action.name, isUpdated: true };
+    const config = { name: action.name };
     const material = state.materials[action.index].clone(config);
     const update = { [action.index]: material };
     const materials = Object.assign([], state.materials, update);
-    return { ...state, materials };
+    return addUpdatedIndices({ ...state, materials }, [action.index]);
 }
 export function materialsGenerateSupercellForOne(state, action) {
     const matrixAsNestedArray = action.matrix;
@@ -60,6 +85,8 @@ function _setMetadataForSlabConfig(slabConfig, { h, k, l, thickness, vacuumRatio
             vacuumRatio,
             vx,
             vy,
+            // Persist here: Material.toJSON schema-cleans top-level extras like outOfPlaneAxisIndex.
+            outOfPlaneAxisIndex: slabConfig.outOfPlaneAxisIndex,
             bulkId,
         },
     });
