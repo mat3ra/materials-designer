@@ -24,8 +24,8 @@ class InterpolateBasesDialog extends React.Component {
 
     // eslint-disable-next-line no-unused-vars
     UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
-        const basis1 = nextProps.material.Basis;
-        const basis2 = nextProps.material2.Basis;
+        const basis1 = nextProps.material.getBasis();
+        const basis2 = nextProps.material2.getBasis();
         if (!_.isEqual(basis1.elementsArray, basis2.elementsArray)) {
             this.setState({ message: displayMessage("basis.elementsNotEqual") });
         } else {
@@ -41,8 +41,8 @@ class InterpolateBasesDialog extends React.Component {
 
         const { material, material2, onSubmit } = this.props;
 
-        const basis1 = material.Basis;
-        const basis2 = material2.Basis;
+        const basis1 = material.getBasis();
+        const basis2 = material2.getBasis();
 
         // create combinatorial set from a given basis
         // eslint-disable-next-line new-cap
@@ -56,7 +56,6 @@ class InterpolateBasesDialog extends React.Component {
                 name: `${idx} - ${material.name} - ${newBasis.formula}`,
             };
             const newMaterial = new MDMaterial(newMaterialConfig);
-            newMaterial.isUpdated = true;
             newMaterial.cleanOnCopy();
             newMaterials.push(newMaterial);
         });

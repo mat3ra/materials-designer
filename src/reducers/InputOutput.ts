@@ -2,21 +2,27 @@ import { showSuccessAlert, showWarningAlert } from "@mat3ra/cove/dist/other/aler
 import type { MDMaterial } from "src/MDMaterial";
 
 import { exportToDisk } from "../utils/downloader";
-import type { MDState } from "./Material";
+import {
+    type MDState,
+    addUpdatedIndices,
+    adjustUpdatedIndicesForRemove,
+    indicesForAddedMaterials,
+} from "./Material";
 
 export function materialsAdd(
     state: MDState,
-    action: { materials: MDMaterial[]; addAtIndex: number },
+    action: { materials: MDMaterial | MDMaterial[]; addAtIndex?: boolean },
 ): MDState {
     const index = state.index || 0;
-    const actionMaterials = action.materials;
+    const actionMaterials = Array.isArray(action.materials) ? action.materials : [action.materials];
     const newMaterials = action.addAtIndex
         ? state.materials
               .slice(0, index + 1)
               .concat(actionMaterials)
               .concat(state.materials.slice(index + 1))
         : state.materials.concat(actionMaterials);
-    return { ...state, materials: newMaterials };
+    const addedIndices = indicesForAddedMaterials(state, actionMaterials.length, action.addAtIndex);
+    return addUpdatedIndices({ ...state, materials: newMaterials }, addedIndices);
 }
 
 export function materialsRemove(state: MDState, action: { index: number }): MDState {
@@ -43,7 +49,10 @@ export function materialsRemove(state: MDState, action: { index: number }): MDSt
     }
 
     showSuccessAlert(`Removed material at index ${indexToRemove}.`);
-    return { ...state, materials: newMaterials, index: newIndex };
+    return adjustUpdatedIndicesForRemove(
+        { ...state, materials: newMaterials, index: newIndex },
+        indexToRemove,
+    );
 }
 
 export function materialsExport(

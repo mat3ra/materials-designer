@@ -37,7 +37,7 @@ const SELECTORS = {
             '.jp-NotebookPanel:not(.p-mod-hidden) .jp-NotebookPanel-toolbar button[data-command="kernelmenu:restart"]',
     },
     dialog: ".jp-Dialog-button.jp-mod-accept",
-    fileTab: ".lm-TabBar-tabLabel.p-TabBar-tabLabel",
+    currentFileTab: ".lm-TabBar-tab.jp-mod-current .lm-TabBar-tabLabel",
 };
 
 export enum kernelStatus {
@@ -69,9 +69,10 @@ export default class JupyterLiteSession extends Widget {
 
     doubleclickEntryInSidebar(sidebarEntry: string) {
         this.iframeAnchor.waitForExist(SELECTORS.sidebar.listing);
-        this.iframeAnchor.doubleClickOnText(sidebarEntry, SELECTORS.sidebar.listing, {
-            force: true,
-        });
+        // title starts with "Name: <exact name>\n", so narrowing the selector on it
+        // keeps this an exact match instead of doubleClickOnText's own substring one.
+        const selector = `${SELECTORS.sidebar.listing}[title^="Name: ${sidebarEntry}\n"]`;
+        this.iframeAnchor.doubleClickOnText(sidebarEntry, selector, { force: true });
     }
 
     assertPathInSidebar(path: string) {
@@ -97,7 +98,9 @@ export default class JupyterLiteSession extends Widget {
     }
 
     checkFileOpened(fileName: string) {
-        return this.iframeAnchor.get(SELECTORS.fileTab).contains(fileName);
+        // have.text on the current tab, so opening defect_formation_energy.ipynb no
+        // longer satisfies a check for formation_energy.ipynb.
+        return this.iframeAnchor.get(SELECTORS.currentFileTab).should("have.text", fileName);
     }
 
     clickLinkInNotebookByItsTextContent(link: string) {

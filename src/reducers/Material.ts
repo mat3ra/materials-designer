@@ -14,7 +14,44 @@ export type MDState = {
     index: number;
     isLoading: boolean;
     materials: MDMaterial[];
+    updatedIndices: number[];
 };
+
+export function addUpdatedIndices(state: MDState, indices: number[]): MDState {
+    const updated = new Set(state.updatedIndices);
+    indices.forEach((i) => updated.add(i));
+    return { ...state, updatedIndices: [...updated] };
+}
+
+export function isMaterialUpdated(state: MDState, index: number): boolean {
+    return state.updatedIndices.includes(index);
+}
+
+function adjustUpdatedIndicesOnRemove(updatedIndices: number[], removedIndex: number): number[] {
+    return updatedIndices
+        .filter((i) => i !== removedIndex)
+        .map((i) => (i > removedIndex ? i - 1 : i));
+}
+
+export function indicesForAddedMaterials(
+    state: MDState,
+    count: number,
+    addAtIndex?: boolean,
+): number[] {
+    const index = state.index || 0;
+    if (addAtIndex) {
+        return Array.from({ length: count }, (_, i) => index + 1 + i);
+    }
+    const start = state.materials.length;
+    return Array.from({ length: count }, (_, i) => start + i);
+}
+
+export function adjustUpdatedIndicesForRemove(state: MDState, removedIndex: number): MDState {
+    return {
+        ...state,
+        updatedIndices: adjustUpdatedIndicesOnRemove(state.updatedIndices, removedIndex),
+    };
+}
 
 export type SurfaceConfig = {
     h: number;
@@ -33,10 +70,9 @@ export function materialsUpdateOne(
     const materials = state.materials.slice(); // get copy of array
     const index = action.index || state.index; // not passing index when modifying currently displayed material
     const material = action.material.clone(); // clone material to assert props re-render
-    material.isUpdated = true; // to be used inside components
     // TODO: consider adjusting the logic to avoid expensive cloning procedure below
     materials[index] = material;
-    return { ...state, materials };
+    return addUpdatedIndices({ ...state, materials }, [index]);
 }
 
 export function materialsCloneOne(state: MDState): MDState {
@@ -44,9 +80,8 @@ export function materialsCloneOne(state: MDState): MDState {
     const material = materials[state.index].clone();
     material.cleanOnCopy();
     material.name = "New Material";
-    material.isUpdated = true;
     materials.push(material);
-    return { ...state, materials };
+    return addUpdatedIndices({ ...state, materials }, [materials.length - 1]);
 }
 
 export function materialsToggleIsNonPeriodicForOne(state: MDState): MDState {
@@ -68,11 +103,11 @@ export function materialsUpdateNameForOne(
     state: MDState,
     action: { name: string; index: number },
 ): MDState {
-    const config = { name: action.name, isUpdated: true };
+    const config = { name: action.name };
     const material = state.materials[action.index].clone(config);
     const update = { [action.index]: material };
     const materials = Object.assign([], state.materials, update);
-    return { ...state, materials };
+    return addUpdatedIndices({ ...state, materials }, [action.index]);
 }
 
 export function materialsGenerateSupercellForOne(
@@ -103,6 +138,8 @@ function _setMetadataForSlabConfig(
             vacuumRatio,
             vx,
             vy,
+            // Persist here: Material.toJSON schema-cleans top-level extras like outOfPlaneAxisIndex.
+            outOfPlaneAxisIndex: slabConfig.outOfPlaneAxisIndex,
             bulkId,
         },
     });

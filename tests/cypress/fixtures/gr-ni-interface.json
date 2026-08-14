@@ -90,15 +90,13 @@
             {
                 "id": 4,
                 "value": [
-                    -9.003120001E-7,
+                    -9.003120001e-07,
                     1.424492045579,
                     12.017163104672276
                 ]
             }
         ],
-        "units": "cartesian",
-
-        "constraints": [ ]
+        "units": "cartesian"
     },
     "name": "Ni C ",
     "isNonPeriodic": false

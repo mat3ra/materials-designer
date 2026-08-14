@@ -1,6 +1,9 @@
 # Committing dist to allow installation from github commits and avoid tsconfig paths
 # resolution issues when using this package as a library
 # dist/
+# The pre-commit hook runs `git add dist`, so a tarball left there by a manual
+# `npm pack --pack-destination dist` would land in the repo. Never want one committed.
+dist/*.tgz
 build/
 node_modules/
 .eslintcache

@@ -39,6 +39,7 @@ import Toolbar from "@mui/material/Toolbar";
 import setClass from "classnames";
 import PropTypes from "prop-types";
 import React from "react";
+import { MDMaterial } from "../../MDMaterial";
 import { BoundaryConditionsDialog } from "../3d_editor/advanced_geometry/BoundaryConditionsDialog";
 import CombinatorialBasisDialog from "../3d_editor/advanced_geometry/CombinatorialBasisDialog";
 import InterpolateBasesDialog from "../3d_editor/advanced_geometry/InterpolateBasesDialog";
@@ -117,13 +118,12 @@ class HeaderMenuToolbar extends React.Component {
         return (_jsx(Stack, { spacing: 2, direction: "row", justifyContent: "end", sx: { flex: 1 }, children: mdState.isLoading ? (_jsx(CircularProgress, { color: "warning", size: 30 })) : (_jsx(CheckIcon, { color: "success", size: 50 })) }));
     }
     renderThreejsEditorModal() {
-        const { onAdd, mdState: { materials }, } = this.props;
+        const { onAdd, mdState: { materials, index }, } = this.props;
         const { showThreejsEditorModal } = this.state;
         return (_jsx(ThreejsEditorModal, { show: showThreejsEditorModal, onHide: (material) => {
                 this.setState({ showThreejsEditorModal: !showThreejsEditorModal });
                 if (material) {
-                    const newMaterial = material;
-                    newMaterial.isUpdated = true; // to show it as new (yellow color)
+                    const newMaterial = MDMaterial.fromMadeMaterial(material, materials[index].metadata);
                     onAdd(newMaterial);
                 }
             }, materials: materials, modalId: "threejs-editor" }));
@@ -157,6 +157,7 @@ HeaderMenuToolbar.propTypes = {
         index: PropTypes.number,
         isLoading: PropTypes.bool,
         materials: PropTypes.arrayOf(PropTypes.object),
+        updatedIndices: PropTypes.arrayOf(PropTypes.number),
     }).isRequired,
     className: PropTypes.string,
     maxCombinatorialBasesCount: PropTypes.number,
