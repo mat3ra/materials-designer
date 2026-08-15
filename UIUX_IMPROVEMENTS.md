@@ -68,6 +68,33 @@ exercises the undo/redo fix. Three obstacles had to be cleared first, none of th
    LFS-tracked and the clone had no `git-lfs`, so it held `version https://git-lfs.github.com/...`
    instead of JSON. This produced the only two failures in the first run; `git lfs pull` cleared them.
 
+### 0.3 Test coverage added (2026-08-15)
+
+The README asks for it directly — *"add tests for all the functionality listed above. We only test
+advanced operations at current."* Each PR in the chain now carries its own Cypress scenarios:
+**85 specs, 31 executed, 0 failures** (11 executed before).
+
+| Spec | Covers |
+| --- | --- |
+| `status-bar/status-bar.feature` | material facts; position tracking the list and the selection |
+| `materials-list/updated-marker.feature` | edit flags, revert clears; a clone stays flagged |
+| `materials-list/filter-and-count.feature` | count, filter, empty state, filtered rows acting on the right material, undoable removal, add menu |
+| `toolbar/keyboard-shortcuts.feature` | undo/redo by keyboard; the same keys inside a field belong to the field |
+| `toolbar/quick-actions.feature` | panel toggles; row actions; undo from the row |
+| `toolbar/command-palette.feature` | actions listed and run; materials by name; Standata only after a query |
+| `source-editor/basis-table.feature` | coordinate edits, constraint serialisation, add/remove site, table ⇄ text |
+
+**Two of these found real bugs**, both fixed in the same PRs: redo from the keyboard did nothing
+(two setters, one skipped render, a stale callback that `shouldComponentUpdate` could not tell
+apart because `JSON.stringify` drops functions), and cloning does not switch the active material —
+which was my own wrong expectation, corrected in the spec.
+
+**A gap worth naming:** `reset-clone-undo-redo.feature` passes on `dev` even though the history
+handling is faulty there, because the menu path happens to take React's eager-state route. Tests
+that only drive React synthetic events cannot see the unbatched path; the keyboard scenarios can.
+The `material with following data does not exist in state` step is also weaker than it looks — it
+reads the fixture but asserts only that the slot is `undefined`, so it passes for any shorter list.
+
 ### Scoring rubric
 
 Each item: **I**mpact on daily scientist workflow, **E**ffort (5 = hours … 1 = multi-week),
