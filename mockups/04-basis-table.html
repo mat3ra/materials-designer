@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup 04 — Basis table + selection sync</title>
+<style>
+:root, [data-theme="dark"] {
+  --bg: #121214; --surface: #1c1c1f; --surface-2: #242428; --surface-3: #2c2c31;
+  --border: #34343a; --border-soft: #2a2a2f;
+  --text: #e8e6e3; --text-2: #a29fa6; --text-3: #6e6c74;
+  --accent: #ab7ce8; --accent-wash: rgba(171,124,232,.16); --accent-border: rgba(171,124,232,.5);
+  --success: #6fbf73; --warn: #ffb74d; --error: #ef5350;
+  --canvas: #0d0d0f; --atom: #e8c39e; --atom-edge: #a8865f; --bond: #c9a87c;
+  --shadow: 0 10px 34px rgba(0,0,0,.5); --kbd-bg: #2a2a2f;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font: 13px/1.45 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg); color: var(--text);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+svg.icon { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+kbd { font: 10.5px/1 ui-monospace, Menlo, Consolas, monospace; background: var(--kbd-bg); border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px; padding: 2px 5px; color: var(--text-2); }
+
+.topbar {
+  height: 44px; flex: none; display: flex; align-items: center; gap: 12px; padding: 0 16px;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+}
+.topbar h1 { font-size: 13.5px; font-weight: 700; }
+.topbar .sub { color: var(--text-3); font-size: 12px; }
+.topbar .grow { flex: 1; }
+.legend-chip { display: flex; align-items: center; gap: 7px; color: var(--text-2); font-size: 12px; }
+.legend-chip .sw { width: 12px; height: 12px; border-radius: 4px; background: var(--accent-wash); border: 1.5px solid var(--accent); }
+
+.main { flex: 1; display: flex; min-height: 0; }
+
+/* ---------- editor side ---------- */
+.editor { width: 46%; min-width: 430px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+.ed-head { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--border-soft); }
+.ed-head h2 { font-size: 12px; font-weight: 700; letter-spacing: .6px; color: var(--text-2); }
+.ed-head .grow { flex: 1; }
+.seg { display: flex; background: var(--bg); border: 1px solid var(--border); border-radius: 7px; padding: 2px; gap: 2px; }
+.seg button { border: none; background: transparent; color: var(--text-2); cursor: pointer; padding: 4px 11px; border-radius: 5px; font-size: 11.5px; font-weight: 600; }
+.seg button.on { background: var(--surface-3); color: var(--text); }
+.ed-body { flex: 1; overflow-y: auto; padding: 12px 14px; display: flex; flex-direction: column; gap: 12px; }
+
+table.basis { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+table.basis th { text-align: left; color: var(--text-3); font-weight: 600; font-size: 10.5px; letter-spacing: .5px; padding: 4px 8px; border-bottom: 1px solid var(--border); }
+table.basis td { padding: 3px 8px; border-bottom: 1px solid var(--border-soft); font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+table.basis tbody tr { cursor: pointer; position: relative; }
+table.basis tr:hover td { background: var(--surface-2); }
+table.basis tr.sel td { background: var(--accent-wash); }
+table.basis tr.sel td:first-child { box-shadow: inset 2.5px 0 0 var(--accent); }
+td.idx { color: var(--text-3); width: 30px; }
+.el-cell { display: flex; align-items: center; gap: 7px; font-weight: 600; }
+.cpk { width: 10px; height: 10px; border-radius: 50%; background: var(--atom); border: 1px solid var(--atom-edge); flex: none; }
+input.coord {
+  width: 64px; background: transparent; border: 1px solid transparent; border-radius: 5px;
+  color: var(--text); font: inherit; padding: 3px 6px; outline: none;
+}
+input.coord:hover { border-color: var(--border); }
+input.coord:focus { border-color: var(--accent); background: var(--bg); }
+.cons { display: flex; gap: 5px; }
+.cons input { accent-color: var(--accent); width: 13px; height: 13px; cursor: pointer; }
+.row-actions { display: flex; gap: 1px; opacity: 0; }
+tr:hover .row-actions { opacity: 1; }
+.mini-btn { background: none; border: none; color: var(--text-3); cursor: pointer; padding: 3px; border-radius: 5px; display: flex; }
+.mini-btn:hover { background: var(--surface-3); color: var(--text); }
+.mini-btn.danger:hover { color: var(--error); }
+.row-add { display: flex; align-items: center; gap: 7px; padding: 7px 8px; color: var(--text-3); cursor: pointer; border-radius: 7px; font-weight: 600; font-size: 12px; width: fit-content; }
+.row-add:hover { background: var(--surface-2); color: var(--accent); }
+
+.text-view { border: 1px solid var(--border-soft); border-radius: 9px; overflow: hidden; }
+.text-view .tv-head { display: flex; align-items: center; gap: 8px; padding: 7px 11px; background: var(--surface-2); color: var(--text-3); font-size: 11px; font-weight: 700; letter-spacing: .6px; }
+.text-view pre { margin: 0; padding: 8px 0; font: 12px/1.65 ui-monospace, "SF Mono", Menlo, Consolas, monospace; background: var(--bg); overflow-x: auto; }
+.text-view .ln { display: flex; cursor: pointer; padding: 0 12px; }
+.text-view .ln:hover { background: var(--surface-2); }
+.text-view .ln.sel { background: var(--accent-wash); box-shadow: inset 2.5px 0 0 var(--accent); }
+.text-view .no { width: 26px; color: var(--text-3); user-select: none; flex: none; }
+.text-view .el { color: #e5c07b; width: 38px; }
+.text-view .c { color: var(--text-2); width: 86px; }
+
+/* ---------- viewer side ---------- */
+.viewer { flex: 1; position: relative; background: var(--canvas); min-width: 0; }
+.viewer svg.scene { width: 100%; height: 100%; display: block; }
+.viewer .hint-chip {
+  position: absolute; top: 14px; left: 14px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 6px 11px; color: var(--text-2); font-size: 12px; box-shadow: var(--shadow);
+}
+.atom-hit { cursor: pointer; }
+.atom-hit:hover { opacity: .85; }
+
+/* ---------- status bar ---------- */
+.statusbar {
+  height: 34px; flex: none; display: flex; align-items: center; gap: 14px;
+  background: var(--surface); border-top: 1px solid var(--border); padding: 0 14px; font-size: 12px; color: var(--text-2);
+}
+.statusbar .sel-info { color: var(--accent); font-weight: 650; font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; }
+.statusbar .sep { width: 1px; height: 14px; background: var(--border); }
+.statusbar .spacer { flex: 1; }
+.statusbar .hint { color: var(--text-3); }
+
+.note {
+  position: fixed; right: 18px; top: 60px; width: 300px; z-index: 50;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 11px;
+  box-shadow: var(--shadow); padding: 12px 14px; font-size: 12px; color: var(--text-2);
+}
+.note b { color: var(--text); }
+</style>
+</head>
+<body>
+
+<svg style="display:none" aria-hidden="true">
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="12" height="12" rx="2"/><path d="M15.5 8.5v-3a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h3"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4.5 7h15M9.5 7V4.5h5V7m-8.5 0 1 12.5h10l1-12.5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m4.5 12.5 5 5L19.5 7"/></symbol>
+  <symbol id="i-sync" viewBox="0 0 24 24"><path d="M20.5 12a8.5 8.5 0 1 1-2.7-6.2"/><path d="M20.5 3.5v5h-5"/></symbol>
+</svg>
+
+<div class="topbar">
+  <h1>Basis editor — Table view with 3D selection sync</h1>
+  <span class="sub">Silicon FCC (conventional cell) · crystal units</span>
+  <div class="grow"></div>
+  <div class="legend-chip"><span class="sw"></span>selection — synced across table, text and 3D</div>
+</div>
+
+<div class="main">
+  <section class="editor">
+    <div class="ed-head">
+      <h2>CRYSTAL BASIS</h2>
+      <div class="grow"></div>
+      <div class="seg"><button class="on">Crystal</button><button>Cartesian</button></div>
+      <div class="seg"><button>Text</button><button class="on">Table</button></div>
+    </div>
+    <div class="ed-body">
+      <table class="basis">
+        <thead><tr><th>#</th><th>ELEMENT</th><th>X</th><th>Y</th><th>Z</th><th title="Relaxation constraints x·y·z">CONSTR</th><th></th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div class="row-add"><svg class="icon" style="width:14px;height:14px"><use href="#i-plus"/></svg>Add atom</div>
+
+      <div class="text-view">
+        <div class="tv-head"><svg class="icon" style="width:13px;height:13px"><use href="#i-sync"/></svg>TEXT VIEW (SAME STATE, SAME SELECTION)</div>
+        <pre id="textview"></pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="viewer" id="viewer">
+    <svg class="scene" id="scene"></svg>
+    <div class="hint-chip">Click atoms — the table and text follow. Equivalent periodic images highlight together.</div>
+  </section>
+</div>
+
+<footer class="statusbar">
+  <div class="sel-info" id="sel-info">no selection</div>
+  <div class="sep"></div>
+  <div>Si₈ · 8 atoms · FCC · Fd-3m (227) · a = 5.431 Å</div>
+  <div class="spacer"></div>
+  <div class="hint">⌫ deletes selected atoms · esc clears selection</div>
+</footer>
+
+<div class="note">
+  <b>Today the basis is a raw XYZ text box.</b> The table makes one-atom edits safe: numeric cells,
+  per-axis constraint checkboxes, hover actions — while the text view stays one toggle away.
+  Selecting here highlights in 3D and vice versa (README TODO).
+</div>
+
+<script>
+const A = 5.431;
+const BASIS = [
+  { el: "Si", f: [0, 0, 0], cons: [1, 1, 1] },
+  { el: "Si", f: [0, 0.5, 0.5], cons: [1, 1, 1] },
+  { el: "Si", f: [0.5, 0, 0.5], cons: [1, 1, 1] },
+  { el: "Si", f: [0.5, 0.5, 0], cons: [1, 1, 1] },
+  { el: "Si", f: [0.25, 0.25, 0.25], cons: [1, 1, 1] },
+  { el: "Si", f: [0.25, 0.75, 0.75], cons: [1, 1, 1] },
+  { el: "Si", f: [0.75, 0.25, 0.75], cons: [1, 1, 1] },
+  { el: "Si", f: [0.75, 0.75, 0.25], cons: [0, 0, 1] },
+];
+let selected = new Set([1, 4]);
+
+/* map any fractional site (incl. cell images) to basis index */
+function basisIndexOf(f) {
+  const m = f.map((v) => ((v % 1) + 1) % 1);
+  return BASIS.findIndex((b) => b.f.every((v, i) => Math.abs(v - m[i]) < 1e-6));
+}
+function fmt(v) { return v.toFixed(6); }
+
+/* ---------- table ---------- */
+function renderTable() {
+  const tb = document.getElementById("tbody");
+  tb.innerHTML = BASIS.map((b, i) =>
+    '<tr class="' + (selected.has(i) ? "sel" : "") + '" data-i="' + i + '">'
+    + '<td class="idx">' + (i + 1) + "</td>"
+    + '<td><span class="el-cell"><span class="cpk"></span>' + b.el + "</span></td>"
+    + '<td><input class="coord" value="' + b.f[0].toFixed(3) + '"></td>'
+    + '<td><input class="coord" value="' + b.f[1].toFixed(3) + '"></td>'
+    + '<td><input class="coord" value="' + b.f[2].toFixed(3) + '"></td>'
+    + '<td><span class="cons">' + b.cons.map((c) => '<input type="checkbox"' + (c ? " checked" : "") + ">").join("") + "</span></td>"
+    + '<td><span class="row-actions">'
+    + '<button class="mini-btn" title="Duplicate"><svg class="icon" style="width:13px;height:13px"><use href="#i-copy"/></svg></button>'
+    + '<button class="mini-btn danger" title="Delete"><svg class="icon" style="width:13px;height:13px"><use href="#i-trash"/></svg></button>'
+    + "</span></td></tr>"
+  ).join("");
+  tb.querySelectorAll("tr").forEach((tr) => {
+    tr.addEventListener("click", (e) => {
+      if (e.target.closest("input,button")) return;
+      toggle(+tr.dataset.i, e.shiftKey || e.metaKey || e.ctrlKey);
+    });
+  });
+}
+
+/* ---------- text view ---------- */
+function renderText() {
+  document.getElementById("textview").innerHTML = BASIS.map((b, i) =>
+    '<div class="ln' + (selected.has(i) ? " sel" : "") + '" data-i="' + i + '">'
+    + '<span class="no">' + (i + 1) + "</span>"
+    + '<span class="el">' + b.el + "</span>"
+    + b.f.map((v) => '<span class="c">' + fmt(v) + "</span>").join("")
+    + "</div>"
+  ).join("");
+  document.querySelectorAll(".text-view .ln").forEach((ln) =>
+    ln.addEventListener("click", (e) => toggle(+ln.dataset.i, e.shiftKey || e.metaKey || e.ctrlKey)));
+}
+
+/* ---------- 3D scene ---------- */
+function renderScene() {
+  const svg = document.getElementById("scene");
+  const W = svg.clientWidth || 700, H = svg.clientHeight || 600;
+  svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+  const css = getComputedStyle(document.documentElement);
+  const atom = css.getPropertyValue("--atom").trim(), edge = css.getPropertyValue("--atom-edge").trim();
+  const bond = css.getPropertyValue("--bond").trim(), accent = css.getPropertyValue("--accent").trim();
+  const a = Math.min(W, H) * 0.4, cx = W * 0.5, cy = H * 0.5;
+  const P = (f) => [cx + (f[0] - f[1]) * 0.866 * a, cy + (f[0] + f[1]) * 0.42 * a - f[2] * 0.78 * a];
+  const corners = [];
+  for (const i of [0, 1]) for (const j of [0, 1]) for (const k of [0, 1]) corners.push([i, j, k]);
+  const faces = [[0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5], [0.5, 0.5, 1], [0.5, 1, 0.5], [1, 0.5, 0.5]];
+  const inner = [[0.25, 0.25, 0.25], [0.75, 0.75, 0.25], [0.75, 0.25, 0.75], [0.25, 0.75, 0.75]];
+  const sites = [...corners, ...faces, ...inner];
+  const dist = (p, r) => Math.hypot(p[0] - r[0], p[1] - r[1], p[2] - r[2]);
+  let g = "";
+  const E = [[[0,0,0],[1,0,0]],[[0,0,0],[0,1,0]],[[0,0,0],[0,0,1]],[[1,1,1],[0,1,1]],[[1,1,1],[1,0,1]],[[1,1,1],[1,1,0]],[[1,0,0],[1,1,0]],[[1,0,0],[1,0,1]],[[0,1,0],[1,1,0]],[[0,1,0],[0,1,1]],[[0,0,1],[1,0,1]],[[0,0,1],[0,1,1]]];
+  E.forEach(([p, r]) => { const Aa = P(p), B = P(r); g += '<line x1="' + Aa[0] + '" y1="' + Aa[1] + '" x2="' + B[0] + '" y2="' + B[1] + '" stroke="' + edge + '" stroke-width="1" stroke-dasharray="4 4" opacity=".5"/>'; });
+  sites.forEach((p, i) => sites.forEach((r, j) => {
+    if (i < j && dist(p, r) < 0.44) { const Aa = P(p), B = P(r); g += '<line x1="' + Aa[0] + '" y1="' + Aa[1] + '" x2="' + B[0] + '" y2="' + B[1] + '" stroke="' + bond + '" stroke-width="5" opacity=".85" stroke-linecap="round"/>'; }
+  }));
+  const selArr = [...selected];
+  if (selArr.length === 2) {
+    const Aa = P(BASIS[selArr[0]].f), B = P(BASIS[selArr[1]].f);
+    g += '<line x1="' + Aa[0] + '" y1="' + Aa[1] + '" x2="' + B[0] + '" y2="' + B[1] + '" stroke="' + accent + '" stroke-width="1.6" stroke-dasharray="5 4"/>';
+  }
+  [...sites].sort((p, r) => (p[0] + p[1] - p[2]) - (r[0] + r[1] - r[2])).forEach((f) => {
+    const [x, y] = P(f); const bi = basisIndexOf(f); const isSel = selected.has(bi);
+    const rr = 11 + f[2] * 2;
+    if (isSel) g += '<circle cx="' + x + '" cy="' + y + '" r="' + (rr + 5.5) + '" fill="none" stroke="' + accent + '" stroke-width="2.4"/>';
+    g += '<g class="atom-hit" data-bi="' + bi + '"><circle cx="' + x + '" cy="' + y + '" r="' + rr + '" fill="' + atom + '" stroke="' + edge + '" stroke-width="1.4"/>'
+      + '<circle cx="' + (x - rr * 0.3) + '" cy="' + (y - rr * 0.35) + '" r="' + rr * 0.3 + '" fill="#fff" opacity=".28"/></g>';
+  });
+  svg.innerHTML = g;
+  svg.querySelectorAll(".atom-hit").forEach((el) =>
+    el.addEventListener("click", (e) => toggle(+el.dataset.bi, e.shiftKey || e.metaKey || e.ctrlKey)));
+}
+
+/* ---------- status ---------- */
+function renderStatus() {
+  const el = document.getElementById("sel-info");
+  const s = [...selected].sort((a, b) => a - b);
+  if (s.length === 0) el.textContent = "no selection";
+  else if (s.length === 1) { const b = BASIS[s[0]]; el.textContent = "1 atom · " + b.el + (s[0] + 1) + " @ (" + b.f.map((v) => v.toFixed(3)).join(", ") + ")"; }
+  else if (s.length === 2) {
+    const [p, q] = [BASIS[s[0]].f, BASIS[s[1]].f];
+    const d = A * Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]);
+    el.textContent = "2 atoms · " + BASIS[s[0]].el + (s[0] + 1) + "–" + BASIS[s[1]].el + (s[1] + 1) + " · d = " + d.toFixed(3) + " Å";
+  } else el.textContent = s.length + " atoms selected";
+}
+
+function toggle(i, additive) {
+  if (additive) { selected.has(i) ? selected.delete(i) : selected.add(i); }
+  else if (selected.size === 1 && selected.has(i)) selected.clear();
+  else { selected = new Set([i]); }
+  renderAll();
+}
+function renderAll() { renderTable(); renderText(); renderScene(); renderStatus(); }
+window.addEventListener("resize", renderScene);
+window.addEventListener("keydown", (e) => { if (e.key === "Escape") { selected.clear(); renderAll(); } });
+renderAll();
+</script>
+</body>
+</html>

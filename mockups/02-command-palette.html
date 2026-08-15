@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup 02 — Command palette (⌘K)</title>
+<style>
+:root, [data-theme="dark"] {
+  --bg: #121214; --surface: #1c1c1f; --surface-2: #242428; --surface-3: #2c2c31;
+  --border: #34343a; --border-soft: #2a2a2f;
+  --text: #e8e6e3; --text-2: #a29fa6; --text-3: #6e6c74;
+  --accent: #ab7ce8; --accent-wash: rgba(171,124,232,.14); --accent-border: rgba(171,124,232,.45);
+  --success: #6fbf73; --warn: #ffb74d;
+  --shadow: 0 18px 55px rgba(0,0,0,.6); --kbd-bg: #2a2a2f;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font: 13px/1.45 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg); color: var(--text); overflow: hidden;
+}
+svg.icon { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+kbd {
+  font: 10.5px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--kbd-bg); border: 1px solid var(--border); border-bottom-width: 2px;
+  border-radius: 4px; padding: 2px 5px; color: var(--text-2);
+}
+
+/* --- faux workspace behind (dimmed) --- */
+.faux { position: fixed; inset: 0; display: flex; flex-direction: column; filter: blur(1px); opacity: .45; pointer-events: none; }
+.faux-bar { height: 40px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 14px; padding: 0 14px; color: var(--text-3); font-weight: 600; }
+.faux-tool { height: 42px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.faux-cols { flex: 1; display: flex; }
+.faux-col { border-right: 1px solid var(--border); background: var(--surface); }
+.faux-col.c1 { width: 270px; } .faux-col.c2 { width: 430px; }
+.faux-col.c3 { flex: 1; background: #0d0d0f; position: relative; }
+.blob { position: absolute; border-radius: 50%; background: #e8c39e; opacity: .5; }
+.faux-row { height: 46px; margin: 8px; border-radius: 8px; background: var(--surface-2); }
+.faux-line { height: 12px; margin: 10px 14px; border-radius: 4px; background: var(--surface-2); }
+.faux-foot { height: 32px; background: var(--surface); border-top: 1px solid var(--border); }
+
+/* --- overlay --- */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: flex; align-items: flex-start; justify-content: center; padding-top: 11vh; }
+.palette { width: 620px; max-width: 94vw; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
+.p-input { display: flex; align-items: center; gap: 11px; padding: 15px 17px; border-bottom: 1px solid var(--border); }
+.p-input svg { color: var(--text-3); width: 18px; height: 18px; }
+.p-input input { flex: 1; background: none; border: none; outline: none; color: var(--text); font-size: 15.5px; }
+.p-input input::placeholder { color: var(--text-3); }
+.p-list { max-height: 46vh; overflow-y: auto; padding: 7px; }
+.p-group { font-size: 10.5px; font-weight: 700; letter-spacing: .9px; color: var(--text-3); padding: 10px 11px 4px; }
+.p-row { display: flex; align-items: center; gap: 11px; padding: 9px 11px; border-radius: 9px; cursor: pointer; color: var(--text-2); }
+.p-row .t { color: var(--text); font-weight: 550; }
+.p-row .d { color: var(--text-3); font-size: 11.5px; margin-left: 2px; }
+.p-row .grow { flex: 1; min-width: 0; }
+.p-row:hover { background: var(--surface-2); }
+.p-row.sel { background: var(--accent-wash); outline: 1px solid var(--accent-border); }
+.p-row .glyph {
+  width: 28px; height: 28px; border-radius: 7px; background: var(--surface-3);
+  display: flex; align-items: center; justify-content: center; color: var(--text-2); flex: none;
+}
+.p-row.sel .glyph { color: var(--accent); }
+.badge { font-size: 9.5px; font-weight: 700; letter-spacing: .5px; border-radius: 4px; padding: 2px 6px; }
+.badge.native { color: var(--success); background: rgba(111,191,115,.12); }
+.badge.notebook { color: var(--warn); background: rgba(255,183,77,.12); }
+.p-foot { display: flex; align-items: center; gap: 16px; padding: 9px 15px; border-top: 1px solid var(--border); color: var(--text-3); font-size: 11.5px; }
+.p-foot .grow { flex: 1; }
+.hl { color: var(--accent); font-weight: 700; }
+
+/* --- note card --- */
+.note {
+  position: fixed; right: 18px; bottom: 18px; width: 300px; z-index: 50;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 11px;
+  box-shadow: var(--shadow); padding: 12px 14px; font-size: 12px; color: var(--text-2);
+}
+.note b { color: var(--text); }
+.note .k { color: var(--accent); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<svg style="display:none" aria-hidden="true">
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.6-4.6"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="1.5"/><path d="M9.2 3.5v17m5.6-17v17M3.5 9.2h17m-17 5.6h17"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 9 4.5L12 12 3 7.5z"/><path d="m3 12.5 9 4.5 9-4.5"/><path d="m3 17 9 4.5L21 17"/></symbol>
+  <symbol id="i-hex" viewBox="0 0 24 24"><path d="M12 2l8 4.6v9.2L12 22l-8-4.6V6.6z"/><circle cx="12" cy="12" r="2.6"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15V4m0 0L7 9m5-5 5 5"/><path d="M4 20h16"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11m0 0-5-5m5 5 5-5"/><path d="M4 20h16"/></symbol>
+  <symbol id="i-wand" viewBox="0 0 24 24"><path d="M6 21 21 6l-3-3L3 18z"/><path d="m14 7 3 3M9 3.5v3M4.5 8h3M19 14.5v3m-1.5-1.5h3"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 1 1 0 11H9"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-term" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="m7 9.5 3 3-3 3M13 15.5h4"/></symbol>
+</svg>
+
+<!-- dimmed faux workspace -->
+<div class="faux">
+  <div class="faux-bar"><span>Materials Designer</span><span>Input/Output</span><span>Edit</span><span>View</span><span>Advanced</span><span>Help</span></div>
+  <div class="faux-tool"></div>
+  <div class="faux-cols">
+    <div class="faux-col c1"><div class="faux-row"></div><div class="faux-row"></div><div class="faux-row"></div><div class="faux-row"></div></div>
+    <div class="faux-col c2"><div class="faux-line" style="width:40%"></div><div class="faux-line" style="width:80%"></div><div class="faux-line" style="width:75%"></div><div class="faux-line" style="width:78%"></div><div class="faux-line" style="width:70%"></div><div class="faux-line" style="width:76%"></div></div>
+    <div class="faux-col c3">
+      <div class="blob" style="width:52px;height:52px;top:30%;left:35%"></div>
+      <div class="blob" style="width:44px;height:44px;top:48%;left:52%"></div>
+      <div class="blob" style="width:48px;height:48px;top:62%;left:30%"></div>
+      <div class="blob" style="width:38px;height:38px;top:28%;left:62%"></div>
+    </div>
+  </div>
+  <div class="faux-foot"></div>
+</div>
+
+<!-- palette -->
+<div class="overlay">
+  <div class="palette">
+    <div class="p-input">
+      <svg class="icon"><use href="#i-search"/></svg>
+      <input id="q" value="s" autofocus>
+      <kbd>esc</kbd>
+    </div>
+    <div class="p-list" id="list"></div>
+    <div class="p-foot">
+      <span><kbd>↑</kbd> <kbd>↓</kbd> navigate</span>
+      <span><kbd>↵</kbd> run</span>
+      <span><kbd>tab</kbd> group</span>
+      <div class="grow"></div>
+      <span>34 commands · 6 materials · 1,214 Standata entries</span>
+    </div>
+  </div>
+</div>
+
+<div class="note">
+  <b>One entry point for everything.</b><br>
+  The palette searches <span class="k">actions</span> (all five menus), <span class="k">materials in the session</span> (jump to), and
+  <span class="k">Standata imports</span> — with keyboard-first navigation. Try typing:
+  <b>sup</b>, <b>slab</b>, <b>gra</b>, or clear the box.
+</div>
+
+<script>
+const DATA = [
+  { g: "Actions", t: "Create supercell…", d: "Advanced · scaling matrix", k: "⌘⇧S", icon: "#i-grid", badge: "native" },
+  { g: "Actions", t: "Create surface / slab…", d: "Advanced · Miller (hkl), vacuum", k: "", icon: "#i-layers", badge: "native" },
+  { g: "Actions", t: "Open transform gallery", d: "supercell, defects, interfaces…", k: "⌘T", icon: "#i-wand", badge: "" },
+  { g: "Actions", t: "Use conventional cell", d: "Edit", k: "", icon: "#i-hex", badge: "" },
+  { g: "Actions", t: "Undo: edit basis", d: "Edit", k: "⌘Z", icon: "#i-undo", badge: "" },
+  { g: "Actions", t: "Export as POSCAR", d: "Input/Output", k: "⌘E", icon: "#i-download", badge: "" },
+  { g: "Actions", t: "Toggle source editor panel", d: "View", k: "⌥2", icon: "#i-eye", badge: "" },
+  { g: "Actions", t: "Start JupyterLite session", d: "View", k: "", icon: "#i-term", badge: "notebook" },
+  { g: "Actions", t: "Passivate slab surface…", d: "notebook: passivate_slab", k: "", icon: "#i-wand", badge: "notebook" },
+  { g: "Materials in session", t: "Go to: Silicon FCC", d: "Si₈ · modified", k: "⇧U", icon: "#i-hex", badge: "" },
+  { g: "Materials in session", t: "Go to: SiO₂ α-quartz", d: "Si₃O₆", k: "", icon: "#i-hex", badge: "" },
+  { g: "Materials in session", t: "Go to: Ni(111) slab · 4L", d: "Ni₁₆", k: "", icon: "#i-hex", badge: "" },
+  { g: "Materials in session", t: "Go to: Graphene", d: "C₂", k: "", icon: "#i-hex", badge: "" },
+  { g: "Import from Standata", t: "Import: Silicon (diamond)", d: "Si · mp-149", k: "", icon: "#i-upload", badge: "" },
+  { g: "Import from Standata", t: "Import: SiC (zincblende)", d: "SiC", k: "", icon: "#i-upload", badge: "" },
+  { g: "Import from Standata", t: "Import: Cs₂PbI₆ (perovskite)", d: "double perovskite", k: "", icon: "#i-upload", badge: "" },
+  { g: "Import from Standata", t: "Import: MoS₂ (2H)", d: "monolayer TMD", k: "", icon: "#i-upload", badge: "" },
+];
+const input = document.getElementById("q");
+const list = document.getElementById("list");
+let sel = 0;
+function esc(s) { return s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])); }
+function render() {
+  const f = input.value.toLowerCase();
+  const items = DATA.filter((c) => (c.t + " " + c.d).toLowerCase().includes(f));
+  if (sel >= items.length) sel = Math.max(0, items.length - 1);
+  let html = "", lastG = null;
+  items.forEach((c, i) => {
+    if (c.g !== lastG) { html += '<div class="p-group">' + esc(c.g.toUpperCase()) + "</div>"; lastG = c.g; }
+    html += '<div class="p-row' + (i === sel ? " sel" : "") + '" data-i="' + i + '">'
+      + '<span class="glyph"><svg class="icon"><use href="' + c.icon + '"/></svg></span>'
+      + '<span class="grow"><span class="t">' + esc(c.t) + '</span> <span class="d">' + esc(c.d) + "</span></span>"
+      + (c.badge ? '<span class="badge ' + c.badge + '">' + (c.badge === "native" ? "INSTANT" : "NOTEBOOK") + "</span>" : "")
+      + (c.k ? "<kbd>" + c.k + "</kbd>" : "")
+      + "</div>";
+  });
+  list.innerHTML = html || '<div class="p-group">NO MATCHES — press ↵ to search Standata online</div>';
+  list.querySelectorAll(".p-row").forEach((r) => r.addEventListener("mouseenter", () => { sel = +r.dataset.i; render(); }));
+}
+input.addEventListener("input", () => { sel = 0; render(); });
+window.addEventListener("keydown", (e) => {
+  const f = input.value.toLowerCase();
+  const n = DATA.filter((c) => (c.t + " " + c.d).toLowerCase().includes(f)).length;
+  if (e.key === "ArrowDown") { sel = Math.min(n - 1, sel + 1); render(); e.preventDefault(); }
+  if (e.key === "ArrowUp") { sel = Math.max(0, sel - 1); render(); e.preventDefault(); }
+});
+input.focus();
+render();
+</script>
+</body>
+</html>

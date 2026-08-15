@@ -88,6 +88,9 @@ As documented [here](https://docs.mat3ra.com/materials-designer/overview/):
 
 Desirable features/fixes for implementation.
 
+> A prioritized UI/UX brainstorm covering (and extending) the items below, with quick interactive
+> HTML mockups, is available in [UIUX_IMPROVEMENTS.md](UIUX_IMPROVEMENTS.md) and [`mockups/`](mockups/index.html).
+
 General Improvements:
 
 - switch the color back to white when the material is back to the original after editing

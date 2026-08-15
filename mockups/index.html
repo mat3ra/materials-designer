@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Materials Designer — UI/UX mockups</title>
+<style>
+:root {
+  --bg: #121214; --surface: #1c1c1f; --surface-2: #242428; --surface-3: #2c2c31;
+  --border: #34343a; --border-soft: #2a2a2f;
+  --text: #e8e6e3; --text-2: #a29fa6; --text-3: #6e6c74;
+  --accent: #ab7ce8; --accent-wash: rgba(171,124,232,.14); --accent-border: rgba(171,124,232,.45);
+  --success: #6fbf73; --warn: #ffb74d;
+  --shadow: 0 10px 34px rgba(0,0,0,.45);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font: 14px/1.55 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg); color: var(--text); min-height: 100vh; padding: 44px 20px 80px;
+}
+.wrap { max-width: 880px; margin: 0 auto; }
+h1 { font-size: 24px; font-weight: 750; letter-spacing: -.2px; }
+.sub { color: var(--text-2); margin: 10px 0 6px; max-width: 640px; }
+.sub a { color: var(--accent); }
+.meta { color: var(--text-3); font-size: 12.5px; margin-bottom: 30px; }
+.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 720px) { .cards { grid-template-columns: 1fr; } }
+a.card {
+  display: flex; flex-direction: column; gap: 10px; text-decoration: none; color: inherit;
+  background: var(--surface); border: 1px solid var(--border-soft); border-radius: 14px; padding: 16px;
+  transition: transform .09s ease, border-color .09s ease;
+}
+a.card:hover { border-color: var(--accent-border); transform: translateY(-2px); }
+.thumb { border-radius: 9px; overflow: hidden; border: 1px solid var(--border-soft); background: #0d0d0f; }
+.thumb svg { display: block; width: 100%; height: auto; }
+.card h2 { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.num { color: var(--accent); font-family: ui-monospace, Menlo, monospace; font-size: 13px; }
+.card p { color: var(--text-2); font-size: 12.5px; }
+.tags { display: flex; gap: 5px; flex-wrap: wrap; }
+.tag { font-size: 10.5px; font-weight: 650; color: var(--text-2); background: var(--surface-3); padding: 2px 8px; border-radius: 5px; }
+.section { margin-top: 40px; }
+.section h2 { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--surface); border-radius: 12px; overflow: hidden; }
+th { text-align: left; font-size: 11px; letter-spacing: .6px; color: var(--text-3); padding: 10px 14px; border-bottom: 1px solid var(--border); }
+td { padding: 9px 14px; border-bottom: 1px solid var(--border-soft); color: var(--text-2); vertical-align: top; }
+td:first-child { color: var(--text); font-weight: 600; white-space: nowrap; }
+tr:last-child td { border-bottom: none; }
+.pill { font-size: 10.5px; font-weight: 700; border-radius: 5px; padding: 2px 7px; white-space: nowrap; }
+.p1 { color: var(--success); background: rgba(111,191,115,.12); }
+.p2 { color: var(--warn); background: rgba(255,183,77,.12); }
+.p3 { color: var(--accent); background: var(--accent-wash); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Materials Designer — UI/UX mockups</h1>
+  <p class="sub">Quick, self-contained HTML mockups for the proposals in
+  <a href="../UIUX_IMPROVEMENTS.md">UIUX_IMPROVEMENTS.md</a>. Open any card — no build step,
+  everything runs from the file. Interactive elements are wired where they demonstrate behavior.</p>
+  <p class="meta">Dark theme matches the current app; mockup 01 includes a working light-theme toggle.</p>
+
+  <div class="cards">
+    <a class="card" href="01-workspace.html">
+      <div class="thumb"><svg viewBox="0 0 320 170">
+        <rect width="320" height="170" fill="#121214"/>
+        <rect width="320" height="18" fill="#1c1c1f"/><rect y="18" width="320" height="14" fill="#1c1c1f"/>
+        <circle cx="10" cy="9" r="4" fill="none" stroke="#ab7ce8" stroke-width="1.5"/>
+        <rect x="238" y="4" width="56" height="10" rx="5" fill="#242428"/>
+        <rect x="300" y="4" width="16" height="10" rx="5" fill="#ab7ce8"/>
+        <g fill="#242428"><rect x="6" y="22" width="10" height="7" rx="2"/><rect x="20" y="22" width="10" height="7" rx="2"/><rect x="38" y="22" width="24" height="7" rx="2"/><rect x="66" y="22" width="24" height="7" rx="2"/><rect x="94" y="22" width="30" height="7" rx="2" fill="rgba(171,124,232,.3)"/></g>
+        <rect y="32" width="74" height="124" fill="#1c1c1f"/>
+        <rect x="6" y="38" width="40" height="8" rx="2" fill="#242428"/>
+        <rect x="6" y="50" width="62" height="8" rx="2" fill="#242428"/>
+        <rect x="4" y="62" width="66" height="16" rx="4" fill="rgba(171,124,232,.16)" stroke="rgba(171,124,232,.5)" stroke-width="1"/>
+        <rect x="4" y="82" width="66" height="16" rx="4" fill="#242428"/>
+        <rect x="4" y="102" width="66" height="16" rx="4" fill="#242428"/>
+        <rect x="74" y="32" width="106" height="124" fill="#1c1c1f"/>
+        <g fill="#242428"><rect x="82" y="40" width="30" height="8" rx="2"/><rect x="116" y="40" width="30" height="8" rx="2" fill="rgba(171,124,232,.3)"/></g>
+        <g fill="#242428"><rect x="82" y="56" width="90" height="7" rx="2"/><rect x="82" y="67" width="90" height="7" rx="2" fill="rgba(171,124,232,.25)"/><rect x="82" y="78" width="90" height="7" rx="2"/><rect x="82" y="89" width="90" height="7" rx="2"/><rect x="82" y="100" width="90" height="7" rx="2" fill="rgba(171,124,232,.25)"/><rect x="82" y="111" width="90" height="7" rx="2"/></g>
+        <rect x="180" y="32" width="140" height="124" fill="#0d0d0f"/>
+        <g stroke="#c9a87c" stroke-width="2"><line x1="220" y1="70" x2="250" y2="90"/><line x1="250" y1="90" x2="285" y2="72"/><line x1="250" y1="90" x2="252" y2="122"/><line x1="220" y1="70" x2="222" y2="102"/></g>
+        <g fill="#e8c39e"><circle cx="220" cy="70" r="7"/><circle cx="285" cy="72" r="7"/><circle cx="252" cy="122" r="7"/><circle cx="222" cy="102" r="6"/></g>
+        <circle cx="250" cy="90" r="7" fill="#e8c39e" stroke="#ab7ce8" stroke-width="2.5"/>
+        <rect y="156" width="320" height="14" fill="#1c1c1f"/>
+        <rect x="6" y="160" width="70" height="6" rx="2" fill="rgba(171,124,232,.35)"/>
+        <rect x="84" y="160" width="50" height="6" rx="2" fill="#242428"/>
+      </svg></div>
+      <h2><span class="num">01</span>Workspace redesign</h2>
+      <p>Quick-action toolbar, sidebar with search/count/+, basis table toggle, live status footer, dirty-state, undoable delete, ⌘K, light/dark toggle.</p>
+      <div class="tags"><span class="tag">interactive</span><span class="tag">hero mockup</span></div>
+    </a>
+
+    <a class="card" href="02-command-palette.html">
+      <div class="thumb"><svg viewBox="0 0 320 170">
+        <rect width="320" height="170" fill="#0a0a0c"/>
+        <rect x="60" y="24" width="200" height="118" rx="8" fill="#1c1c1f" stroke="#34343a"/>
+        <rect x="72" y="34" width="140" height="10" rx="3" fill="#242428"/>
+        <rect x="238" y="34" width="14" height="10" rx="3" fill="#2c2c31"/>
+        <line x1="60" y1="52" x2="260" y2="52" stroke="#34343a"/>
+        <rect x="70" y="58" width="46" height="6" rx="2" fill="#3a3a40"/>
+        <rect x="68" y="68" width="184" height="15" rx="4" fill="rgba(171,124,232,.16)" stroke="rgba(171,124,232,.5)"/>
+        <rect x="68" y="87" width="184" height="15" rx="4" fill="#242428"/>
+        <rect x="70" y="108" width="60" height="6" rx="2" fill="#3a3a40"/>
+        <rect x="68" y="118" width="184" height="15" rx="4" fill="#242428"/>
+      </svg></div>
+      <h2><span class="num">02</span>Command palette (⌘K)</h2>
+      <p>One searchable entry point over all menu actions, session materials, and Standata imports. Keyboard-first. Try typing in it.</p>
+      <div class="tags"><span class="tag">interactive</span><span class="tag">discoverability</span></div>
+    </a>
+
+    <a class="card" href="03-transformations-gallery.html">
+      <div class="thumb"><svg viewBox="0 0 320 170">
+        <rect width="320" height="170" fill="#0a0a0c"/>
+        <rect x="34" y="14" width="252" height="142" rx="9" fill="#1c1c1f" stroke="#34343a"/>
+        <rect x="46" y="24" width="70" height="9" rx="3" fill="#3a3a40"/>
+        <rect x="46" y="40" width="228" height="13" rx="4" fill="#121214" stroke="#34343a"/>
+        <g fill="#242428"><rect x="46" y="60" width="26" height="9" rx="4.5" fill="rgba(171,124,232,.25)"/><rect x="76" y="60" width="26" height="9" rx="4.5"/><rect x="106" y="60" width="40" height="9" rx="4.5"/><rect x="150" y="60" width="30" height="9" rx="4.5"/></g>
+        <g>
+          <rect x="46" y="76" width="70" height="66" rx="6" fill="#242428"/><rect x="54" y="84" width="16" height="16" rx="4" fill="rgba(171,124,232,.3)"/><rect x="54" y="106" width="46" height="6" rx="2" fill="#3a3a40"/><rect x="54" y="116" width="54" height="4" rx="2" fill="#313136"/><rect x="54" y="128" width="24" height="7" rx="2" fill="rgba(111,191,115,.25)"/>
+          <rect x="124" y="76" width="70" height="66" rx="6" fill="#242428"/><rect x="132" y="84" width="16" height="16" rx="4" fill="rgba(171,124,232,.3)"/><rect x="132" y="106" width="46" height="6" rx="2" fill="#3a3a40"/><rect x="132" y="116" width="54" height="4" rx="2" fill="#313136"/><rect x="132" y="128" width="28" height="7" rx="2" fill="rgba(255,183,77,.25)"/>
+          <rect x="202" y="76" width="70" height="66" rx="6" fill="#242428"/><rect x="210" y="84" width="16" height="16" rx="4" fill="rgba(171,124,232,.3)"/><rect x="210" y="106" width="46" height="6" rx="2" fill="#3a3a40"/><rect x="210" y="116" width="54" height="4" rx="2" fill="#313136"/><rect x="210" y="128" width="28" height="7" rx="2" fill="rgba(255,183,77,.25)"/>
+        </g>
+      </svg></div>
+      <h2><span class="num">03</span>Transform gallery</h2>
+      <p>The Advanced menu and ~25 notebook-only workflows (interfaces, defects, nanostructures…) unified into one searchable gallery.</p>
+      <div class="tags"><span class="tag">interactive</span><span class="tag">advanced features</span></div>
+    </a>
+
+    <a class="card" href="04-basis-table.html">
+      <div class="thumb"><svg viewBox="0 0 320 170">
+        <rect width="320" height="170" fill="#121214"/>
+        <rect width="150" height="170" fill="#1c1c1f"/>
+        <g fill="#242428">
+          <rect x="8" y="12" width="134" height="10" rx="3"/>
+          <rect x="8" y="28" width="134" height="11" rx="3"/>
+          <rect x="8" y="43" width="134" height="11" rx="3"/>
+          <rect x="8" y="58" width="134" height="11" rx="3" fill="rgba(171,124,232,.22)"/>
+          <rect x="8" y="73" width="134" height="11" rx="3"/>
+          <rect x="8" y="88" width="134" height="11" rx="3" fill="rgba(171,124,232,.22)"/>
+          <rect x="8" y="103" width="134" height="11" rx="3"/>
+        </g>
+        <rect x="8" y="124" width="134" height="38" rx="5" fill="#0d0d0f" stroke="#2a2a2f"/>
+        <rect x="14" y="131" width="80" height="5" rx="2" fill="#313136"/>
+        <rect x="14" y="140" width="100" height="5" rx="2" fill="rgba(171,124,232,.3)"/>
+        <rect x="14" y="149" width="90" height="5" rx="2" fill="#313136"/>
+        <g stroke="#c9a87c" stroke-width="2.4"><line x1="200" y1="52" x2="238" y2="78"/><line x1="238" y1="78" x2="280" y2="55"/><line x1="238" y1="78" x2="240" y2="120"/><line x1="200" y1="52" x2="202" y2="96"/></g>
+        <g fill="#e8c39e"><circle cx="200" cy="52" r="9"/><circle cx="280" cy="55" r="9"/><circle cx="240" cy="120" r="9"/><circle cx="202" cy="96" r="8"/></g>
+        <circle cx="238" cy="78" r="9" fill="#e8c39e" stroke="#ab7ce8" stroke-width="3"/>
+        <line x1="238" y1="78" x2="202" y2="96" stroke="#ab7ce8" stroke-width="1.6" stroke-dasharray="4 3"/>
+        <circle cx="202" cy="96" r="8" fill="#e8c39e" stroke="#ab7ce8" stroke-width="3"/>
+      </svg></div>
+      <h2><span class="num">04</span>Basis table + selection sync</h2>
+      <p>Table view for the basis (constraints, hover actions) with fully working bidirectional selection sync: table ⇄ text ⇄ 3D. Click atoms.</p>
+      <div class="tags"><span class="tag">interactive</span><span class="tag">README TODO</span></div>
+    </a>
+  </div>
+
+  <div class="section">
+    <h2>Proposal summary</h2>
+    <table>
+      <tr><th>PROPOSAL</th><th>WHAT / WHY</th><th>PHASE</th></tr>
+      <tr><td>Status bar</td><td>Fill the empty footer with selection readout (distance/angle), material facts, index n/N</td><td><span class="pill p1">1 · quick win</span></td></tr>
+      <tr><td>Tooltips + shortcuts</td><td>Zero tooltips today; add them everywhere plus a ? cheatsheet</td><td><span class="pill p1">1 · quick win</span></td></tr>
+      <tr><td>Sidebar upgrades</td><td>Count, filter, + button, undoable delete, richer rows, drag-drop import</td><td><span class="pill p1">1–2</span></td></tr>
+      <tr><td>Quick-action toolbar</td><td>Undo/redo/import/export/supercell/surface one click away</td><td><span class="pill p2">2 · navigation</span></td></tr>
+      <tr><td>Command palette ⌘K</td><td>Search all actions, materials, Standata imports</td><td><span class="pill p2">2 · navigation</span></td></tr>
+      <tr><td>Basis table + sync</td><td>Safe single-atom edits; 3D ⇄ editor highlight (README TODO)</td><td><span class="pill p2">3 · editing</span></td></tr>
+      <tr><td>Lattice upgrades</td><td>Live preview, 3×3 vectors form, symmetry-aware locking</td><td><span class="pill p2">3 · editing</span></td></tr>
+      <tr><td>Transform gallery</td><td>Surface the ~25 notebook workflows next to native dialogs</td><td><span class="pill p3">4 · reach</span></td></tr>
+      <tr><td>Share links / themes</td><td>URL-encoded state, session restore, light theme</td><td><span class="pill p3">4 · reach</span></td></tr>
+    </table>
+  </div>
+</div>
+</body>
+</html>
