@@ -3,6 +3,86 @@
 A brainstorm of UI/UX improvements for Materials Designer, grounded in the current codebase, the
 TODO list in `README.md` (§2.2), and the workflows exercised by the Cypress/notebook tests.
 
+---
+
+## 0. Plan v2 — scored and wave-HEAD-aware (2026-08-15)
+
+The original plan (§1–§4 below) was written against wave.js `2026.8.13-0`, the version MD pins.
+Auditing wave.js HEAD (`b2f86be`, 2026-08-14) changed the picture materially:
+
+- **`ThreejsEditorModal` (multi-material editor) is removed at wave HEAD** per wave decision
+  **D-2**: *"multi-material merge stays out of wave.js"* — its contract is now permanently
+  single-material (`docs/design/interactive-editor-spec.md` §6.2). MD still imports it
+  (`HeaderMenuToolbar.jsx`) and drives it from the *View → Multi-Material 3D Editor* menu item and
+  `combine-materials.feature`. **The next wave upgrade breaks MD's combine flow** unless MD
+  rebuilds it on its own side — which is exactly where D-2 says it belongs.
+- **Wave HEAD already ships much of original Theme A**: in-canvas `StatusBar`,
+  `SelectionInspector`, `KeyboardSheet`, marquee selection, measurements — and an
+  **`onSelectionChanged(indices)`** callback documented as "the data source for a host's
+  selection-info UI". None of this is in the published `2026.8.13-0` (verified against the npm
+  tarball), so adopting it requires a wave release + pin bump.
+- 3D→editor selection sync therefore needs **no wave changes** once MD upgrades; editor→3D
+  highlight needs one small wave addition (a controlled-selection prop or ref API around the
+  existing internal `reselectAtomsByIndices` — wave's own code carries a
+  "fully controlled or fully uncontrolled" TODO at `ThreeDEditor.jsx:318`).
+
+### Scoring rubric
+
+Each item: **I**mpact on daily scientist workflow, **E**ffort (5 = hours … 1 = multi-week),
+**R**isk (5 = none … 1 = breaking; includes test churn and wave-release dependencies),
+**F**it (closes README TODOs / SOF tickets, honors D-2, serves platform embedding).
+Score = 2I + E + R + 2F (max 30).
+
+### The plan
+
+| # | Item | I | E | R | F | Score | Notes |
+|---|---|---|---|---|---|---|---|
+| **P0 — adopt wave HEAD (gate: nothing else lands first)** |
+| W0 | Publish wave, bump MD pin; remove `ThreejsEditorModal` import + *Multi-Material 3D Editor* menu item; adapt Cypress (`combine-materials`, `multiple-selection-*` target wave's old chrome); run notebook health checks | 5 | 3 | 2 | 5 | 25 | Every UX PR built on the old pin compounds this migration |
+| W0b | **Combine v2, MD-native** (per D-2): dialog — pick material B, offset (crystal/cartesian), atom-count preview, merge via made.js tools. Deliberately *not* a scene editor: no rotations in v1 | 4 | 3 | 3 | 5 | 24 | Preserves `combine-materials.feature` semantics (offset + merge) |
+| **P1 — quick wins** |
+| A1′ | Footer status bar: material facts + index *n/N* + selection readout via `onSelectionChanged`. Complements (not duplicates) wave's in-canvas inspector: footer = material/list context, wave = atom detail | 5 | 4 | 4 | 5 | 28 | |
+| D2a | 3D→editor highlight (rows/lines follow `onSelectionChanged`) | 5 | 4 | 4 | 5 | 28 | MD-only after W0; aligns with SOF-7293 |
+| C1+C3 | Sidebar count + filter; undoable delete (snackbar) | 4 | 3 | 3 | 5 | 24 | |
+| A2 | Dirty-state chip + revert; clear on deep-equal | 3 | 4 | 4 | 4 | 22 | |
+| A3′ | Tooltips + shortcut hints on MD chrome (wave's `KeyboardSheet` covers the canvas) | 3 | 5 | 5 | 3 | 22 | Shortcuts ship inside each feature PR — no standalone B3 |
+| **P2 — navigation** |
+| C2+C5+F4 | “+” new material, drag-drop import, empty state | 4 | 3 | 3 | 5 | 24 | |
+| B1 | Quick-action toolbar | 4 | 4 | 3 | 4 | 23 | Test-selector churn priced in |
+| B2 | ⌘K command palette (actions, session materials, Standata) | 4 | 3 | 4 | 4 | 23 | MUI Autocomplete, no new deps |
+| D1 | Basis table view (DataGrid already a dep) | 4 | 3 | 3 | 4 | 22 | |
+| **P3 — editing depth** |
+| E1 | Transform gallery; cards declare `dialog` \| `notebook`; notebook cards open the JupyterLite drawer with material preloaded | 5 | 2 | 3 | 5 | 25 | The platform-depth story |
+| D2b | Editor→3D highlight (small wave PR: controlled-selection prop) | 4 | 3 | 3 | 5 | 25 | Only remaining wave-side ask |
+| D3 | Lattice: live preview, 3×3 vectors, symmetry locking | 3 | 3 | 4 | 4 | 21 | |
+| E2 | Previews in dialogs (supercell atom count, slab sketch, >N-atom guard) | 3 | 4 | 4 | 3 | 20 | |
+| **P4 — reach** |
+| F1 | Shareable URL state (wave already exports view-settings serializers) | 3 | 2 | 3 | 4 | 19 | |
+| F2 | Session restore (localStorage) | 3 | 3 | 4 | 3 | 19 | |
+| F3 | Light theme + toggle | 2 | 3 | 4 | 3 | 17 | Platform embeds dark; standalone-facing |
+| F5/F6 | Fullscreen (re-verify after W0 — wave HEAD reworked chrome), a11y pass | 3 | 3 | 3 | 3 | 18 | F6 also continuous |
+
+### Top risks
+
+1. **Wave release cadence** — W0 is blocked on an npm release containing wave's P0 work.
+   Mitigation: request a release, or temporarily pin MD to a git commit.
+2. **Cypress churn underestimated** — `multiple-selection-*` and `combine-materials` touch wave's
+   replaced chrome; W0 owns their migration, in the same PR as the pin bump.
+3. **Combine v1→v2 parity** — the offset-and-merge dialog must cover today's tested flow
+   (position a second material, merge, name result) before the modal is deleted.
+
+### Review iterations applied
+
+R1 scored the original plan and exposed its blind spot (no wave-upgrade workstream; Theme A
+partially duplicated wave HEAD). R2 restructured around W0/W0b and split D2 into a/b. R3
+(product-owner pass) gated everything behind P0, shrank Combine v2 to offset+merge, folded
+standalone shortcuts (B3) into their feature PRs, and required green Cypress + notebook health
+checks per phase. R4 finalized scores, phases, and the risk register; R5 audited that every v1
+item is kept, merged, or explicitly dropped (only B3 dropped as standalone), and that only D2b
+still depends on a wave-side change.
+
+---
+
 **Quick mockups** for the highest-impact proposals live in [`mockups/`](mockups/index.html) —
 self-contained HTML files, no build step needed:
 
@@ -169,7 +249,7 @@ notebooks already run via the existing JupyterLite drawer).*
 
 ---
 
-## 3. Suggested rollout
+## 3. Suggested rollout *(v1 — superseded by the scored plan in §0)*
 
 | Phase | Contents | Rationale |
 | --- | --- | --- |
