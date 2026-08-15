@@ -205,6 +205,7 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                 defaultMaterialsSet={this.props.defaultMaterialsSet}
                                 onSectionVisibilityToggle={this.onSectionVisibilityToggle}
                                 onOpenDialog={this.onOpenDialog}
+                                onItemClick={this.props.onItemClick}
                                 isVisibleItemsList={isVisibleItemsList}
                                 isVisibleSourceEditor={isVisibleSourceEditor}
                                 isVisibleThreeDEditorFullscreen={isVisibleThreeDEditorFullscreen}

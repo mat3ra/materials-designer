@@ -50,7 +50,10 @@ import JupyterLiteTransformation from "../3d_editor/advanced_geometry/python_tra
 import SupercellDialog from "../3d_editor/advanced_geometry/SupercellDialog";
 import SurfaceDialog from "../3d_editor/advanced_geometry/SurfaceDialog";
 import { ButtonActivatedMenuMaterialUI } from "../include/material-ui/ButtonActivatedMenu";
+import { buildActions, isTypingTarget, matchesShortcut } from "./actions";
+import CommandPalette from "./CommandPalette";
 import ExportActionDialog from "./ExportActionDialog";
+import QuickActionToolbar from "./QuickActionToolbar";
 
 class HeaderMenuToolbar extends React.Component {
     constructor(config) {
@@ -66,8 +69,47 @@ class HeaderMenuToolbar extends React.Component {
             // showThreejsEditorModal: false,
             showBoundaryConditionsDialog: false,
             showJupyterLiteTransformation: false,
+            showCommandPalette: false,
         };
     }
+
+    componentDidMount() {
+        window.addEventListener("keydown", this.handleShortcut);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener("keydown", this.handleShortcut);
+    }
+
+    /** Opens a dialog owned by this component, by state key. */
+    openLocalDialog = (stateKey) => this.setState({ [stateKey]: true });
+
+    get actions() {
+        const { onUndo, onRedo, onClone, onOpenDialog } = this.props;
+        return buildActions({
+            onUndo,
+            onRedo,
+            onClone,
+            onOpenDialog,
+            onUseConventionalCell: this._handleConventionalCellSelect,
+            openLocalDialog: this.openLocalDialog,
+        });
+    }
+
+    handleShortcut = (event) => {
+        if (matchesShortcut(event, "Mod+K")) {
+            event.preventDefault();
+            this.setState((state) => ({ showCommandPalette: !state.showCommandPalette }));
+            return;
+        }
+        // Everything below would otherwise steal keys from the basis editor and name fields,
+        // which have their own undo stacks.
+        if (isTypingTarget(event.target)) return;
+        const action = this.actions.find(({ shortcut }) => matchesShortcut(event, shortcut));
+        if (!action) return;
+        event.preventDefault();
+        action.run();
+    };
 
     _handleConventionalCellSelect = () => {
         const {
@@ -391,6 +433,7 @@ class HeaderMenuToolbar extends React.Component {
             showExportMaterialsDialog,
             showInterpolateDialog,
             showJupyterLiteTransformation,
+            showCommandPalette,
         } = this.state;
         const {
             children,
@@ -402,6 +445,12 @@ class HeaderMenuToolbar extends React.Component {
             onGenerateSurface,
             onSetBoundaryConditions,
             maxCombinatorialBasesCount,
+            defaultMaterialsSet,
+            onItemClick,
+            onSectionVisibilityToggle,
+            isVisibleItemsList,
+            isVisibleSourceEditor,
+            isVisibleThreeDEditorFullscreen,
         } = this.props;
 
         const material = materials[index];
@@ -410,17 +459,40 @@ class HeaderMenuToolbar extends React.Component {
         // if (showThreejsEditorModal) return this.renderThreejsEditorModal();
 
         return (
-            <Toolbar
-                variant="dense"
-                className={setClass(className, "materials-designer-header-menu")}
-            >
-                {children}
-                {this.renderIOMenu()}
-                {this.renderEditMenu()}
-                {this.renderViewMenu()}
-                {this.renderAdvancedMenu()}
-                {this.renderHelpMenu()}
-                {this.renderSpinner()}
+            <>
+                <Toolbar
+                    variant="dense"
+                    className={setClass(className, "materials-designer-header-menu")}
+                >
+                    {children}
+                    {this.renderIOMenu()}
+                    {this.renderEditMenu()}
+                    {this.renderViewMenu()}
+                    {this.renderAdvancedMenu()}
+                    {this.renderHelpMenu()}
+                    {this.renderSpinner()}
+                </Toolbar>
+
+                <QuickActionToolbar
+                    actions={this.actions}
+                    onOpenPalette={() => this.setState({ showCommandPalette: true })}
+                    onSectionVisibilityToggle={onSectionVisibilityToggle}
+                    visibilityByName={{
+                        ItemsList: isVisibleItemsList,
+                        SourceEditor: isVisibleSourceEditor,
+                        ThreeDEditorFullscreen: isVisibleThreeDEditorFullscreen,
+                    }}
+                />
+
+                <CommandPalette
+                    open={showCommandPalette}
+                    onClose={() => this.setState({ showCommandPalette: false })}
+                    actions={this.actions}
+                    materials={materials}
+                    standataConfigs={defaultMaterialsSet}
+                    onGoToMaterial={onItemClick}
+                    onImportStandata={(config) => onAdd([new MDMaterial(config)])}
+                />
 
                 <SupercellDialog
                     isOpen={showSupercellDialog}
@@ -495,7 +567,7 @@ class HeaderMenuToolbar extends React.Component {
                         this.setState({ showJupyterLiteTransformation: false });
                     }}
                 />
-            </Toolbar>
+            </>
         );
     }
 }
@@ -529,6 +601,8 @@ HeaderMenuToolbar.propTypes = {
     onSectionVisibilityToggle: PropTypes.func.isRequired,
     /** Opens a dialog owned by MaterialsDesigner: "standata" or "upload". */
     onOpenDialog: PropTypes.func.isRequired,
+    /** Selects a material by index, used by the command palette's "go to" entries. */
+    onItemClick: PropTypes.func.isRequired,
     isVisibleItemsList: PropTypes.bool.isRequired,
     isVisibleSourceEditor: PropTypes.bool.isRequired,
     isVisibleThreeDEditorFullscreen: PropTypes.bool.isRequired,
