@@ -71,6 +71,75 @@ Score = 2I + E + R + 2F (max 30).
 3. **Combine v1→v2 parity** — the offset-and-merge dialog must cover today's tested flow
    (position a second material, merge, name result) before the modal is deleted.
 
+### 0.1 Four inputs folded in after review
+
+**(a) The Python REPL branch (`feature/SOF-7961`) changes the panel story.**
+It adds `PythonReplPanel` — a Pyodide session rendered as a viewport-fixed bottom drawer,
+deliberately *outside* the layout `Grid`, kept mounted while hidden so the ~30 s interpreter boot
+survives toggling. With the JupyterLite drawer that is now **two** surfaces that escape the
+three-column grid, plus a fourth toggle in the View menu. Consequences already acted on:
+
+- **Adopted its state-carrying pattern.** It stores `syncScope` as an ephemeral field on
+  `MDMaterial`, preserved across `clone()` and absent from `toJSON()`. PR1's revert-aware dirty
+  marker now uses exactly this shape (`originalSignature`) instead of an index-keyed side array —
+  which would have desynced the moment `materialsSyncScope` rebuilds the materials list.
+- **It introduces vitest** (`tests/vitest/`, split unit / pyodide projects). That is the right home
+  for reducer-level tests; later PRs in this chain should add to it rather than invent a second
+  harness.
+- **Merge order matters.** It touches `MaterialsDesigner.jsx`, `MDMaterial.ts`,
+  `reducers/Material.ts` and `HeaderMenuToolbar.jsx` — the same files as PR1–PR3 here. Expect a
+  one-line conflict in `MDMaterial.clone()` (keep both field assignments). Land REPL first if it is
+  close; it is the larger diff.
+
+**(b) Dockable panel layout — worth doing, and it is Palantir's `react-mosaic`.**
+`GRID_CONFIG_BY_VISIBILITY` in `MaterialsDesigner.jsx` hardcodes breakpoints for all seven
+visible/hidden combinations of three panels. A fourth panel (REPL) makes that fifteen. The pattern
+does not scale, and it gives users no control over proportions — a scientist reading a long basis
+wants a wide editor; one inspecting geometry wants a wide viewer.
+
+React 17 is the binding constraint (`peerDependencies: react ^17.0.0`), and it rules out the
+obvious default:
+
+| Library | React 17 | Notes |
+| --- | --- | --- |
+| **`react-mosaic-component` 7** (Palantir) | ✅ `16 - 19` | Full tiling window manager: drag to rearrange, split, resize, expand. Heaviest, most capable — this is the "move blocks of UI" ask |
+| **`allotment` 1.20** | ✅ `^17 \|\| ^18 \|\| ^19` | VS Code–style split panes: resize + collapse, no rearranging. Much smaller step |
+| `react-resizable-panels` 4 | ❌ React 18+ | Excluded by the React 17 pin |
+
+Recommendation: **`allotment` first** (P2 — resizable/collapsible columns, a small drop-in for the
+grid config, immediately useful), with **`react-mosaic`** as the P4 step *if* users actually want to
+rearrange rather than merely resize. Two requirements either way, both learned from the REPL panel:
+panels must stay mounted when hidden (Pyodide/WebGL contexts are expensive to rebuild), and the
+3D viewer needs a resize signal — MD currently fires a global `window` resize event on toggle,
+which a layout library should replace with `ResizeObserver` (wave HEAD's spec asks for this too).
+
+**(c) Reuse cove rather than rebuilding.** Inventory taken; MD already uses cove's `Dialog`,
+`IconByName`, alerts, theme and CodeMirror. Unused but directly relevant to this plan:
+
+| cove export | Use here |
+| --- | --- |
+| `mui/components/dropdown/Dropdown` (action-array API) | the "+ new material" menu (C2), toolbar overflow (B1) |
+| `mui/components/nested-dropdown/NestedDropdown` | grouped Transform gallery entry (E1) |
+| `mui/components/button/UploadButton` | import entry points (C2/C5) |
+| `mui/components/dialog/DraggableDialog` | movable inspector/dialog, complements (b) |
+| `hooks/useCopyToClipboard` | "Copy link" for shareable URL state (F1) |
+
+Caveat: the five header menus keep MD's local `ButtonActivatedMenu` for now — Cypress selects menu
+items by `.button-activated-menu[data-name="…"] li:nth-of-type(N)`, so swapping the implementation
+or reordering items breaks tests. Migrating to cove's `Dropdown` is worth a dedicated PR that
+updates the widgets in the same change. Anything genuinely generic that this chain builds (status
+bar, command palette) should be proposed upstream to cove rather than kept local.
+
+**(d) MD as the platform's MaterialGeometry view.** The same component should serve the webapp's
+read-only geometry view, not just the standalone designer. It nearly does: `MaterialsDesigner`
+already takes `isVisible*` flags, `initialViewSettings` and an `onExit`. What is missing for a clean
+embed: a **`readOnly` / `chrome` prop set** (hide the menu bar, toolbar, and editing affordances
+while keeping the viewer and the status bar), a documented minimal entry point in `exports.js`, and
+the status bar being optional. Concretely, this reframes two items already in the plan — the
+quick-action toolbar (B1) and status bar (A1′) must be independently suppressible, and the panel
+layout (b) must accept a preset rather than always restoring user layout. Worth adding as **G1** and
+sequencing right after P2, since every later chrome addition otherwise makes the embed harder.
+
 ### Review iterations applied
 
 R1 scored the original plan and exposed its blind spot (no wave-upgrade workstream; Theme A
