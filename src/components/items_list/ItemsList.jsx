@@ -339,6 +339,7 @@ class ItemsList extends React.Component {
                 {entries.length === 0 && (
                     <Typography
                         variant="body2"
+                        className="materials-empty-state"
                         sx={{ p: 2, textAlign: "center", color: theme.palette.grey[600] }}
                     >
                         No materials match “{filter}”.
