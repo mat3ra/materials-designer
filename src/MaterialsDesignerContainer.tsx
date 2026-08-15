@@ -19,6 +19,7 @@ import {
     materialsUpdateIndex,
     materialsUpdateNameForOne,
     materialsUpdateOne,
+    stampOriginalSignature,
 } from "./reducers/Material";
 
 // Extend Window interface to include MDState
@@ -108,10 +109,15 @@ export function MaterialsDesignerContainer({
     isLoading = false,
     ...props
 }: MaterialsDesignerContainerProps) {
+    // Stamped once: the materials the session opens with are its baseline, so editing one and
+    // returning it to this state clears the "updated" marker again. Re-stamping on every render
+    // would also mean re-hashing every material on every render.
+    const baselineMaterials = React.useMemo(() => initialMaterials.map(stampOriginalSignature), []);
+
     const [mdState, setMdState, undo, redo, reset] = useUndoableState<MDState>({
         index: 0,
         isLoading: false,
-        materials: initialMaterials,
+        materials: baselineMaterials,
         updatedIndices: [],
     });
 

@@ -22,6 +22,8 @@ export function materialsAdd(
               .concat(state.materials.slice(index + 1))
         : state.materials.concat(actionMaterials);
     const addedIndices = indicesForAddedMaterials(state, actionMaterials.length, action.addAtIndex);
+    // Materials arriving from outside the session (import, upload, transformation output) carry no
+    // original signature, so they stay flagged as updated until saved.
     return addUpdatedIndices({ ...state, materials: newMaterials }, addedIndices);
 }
 

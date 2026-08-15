@@ -36,6 +36,7 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import MenuItem from "@mui/material/MenuItem";
 import Stack from "@mui/material/Stack";
 import Toolbar from "@mui/material/Toolbar";
+import Tooltip from "@mui/material/Tooltip";
 import setClass from "classnames";
 import PropTypes from "prop-types";
 import React from "react";
@@ -324,9 +325,13 @@ class HeaderMenuToolbar extends React.Component {
         return (
             <Stack spacing={2} direction="row" justifyContent="end" sx={{ flex: 1 }}>
                 {mdState.isLoading ? (
-                    <CircularProgress color="warning" size={30} />
+                    <Tooltip title="Working…">
+                        <CircularProgress color="warning" size={30} />
+                    </Tooltip>
                 ) : (
-                    <CheckIcon color="success" size={50} />
+                    <Tooltip title="All changes applied">
+                        <CheckIcon color="success" size={50} />
+                    </Tooltip>
                 )}
             </Stack>
         );

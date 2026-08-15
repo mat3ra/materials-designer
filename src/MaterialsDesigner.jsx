@@ -81,6 +81,7 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
             isVisibleThreeDEditorFullscreen: true,
             isVisibleJupyterLiteSessionDrawer: false,
             importMaterialsDialogProps: null,
+            selectedAtomIndices: [],
         };
         this.containerRef = React.createRef();
     }
@@ -98,6 +99,15 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
             // JSON.stringify calls material.toJSON(); schema failures must not white-screen the app.
             console.error("MaterialsDesigner.shouldComponentUpdate stringify failed", error);
             return true;
+        }
+    }
+
+    componentDidUpdate(prevProps) {
+        // Atom indices only mean something for the material they were picked in.
+        const hasSwitchedMaterial = prevProps.mdState.index !== this.props.mdState.index;
+        if (hasSwitchedMaterial && this.state.selectedAtomIndices.length) {
+            // eslint-disable-next-line react/no-did-update-set-state
+            this.setState({ selectedAtomIndices: [] });
         }
     }
 
@@ -121,6 +131,14 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                 .map((e) => Number(e))
                 .reduce((a, b) => a + b, 0) === 1
         );
+    };
+
+    /**
+     * Atom selection lives in the 3D editor; mirroring it here lets the status bar (and, later,
+     * the source editor) describe what the user has picked.
+     */
+    onSelectionChanged = (selectedAtomIndices) => {
+        this.setState({ selectedAtomIndices: selectedAtomIndices || [] });
     };
 
     onSectionVisibilityToggle = (componentName) => {
@@ -278,6 +296,9 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                         <ThreeDEditorFullscreen
                                             editable
                                             material={globalMaterial}
+                                            // Ignored by wave.js releases that predate the
+                                            // callback; the status bar lights up once available.
+                                            onSelectionChanged={this.onSelectionChanged}
                                             isConventionalCellShown={
                                                 this.props.isConventionalCellShown
                                             }
@@ -310,7 +331,12 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                 )}
                             </Grid>
                         </Box>
-                        <EditorSelectionInfo />
+                        <EditorSelectionInfo
+                            material={globalMaterial}
+                            index={mdState.index}
+                            materialsCount={mdState.materials.length}
+                            selectedIndices={this.state.selectedAtomIndices}
+                        />
                     </Paper>
                 </ScopedCssBaseline>
             </ThemeProvider>
