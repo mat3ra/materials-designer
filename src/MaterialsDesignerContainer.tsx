@@ -35,58 +35,65 @@ declare global {
 }
 
 function useUndoableState<T extends MDState>(initialValue: T, maxPastSize = 50) {
-    const [past, setPast] = useState<T[]>([]);
-    const [future, setFuture] = useState<T[]>([]);
+    /**
+     * Past and future are one piece of state on purpose. Held separately, moving through history
+     * takes two setters, and outside React's batching (a keyboard shortcut is a native listener)
+     * each one renders on its own. The render in between carries a `redo` that still closes over
+     * the empty future, and `MaterialsDesigner.shouldComponentUpdate` compares props with
+     * JSON.stringify - which drops functions - so the corrected callback never reaches the toolbar.
+     * One setter, one render, one consistent pair of callbacks.
+     */
+    const [history, setHistory] = useState<{ past: T[]; future: T[] }>({ past: [], future: [] });
     const presentRef = React.useRef<T>(initialValue);
 
     window.MDState = presentRef.current;
 
     const setState = useCallback(
         (newValue: T) => {
-            // Read the outgoing state now, not inside the updater: React runs the updater during
-            // the next render, by which point `presentRef.current` is already `newValue` - so the
-            // history would fill with copies of the new state and undo would appear to do nothing.
+            // Read the outgoing state before moving the ref: the updater below runs during the
+            // next render, by which point `presentRef.current` is already `newValue`, and the
+            // history would fill with copies of the new state.
             const previous = presentRef.current;
-            setPast((prevPast) => {
-                const newPast = [...prevPast, previous];
-                // Keep only the most recent maxPastSize entries
-                return newPast.slice(-maxPastSize);
-            });
             presentRef.current = newValue;
-            setFuture([]); // clear redo history on new change
+            setHistory(({ past }) => ({
+                // Keep only the most recent maxPastSize entries
+                past: [...past, previous].slice(-maxPastSize),
+                future: [], // a new change invalidates the redo history
+            }));
         },
         [maxPastSize],
     );
 
-    // The present is a ref, so it must be moved *before* the setters run. React batches updates
-    // inside its own event handlers, but not inside native listeners (the keyboard shortcuts) -
-    // there each setter renders immediately, and a render that happens before the ref moves would
-    // publish the outgoing state.
+    // The present is a ref, so it moves before the setter runs: an unbatched render that happened
+    // first would publish the outgoing state.
     const undo = useCallback(() => {
-        if (past.length === 0) return;
-        const { current } = presentRef;
-        presentRef.current = past[past.length - 1];
-        setPast(past.slice(0, -1));
-        setFuture([current, ...future]);
-    }, [past, future]);
+        if (history.past.length === 0) return;
+        const previous = presentRef.current;
+        presentRef.current = history.past[history.past.length - 1];
+        setHistory(({ past, future }) => ({
+            past: past.slice(0, -1),
+            future: [previous, ...future],
+        }));
+    }, [history]);
 
     const redo = useCallback(() => {
-        if (future.length === 0) return;
-        const { current } = presentRef;
-        const [next] = future;
+        if (history.future.length === 0) return;
+        const previous = presentRef.current;
+        const [next] = history.future;
         presentRef.current = next;
-        setFuture(future.slice(1));
-        setPast([...past, current]);
-    }, [future, past]);
+        setHistory(({ past, future }) => ({
+            past: [...past, previous],
+            future: future.slice(1),
+        }));
+    }, [history]);
 
     const reset = useCallback(() => {
         presentRef.current = initialValue;
-        setPast([]);
-        setFuture([]);
+        setHistory({ past: [], future: [] });
     }, []);
 
-    const canUndo = past.length > 0;
-    const canRedo = future.length > 0;
+    const canUndo = history.past.length > 0;
+    const canRedo = history.future.length > 0;
 
     return [presentRef, setState, undo, redo, reset, canUndo, canRedo] as [
         React.MutableRefObject<T>,
