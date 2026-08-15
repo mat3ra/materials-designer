@@ -43,8 +43,12 @@ function useUndoableState<T extends MDState>(initialValue: T, maxPastSize = 50) 
 
     const setState = useCallback(
         (newValue: T) => {
+            // Read the outgoing state now, not inside the updater: React runs the updater during
+            // the next render, by which point `presentRef.current` is already `newValue` - so the
+            // history would fill with copies of the new state and undo would appear to do nothing.
+            const previous = presentRef.current;
             setPast((prevPast) => {
-                const newPast = [...prevPast, presentRef.current];
+                const newPast = [...prevPast, previous];
                 // Keep only the most recent maxPastSize entries
                 return newPast.slice(-maxPastSize);
             });
@@ -54,26 +58,31 @@ function useUndoableState<T extends MDState>(initialValue: T, maxPastSize = 50) 
         [maxPastSize],
     );
 
+    // The present is a ref, so it must be moved *before* the setters run. React batches updates
+    // inside its own event handlers, but not inside native listeners (the keyboard shortcuts) -
+    // there each setter renders immediately, and a render that happens before the ref moves would
+    // publish the outgoing state.
     const undo = useCallback(() => {
         if (past.length === 0) return;
-        const previous = past[past.length - 1];
+        const { current } = presentRef;
+        presentRef.current = past[past.length - 1];
         setPast(past.slice(0, -1));
-        setFuture([presentRef.current, ...future]);
-        presentRef.current = previous;
+        setFuture([current, ...future]);
     }, [past, future]);
 
     const redo = useCallback(() => {
         if (future.length === 0) return;
-        const next = future[0];
-        setFuture(future.slice(1));
-        setPast([...past, presentRef.current]);
+        const { current } = presentRef;
+        const [next] = future;
         presentRef.current = next;
+        setFuture(future.slice(1));
+        setPast([...past, current]);
     }, [future, past]);
 
     const reset = useCallback(() => {
+        presentRef.current = initialValue;
         setPast([]);
         setFuture([]);
-        presentRef.current = initialValue;
     }, []);
 
     const canUndo = past.length > 0;
