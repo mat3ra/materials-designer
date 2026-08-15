@@ -2,6 +2,8 @@ import IconByName from "@mat3ra/cove/dist/mui/components/icon/IconByName";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Avatar from "@mui/material/Avatar";
 import Badge from "@mui/material/Badge";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -12,10 +14,25 @@ import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import setClass from "classnames";
+import { closeSnackbar, enqueueSnackbar } from "notistack";
 import PropTypes from "prop-types";
 import React from "react";
 
 import { theme } from "../../settings";
+import ItemsListHeader, { buildAddActions } from "./ItemsListHeader";
+
+/** Short structural facts for a list row: lattice type and site count. */
+function describeStructure(material) {
+    const facts = [];
+    try {
+        if (material.lattice?.type) facts.push(material.lattice.type);
+        const sites = material.getBasis().elements.length;
+        if (sites) facts.push(`${sites} ${sites === 1 ? "site" : "sites"}`);
+    } catch (error) {
+        // A material that cannot describe itself still gets a row, just a plainer one.
+    }
+    return facts;
+}
 
 class ItemsList extends React.Component {
     constructor(props) {
@@ -32,7 +49,24 @@ class ItemsList extends React.Component {
         return {
             editedName: materials[index].name,
             editedIndex: -1,
+            filter: "",
         };
+    }
+
+    /** Materials matching the filter, each keeping the index it has in the unfiltered list. */
+    get visibleEntries() {
+        const { materials } = this.props;
+        const { filter } = this.state;
+        const query = filter.trim().toLowerCase();
+        const entries = materials.map((material, index) => ({ material, index }));
+        if (!query) return entries;
+        return entries.filter(({ material }) =>
+            [material.name, material.formula].some((value) =>
+                String(value || "")
+                    .toLowerCase()
+                    .includes(query),
+            ),
+        );
     }
 
     componentDidUpdate(prevProps) {
@@ -86,9 +120,36 @@ class ItemsList extends React.Component {
      */
     // eslint-disable-next-line react/sort-comp
     onDeleteIconClick(e, index) {
-        const { onRemove } = this.props;
+        const { materials, onRemove, onRestore } = this.props;
         e.preventDefault();
+        // Captured before the removal so the offer to undo restores this exact material - including
+        // its original signature - at the position it came from.
+        const removed = materials[index];
+        const canRestore = materials.length > 1 && Boolean(onRestore);
         onRemove(index);
+        if (!canRestore) return;
+        // The undo control lives in the message rather than notistack's `action` slot: cove's
+        // AlertProvider supplies its own Snackbar component for every variant, and that component
+        // renders only the message.
+        const snackbarKey = `undo-remove-${removed.name}-${index}`;
+        enqueueSnackbar(
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <span>Removed “{removed.name}”</span>
+                <Button
+                    size="small"
+                    variant="outlined"
+                    color="inherit"
+                    className="undo-remove-material"
+                    onClick={() => {
+                        onRestore(removed, index);
+                        closeSnackbar(snackbarKey);
+                    }}
+                >
+                    Undo
+                </Button>
+            </Box>,
+            { variant: "default", key: snackbarKey },
+        );
     }
 
     /**
@@ -210,8 +271,40 @@ class ItemsList extends React.Component {
                         }
                         secondary={
                             // TODO: avoid setting font size in sx and use theme variants instead
-                            <Typography variant="caption" sx={{ fontSize: "0.8em" }}>
-                                Formula: <code>{entity.formula}</code>
+                            <Typography
+                                variant="caption"
+                                component="span"
+                                sx={{
+                                    fontSize: "0.8em",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 0.75,
+                                }}
+                            >
+                                <code>{entity.formula}</code>
+                                {describeStructure(entity).map((fact) => (
+                                    <Box
+                                        key={fact}
+                                        component="span"
+                                        sx={{ color: theme.palette.grey[600] }}
+                                    >
+                                        {fact}
+                                    </Box>
+                                ))}
+                                {isUpdated && (
+                                    <Tooltip title="Edited since it entered the session">
+                                        <Box
+                                            component="span"
+                                            className="material-updated-dot"
+                                            sx={{
+                                                width: 6,
+                                                height: 6,
+                                                borderRadius: "50%",
+                                                backgroundColor: "warning.main",
+                                            }}
+                                        />
+                                    </Tooltip>
+                                )}
                             </Typography>
                         }
                     />
@@ -221,16 +314,37 @@ class ItemsList extends React.Component {
     }
 
     render() {
-        const { materials, index, updatedIndices } = this.props;
+        const { materials, index, updatedIndices, onClone, onImport, onUpload } = this.props;
+        const { filter } = this.state;
+        const entries = this.visibleEntries;
         return (
-            <List
-                sx={{
-                    // TODO: figure out why "dense" prop doesn't work and remove this
-                    paddingY: 0,
-                }}
-            >
-                {materials.map((m, i) => this.renderListItem(m, i, index, updatedIndices))}
-            </List>
+            <>
+                <ItemsListHeader
+                    filter={filter}
+                    onFilterChange={(value) => this.setState({ filter: value })}
+                    shownCount={entries.length}
+                    totalCount={materials.length}
+                    addActions={buildAddActions({ onClone, onImport, onUpload })}
+                />
+                <List
+                    sx={{
+                        // TODO: figure out why "dense" prop doesn't work and remove this
+                        paddingY: 0,
+                    }}
+                >
+                    {entries.map(({ material, index: materialIndex }) =>
+                        this.renderListItem(material, materialIndex, index, updatedIndices),
+                    )}
+                </List>
+                {entries.length === 0 && (
+                    <Typography
+                        variant="body2"
+                        sx={{ p: 2, textAlign: "center", color: theme.palette.grey[600] }}
+                    >
+                        No materials match “{filter}”.
+                    </Typography>
+                )}
+            </>
         );
     }
 }
@@ -243,6 +357,15 @@ ItemsList.propTypes = {
     onItemClick: PropTypes.func.isRequired,
     onRemove: PropTypes.func.isRequired,
     onNameUpdate: PropTypes.func.isRequired,
+    /** Puts a removed material back; without it, removal is not offered as undoable. */
+    onRestore: PropTypes.func,
+    onClone: PropTypes.func.isRequired,
+    onImport: PropTypes.func.isRequired,
+    onUpload: PropTypes.func.isRequired,
+};
+
+ItemsList.defaultProps = {
+    onRestore: undefined,
 };
 
 export default ItemsList;

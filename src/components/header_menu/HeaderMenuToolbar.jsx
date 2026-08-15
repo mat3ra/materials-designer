@@ -50,8 +50,6 @@ import JupyterLiteTransformation from "../3d_editor/advanced_geometry/python_tra
 import SupercellDialog from "../3d_editor/advanced_geometry/SupercellDialog";
 import SurfaceDialog from "../3d_editor/advanced_geometry/SurfaceDialog";
 import { ButtonActivatedMenuMaterialUI } from "../include/material-ui/ButtonActivatedMenu";
-import StandataImportDialog from "../include/StandataImportDialog";
-import UploadDialog from "../include/UploadDialog";
 import ExportActionDialog from "./ExportActionDialog";
 
 class HeaderMenuToolbar extends React.Component {
@@ -61,8 +59,6 @@ class HeaderMenuToolbar extends React.Component {
             showSupercellDialog: false,
             showSurfaceDialog: false,
             showExportMaterialsDialog: false,
-            showStandataImportDialog: false,
-            showDefaultImportModalDialog: false,
             showCombinatorialDialog: false,
             showInterpolateDialog: false,
             // TODO: unused while renderThreejsEditorModal is disabled, see comment
@@ -92,13 +88,13 @@ class HeaderMenuToolbar extends React.Component {
                     </ListItemIcon>
                     Import
                 </MenuItem>
-                <MenuItem onClick={() => this.setState({ showStandataImportDialog: true })}>
+                <MenuItem onClick={() => this.props.onOpenDialog("standata")}>
                     <ListItemIcon>
                         <AddCircleIcon />
                     </ListItemIcon>
                     Import from Standata
                 </MenuItem>
-                <MenuItem onClick={() => this.setState({ showDefaultImportModalDialog: true })}>
+                <MenuItem onClick={() => this.props.onOpenDialog("upload")}>
                     <ListItemIcon>
                         <IconByName name="actions.upload" />
                     </ListItemIcon>
@@ -394,8 +390,6 @@ class HeaderMenuToolbar extends React.Component {
             showCombinatorialDialog,
             showExportMaterialsDialog,
             showInterpolateDialog,
-            showStandataImportDialog,
-            showDefaultImportModalDialog,
             showJupyterLiteTransformation,
         } = this.state;
         const {
@@ -408,7 +402,6 @@ class HeaderMenuToolbar extends React.Component {
             onGenerateSurface,
             onSetBoundaryConditions,
             maxCombinatorialBasesCount,
-            defaultMaterialsSet,
         } = this.props;
 
         const material = materials[index];
@@ -461,25 +454,8 @@ class HeaderMenuToolbar extends React.Component {
                     onSubmit={onExport}
                 />
 
-                <StandataImportDialog
-                    modalId="standataImportModalDialog"
-                    show={showStandataImportDialog}
-                    onSubmit={(...args) => {
-                        onAdd(...args);
-                        this.setState({ showStandataImportDialog: false });
-                    }}
-                    onClose={() => this.setState({ showStandataImportDialog: false })}
-                    defaultMaterialConfigs={defaultMaterialsSet}
-                />
-
-                <UploadDialog
-                    show={showDefaultImportModalDialog}
-                    onClose={() => this.setState({ showDefaultImportModalDialog: false })}
-                    onSubmit={(...args) => {
-                        onAdd(...args);
-                        this.setState({ showDefaultImportModalDialog: false });
-                    }}
-                />
+                {/* The Standata and upload dialogs are owned by MaterialsDesigner: the materials
+                    list opens them too, from its "add material" menu. */}
 
                 <CombinatorialBasisDialog
                     title="Generate Combinatorial Set"
@@ -551,6 +527,8 @@ HeaderMenuToolbar.propTypes = {
     onGenerateSurface: PropTypes.func.isRequired,
     onSetBoundaryConditions: PropTypes.func.isRequired,
     onSectionVisibilityToggle: PropTypes.func.isRequired,
+    /** Opens a dialog owned by MaterialsDesigner: "standata" or "upload". */
+    onOpenDialog: PropTypes.func.isRequired,
     isVisibleItemsList: PropTypes.bool.isRequired,
     isVisibleSourceEditor: PropTypes.bool.isRequired,
     isVisibleThreeDEditorFullscreen: PropTypes.bool.isRequired,

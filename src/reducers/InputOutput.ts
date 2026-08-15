@@ -1,4 +1,4 @@
-import { showSuccessAlert, showWarningAlert } from "@mat3ra/cove/dist/other/alerts";
+import { showWarningAlert } from "@mat3ra/cove/dist/other/alerts";
 import type { MDMaterial } from "src/MDMaterial";
 
 import { exportToDisk } from "../utils/downloader";
@@ -7,6 +7,8 @@ import {
     addUpdatedIndices,
     adjustUpdatedIndicesForRemove,
     indicesForAddedMaterials,
+    isMaterialUpdated,
+    syncUpdatedIndexBySignature,
 } from "./Material";
 
 export function materialsAdd(
@@ -50,11 +52,32 @@ export function materialsRemove(state: MDState, action: { index: number }): MDSt
         return state;
     }
 
-    showSuccessAlert(`Removed material at index ${indexToRemove}.`);
+    // The removal is announced by the caller, which can offer to undo it.
     return adjustUpdatedIndicesForRemove(
         { ...state, materials: newMaterials, index: newIndex },
         indexToRemove,
     );
+}
+
+/**
+ * Puts a removed material back where it was, keeping it selected. The material object carries its
+ * own original signature, so restoring does not make an unedited material look edited.
+ */
+export function materialsInsertAt(
+    state: MDState,
+    action: { material: MDMaterial; index: number },
+): MDState {
+    const index = Math.max(0, Math.min(action.index, state.materials.length));
+    const materials = [
+        ...state.materials.slice(0, index),
+        action.material,
+        ...state.materials.slice(index),
+    ];
+    const updatedIndices = state.updatedIndices.map((i) => (i >= index ? i + 1 : i));
+    const restored = { ...state, materials, updatedIndices, index };
+    return isMaterialUpdated(restored, index)
+        ? restored
+        : syncUpdatedIndexBySignature(restored, index);
 }
 
 export function materialsExport(

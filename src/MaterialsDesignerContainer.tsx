@@ -6,7 +6,12 @@ import React, { useCallback, useEffect, useState } from "react";
 
 import MaterialsDesignerComponent from "./MaterialsDesigner";
 import { MDMaterial } from "./MDMaterial";
-import { materialsAdd, materialsExport, materialsRemove } from "./reducers/InputOutput";
+import {
+    materialsAdd,
+    materialsExport,
+    materialsInsertAt,
+    materialsRemove,
+} from "./reducers/InputOutput";
 import {
     type BoundaryConditionsType,
     type MDState,
@@ -168,6 +173,10 @@ export function MaterialsDesignerContainer({
         setMdState(materialsRemove(mdState.current, { index }));
     }, []);
 
+    const onRestore = useCallback((material: MDMaterial, index: number) => {
+        setMdState(materialsInsertAt(mdState.current, { material, index }));
+    }, []);
+
     const onExport = useCallback((format: "json" | "poscar", useMultiple: boolean) => {
         setMdState(materialsExport(mdState.current, { format, useMultiple }));
     }, []);
@@ -189,6 +198,7 @@ export function MaterialsDesignerContainer({
             onSetBoundaryConditions={onSetBoundaryConditions}
             onAdd={onAdd}
             onRemove={onRemove}
+            onRestore={onRestore}
             onExport={onExport}
             {...props}
         />

@@ -22,6 +22,8 @@ import EditorSelectionInfo, {
 } from "./components/3d_editor_selection_info/EditorSelectionInfo";
 import JupyterLiteSessionDrawer from "./components/drawer_session/JupyterLiteSessionDrawer";
 import HeaderMenuToolbar from "./components/header_menu/HeaderMenuToolbar";
+import StandataImportDialog from "./components/include/StandataImportDialog";
+import UploadDialog from "./components/include/UploadDialog";
 import ItemsList from "./components/items_list/ItemsList";
 import BasisEditor from "./components/source_editor/Basis";
 import LatticeEditor from "./components/source_editor/Lattice";
@@ -82,6 +84,8 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
             isVisibleJupyterLiteSessionDrawer: false,
             importMaterialsDialogProps: null,
             selectedAtomIndices: [],
+            // Owned here rather than in the header menu: the materials list opens these too.
+            openDialog: null,
         };
         this.containerRef = React.createRef();
     }
@@ -141,6 +145,15 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
         this.setState({ selectedAtomIndices: selectedAtomIndices || [] });
     };
 
+    onOpenDialog = (openDialog) => this.setState({ openDialog });
+
+    onCloseDialog = () => this.setState({ openDialog: null });
+
+    onAddFromDialog = (...args) => {
+        this.props.onAdd(...args);
+        this.onCloseDialog();
+    };
+
     onSectionVisibilityToggle = (componentName) => {
         const stateKey = `isVisible${componentName}`;
         if (stateKey in this.state) {
@@ -191,6 +204,7 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                 maxCombinatorialBasesCount={this.props.maxCombinatorialBasesCount}
                                 defaultMaterialsSet={this.props.defaultMaterialsSet}
                                 onSectionVisibilityToggle={this.onSectionVisibilityToggle}
+                                onOpenDialog={this.onOpenDialog}
                                 isVisibleItemsList={isVisibleItemsList}
                                 isVisibleSourceEditor={isVisibleSourceEditor}
                                 isVisibleThreeDEditorFullscreen={isVisibleThreeDEditorFullscreen}
@@ -258,7 +272,11 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                                 updatedIndices={mdState.updatedIndices}
                                                 onItemClick={this.props.onItemClick}
                                                 onRemove={this.props.onRemove}
+                                                onRestore={this.props.onRestore}
                                                 onNameUpdate={this.props.onNameUpdate}
+                                                onClone={this.props.onClone}
+                                                onImport={() => this.onOpenDialog("standata")}
+                                                onUpload={() => this.onOpenDialog("upload")}
                                             />
                                         </Grid>
                                     </Grid>
@@ -337,6 +355,20 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                             materialsCount={mdState.materials.length}
                             selectedIndices={this.state.selectedAtomIndices}
                         />
+
+                        <StandataImportDialog
+                            modalId="standataImportModalDialog"
+                            show={this.state.openDialog === "standata"}
+                            onSubmit={this.onAddFromDialog}
+                            onClose={this.onCloseDialog}
+                            defaultMaterialConfigs={this.props.defaultMaterialsSet}
+                        />
+
+                        <UploadDialog
+                            show={this.state.openDialog === "upload"}
+                            onClose={this.onCloseDialog}
+                            onSubmit={this.onAddFromDialog}
+                        />
                     </Paper>
                 </ScopedCssBaseline>
             </ThemeProvider>
@@ -382,6 +414,7 @@ MaterialsDesigner.propTypes = {
     openSaveActionDialog: PropTypes.func,
 
     onRemove: PropTypes.func,
+    onRestore: PropTypes.func,
 
     maxCombinatorialBasesCount: PropTypes.number,
     // eslint-disable-next-line react/forbid-prop-types
