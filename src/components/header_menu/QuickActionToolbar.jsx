@@ -14,6 +14,12 @@ import React from "react";
 import { theme } from "../../settings";
 import { formatShortcut, TOOLBAR_ACTION_IDS } from "./actions";
 
+/**
+ * Fixed so the panels below can subtract it. Kept in sync with `main.css`, which sizes the 3D
+ * canvas and the basis editor off the same total: see APP_BAR_HEIGHT in MaterialsDesigner.
+ */
+export const QUICK_ACTIONS_HEIGHT = 38;
+
 const PANEL_TOGGLES = [
     { name: "ItemsList", label: "Materials list", icon: <ViewSidebarIcon fontSize="small" /> },
     { name: "SourceEditor", label: "Source editor", icon: <CodeIcon fontSize="small" /> },
@@ -36,7 +42,8 @@ function QuickActionToolbar({
             variant="dense"
             className="materials-designer-quick-actions"
             sx={{
-                minHeight: 38,
+                minHeight: QUICK_ACTIONS_HEIGHT,
+                height: QUICK_ACTIONS_HEIGHT,
                 gap: 0.25,
                 borderTop: `1px solid ${theme.palette.grey[900]}`,
             }}

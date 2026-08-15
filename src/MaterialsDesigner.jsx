@@ -22,6 +22,7 @@ import EditorSelectionInfo, {
 } from "./components/3d_editor_selection_info/EditorSelectionInfo";
 import JupyterLiteSessionDrawer from "./components/drawer_session/JupyterLiteSessionDrawer";
 import HeaderMenuToolbar from "./components/header_menu/HeaderMenuToolbar";
+import { QUICK_ACTIONS_HEIGHT } from "./components/header_menu/QuickActionToolbar";
 import StandataImportDialog from "./components/include/StandataImportDialog";
 import UploadDialog from "./components/include/UploadDialog";
 import ItemsList from "./components/items_list/ItemsList";
@@ -33,7 +34,9 @@ import { theme } from "./settings";
 const data = MaterialStandata.runtimeData;
 const materialConfigs = Object.values(data.filesMapByName);
 
-const APP_BAR_HEIGHT = 54;
+const MENU_BAR_HEIGHT = 54;
+// The app bar stacks the menu row and the quick-action row; the panels below subtract both.
+const APP_BAR_HEIGHT = MENU_BAR_HEIGHT + QUICK_ACTIONS_HEIGHT;
 
 const GRID_CONFIG_BY_VISIBILITY = {
     // "111" means that all three components are visible
