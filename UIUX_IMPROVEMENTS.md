@@ -53,12 +53,20 @@ genuinely need wave HEAD — D2a/D2b selection sync — remain unbuilt.
 - **A metadata-only edit would have cleared the "updated" marker**, because made's `hash` covers
   only basis and lattice. The comparison signature folds in name and boundary conditions (#285).
 
-**Cypress could not be run here** — the sandbox's egress policy blocks Cypress's binary CDN, and
-npm rolls the install back when the post-install download fails. Instead, every selector contract
-the widgets rely on was asserted directly against the running app: `ul > div:nth-of-type(N) li`
-per material, the name-input rename flow, `.icon-button-delete`, and menu positions
-(`Edit`→4 = Clone, `View`→1 = Multi-Material 3D Editor, `Input/Output`→2/3, `Advanced`→6). All
-hold. The suite still needs a real run in CI before merge.
+**Cypress runs, and the chain is green:** `65 specs, 11 executed, 54 skipped by tag, 0 failures`
+against all four PRs stacked — including `menu/edit/reset-clone-undo-redo.feature`, which
+exercises the undo/redo fix. Three obstacles had to be cleared first, none of them code:
+
+1. **`npm install` in `tests/` fails on `dev`** — `@exabyte-io/code.js` runs a postinstall that
+   resolves the no-longer-published `@exabyte-io/esse.js`, and npm rolls the whole install back.
+   Fixed by the scope rename ([#289](https://github.com/mat3ra/materials-designer/pull/289)); merge
+   it early, it unblocks the suite for everyone.
+2. **Cypress's downloader truncates its binary** behind this proxy (189 MB of 200 MB). `curl` gets
+   the same URL complete on the first try, so the CDN is fine. Workaround: fetch the zip with curl
+   and set `CYPRESS_INSTALL_BINARY` to the local path.
+3. **The LFS fixture was a pointer stub** — `tests/cypress/fixtures/H2+H-image.json` is Git
+   LFS-tracked and the clone had no `git-lfs`, so it held `version https://git-lfs.github.com/...`
+   instead of JSON. This produced the only two failures in the first run; `git lfs pull` cleared them.
 
 ### Scoring rubric
 
