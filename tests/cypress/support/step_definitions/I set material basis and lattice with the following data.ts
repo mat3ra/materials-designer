@@ -12,6 +12,8 @@ Given("I set material basis and lattice with the following data:", (table: DataT
     const { basis, lattice } = parseTable<BasisAndLatice>(table)[0];
     const { basisEditor, latticeEditor } = new MaterialDesignerPage().designerWidget.sourceEditor;
 
-    basisEditor.setBasis(basis);
-    latticeEditor.setLattice(JSON.parse(lattice));
+    // Either column on its own is useful: a scenario about the basis should not have to restate a
+    // lattice it does not care about.
+    if (basis) basisEditor.setBasis(basis);
+    if (lattice) latticeEditor.setLattice(JSON.parse(lattice));
 });
