@@ -26,6 +26,40 @@ Auditing wave.js HEAD (`b2f86be`, 2026-08-14) changed the picture materially:
   existing internal `reselectAtomsByIndices` — wave's own code carries a
   "fully controlled or fully uncontrolled" TODO at `ThreeDEditor.jsx:318`).
 
+### 0.2 What shipped (2026-08-15)
+
+Four stacked PRs, each verified by driving the running app with Playwright:
+
+| PR | Contents | Plan items |
+| --- | --- | --- |
+| [#285](https://github.com/mat3ra/materials-designer/pull/285) | Status bar in the empty footer; revert-aware "updated" marker; tooltips | A1′, A2, A3′ |
+| [#286](https://github.com/mat3ra/materials-designer/pull/286) | Materials list: count, filter, add menu, undoable removal, richer rows | C1–C4, part of C2 |
+| [#287](https://github.com/mat3ra/materials-designer/pull/287) | Quick-action toolbar, ⌘K command palette, shortcuts — **plus a fix for undo/redo** | B1, B2, B3 |
+| [#288](https://github.com/mat3ra/materials-designer/pull/288) | Basis table view alongside the XYZ text editor | D1 |
+
+**The P0 gate was not met and was consciously bypassed.** Adopting wave HEAD needs an npm
+release that does not exist yet, and pinning MD to a git commit is an infrastructure decision for
+the team, not something to slip into a UX PR. Everything above is MD-local and was designed to be
+*additive* to the upgrade rather than to conflict with it: `onSelectionChanged` is already passed to
+`ThreeDEditor` and simply lights up when the upgraded build starts emitting it. The parts that
+genuinely need wave HEAD — D2a/D2b selection sync — remain unbuilt.
+
+**Two bugs found while building, both fixed:**
+
+- **Undo and redo never worked.** `useUndoableState` pushed history from inside a `setPast`
+  updater, which React runs *after* the ref has already moved, and `undo`/`redo` mutated the ref
+  *after* calling the setters — invisible under React's batching, broken from a native listener.
+  Fixed in #287, in its own commit so it can be cherry-picked ahead of the UX work.
+- **A metadata-only edit would have cleared the "updated" marker**, because made's `hash` covers
+  only basis and lattice. The comparison signature folds in name and boundary conditions (#285).
+
+**Cypress could not be run here** — the sandbox's egress policy blocks Cypress's binary CDN, and
+npm rolls the install back when the post-install download fails. Instead, every selector contract
+the widgets rely on was asserted directly against the running app: `ul > div:nth-of-type(N) li`
+per material, the name-input rename flow, `.icon-button-delete`, and menu positions
+(`Edit`→4 = Clone, `View`→1 = Multi-Material 3D Editor, `Input/Output`→2/3, `Advanced`→6). All
+hold. The suite still needs a real run in CI before merge.
+
 ### Scoring rubric
 
 Each item: **I**mpact on daily scientist workflow, **E**ffort (5 = hours … 1 = multi-week),
