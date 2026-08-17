@@ -19,6 +19,9 @@
         "url": "https://github.com/Exabyte-io/materials-designer.git"
     },
     "main": "dist/exports.js",
+    "files": [
+        "dist"
+    ],
     "author": "Exabyte Inc.",
     "bugs": {
         "url": "https://github.com/Exabyte-io/materials-designer/issues"
@@ -32,7 +35,7 @@
         "@babel/runtime-corejs2": "7.16.7",
         "@emotion/react": "^11.13.0",
         "@emotion/styled": "^11.13.0",
-        "@mat3ra/utils": "^2026.7.8-0",
+        "@mat3ra/utils": "https://github.com/mat3ra/utils/releases/download/wip-8b2c388/utils.tgz",
         "@mui/icons-material": "^5.11.0",
         "@mui/lab": "^5.0.0-alpha.120",
         "@mui/material": "^5.11.9",
@@ -63,13 +66,13 @@
     },
     "devDependencies": {
         "@exabyte-io/eslint-config": "^2025.1.15-0",
-        "@mat3ra/code": "2026.8.13-0",
-        "@mat3ra/cove": "2026.7.18-4",
-        "@mat3ra/esse": "2026.8.13-0",
-        "@mat3ra/made": "2026.8.13-0",
-        "@mat3ra/standata": "2026.6.23-0",
+        "@mat3ra/code": "https://github.com/mat3ra/code/releases/download/wip-c893e27/code.tgz",
+        "@mat3ra/cove": "https://github.com/mat3ra/cove/releases/download/wip-3374a52/cove.tgz",
+        "@mat3ra/esse": "https://github.com/mat3ra/esse/releases/download/wip-b8494e3c7/esse.tgz",
+        "@mat3ra/made": "https://github.com/mat3ra/made/releases/download/wip-b5ab8c9/made.tgz",
+        "@mat3ra/standata": "https://github.com/mat3ra/standata/releases/download/wip-c5ba9be/standata.tgz",
         "@mat3ra/tsconfig": "^2024.3.23-2",
-        "@mat3ra/wave.js": "2026.8.13-0",
+        "@mat3ra/wave.js": "https://github.com/mat3ra/wave.js/releases/download/wip-1bd0a38/wave.js.tgz",
         "@types/debug": "^4.1.12",
         "@types/mocha": "^10.0.1",
         "@types/node": "^20.4.2",
