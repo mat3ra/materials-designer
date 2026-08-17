@@ -14,23 +14,9 @@ on:
 
 jobs:
   cleanup-wip-releases:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout this repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-
-      - name: Checkout actions repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          repository: mat3ra/actions
-          # TODO: drop `ref` once mat3ra/actions' js/cleanup-wip-releases merges to main
-          ref: chore/SOF-7942-1
-          token: ${{ secrets.BOT_GITHUB_TOKEN }}
-          path: actions
-
-      - name: Clean up stale WIP releases
-        uses: ./actions/js/cleanup-wip-releases
-        with:
-          # Scheduled runs always delete; workflow_dispatch defaults to dry-run.
-          dry-run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run || 'false' }}
-          github-token: ${{ secrets.BOT_GITHUB_TOKEN }}
+    uses: mat3ra/actions/.github/workflows/cleanup-wip-releases.yml@main
+    with:
+      # Scheduled runs always delete; workflow_dispatch defaults to dry-run.
+      dry-run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run || false }}
+    secrets:
+      github-token: ${{ secrets.BOT_GITHUB_TOKEN }}

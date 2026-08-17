@@ -6,26 +6,9 @@ on: push
 
 jobs:
   release-wip:
-    if: contains(github.event.head_commit.message, '[release]')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout this repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          lfs: true
-
-      - name: Checkout actions repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          repository: mat3ra/actions
-          # TODO: drop `ref` once mat3ra/actions' js/release-wip merges to main
-          ref: chore/SOF-7942-1
-          token: ${{ secrets.BOT_GITHUB_TOKEN }}
-          path: actions
-
-      - name: Publish WIP release tarball
-        uses: ./actions/js/release-wip
-        with:
-          package-name: materials-designer
-          build-script: transpile
-          github-token: ${{ secrets.BOT_GITHUB_TOKEN }}
+    uses: mat3ra/actions/.github/workflows/release-wip.yml@main
+    with:
+      package-name: materials-designer
+      build-script: transpile
+    secrets:
+      github-token: ${{ secrets.BOT_GITHUB_TOKEN }}
