@@ -12,7 +12,8 @@
         "lint": "eslint src && prettier --write src",
         "lint:fix": "eslint src --fix && prettier --write src",
         "prestart": "npm-link-shared ./node_modules/@mat3ra/cove/node_modules . react; npm-link-shared ./node_modules/@mat3ra/wave.js/node_modules . react",
-        "prettier": "prettier --check src tests"
+        "prettier": "prettier --check src tests",
+        "prepublishOnly": "npm run transpile"
     },
     "repository": {
         "type": "git",
