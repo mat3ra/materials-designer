@@ -153,5 +153,5 @@ order is the whole reason the fields are separate:
 | `src/components/repl/` | The whole MD-side feature — 4 files |
 | `src/reducers/Material.ts` | `materialsSyncScope`, the merge rule above |
 | `scripts/provision-repl-wheels.mjs` | Build-time environment caching |
-| `tests/vitest/*.pyodide.test.ts` | Integration test against a real Pyodide environment |
+| `tests/cypress/e2e/repl/` | The feature spec — drives the panel against a real interpreter |
 | cove `src/other/pyodide/`, `src/other/repl/` | The generic half |

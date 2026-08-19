@@ -4,17 +4,5 @@
     "rules": {
         "jsx-a11y/label-has-associated-control": "off",
         "react/function-component-definition": "off"
-    },
-    "overrides": [
-        {
-            // vitest/ holds the ROOT package's tests, not part of this Cypress package. They import
-            // from ../../src and use the root package's devDependencies; because tests/ has its own
-            // package.json, both read as crossing a package boundary to these two rules.
-            "files": ["vitest/**/*.ts"],
-            "rules": {
-                "import/no-extraneous-dependencies": "off",
-                "import/no-relative-packages": "off"
-            }
-        }
-    ]
+    }
 }

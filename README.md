@@ -127,23 +127,7 @@ npm start
 
 ### 3.2. Tests
 
-All tests live under `tests/`, so `src/` contains only shipped source:
-
-```
-tests/
-  vitest/    <- run by THIS package (npm run test:unit / test:pyodide)
-  cypress/   <- run by tests/package.json (its own package, Node v20)
-```
-
-The two Vitest suites share `vite.config.mts` as two projects; the `*.pyodide.test.ts` suffix routes a
-file between them:
-
-| Command | What it covers | Speed |
-| --- | --- | --- |
-| `npm run test:unit` (= `npm test`) | `tests/vitest/*.test.ts` — reducers, the REPL session's JS half | seconds |
-| `npm run test:pyodide` | `tests/vitest/*.pyodide.test.ts` — the REPL against a real Pyodide interpreter (see 3.7) | minutes |
-
-End-to-end tests are Cypress and live in their own package; use Node v20:
+Tests live in `tests/`, its own package; use Node v20:
 
 ```bash
 cd tests
@@ -291,15 +275,12 @@ The reusable preamble and host-sync helpers live in the `mat3ra-notebooks-utils`
 Designer only owns the environment manifest and the hooks that call those helpers before and after a
 run.
 
-#### Running the integration test
+#### Testing the REPL
 
-```bash
-npm run provision-repl-wheels   # once; wheels are cached on disk
-npm run test:pyodide            # builds a real Pyodide env — minutes
-```
-
-It drives the real `MaterialsReplSession`, so it also covers the install ordering, the wheel handling
-and the error/completion paths rather than re-declaring them.
+`tests/cypress/e2e/repl/python-repl.feature`, the same way the JupyterLite session is tested: drive
+the panel in a browser against a real interpreter and assert the materials that come back. The
+interpreter internals — install ordering, wheel handling, completions, error shape — belong to cove
+and are covered by cove's own suite.
 
 ## 4. Links
 

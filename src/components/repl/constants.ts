@@ -1,4 +1,4 @@
-/** Must match the `pyodide` devDependency — a unit test asserts it rather than trusting a comment. */
+/** Pinned rather than floating: an interpreter upgrade can break the prebuilt wheels below. */
 export const PYODIDE_VERSION = "0.24.1";
 
 export const PYODIDE_INDEX_URL = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`;
@@ -34,11 +34,4 @@ export const REPL_NOTEBOOKS_UTILS_WHEEL_URL =
 
 export interface PyodideLock {
     packages?: Record<string, { file_name?: string }>;
-}
-
-/** The bootstrap wheel AX ships in its Pyodide lock under the `mat3ra` package. */
-export function getNotebooksUtilsWheelFilename(lockContent: string): string {
-    const filename = (JSON.parse(lockContent) as PyodideLock).packages?.mat3ra?.file_name;
-    if (!filename) throw new Error("AX Pyodide lock does not contain the notebooks-utils wheel.");
-    return filename;
 }

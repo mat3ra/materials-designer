@@ -11,13 +11,11 @@
         "transpile": "tsc && npm run copy-css",
         "provision-repl-wheels": "node scripts/provision-repl-wheels.mjs",
         "copy-css": "mkdir -p dist/stylesheets && cp src/stylesheets/* dist/stylesheets/",
-        "test": "npm run test:unit && echo 'Cypress e2e tests live in the tests subfolder: use Node 20 (`nvm use 20`), then `npm i` && `npm test` there. The real-Pyodide suite is `npm run test:pyodide`.'",
-        "test:unit": "vitest run --project unit",
-        "test:pyodide": "vitest run --project pyodide",
-        "lint": "eslint src tests/vitest && prettier --write src tests/vitest --ignore-path .gitignore",
-        "lint:fix": "eslint src tests/vitest --fix && prettier --write src tests/vitest --ignore-path .gitignore",
+        "test": "echo 'Tests are in the tests subfolder. Use Node 20 (`nvm use 20`) and run `npm i` && `npm test` there'",
+        "lint": "eslint src && prettier --write src",
+        "lint:fix": "eslint src --fix && prettier --write src",
         "prestart": "npm-link-shared ./node_modules/@mat3ra/cove/node_modules . react; npm-link-shared ./node_modules/@mat3ra/wave.js/node_modules . react; npm run provision-repl-wheels",
-        "prettier": "prettier --check src tests --ignore-path .gitignore"
+        "prettier": "prettier --check src tests"
     },
     "repository": {
         "type": "git",
@@ -102,7 +100,6 @@
         "lint-staged": "12.1.2",
         "npm-link-shared": "^0.5.6",
         "prettier": "2.5.1",
-        "pyodide": "0.24.1",
         "random-seed": "^0.3.0",
         "react": "^17.0.0",
         "react-dom": "^17.0.0",
@@ -112,7 +109,6 @@
         "vite-plugin-node-polyfills": "^0.25.0",
         "vite-plugin-svgr": "^4.3.0",
         "vite-tsconfig-paths": "^5.1.4",
-        "vitest": "^4.1.10",
         "yaml": "^2.8.1"
     },
     "lint-staged": {
