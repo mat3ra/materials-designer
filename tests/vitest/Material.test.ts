@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import type { MaterialsSyncPayload } from "../../src/components/repl/materialsDataBridge";
-import { MDMaterial } from "../../src/MDMaterial";
+import type { MDMaterial } from "../../src/MDMaterial";
 import { type MDState, materialsSyncScope } from "../../src/reducers/Material";
+import { createTestMaterial } from "./fixtures";
 
 const SCOPE = "python-repl";
 
@@ -20,14 +21,14 @@ function baseState(): MDState {
         index: 0,
         isLoading: false,
         materials: [
-            new MDMaterial({ _id: "authored-id", name: "Authored", metadata: { keep: 1 } }),
+            createTestMaterial({ _id: "authored-id", name: "Authored", metadata: { keep: 1 } }),
         ],
     };
 }
 
 describe("materialsSyncScope", () => {
     it("replaces the complete derived region without duplicating a rerun", () => {
-        const config = new MDMaterial({ name: "Python name" }).toJSON();
+        const config = createTestMaterial({ name: "Python name" }).toJSON();
         const first = sync(baseState(), [entity("supercell", config)]);
         const second = sync(first, [entity("supercell", config)]);
 
@@ -37,9 +38,9 @@ describe("materialsSyncScope", () => {
     });
 
     it("removes deleted or renamed bindings and leaves other producers untouched", () => {
-        const old = new MDMaterial({ name: "old" });
+        const old = createTestMaterial({ name: "old" });
         old.syncScope = SCOPE;
-        const foreign = new MDMaterial({ name: "foreign" });
+        const foreign = createTestMaterial({ name: "foreign" });
         foreign.syncScope = "other-tool";
         const state = { ...baseState(), materials: [...baseState().materials, old, foreign] };
 
@@ -51,7 +52,7 @@ describe("materialsSyncScope", () => {
 
     it("upserts a round-tripped authored material by id and merges metadata", () => {
         const state = baseState();
-        const config = new MDMaterial({
+        const config = createTestMaterial({
             _id: "authored-id",
             name: "from-python",
             metadata: { build: [{ step: "supercell" }] },
@@ -70,7 +71,7 @@ describe("materialsSyncScope", () => {
     });
 
     it("does not append a non-empty id that no longer matches a host row", () => {
-        const missing = new MDMaterial({ _id: "removed-id", name: "removed" }).toJSON();
+        const missing = createTestMaterial({ _id: "removed-id", name: "removed" }).toJSON();
 
         const next = sync(baseState(), [entity("stale", missing)]);
 
@@ -78,8 +79,8 @@ describe("materialsSyncScope", () => {
     });
 
     it("keeps a surviving selection and clamps when the selected derived row disappears", () => {
-        const authored = new MDMaterial({ name: "authored" });
-        const derived = new MDMaterial({ name: "derived" });
+        const authored = createTestMaterial({ name: "authored" });
+        const derived = createTestMaterial({ name: "derived" });
         derived.syncScope = SCOPE;
         const state: MDState = { index: 1, isLoading: false, materials: [authored, derived] };
 
@@ -90,14 +91,14 @@ describe("materialsSyncScope", () => {
     });
 
     it("preserves the ephemeral scope through internal clones", () => {
-        const derived = new MDMaterial({ name: "derived" });
+        const derived = createTestMaterial({ name: "derived" });
         derived.syncScope = SCOPE;
 
         expect(derived.clone().syncScope).toBe(SCOPE);
     });
 
     it("clears the ephemeral scope when the user creates an authored copy", () => {
-        const derived = new MDMaterial({ name: "derived" });
+        const derived = createTestMaterial({ name: "derived" });
         derived.syncScope = SCOPE;
         const copy = derived.clone();
 

@@ -5,7 +5,7 @@ import {
     PYODIDE_VERSION,
 } from "../../src/components/repl/constants";
 import { MaterialsReplSession } from "../../src/components/repl/MaterialsReplSession";
-import { MDMaterial } from "../../src/MDMaterial";
+import { createTestMaterial } from "./fixtures";
 
 const REQUIREMENTS = `default:
   packages_pyodide:
@@ -108,7 +108,7 @@ describe("MaterialsReplSession", () => {
 
     it("loads the package-owned material preamble on first execution", async () => {
         session.connect(
-            () => [new MDMaterial({ name: "Si" })],
+            () => [createTestMaterial({ name: "Si" })],
             () => 0,
             vi.fn(),
         );
@@ -129,7 +129,7 @@ describe("MaterialsReplSession", () => {
 
     it("installs the selected AX profile from the same YAML exposed to the editor", async () => {
         session.connect(
-            () => [new MDMaterial({ name: "Si" })],
+            () => [createTestMaterial({ name: "Si" })],
             () => 0,
             vi.fn(),
         );
@@ -144,7 +144,7 @@ describe("MaterialsReplSession", () => {
     });
 
     it("refreshes host materials before a run and syncs the namespace afterward", async () => {
-        const materials = [new MDMaterial({ name: "Si" }), new MDMaterial({ name: "Ge" })];
+        const materials = [createTestMaterial({ name: "Si" }), createTestMaterial({ name: "Ge" })];
         session.connect(
             () => materials,
             () => 1,

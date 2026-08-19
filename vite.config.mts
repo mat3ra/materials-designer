@@ -1,3 +1,5 @@
+import { resolve } from "node:path";
+
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
@@ -26,6 +28,18 @@ export default defineConfig({
         port: 3001,
     },
 
+    // Specs live under tests/, which is its own npm project with its own node_modules — so Vite's
+    // resolution finds the Cypress suite's older @mat3ra packages before the root ones and the specs
+    // silently test against the wrong library version. Pin every @mat3ra import to the root install.
+    resolve: {
+        alias: [
+            {
+                find: /^@mat3ra\//,
+                replacement: `${resolve(__dirname, "node_modules/@mat3ra")}/`,
+            },
+        ],
+    },
+
     // Two vitest projects rather than two config files: the fast suite runs on every commit, while the
     // real-Pyodide suite builds a WASM CPython environment and takes minutes. The `*.pyodide.test.ts`
     // suffix is what routes a file between them — select with `npm run test:unit` / `test:pyodide`.
@@ -41,9 +55,18 @@ export default defineConfig({
                     name: "unit",
                     include: ["tests/vitest/**/*.test.ts"],
                     exclude: ["**/*.pyodide.test.ts"],
+                    setupFiles: ["tests/vitest/setup.ts"],
                 },
             },
             {
+                resolve: {
+                    alias: [
+                        {
+                            find: /^@mat3ra\//,
+                            replacement: `${resolve(__dirname, "node_modules/@mat3ra")}/`,
+                        },
+                    ],
+                },
                 // Deliberately NOT `extends: true`: inheriting the app's plugins brings in
                 // nodePolyfills(), which swaps Node builtins for browser shims and then fails to
                 // resolve under a real Node run ("Directory import .../punycode/ is not supported").
@@ -52,6 +75,7 @@ export default defineConfig({
                 test: {
                     name: "pyodide",
                     include: ["tests/vitest/**/*.pyodide.test.ts"],
+                    setupFiles: ["tests/vitest/setup.ts"],
                     // One Pyodide interpreter per process is the supported shape (PyodideSession
                     // enforces it), so these files must never run concurrently. Timeouts live in the
                     // test file itself, next to the code that needs them.

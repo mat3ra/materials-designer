@@ -6,6 +6,7 @@ import {
     createMaterialsDataBridgeHandlers,
 } from "../../src/components/repl/materialsDataBridge";
 import { MDMaterial } from "../../src/MDMaterial";
+import { createTestMaterial } from "./fixtures";
 
 function handlerFor(
     action: Action,
@@ -20,7 +21,7 @@ function handlerFor(
 
 describe("materialsDataBridge", () => {
     it("returns current material configs for both bridge transports", async () => {
-        const materials = [new MDMaterial({ name: "Si" }), new MDMaterial({ name: "Ge" })];
+        const materials = [createTestMaterial({ name: "Si" }), createTestMaterial({ name: "Ge" })];
         const getData = handlerFor(Action.getData, { getMaterials: () => materials });
 
         const result = await getData({});
@@ -30,7 +31,7 @@ describe("materialsDataBridge", () => {
 
     it("preserves the legacy JupyterLite materials payload", async () => {
         const setMaterials = vi.fn();
-        const config = new MDMaterial({ name: "from-notebook" }).toJSON();
+        const config = createTestMaterial({ name: "from-notebook" }).toJSON();
         const setData = handlerFor(Action.setData, {
             getMaterials: () => [],
             setMaterials,
@@ -54,7 +55,7 @@ describe("materialsDataBridge", () => {
                 {
                     type: "material",
                     name: "supercell",
-                    config: new MDMaterial({ name: "Si" }).toJSON(),
+                    config: createTestMaterial({ name: "Si" }).toJSON(),
                 },
             ],
         };

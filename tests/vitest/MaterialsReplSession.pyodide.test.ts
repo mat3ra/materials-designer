@@ -7,6 +7,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadPyodide, version as installedPyodideVersion } from "pyodide";
 import { afterAll, assert, beforeAll, describe, expect, it } from "vitest";
+import { parse, stringify } from "yaml";
 
 import {
     getNotebooksUtilsWheelFilename,
@@ -15,7 +16,7 @@ import {
 } from "../../src/components/repl/constants";
 import type { MaterialsSyncPayload } from "../../src/components/repl/materialsDataBridge";
 import { replSession } from "../../src/components/repl/MaterialsReplSession";
-import { MDMaterial } from "../../src/MDMaterial";
+import { createTestMaterial } from "./fixtures";
 
 const ENVIRONMENT_BUILD_TIMEOUT_MS = 15 * 60 * 1000;
 const RUN_TIMEOUT_MS = 3 * 60 * 1000;
@@ -81,7 +82,7 @@ describe("MaterialsReplSession against real Pyodide", () => {
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (globalThis as any).window = globalThis;
-        const input = new MDMaterial({ name: "Si" });
+        const input = createTestMaterial({ name: "Si" });
         replSession.connect(
             () => [input],
             () => 0,
@@ -167,10 +168,18 @@ describe("MaterialsReplSession against real Pyodide", () => {
     it(
         "applies an edited requirement without reinstalling unchanged pinned packages",
         async () => {
-            const editedRequirements = requirementsContent.replace(
-                "      - mat3ra-made",
-                "      - more-itertools==10.2.0\n      - mat3ra-made",
+            // Edit the profile under test by name. A plain string replace would land in whichever
+            // profile AX happens to list first — currently `repl`, which this suite never installs,
+            // making the test silently pass through without installing anything.
+            const configuration = parse(requirementsContent);
+            const profile = configuration.notebooks.find(
+                ({ name }: { name: string }) => name === REPL_DEFAULT_PROFILE,
             );
+            assert.ok(profile, `AX config has no '${REPL_DEFAULT_PROFILE}' profile`);
+            const anchor = profile.packages_pyodide.indexOf("mat3ra-made");
+            assert.ok(anchor >= 0, "AX 'made' profile no longer installs mat3ra-made");
+            profile.packages_pyodide.splice(anchor, 0, "more-itertools==10.2.0");
+            const editedRequirements = stringify(configuration);
 
             await replSession.applyRequirements(
                 editedRequirements,
