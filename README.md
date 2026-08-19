@@ -269,7 +269,12 @@ or the REPL cannot reproduce the selected AX environment.
 
 They are downloaded from [jupyterlite.mat3ra.com](https://jupyterlite.mat3ra.com/files/packages/),
 which already hosts them for the JupyterLite kernel — so that site is a build-time dependency of this
-repo. Override the complete AX origin with `REPL_AX_BASE_URL`, the manifest with
+repo.
+
+One exception, and it is temporary: the notebooks-utils wheel comes from a URL pinned in
+`src/components/repl/constants.ts` (`REPL_NOTEBOOKS_UTILS_WHEEL_URL`), because no released version
+carries the REPL host bridge yet. See the comment there for the removal condition. Override it with
+`REPL_NOTEBOOKS_UTILS_WHEEL_URL`. Override the complete AX origin with `REPL_AX_BASE_URL`, the manifest with
 `REPL_AX_CONFIG_URL`, or only the content-wheel mirror with `REPL_WHEELS_SOURCE_URL`:
 
 ```bash

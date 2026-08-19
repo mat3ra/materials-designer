@@ -1,7 +1,7 @@
 // Cache the AX-owned Pyodide manifest and the wheels needed by its `made` profile. Vite serves the
 // generated files same-origin, so an MD deployment remains reproducible even if AX later changes.
 import { createWriteStream } from "node:fs";
-import { mkdir, readFile, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
@@ -19,10 +19,14 @@ const PROJECT_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const PUBLIC_DIRECTORY = join(PROJECT_ROOT, "public");
 const WHEELS_DIRECTORY = join(PUBLIC_DIRECTORY, "repl-wheels");
 const CONSTANTS_PATH = join(PROJECT_ROOT, "src", "components", "repl", "constants.ts");
-const PROFILE = (await readFile(CONSTANTS_PATH, "utf8")).match(
-    /REPL_DEFAULT_PROFILE = "([^"]+)"/,
-)?.[1];
+const CONSTANTS_CONTENT = await readFile(CONSTANTS_PATH, "utf8");
+const PROFILE = CONSTANTS_CONTENT.match(/REPL_DEFAULT_PROFILE\s*=\s*"([^"]+)"/)?.[1];
 if (!PROFILE) throw new Error(`${CONSTANTS_PATH} does not define REPL_DEFAULT_PROFILE.`);
+// Read the pin from the same constants file the app uses, so there is one place to change it.
+const PINNED_WHEEL_URL =
+    process.env.REPL_NOTEBOOKS_UTILS_WHEEL_URL ||
+    CONSTANTS_CONTENT.match(/REPL_NOTEBOOKS_UTILS_WHEEL_URL\s*=\s*"([^"]*)"/)?.[1] ||
+    "";
 
 async function fetchText(url) {
     const response = await fetch(url, { cache: "no-store" });
@@ -61,11 +65,11 @@ async function downloadWheel(wheelFilename, sourceBaseUrl) {
 }
 
 await mkdir(WHEELS_DIRECTORY, { recursive: true });
-const localNotebooksUtilsWheels = (await readdir(WHEELS_DIRECTORY))
-    .filter((filename) => /^mat3ra_notebooks_utils-.*\.whl$/.test(filename))
-    .sort();
-const localNotebooksUtilsWheel = localNotebooksUtilsWheels.at(-1);
-const embeddedApiRevision = localNotebooksUtilsWheel?.match(/\+g([a-f0-9]+)-/)?.[1];
+// A pinned URL carries its own filename, and setuptools_scm puts the api-examples revision it was
+// built from in that filename as `+g<sha>` — so the manifest is read from that same revision and
+// config cannot drift from the code it configures.
+const pinnedWheelFilename = PINNED_WHEEL_URL ? PINNED_WHEEL_URL.split("/").pop() : undefined;
+const embeddedApiRevision = pinnedWheelFilename?.match(/\+g([a-f0-9]+)-/)?.[1];
 const configUrl =
     process.env.REPL_AX_CONFIG_URL ||
     (embeddedApiRevision
@@ -95,11 +99,16 @@ const lock = JSON.parse(lockContent);
 if (!lock.packages?.mat3ra) {
     throw new Error("AX Pyodide lock has no notebooks-utils ('mat3ra') package.");
 }
-const notebooksUtilsWheel = localNotebooksUtilsWheel || lock.packages.mat3ra.file_name;
+const notebooksUtilsWheel = pinnedWheelFilename || lock.packages.mat3ra.file_name;
 if (!notebooksUtilsWheel) {
     throw new Error("AX Pyodide lock's notebooks-utils ('mat3ra') package has no file_name.");
 }
 lock.packages.mat3ra.file_name = notebooksUtilsWheel;
+console.log(
+    pinnedWheelFilename
+        ? `repl-environment: notebooks-utils pinned to ${pinnedWheelFilename}`
+        : `repl-environment: notebooks-utils from AX lock: ${notebooksUtilsWheel}`,
+);
 const resolvedLockContent = JSON.stringify(lock, null, 2);
 
 await writeFile(join(PUBLIC_DIRECTORY, "repl-config.yml"), configContent);
@@ -108,7 +117,10 @@ await writeFile(join(PUBLIC_DIRECTORY, "repl-pyodide-lock.json"), resolvedLockCo
 for (const filename of [...new Set(contentWheelFilenames)]) {
     await downloadWheel(filename, CONTENT_WHEELS_URL);
 }
-if (!localNotebooksUtilsWheels.includes(notebooksUtilsWheel)) {
-    await downloadWheel(notebooksUtilsWheel, `${AX_BASE_URL}/pyodide`);
-}
+await downloadWheel(
+    notebooksUtilsWheel,
+    PINNED_WHEEL_URL
+        ? PINNED_WHEEL_URL.slice(0, PINNED_WHEEL_URL.lastIndexOf("/"))
+        : `${AX_BASE_URL}/pyodide`,
+);
 console.log(`repl-environment: cached AX '${PROFILE}' profile`);

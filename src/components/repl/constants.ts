@@ -17,6 +17,21 @@ export const REPL_REQUIREMENTS_URL = "/repl-config.yml";
 export const REPL_PYODIDE_LOCK_URL = "/repl-pyodide-lock.json";
 export const REPL_DEFAULT_PROFILE = "made"; // change to "repl" when ready
 
+/**
+ * TEMPORARY PIN — delete once mat3ra-notebooks-utils ships the REPL bridge in a release.
+ *
+ * The preamble needs `send_data` and `sync_materials`, plus a `pyodide.io` whose `js` and IPython
+ * imports are optional rather than top-level. No published wheel (AX's Pyodide lock or PyPI) has any
+ * of it; it exists only on api-examples `feature/SOF-7961`, whose build-wheel workflow publishes a
+ * wheel to that repo's GitHub Pages. Pinning that exact build is what makes a clean checkout
+ * reproducible — otherwise provisioning installs a wheel that cannot bootstrap the namespace.
+ *
+ * An empty string means "not pinned": provisioning then uses whatever AX's lock names, which is the
+ * behaviour to return to. Override the pin with REPL_NOTEBOOKS_UTILS_WHEEL_URL.
+ */
+export const REPL_NOTEBOOKS_UTILS_WHEEL_URL =
+    "https://mat3ra.github.io/api-examples/mat3ra_notebooks_utils-0.1.dev1+g721ae8714-py3-none-any.whl";
+
 export interface PyodideLock {
     packages?: Record<string, { file_name?: string }>;
 }
