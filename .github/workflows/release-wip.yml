@@ -1,0 +1,14 @@
+---
+
+name: Publish WIP release tarball
+
+on: push
+
+jobs:
+  release-wip:
+    uses: mat3ra/actions/.github/workflows/release-wip.yml@main
+    with:
+      package-name: materials-designer
+      build-script: transpile
+    secrets:
+      github-token: ${{ secrets.BOT_GITHUB_TOKEN }}

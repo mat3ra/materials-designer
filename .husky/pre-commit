@@ -7,10 +7,6 @@ npm run lint:fix
 
 echo ">>>>>>>> Husky Pre-commit: Transpiling sources"
 echo ""
+# Kept as a type check on the way in; dist/ is gitignored, so nothing is staged from it.
 npm run transpile
-git status
-
-echo ">>>>>>>> Husky Pre-commit: Adding transpiled sources in dist"
-echo ""
-git add dist
 echo ""
