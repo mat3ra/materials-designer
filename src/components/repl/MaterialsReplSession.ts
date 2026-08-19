@@ -1,6 +1,14 @@
+import type {
+    PythonCompletion,
+    PythonSignatureInfo,
+} from "@mat3ra/cove/dist/other/codemirror/utils/pythonCompletions";
 import DataBridge from "@mat3ra/cove/dist/other/iframe-messaging/DataBridge";
 import InPageTransport from "@mat3ra/cove/dist/other/iframe-messaging/InPageTransport";
-import PyodideSession from "@mat3ra/cove/dist/other/pyodide/PyodideSession";
+import PyodideSession, {
+    type Pyodide,
+    type PythonExecutionResult,
+    type PythonSessionInterface,
+} from "@mat3ra/cove/dist/other/pyodide/PyodideSession";
 import { Action } from "@mat3ra/esse/dist/js/types";
 
 import type { MDMaterial } from "../../MDMaterial";
@@ -24,8 +32,24 @@ from mat3ra.made.tools.helpers import *
 from mat3ra.notebooks_utils.core.entity.material.io import get_materials as _get_materials, sync_materials as _sync_materials
 `;
 
-/** Persistent Materials Designer namespace connected through the generic in-page data bridge. */
-export class MaterialsReplSession extends PyodideSession {
+/**
+ * Persistent Materials Designer namespace connected through the generic in-page data bridge.
+ *
+ * Owns a {@link PyodideSession} rather than extending it: the three callbacks below are the entire
+ * contract with cove, and passing them makes the run cycle readable in one place. Implements
+ * {@link PythonSessionInterface} so cove's REPL UI takes this directly.
+ */
+export class MaterialsReplSession implements PythonSessionInterface {
+    private session: PyodideSession;
+
+    /**
+     * The interpreter handle, captured in `setupNamespace` — the first callback cove invokes, and the
+     * only one that receives it. Every Python call here goes through it. Null until then, which is
+     * safe: cove awaits `setupNamespace` before reporting the session initialized, and refuses to
+     * execute before that.
+     */
+    private pyodide: Pyodide = null;
+
     private bridge?: DataBridge;
 
     private getMaterials: () => MDMaterial[] = () => [];
@@ -43,13 +67,55 @@ export class MaterialsReplSession extends PyodideSession {
     private stagedWheelFilenames = new Set<string>();
 
     constructor() {
-        super({
+        this.session = new PyodideSession({
             indexUrl: PYODIDE_INDEX_URL,
             loadPackages: ["pyyaml", "typing-extensions", "sqlite3"],
             postWheelPackages: REPL_COMPLETION_PACKAGES,
             wheelBaseUrl: REPL_DEFAULT_WHEEL_BASE_URL,
             wheelFsDir: "/drive/packages",
+            setupNamespace: (pyodide, log) => this.setUpMaterialNamespace(pyodide, log),
+            beforeRun: () => this.bindHostMaterials(),
+            afterRun: () => this.syncNamespaceToHost(),
         });
+    }
+
+    // Pass-throughs to the owned session; see PythonSessionInterface.
+    get isInitialized(): boolean {
+        return this.session.isInitialized;
+    }
+
+    get isRunning(): boolean {
+        return this.session.isRunning;
+    }
+
+    load(onProgress?: (message: string) => void): Promise<void> {
+        return this.session.load(onProgress);
+    }
+
+    execute(code: string): Promise<PythonExecutionResult> {
+        return this.session.execute(code);
+    }
+
+    complete(source: string, line: number, column: number): PythonCompletion[] {
+        return this.session.complete(source, line, column);
+    }
+
+    describe(
+        source: string,
+        line: number,
+        column: number,
+        name: string,
+    ): PythonSignatureInfo | null {
+        return this.session.describe(source, line, column, name);
+    }
+
+    setWheelBaseUrl(wheelBaseUrl: string): void {
+        this.session.setWheelBaseUrl(wheelBaseUrl);
+    }
+
+    /** Takes an already-loaded Pyodide so a Node test can inject one. */
+    initialize(pyodide: Pyodide, onProgress?: (message: string) => void): Promise<void> {
+        return this.session.initialize(pyodide, onProgress);
     }
 
     configureRequirements(content: string, profile: string, pyodideLockContent: string): void {
@@ -66,7 +132,7 @@ export class MaterialsReplSession extends PyodideSession {
         if (!notebooksUtilsWheel) {
             throw new Error("AX Pyodide lock does not contain the notebooks-utils wheel.");
         }
-        this.spec.wheelFilenames = [notebooksUtilsWheel];
+        this.session.setWheelFilenames([notebooksUtilsWheel]);
     }
 
     connect(
@@ -80,8 +146,8 @@ export class MaterialsReplSession extends PyodideSession {
         if (this.bridge) return;
 
         const transport = new InPageTransport((action, payload) => {
-            this.py.globals.set("data_from_host_action", action);
-            this.py.globals.set("data_from_host", this.py.toPy(payload));
+            this.pyodide.globals.set("data_from_host_action", action);
+            this.pyodide.globals.set("data_from_host", this.pyodide.toPy(payload));
         });
         this.bridge = new DataBridge(transport);
         createMaterialsDataBridgeHandlers({
@@ -90,13 +156,17 @@ export class MaterialsReplSession extends PyodideSession {
         }).forEach(({ action, handlers }) => this.bridge?.addHandlers(action, handlers));
     }
 
-    protected async bootstrapNamespace(log: (message: string) => void): Promise<void> {
+    private async setUpMaterialNamespace(
+        pyodide: Pyodide,
+        log: (message: string) => void,
+    ): Promise<void> {
+        this.pyodide = pyodide;
         if (!this.requirementsContent || !this.requirementsProfile) {
             throw new Error("MaterialsReplSession: requirements were not configured before load.");
         }
         await this.installRequirements(this.requirementsContent, this.requirementsProfile, log);
         log("Preparing material namespace…");
-        this.py.runPython(MATERIAL_PREAMBLE);
+        this.pyodide.runPython(MATERIAL_PREAMBLE);
         log("Environment ready. Type to autocomplete.");
     }
 
@@ -116,12 +186,12 @@ export class MaterialsReplSession extends PyodideSession {
         profile: string,
         log: (message: string) => void,
     ): Promise<void> {
-        this.py.FS.mkdirTree("/drive");
-        this.py.FS.mkdirTree("/drive/packages");
-        this.py.FS.writeFile("/drive/config.yml", content, { encoding: "utf8" });
+        this.pyodide.FS.mkdirTree("/drive");
+        this.pyodide.FS.mkdirTree("/drive/packages");
+        this.pyodide.FS.writeFile("/drive/config.yml", content, { encoding: "utf8" });
         log(`Installing AX requirements profile '${profile}'…`);
-        this.py.globals.set("_repl_requirements_profile", profile);
-        const requirementsJson = await this.py.runPythonAsync(`
+        this.pyodide.globals.set("_repl_requirements_profile", profile);
+        const requirementsJson = await this.pyodide.runPythonAsync(`
 import json
 from mat3ra.notebooks_utils.pyodide.packages.install import get_package_list_from_config
 json.dumps(await get_package_list_from_config("/drive/config.yml", _repl_requirements_profile))
@@ -135,7 +205,7 @@ json.dumps(await get_package_list_from_config("/drive/config.yml", _repl_require
             .filter((name) => this.pyodideLockPackages.has(name.replace(/_/g, "-")));
         if (pyodidePackages.length) {
             log(`Loading ${pyodidePackages.length} package(s) from AX's Pyodide lock…`);
-            await this.py.loadPackage(pyodidePackages);
+            await this.pyodide.loadPackage(pyodidePackages);
         }
         const wheelPrefix = "emfs:/drive/packages/";
         const wheelFilenames = requirements
@@ -144,32 +214,35 @@ json.dumps(await get_package_list_from_config("/drive/config.yml", _repl_require
         const newWheelFilenames = wheelFilenames.filter(
             (filename) => !this.stagedWheelFilenames.has(filename),
         );
-        await this.stageWheels(newWheelFilenames, log);
+        await this.session.stageWheels(newWheelFilenames, log);
         newWheelFilenames.forEach((filename) => this.stagedWheelFilenames.add(filename));
-        await this.py.runPythonAsync(`
+        await this.pyodide.runPythonAsync(`
 from mat3ra.notebooks_utils.pyodide.packages.install import install_packages_pyodide
 await install_packages_pyodide(_repl_requirements_profile)
 `);
     }
 
-    protected async beforeExecute(): Promise<void> {
+    /** Push the designer's current materials into the namespace as `materials_in` / `material`. */
+    private async bindHostMaterials(): Promise<void> {
         if (!this.bridge) throw new Error("MaterialsReplSession is not connected to a host.");
         await this.bridge.receive(Action.getData);
-        this.py.globals.set("_repl_active_index", this.getActiveIndex());
-        this.py.runPython(`
+        this.pyodide.globals.set("_repl_active_index", this.getActiveIndex());
+        this.pyodide.runPython(`
 materials_in = _get_materials(globals())
 material = materials_in[_repl_active_index] if 0 <= _repl_active_index < len(materials_in) else None
 `);
     }
 
-    protected async afterExecute(): Promise<void> {
-        await this.py.runPythonAsync("_sync_materials(globals())");
+    /** Read any Material the run produced back out to the host. */
+    private async syncNamespaceToHost(): Promise<void> {
+        await this.pyodide.runPythonAsync("_sync_materials(globals())");
     }
 
     dispose(): void {
         this.bridge?.destroy();
         this.bridge = undefined;
-        super.dispose();
+        this.pyodide = null;
+        this.session.dispose();
     }
 }
 

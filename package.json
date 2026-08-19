@@ -68,7 +68,7 @@
     "devDependencies": {
         "@exabyte-io/eslint-config": "^2025.1.15-0",
         "@mat3ra/code": "2026.8.13-0",
-        "@mat3ra/cove": "git+https://github.com/mat3ra/cove.git#191d4004c5428060f14f9023ba9888bb88403233",
+        "@mat3ra/cove": "https://github.com/mat3ra/cove/releases/download/wip-448fce6/cove.tgz",
         "@mat3ra/esse": "2026.8.13-0",
         "@mat3ra/made": "2026.8.13-0",
         "@mat3ra/standata": "2026.6.23-0",

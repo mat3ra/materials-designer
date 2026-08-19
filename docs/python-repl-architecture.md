@@ -6,19 +6,19 @@ in the material list and the 3D viewer.
 
 This document explains how that works. For how to *run* or *configure* it, see README section 3.7.
 
-## The one-sentence version
+## 1. The one-sentence version
 
 A single Python interpreter lives in the page; before each run the designer's materials are pushed
 into its namespace, and after each run any new `Material` in that namespace is pulled back out.
 
-## Three layers
+## 2. Three layers
 
 Everything reusable lives in **cove.js**, everything material-specific in **materials-designer**, and
 the Python in **AX** (`mat3ra-notebooks-utils`). Nothing material-aware exists in cove.
 
-Materials Designer authors no Python *modules* — but it does still hold about fifteen lines of inline
-Python in `MaterialsReplSession`, calling AX functions. Those calls belong behind AX entry points and
-are on their way out; treat any Python you find here as a leftover, not a pattern to copy.
+Materials Designer authors no Python *modules*. The handful of inline Python lines in
+`MaterialsReplSession` are bootstrap glue — they import the AX preamble and call AX functions.
+Anything more than that belongs in AX.
 
 ```mermaid
 flowchart TB
@@ -38,23 +38,38 @@ flowchart TB
     end
 
     Panel -->|renders| UI
-    Session -->|extends| Pyodide
+    Session -->|owns, passes callbacks| Pyodide
     Handlers -->|registers on| Bridge
     Pyodide -->|imports| Preamble
     Session -->|calls| IO
 ```
 
 Read each column top-to-bottom as "a specific thing standing on a generic thing".
-`PythonReplPanel` only mounts cove's REPL and feeds it props. `MaterialsReplSession` subclasses cove's
-`PyodideSession` and overrides three lifecycle hooks — build the namespace, bind materials in, sync
-them out. `materialsDataBridge` registers material handlers on cove's entity-agnostic `DataBridge`.
+`PythonReplPanel` only mounts cove's REPL and feeds it props. `MaterialsReplSession` *owns* a
+`PyodideSession` and hands it three callbacks — build the namespace, bind materials in, sync them
+out. `materialsDataBridge` registers material handlers on cove's entity-agnostic `DataBridge`.
 
-## The classes, and why each one exists
+Nothing here subclasses anything in cove. The whole contract is one constructor call, which is also
+the fastest way to see what the REPL does:
+
+```ts
+this.session = new PyodideSession({
+    ...packageSpec,
+    setupNamespace: (pyodide, log) => this.setUpMaterialNamespace(pyodide, log),
+    beforeRun: (pyodide) => this.bindHostMaterials(pyodide),
+    afterRun: (pyodide) => this.syncNamespaceToHost(pyodide),
+});
+```
+
+`afterRun` deliberately fires for failed runs too — code that raised halfway may still have produced
+materials worth syncing.
+
+## 3. The classes, and why each one exists
 
 | Class | Repo | Why it exists |
 |---|---|---|
 | `PyodideSession` | cove | Owns the interpreter: builds the environment, runs code in a persistent namespace, resolves completions. Knows nothing about materials. |
-| `MaterialsReplSession` | MD | Subclasses the above. `bootstrapNamespace` installs the AX profile and imports the preamble; `beforeExecute` / `afterExecute` bind materials in and out. That is its whole job. |
+| `MaterialsReplSession` | MD | Owns the above and supplies its three callbacks: install the AX profile and import the preamble, bind materials in, sync them out. Implements the same `PythonSessionInterface` the UI consumes. That is its whole job. |
 | `PythonRepl` / `ReplConsole` | cove | Editor, output pane, error rendering, requirements tab. Takes a session as a prop and calls `execute`. |
 | `PythonReplPanel` | MD | Mounts `PythonRepl` in a drawer, fetches the environment manifest, wires the session to designer state. |
 | `DataBridge` / `InPageTransport` | cove | A handler registry plus the in-page transport. The same bridge serves the iframe notebooks. |
@@ -63,7 +78,7 @@ them out. `materialsDataBridge` registers material handlers on cove's entity-agn
 There is exactly **one** Pyodide interpreter per page, and `PyodideSession` enforces that with an
 ownership claim — a second instance throws rather than silently sharing globals.
 
-## What happens on one run
+## 4. What happens on one run
 
 ```mermaid
 sequenceDiagram
@@ -75,11 +90,11 @@ sequenceDiagram
 
     User->>UI: Shift+Enter
     UI->>S: execute(code)
-    S->>S: beforeExecute
+    S->>S: beforeRun
     Note over S,Py: designer materials → materials_in, material
     S->>Py: run user code
     Py-->>S: stdout / structured error
-    S->>S: afterExecute
+    S->>S: afterRun
     Note over Py,S: sync_materials scans the namespace
     S->>R: payload { syncScope, entities }
     R->>R: upsert by _id, replace scope
@@ -88,12 +103,12 @@ sequenceDiagram
 
 Both directions travel over the bridge; Python never touches React state directly.
 
-- **In:** `beforeExecute` fires `Action.getData`, whose handler returns `materials.map(m => m.toJSON())`.
+- **In:** `beforeRun` fires `Action.getData`, whose handler returns `materials.map(m => m.toJSON())`.
   AX's `get_materials` turns that into `materials_in`, and `material` is the selected one.
-- **Out:** `afterExecute` calls AX's `sync_materials`, which walks the namespace for public `Material`
+- **Out:** `afterRun` calls AX's `sync_materials`, which walks the namespace for public `Material`
   bindings and hands a payload to `window.sendDataToHost`.
 
-## The one rule worth knowing: `syncScope`
+## 5. The one rule worth knowing: `syncScope`
 
 Re-running a cell must not pile up duplicates, but it also must not clobber materials you authored by
 hand. So the sync payload carries a `syncScope`, and the reducer treats it as a region it owns:
@@ -105,7 +120,7 @@ hand. So the sync payload carries a `syncScope`, and the reducer treats it as a 
 `syncScope` lives on `MDMaterial` but is deliberately **absent from `toJSON`** — it is a runtime marker,
 never part of the ESSE wire format, and never exported.
 
-## Where the Python environment comes from
+## 6. Where the Python environment comes from
 
 The REPL installs the same package set as the production JupyterLite kernel: AX's `config.yml`, its
 `made` profile, and prebuilt pure-Python wheels for the packages that cannot build under Pyodide
@@ -116,7 +131,7 @@ One temporary exception: the notebooks-utils wheel is pinned to a URL, because n
 carries the host bridge yet. The constant in `src/components/repl/constants.ts` documents the removal
 condition. README 3.7 has the full picture.
 
-## The environment spec
+## 7. The environment spec
 
 `PyodideEnvironmentSpec` is a bag of options because package installation is order-sensitive — that
 order is the whole reason the fields are separate:
@@ -129,8 +144,9 @@ order is the whole reason the fields are separate:
 | `wheelFilenames` | Prebuilt wheels, installed **without** dependencies — they exist precisely because their transitive deps conflict or will not build. |
 | `postWheelPackages` | Installed last, after the wheels are in place. |
 | `wheelBaseUrl` | Where the wheels are served from; a host app can override it. |
+| `setupNamespace` / `beforeRun` / `afterRun` | The caller's domain hooks, described above. |
 
-## Where to look
+## 8. Where to look
 
 | Path | |
 |---|---|
