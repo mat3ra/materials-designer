@@ -237,6 +237,10 @@ This should source JL from the development distribution and run only notebook he
 
 ### 3.7. Python REPL (Pyodide)
 
+> **How it works:** [docs/python-repl-architecture.md](docs/python-repl-architecture.md) — the layer
+> split, what each class is for, and what happens on a single run. This section covers configuring
+> and running it.
+
 The **View → Python REPL** panel runs `mat3ra.made.tools` in the browser via
 [Pyodide](https://pyodide.org). Materials in the designer are bound as `materials_in` (list order) and
 `material` (the active one); any `Material` the user creates or reassigns is synced back into the list.
