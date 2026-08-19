@@ -1,5 +1,3 @@
-# dist/ is build output and is not committed on any branch. Consumers get it from a published
-# version or, for unmerged work, a CI-built WIP tarball — see RELEASING.md.
 dist/
 build/
 node_modules/
@@ -15,7 +13,6 @@ tests/cypress/downloads/*
 .idea/
 .DS_Store
 src/react-app-env.d.ts
-
 # Provisioned Pyodide REPL wheels + AX manifests, downloaded by scripts/provision-repl-wheels.mjs.
 # The directory name is owned by REPL_WHEELS_DIRECTORY_NAME in src/components/repl/constants.ts;
 # it has to be repeated literally here because .gitignore cannot read TypeScript.
