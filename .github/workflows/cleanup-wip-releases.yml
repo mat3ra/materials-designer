@@ -1,0 +1,22 @@
+---
+
+name: Clean up stale WIP release tarballs
+
+on:
+  schedule:
+    - cron: '0 6 * * 1' # every Monday 06:00 UTC
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: Log keep/delete decisions without deleting anything
+        type: boolean
+        default: true
+
+jobs:
+  cleanup-wip-releases:
+    uses: mat3ra/actions/.github/workflows/cleanup-wip-releases.yml@main
+    with:
+      # Scheduled runs always delete; workflow_dispatch defaults to dry-run.
+      dry-run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run || false }}
+    secrets:
+      github-token: ${{ secrets.BOT_GITHUB_TOKEN }}

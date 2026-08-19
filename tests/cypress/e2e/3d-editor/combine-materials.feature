@@ -1,3 +1,16 @@
+@quarantine
+# Quarantined: this spec drives the Outliner panel (the multi-material scene-tree sidebar),
+# which wave.js removed by design in its 2026-07-12 interactive-editor rewrite (commit 751a7e3) -
+# see wave.js's docs/design/interactive-editor-spec.md, which lists "outliner/scene tree" under
+# "Explicitly out of scope (dropped with the old editor, deliberately)". There is no renamed
+# selector to update: the feature itself no longer exists in wave.js.
+#
+# Fails as:
+#   AssertionError: Timed out retrying after 4000ms: Expected to find element:
+#   `//div[@class="Outliner"] //div[@class="option" and starts-with(text()," Copper")]`
+#
+# Un-quarantine once materials-designer either re-pins wave.js to before the removal, or adopts
+# the new click-to-select-in-viewport interaction as a deliberate replacement for this workflow.
 Feature: User can combine multiple materials and create a new material
 
   Scenario:

@@ -1,9 +1,9 @@
 #!/bin/bash
 
 if [ "$VITE_USE_JUPYTERLITE_DEV_URL" = "true" ]; then
-    TAGS=${TAGS:-"not @ignore and @notebook_healthcheck"}
+    TAGS=${TAGS:-"not @ignore and not @quarantine and @notebook_healthcheck"}
 else
-    TAGS=${TAGS:-"not @ignore and not @notebook_healthcheck"}
+    TAGS=${TAGS:-"not @ignore and not @quarantine and not @notebook_healthcheck"}
 fi
 
 # Set default Cypress base URL

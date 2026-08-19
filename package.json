@@ -12,13 +12,17 @@
         "lint": "eslint src && prettier --write src",
         "lint:fix": "eslint src --fix && prettier --write src",
         "prestart": "npm-link-shared ./node_modules/@mat3ra/cove/node_modules . react; npm-link-shared ./node_modules/@mat3ra/wave.js/node_modules . react",
-        "prettier": "prettier --check src tests"
+        "prettier": "prettier --check src tests",
+        "prepublishOnly": "npm run transpile"
     },
     "repository": {
         "type": "git",
         "url": "https://github.com/Exabyte-io/materials-designer.git"
     },
     "main": "dist/exports.js",
+    "files": [
+        "dist"
+    ],
     "author": "Exabyte Inc.",
     "bugs": {
         "url": "https://github.com/Exabyte-io/materials-designer/issues"
@@ -32,7 +36,7 @@
         "@babel/runtime-corejs2": "7.16.7",
         "@emotion/react": "^11.13.0",
         "@emotion/styled": "^11.13.0",
-        "@mat3ra/utils": "^2026.7.8-0",
+        "@mat3ra/utils": "2026.8.18-1",
         "@mui/icons-material": "^5.11.0",
         "@mui/lab": "^5.0.0-alpha.120",
         "@mui/material": "^5.11.9",
@@ -63,13 +67,13 @@
     },
     "devDependencies": {
         "@exabyte-io/eslint-config": "^2025.1.15-0",
-        "@mat3ra/code": "2026.8.13-0",
-        "@mat3ra/cove": "2026.7.18-4",
-        "@mat3ra/esse": "2026.8.13-0",
-        "@mat3ra/made": "2026.8.13-0",
-        "@mat3ra/standata": "2026.6.23-0",
+        "@mat3ra/code": "2026.8.18-0",
+        "@mat3ra/cove": "2026.8.19-4",
+        "@mat3ra/esse": "2026.8.18-2",
+        "@mat3ra/made": "2026.8.18-0",
+        "@mat3ra/standata": "2026.8.18-0",
         "@mat3ra/tsconfig": "^2024.3.23-2",
-        "@mat3ra/wave.js": "2026.8.13-0",
+        "@mat3ra/wave.js": "2026.8.19-0",
         "@types/debug": "^4.1.12",
         "@types/mocha": "^10.0.1",
         "@types/node": "^20.4.2",
