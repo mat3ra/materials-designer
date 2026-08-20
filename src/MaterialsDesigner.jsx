@@ -23,6 +23,7 @@ import EditorSelectionInfo, {
 import JupyterLiteSessionDrawer from "./components/drawer_session/JupyterLiteSessionDrawer";
 import HeaderMenuToolbar from "./components/header_menu/HeaderMenuToolbar";
 import ItemsList from "./components/items_list/ItemsList";
+import PythonReplPanel from "./components/repl/PythonReplPanel";
 import BasisEditor from "./components/source_editor/Basis";
 import LatticeEditor from "./components/source_editor/Lattice";
 import { MDMaterial } from "./MDMaterial";
@@ -80,6 +81,7 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
             isVisibleSourceEditor: true,
             isVisibleThreeDEditorFullscreen: true,
             isVisibleJupyterLiteSessionDrawer: false,
+            isVisiblePythonReplPanel: false,
             importMaterialsDialogProps: null,
         };
         this.containerRef = React.createRef();
@@ -179,6 +181,7 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                 isVisibleJupyterLiteSessionDrawer={
                                     this.state.isVisibleJupyterLiteSessionDrawer
                                 }
+                                isVisiblePythonReplPanel={this.state.isVisiblePythonReplPanel}
                             >
                                 <IconButton
                                     color="inherit"
@@ -311,6 +314,24 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                             </Grid>
                         </Box>
                         <EditorSelectionInfo />
+                        {/*
+                         * Outside the layout Grid on purpose: this renders a viewport-fixed bottom
+                         * drawer, so it takes no space in the grid and must not be a non-`Grid item`
+                         * child of the `Grid container` above. It also stays mounted while hidden so
+                         * the ~30s Pyodide environment survives toggling the panel closed.
+                         */}
+                        <PythonReplPanel
+                            show={this.state.isVisiblePythonReplPanel}
+                            materials={mdState.materials}
+                            activeIndex={mdState.index}
+                            onReplSync={this.props.onReplSync}
+                            wheelBaseUrl={this.props.wheelBaseUrl}
+                            requirementsUrl={this.props.requirementsUrl}
+                            pyodideLockUrl={this.props.pyodideLockUrl}
+                            onHide={() => {
+                                this.setState({ isVisiblePythonReplPanel: false });
+                            }}
+                        />
                     </Paper>
                 </ScopedCssBaseline>
             </ThemeProvider>
@@ -349,7 +370,16 @@ MaterialsDesigner.propTypes = {
 
     onAdd: PropTypes.func,
     onExport: PropTypes.func,
+    onReplSync: PropTypes.func,
     onExit: PropTypes.func,
+
+    /**
+     * Where the Python REPL fetches its prebuilt wheels from. Only needed by host apps that serve them
+     * somewhere other than the same-origin `/repl-wheels` default — see README section 3.7.
+     */
+    wheelBaseUrl: PropTypes.string,
+    requirementsUrl: PropTypes.string,
+    pyodideLockUrl: PropTypes.string,
 
     openImportModal: PropTypes.func,
     closeImportModal: PropTypes.func,

@@ -127,7 +127,7 @@ npm start
 
 ### 3.2. Tests
 
-Tests are implemented using Cypress. To launch it use Node v20 and run:
+Tests live in `tests/`, its own package; use Node v20:
 
 ```bash
 cd tests
@@ -218,6 +218,69 @@ VITE_JUPYTERLITE_DEVELOPMENT_URL="https://deploy-preview-56--mat3ra-jupyterlite.
 ```
 
 This should source JL from the development distribution and run only notebook healthcheck tests.
+
+### 3.7. Python REPL (Pyodide)
+
+> **How it works:** [docs/python-repl-architecture.md](docs/python-repl-architecture.md) — the layer
+> split, what each class is for, and what happens on a single run. This section covers configuring
+> and running it.
+
+The **View → Python REPL** panel runs `mat3ra.made.tools` in the browser via
+[Pyodide](https://pyodide.org). Materials in the designer are bound as `materials_in` (list order) and
+`material` (the active one); any `Material` the user creates or reassigns is synced back into the list.
+
+**The environment is defined in one place:** AX's `config.yml`. The provisioning step fetches the AX
+revision embedded in the notebooks-utils bootstrap wheel, then caches that manifest and the wheels
+referenced by its `made` profile. The REPL installs that exact profile and shows the same YAML in its
+editable Requirements tab.
+
+Not everything comes from PyPI: `pymatgen`, `pydantic`, `spglib` and friends do not build under
+Pyodide, so the REPL installs **prebuilt pure-Python wheels** that are not published on PyPI.
+
+#### Hosting requirement (important when embedding this package)
+
+The generated `repl-config.yml`, `repl-pyodide-lock.json` and wheels must be served with the host app,
+or the REPL cannot reproduce the selected AX environment.
+
+- **In this repo** it is automatic: `provision-repl-wheels` runs on `prestart` and `prebuild`, caching
+  AX's config, Pyodide lock and selected wheels under `public/`, which Vite copies into the build.
+- **In a host application** that consumes `@mat3ra/materials-designer`, nothing runs on your behalf.
+  Either serve the wheels yourself at that path, or pass a different location:
+
+  ```jsx
+  <MaterialsDesignerContainer
+      wheelBaseUrl="https://your-cdn.example/wheels"
+      requirementsUrl="https://your-cdn.example/repl-config.yml"
+      pyodideLockUrl="https://your-cdn.example/repl-pyodide-lock.json"
+  />
+  ```
+
+They are downloaded from [jupyterlite.mat3ra.com](https://jupyterlite.mat3ra.com/files/packages/),
+which already hosts them for the JupyterLite kernel — so that site is a build-time dependency of this
+repo.
+
+One exception, and it is temporary: the notebooks-utils wheel comes from a URL pinned in
+`src/components/repl/constants.ts` (`REPL_NOTEBOOKS_UTILS_WHEEL_URL`), because no released version
+carries the REPL host bridge yet. See the comment there for the removal condition. Override it with
+`REPL_NOTEBOOKS_UTILS_WHEEL_URL`. Override the complete AX origin with `REPL_AX_BASE_URL`, the manifest with
+`REPL_AX_CONFIG_URL`, or only the content-wheel mirror with `REPL_WHEELS_SOURCE_URL`:
+
+```bash
+REPL_WHEELS_SOURCE_URL=https://your-mirror.example/packages npm run provision-repl-wheels
+```
+
+#### Authoring the REPL's Python
+
+The reusable preamble and host-sync helpers live in the `mat3ra-notebooks-utils` package. Materials
+Designer only owns the environment manifest and the hooks that call those helpers before and after a
+run.
+
+#### Testing the REPL
+
+`tests/cypress/e2e/repl/python-repl.feature`, the same way the JupyterLite session is tested: drive
+the panel in a browser against a real interpreter and assert the materials that come back. The
+interpreter internals — install ordering, wheel handling, completions, error shape — belong to cove
+and are covered by cove's own suite.
 
 ## 4. Links
 

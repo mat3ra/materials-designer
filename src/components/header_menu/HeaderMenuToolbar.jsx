@@ -20,6 +20,9 @@ import GetAppIcon from "@mui/icons-material/GetApp";
 import HelpIcon from "@mui/icons-material/Help";
 import SlabIcon from "@mui/icons-material/Layers";
 import CombinatorialSetIcon from "@mui/icons-material/LibraryAdd";
+// Distinct from the JupyterLite session's Terminal icon: both are Python surfaces and sit next to each
+// other in the View menu, so they must not share an icon.
+import PythonReplIcon from "@mui/icons-material/Code";
 import RedoIcon from "@mui/icons-material/Redo";
 import SaveIcon from "@mui/icons-material/Save";
 import InterpolatedSetIcon from "@mui/icons-material/SwapVert";
@@ -177,6 +180,8 @@ class HeaderMenuToolbar extends React.Component {
             isVisibleItemsList,
             isVisibleSourceEditor,
             isVisibleThreeDEditorFullscreen,
+            isVisibleJupyterLiteSessionDrawer,
+            isVisiblePythonReplPanel,
         } = this.props;
         return (
             <ButtonActivatedMenuMaterialUI title="View">
@@ -214,9 +219,15 @@ class HeaderMenuToolbar extends React.Component {
                 </MenuItem>
                 <MenuItem onClick={() => onSectionVisibilityToggle("JupyterLiteSessionDrawer")}>
                     <ListItemIcon>
-                        <Terminal />
+                        {isVisibleJupyterLiteSessionDrawer ? <VisibilityOffIcon /> : <Terminal />}
                     </ListItemIcon>
                     JupyterLite Session
+                </MenuItem>
+                <MenuItem onClick={() => onSectionVisibilityToggle("PythonReplPanel")}>
+                    <ListItemIcon>
+                        {isVisiblePythonReplPanel ? <VisibilityOffIcon /> : <PythonReplIcon />}
+                    </ListItemIcon>
+                    Python REPL
                 </MenuItem>
             </ButtonActivatedMenuMaterialUI>
         );
@@ -549,6 +560,8 @@ HeaderMenuToolbar.propTypes = {
     isVisibleItemsList: PropTypes.bool.isRequired,
     isVisibleSourceEditor: PropTypes.bool.isRequired,
     isVisibleThreeDEditorFullscreen: PropTypes.bool.isRequired,
+    isVisibleJupyterLiteSessionDrawer: PropTypes.bool.isRequired,
+    isVisiblePythonReplPanel: PropTypes.bool.isRequired,
 
     openImportModal: PropTypes.func,
     closeImportModal: PropTypes.func,

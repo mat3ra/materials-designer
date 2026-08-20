@@ -4,14 +4,17 @@
     "description": "Materials Designer",
     "scripts": {
         "start": "vite",
+        "prebuild": "node scripts/provision-repl-wheels.mjs",
         "build": "vite build",
         "prepare": "husky install",
+        "prepublishOnly": "npm run transpile",
         "transpile": "tsc && npm run copy-css",
+        "provision-repl-wheels": "node scripts/provision-repl-wheels.mjs",
         "copy-css": "mkdir -p dist/stylesheets && cp src/stylesheets/* dist/stylesheets/",
         "test": "echo 'Tests are in the tests subfolder. Use Node 20 (`nvm use 20`) and run `npm i` && `npm test` there'",
         "lint": "eslint src && prettier --write src",
         "lint:fix": "eslint src --fix && prettier --write src",
-        "prestart": "npm-link-shared ./node_modules/@mat3ra/cove/node_modules . react; npm-link-shared ./node_modules/@mat3ra/wave.js/node_modules . react",
+        "prestart": "npm-link-shared ./node_modules/@mat3ra/cove/node_modules . react; npm-link-shared ./node_modules/@mat3ra/wave.js/node_modules . react; npm run provision-repl-wheels",
         "prettier": "prettier --check src tests",
         "prepublishOnly": "npm run transpile"
     },
@@ -68,7 +71,7 @@
     "devDependencies": {
         "@exabyte-io/eslint-config": "^2025.1.15-0",
         "@mat3ra/code": "2026.8.18-0",
-        "@mat3ra/cove": "2026.8.19-4",
+        "@mat3ra/cove": "https://github.com/mat3ra/cove/releases/download/wip-448fce6/cove.tgz",
         "@mat3ra/esse": "2026.8.18-2",
         "@mat3ra/made": "2026.8.18-0",
         "@mat3ra/standata": "2026.8.18-0",
@@ -109,7 +112,8 @@
         "vite-plugin-commonjs": "^0.10.4",
         "vite-plugin-node-polyfills": "^0.25.0",
         "vite-plugin-svgr": "^4.3.0",
-        "vite-tsconfig-paths": "^5.1.4"
+        "vite-tsconfig-paths": "^5.1.4",
+        "yaml": "^2.8.1"
     },
     "lint-staged": {
         "*.{js,jsx}": "eslint --cache --fix",

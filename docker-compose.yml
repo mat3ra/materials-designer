@@ -29,7 +29,8 @@ services:
       context: .
       dockerfile: dockerfiles/tests/Dockerfile
     depends_on:
-      - materials-designer
+      materials-designer:
+        condition: service_healthy
     network_mode: host
     volumes:
       - ./tests/cypress:/opt/test/cypress

@@ -4,6 +4,7 @@ import type { Matrix3X3Schema } from "@mat3ra/esse/dist/js/types";
 import type { ViewSettingsFromUrl } from "@mat3ra/wave.js/dist/utils/viewSettingsUrl";
 import React, { useCallback, useEffect, useState } from "react";
 
+import type { MaterialsSyncPayload } from "./components/repl/materialsDataBridge";
 import MaterialsDesignerComponent from "./MaterialsDesigner";
 import { MDMaterial } from "./MDMaterial";
 import { materialsAdd, materialsExport, materialsRemove } from "./reducers/InputOutput";
@@ -15,6 +16,7 @@ import {
     materialsGenerateSupercellForOne,
     materialsGenerateSurfaceForOne,
     materialsSetBoundaryConditionsForOne,
+    materialsSyncScope,
     materialsToggleIsNonPeriodicForOne,
     materialsUpdateIndex,
     materialsUpdateNameForOne,
@@ -166,6 +168,10 @@ export function MaterialsDesignerContainer({
         setMdState(materialsExport(mdState.current, { format, useMultiple }));
     }, []);
 
+    const onReplSync = useCallback((payload: MaterialsSyncPayload) => {
+        setMdState(materialsSyncScope(mdState.current, payload));
+    }, []);
+
     const content = (
         // @ts-ignore
         <MaterialsDesignerComponent
@@ -184,6 +190,7 @@ export function MaterialsDesignerContainer({
             onAdd={onAdd}
             onRemove={onRemove}
             onExport={onExport}
+            onReplSync={onReplSync}
             {...props}
         />
     );
