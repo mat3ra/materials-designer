@@ -11,5 +11,7 @@ ThreeDEditorFullscreen.propTypes = {
     onUpdate: PropTypes.func,
     editable: PropTypes.bool,
     // eslint-disable-next-line react/forbid-prop-types
+    boundaryConditions: PropTypes.object,
+    // eslint-disable-next-line react/forbid-prop-types
     initialViewSettings: PropTypes.object,
 };

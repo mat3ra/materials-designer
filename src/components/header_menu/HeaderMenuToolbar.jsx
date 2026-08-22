@@ -1,9 +1,5 @@
 /* eslint-disable react/sort-comp */
 import IconByName from "@mat3ra/cove/dist/mui/components/icon/IconByName";
-// TODO: wave.js removed ThreejsEditorModal in favor of an in-viewer edit mode
-// (InteractiveStructureEditorMixin); re-wire this menu to that once materials-designer
-// adopts it. See https://github.com/mat3ra/wave.js/commit/751a7e3.
-// import { ThreejsEditorModal } from "@mat3ra/wave.js";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 // TODO: rename other menu icons similarly
@@ -18,14 +14,13 @@ import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import ConventionalCellIcon from "@mui/icons-material/FormatShapes";
 import GetAppIcon from "@mui/icons-material/GetApp";
 import HelpIcon from "@mui/icons-material/Help";
+import CombineMaterialsIcon from "@mui/icons-material/JoinFull";
 import SlabIcon from "@mui/icons-material/Layers";
 import CombinatorialSetIcon from "@mui/icons-material/LibraryAdd";
 import RedoIcon from "@mui/icons-material/Redo";
 import SaveIcon from "@mui/icons-material/Save";
 import InterpolatedSetIcon from "@mui/icons-material/SwapVert";
 import Terminal from "@mui/icons-material/Terminal";
-// TODO: only used by the disabled Multi-Material 3D Editor menu item
-// import ThreeDEditorIcon from "@mui/icons-material/ThreeDRotation";
 import PolymerIcon from "@mui/icons-material/Timeline";
 import UndoIcon from "@mui/icons-material/Undo";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -40,10 +35,9 @@ import setClass from "classnames";
 import PropTypes from "prop-types";
 import React from "react";
 
-// TODO: only used by the disabled renderThreejsEditorModal below
-// import { MDMaterial } from "../../MDMaterial";
 import { BoundaryConditionsDialog } from "../3d_editor/advanced_geometry/BoundaryConditionsDialog";
 import CombinatorialBasisDialog from "../3d_editor/advanced_geometry/CombinatorialBasisDialog";
+import CombineMaterialsDialog from "../3d_editor/advanced_geometry/CombineMaterialsDialog";
 import InterpolateBasesDialog from "../3d_editor/advanced_geometry/InterpolateBasesDialog";
 import JupyterLiteTransformation from "../3d_editor/advanced_geometry/python_transformation/JupyterLiteTransformation";
 import SupercellDialog from "../3d_editor/advanced_geometry/SupercellDialog";
@@ -64,11 +58,9 @@ class HeaderMenuToolbar extends React.Component {
             showDefaultImportModalDialog: false,
             showCombinatorialDialog: false,
             showInterpolateDialog: false,
-            // TODO: unused while renderThreejsEditorModal is disabled, see comment
-            // at the top of this file
-            // showThreejsEditorModal: false,
             showBoundaryConditionsDialog: false,
             showJupyterLiteTransformation: false,
+            showCombineMaterialsDialog: false,
         };
     }
 
@@ -180,16 +172,6 @@ class HeaderMenuToolbar extends React.Component {
         } = this.props;
         return (
             <ButtonActivatedMenuMaterialUI title="View">
-                {/* TODO: disabled until this menu is re-wired to wave.js's in-viewer
-                    edit mode (see import comment above)
-                <MenuItem onClick={() => this.setState({ showThreejsEditorModal: true })}>
-                    <ListItemIcon>
-                        <ThreeDEditorIcon />
-                    </ListItemIcon>
-                    Multi-Material 3D Editor
-                </MenuItem>
-                */}
-                <Divider />
                 <MenuItem onClick={() => onSectionVisibilityToggle("ItemsList")}>
                     <ListItemIcon>
                         {isVisibleItemsList ? <VisibilityOffIcon /> : <VisibilityIcon />}
@@ -284,6 +266,12 @@ class HeaderMenuToolbar extends React.Component {
                     </ListItemIcon>
                     JupyterLite Transformation
                 </MenuItem>
+                <MenuItem onClick={() => this.setState({ showCombineMaterialsDialog: true })}>
+                    <ListItemIcon>
+                        <CombineMaterialsIcon />
+                    </ListItemIcon>
+                    Combine materials
+                </MenuItem>
             </ButtonActivatedMenuMaterialUI>
         );
     }
@@ -354,33 +342,6 @@ class HeaderMenuToolbar extends React.Component {
         return openSaveActionDialog ? openSaveActionDialog(mdState) : null;
     };
 
-    // TODO: disabled until this is re-wired to wave.js's in-viewer edit mode (see
-    // import comment at the top of this file)
-    // renderThreejsEditorModal() {
-    //     const {
-    //         onAdd,
-    //         mdState: { materials, index },
-    //     } = this.props;
-    //     const { showThreejsEditorModal } = this.state;
-    //     return (
-    //         <ThreejsEditorModal
-    //             show={showThreejsEditorModal}
-    //             onHide={(material) => {
-    //                 this.setState({ showThreejsEditorModal: !showThreejsEditorModal });
-    //                 if (material) {
-    //                     const newMaterial = MDMaterial.fromMadeMaterial(
-    //                         material,
-    //                         materials[index].metadata,
-    //                     );
-    //                     onAdd(newMaterial);
-    //                 }
-    //             }}
-    //             materials={materials}
-    //             modalId="threejs-editor"
-    //         />
-    //     );
-    // }
-
     render() {
         const {
             showSupercellDialog,
@@ -392,6 +353,7 @@ class HeaderMenuToolbar extends React.Component {
             showStandataImportDialog,
             showDefaultImportModalDialog,
             showJupyterLiteTransformation,
+            showCombineMaterialsDialog,
         } = this.state;
         const {
             children,
@@ -407,9 +369,6 @@ class HeaderMenuToolbar extends React.Component {
         } = this.props;
 
         const material = materials[index];
-
-        // TODO: renderThreejsEditorModal disabled, see comment at the top of this file
-        // if (showThreejsEditorModal) return this.renderThreejsEditorModal();
 
         return (
             <Toolbar
@@ -501,6 +460,19 @@ class HeaderMenuToolbar extends React.Component {
                     onSubmit={(...args) => {
                         onAdd(...args);
                         this.setState({ showInterpolateDialog: false });
+                    }}
+                />
+
+                <CombineMaterialsDialog
+                    title="Combine Materials"
+                    modalId="combineMaterialsModal"
+                    isOpen={showCombineMaterialsDialog}
+                    materials={materials}
+                    index={index}
+                    onHide={() => this.setState({ showCombineMaterialsDialog: false })}
+                    onSubmit={(...args) => {
+                        onAdd(...args);
+                        this.setState({ showCombineMaterialsDialog: false });
                     }}
                 />
 

@@ -61,7 +61,6 @@ As documented [here](https://docs.mat3ra.com/materials-designer/overview/):
     - Undo/Redo/Reset/Clone operations
 - View
     - Fullscreen mode
-    - Multi-material Editor (combining multiple materials into one)
 - Advanced Menu
     - Creating supercells
     - Creating surfaces/slabs
@@ -69,6 +68,7 @@ As documented [here](https://docs.mat3ra.com/materials-designer/overview/):
     - Creating interpolated sets
     - Run Python Script
     - Launch a Jupyter Lite session
+    - Combining several materials into one, at per-material offsets
 - Basis Editor
     - Adding/Removing/Modifying sites
     - Adding/Removing/Modifying atomic constraints
@@ -80,9 +80,10 @@ As documented [here](https://docs.mat3ra.com/materials-designer/overview/):
         - Rotation
         - Repetition/Radius
         - Toggle axes
-    - Adjusting materials
-        - add/remove/select atoms
-        - multiple selection with drag-and-drop
+    - Adjusting materials, in the viewer's own edit mode
+        - add/remove/clone atoms, and edit an atom's element and coordinates
+        - single and marquee multiple selection, moved with transform gizmos
+        - undo/redo of structure edits
 
 ### 2.2. TODO list
 

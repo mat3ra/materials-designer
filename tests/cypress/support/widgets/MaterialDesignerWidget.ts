@@ -1,6 +1,7 @@
 import BoundaryConditionsDialogWidget, {
     BoundaryConditions,
 } from "./BoundaryConditionsDialogWidget";
+import { CombineMaterialsDialogWidget } from "./CombineMaterialsDialogWidget";
 import DefaultImportModalDialogWidget from "./DefaultImportModalDialogWidget";
 import HeaderMenuWidget from "./HeaderMenuWidget";
 import { InterpolatedSetDialogWidget } from "./InterpolatedSetDialogWidget";
@@ -11,7 +12,6 @@ import { SourceEditorWidget } from "./SourceEditorWidget";
 import StandataDialogWidget from "./StandataDialogWidget";
 import { SupercellDialogWidget } from "./SupercellDialogWidget";
 import SurfaceDialogWidget, { SurfaceConfig } from "./SurfaceDialogWidget";
-import { ThreeJSEditorWidget } from "./ThreeJSEditorWidget";
 import Widget from "./Widget";
 
 export default class MaterialDesignerWidget extends Widget {
@@ -22,8 +22,6 @@ export default class MaterialDesignerWidget extends Widget {
     itemsList: ItemsListWidget;
 
     sourceEditor: SourceEditorWidget;
-
-    threeJSEditorWidget: ThreeJSEditorWidget;
 
     supercellDialog: SupercellDialogWidget;
 
@@ -39,13 +37,14 @@ export default class MaterialDesignerWidget extends Widget {
 
     standataDialog: StandataDialogWidget;
 
+    combineMaterialsDialog: CombineMaterialsDialogWidget;
+
     constructor(selector: string) {
         super(selector);
         this.itemsList = new ItemsListWidget();
         this.headerMenu = new HeaderMenuWidget();
         this.sourceEditor = new SourceEditorWidget();
         this.surfaceDialog = new SurfaceDialogWidget();
-        this.threeJSEditorWidget = new ThreeJSEditorWidget();
         this.supercellDialog = new SupercellDialogWidget();
         this.boundaryConditionsDialog = new BoundaryConditionsDialogWidget();
         this.interpolatedSetDialog = new InterpolatedSetDialogWidget();
@@ -53,10 +52,15 @@ export default class MaterialDesignerWidget extends Widget {
         this.jupyterLiteTransformationDialog = new JupyterLiteTransformationDialogWidget();
         this.jupyterLiteSession = new JupyterLiteSession();
         this.standataDialog = new StandataDialogWidget();
+        this.combineMaterialsDialog = new CombineMaterialsDialogWidget();
     }
 
     openSurfaceDialog() {
         this.headerMenu.selectMenuItemByNameAndItemNumber("Advanced", 4);
+    }
+
+    openCombineMaterialsDialog() {
+        this.headerMenu.selectMenuItemByNameAndItemNumber("Advanced", 7);
     }
 
     openSaveDialog() {
