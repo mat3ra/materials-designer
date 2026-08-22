@@ -1,6 +1,9 @@
 Feature: The status bar describes the active material and where it sits in the list
 
-  Scenario: Status bar reports the material and its position, and follows the selection
+  # Selection detail is wave.js's job: it renders its own StatusBar and SelectionInspector inside
+  # the 3D editor, next to the atoms being described. This bar covers what wave cannot know.
+
+  Scenario: Status bar reports the material and its position in the list
     When I open materials designer page
     Then I see material designer page
     And I see status bar showing
@@ -9,7 +12,6 @@ Feature: The status bar describes the active material and where it sits in the l
       | material  | 2 atoms           |
       | material  | FCC               |
       | position  | 1 / 1             |
-      | selection | No atoms selected |
 
     # Cloning appends without switching to the copy: the denominator grows, the numerator does not
     When I clone material at index "1"

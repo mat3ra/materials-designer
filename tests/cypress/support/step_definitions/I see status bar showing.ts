@@ -4,12 +4,11 @@ import { parseTable } from "@mat3ra/tede/src/js/cypress/utils/table";
 import { StatusBarWidget } from "../widgets/StatusBarWidget";
 
 interface Params {
-    group: "selection" | "material" | "position";
+    group: "material" | "position";
     text: string;
 }
 
 const readers = {
-    selection: (widget: StatusBarWidget) => widget.getSelectionText(),
     material: (widget: StatusBarWidget) => widget.getMaterialText(),
     position: (widget: StatusBarWidget) => widget.getPositionText(),
 };

@@ -1,5 +1,5 @@
 import IconByName from "@mat3ra/cove/dist/mui/components/icon/IconByName";
-import DeleteIcon from "@mui/icons-material/Delete";
+import CloseIcon from "@mui/icons-material/Close";
 import Avatar from "@mui/material/Avatar";
 import Badge from "@mui/material/Badge";
 import Box from "@mui/material/Box";
@@ -189,13 +189,21 @@ class ItemsList extends React.Component {
                         <Tooltip title={`Remove "${name}"`}>
                             <IconButton
                                 edge="end"
+                                size="small"
                                 aria-label={`Remove ${name}`}
                                 className="list-item-icon icon-button-delete"
                                 onClick={(e) => {
                                     this.onDeleteIconClick(e, index);
                                 }}
+                                // Quiet until wanted: a row is for picking a material, not for
+                                // deleting one, so the control only gains contrast on approach.
+                                sx={{
+                                    padding: 0.25,
+                                    color: theme.palette.grey[700],
+                                    "&:hover": { color: theme.palette.grey[300] },
+                                }}
                             >
-                                <DeleteIcon sx={{ color: neutralColor }} />
+                                <CloseIcon sx={{ fontSize: "1rem" }} />
                             </IconButton>
                         </Tooltip>
                     }
@@ -270,27 +278,47 @@ class ItemsList extends React.Component {
                             />
                         }
                         secondary={
+                            // One line that clips, never a second row: a narrow sidebar used to
+                            // wrap "24 sites" onto its own line and make every item look
+                            // two-storey. Facts are joined into a single text node so a break can
+                            // only ever happen between the formula and the rest.
                             // TODO: avoid setting font size in sx and use theme variants instead
                             <Typography
                                 variant="caption"
                                 component="span"
+                                title={[entity.formula, ...describeStructure(entity)].join(" · ")}
                                 sx={{
                                     fontSize: "0.8em",
                                     display: "flex",
                                     alignItems: "center",
+                                    flexWrap: "nowrap",
                                     gap: 0.75,
+                                    minWidth: 0,
                                 }}
                             >
-                                <code>{entity.formula}</code>
-                                {describeStructure(entity).map((fact) => (
-                                    <Box
-                                        key={fact}
-                                        component="span"
-                                        sx={{ color: theme.palette.grey[600] }}
-                                    >
-                                        {fact}
-                                    </Box>
-                                ))}
+                                <Box
+                                    component="code"
+                                    sx={{
+                                        whiteSpace: "nowrap",
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        flexShrink: 1,
+                                    }}
+                                >
+                                    {entity.formula}
+                                </Box>
+                                <Box
+                                    component="span"
+                                    sx={{
+                                        color: theme.palette.grey[600],
+                                        whiteSpace: "nowrap",
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        flexShrink: 1,
+                                    }}
+                                >
+                                    {describeStructure(entity).join(" · ")}
+                                </Box>
                                 {isUpdated && (
                                     <Tooltip title="Edited since it entered the session">
                                         <Box
@@ -301,6 +329,7 @@ class ItemsList extends React.Component {
                                                 height: 6,
                                                 borderRadius: "50%",
                                                 backgroundColor: "warning.main",
+                                                flexShrink: 0,
                                             }}
                                         />
                                     </Tooltip>

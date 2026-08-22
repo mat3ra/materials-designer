@@ -7,7 +7,7 @@ import PropTypes from "prop-types";
 import React from "react";
 
 import { theme } from "../../settings";
-import { describeMaterial, describeSelection, SELECTION_HINTS } from "./selectionInfo";
+import { describeMaterial, SELECTION_HINTS } from "./materialInfo";
 
 export const FOOTER_HEIGHT = 54;
 
@@ -56,13 +56,12 @@ InfoGroup.defaultProps = { children: null, title: undefined, className: undefine
  * Status bar under the three editor panels: what is selected in the 3D editor, what the active
  * material is, and where it sits in the list.
  */
-const EditorSelectionInfo = function EditorSelectionInfo({
-    material,
-    index,
-    materialsCount,
-    selectedIndices,
-}) {
-    const selection = describeSelection(material, selectedIndices);
+/**
+ * Selection detail is deliberately absent: wave.js renders its own StatusBar and
+ * SelectionInspector inside the 3D editor, so what is selected is described there, next to the
+ * atoms it refers to. This bar covers what wave cannot know - the material and the list around it.
+ */
+const EditorSelectionInfo = function EditorSelectionInfo({ material, index, materialsCount }) {
     const materialInfo = describeMaterial(material);
     return (
         <Box
@@ -77,15 +76,6 @@ const EditorSelectionInfo = function EditorSelectionInfo({
                 overflowX: "auto",
             }}
         >
-            <InfoGroup label="SELECTION" title={selection.tooltip} className="status-selection">
-                <Box
-                    component="span"
-                    sx={{ color: selection.isEmpty ? theme.palette.grey[600] : "primary.light" }}
-                >
-                    {selection.text}
-                </Box>
-            </InfoGroup>
-            <Divider orientation="vertical" flexItem />
             <InfoGroup label="MATERIAL" className="status-material">{materialInfo.text}</InfoGroup>
             <Divider orientation="vertical" flexItem />
             <InfoGroup label="POSITION" className="status-position">
@@ -111,14 +101,12 @@ EditorSelectionInfo.propTypes = {
     material: PropTypes.object,
     index: PropTypes.number,
     materialsCount: PropTypes.number,
-    selectedIndices: PropTypes.arrayOf(PropTypes.number),
 };
 
 EditorSelectionInfo.defaultProps = {
     material: undefined,
     index: 0,
     materialsCount: 0,
-    selectedIndices: [],
 };
 
 export default EditorSelectionInfo;

@@ -41,5 +41,7 @@ Given("I see the {string} panel", (selector: string) => {
 });
 
 Given("I do not see the {string} panel", (selector: string) => {
-    new MaterialDesignerPage().designerWidget.browser.get(selector).should("not.exist");
+    // A hidden pane stays mounted at zero width rather than unmounting, so the 3D context and the
+    // editor's state survive being toggled away. Cypress treats a zero-width element as not visible.
+    new MaterialDesignerPage().designerWidget.browser.get(selector).should("not.be.visible");
 });

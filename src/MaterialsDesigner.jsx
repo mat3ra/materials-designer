@@ -3,6 +3,8 @@ import FullscreenComponentMixin from "@mat3ra/cove/dist/other/fullscreen";
 import ThemeProvider from "@mat3ra/cove/dist/theme/provider";
 // eslint-disable-next-line import/no-unresolved
 import { MaterialStandata } from "@mat3ra/standata";
+import { Allotment } from "allotment";
+import "allotment/dist/style.css";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
@@ -38,44 +40,9 @@ const MENU_BAR_HEIGHT = 54;
 // The app bar stacks the menu row and the quick-action row; the panels below subtract both.
 const APP_BAR_HEIGHT = MENU_BAR_HEIGHT + QUICK_ACTIONS_HEIGHT;
 
-const GRID_CONFIG_BY_VISIBILITY = {
-    // "111" means that all three components are visible
-    "#111": {
-        1: { xs: 12, md: 2.5, lg: 2, xl: 1.5 },
-        2: { xs: 12, md: 4.75, lg: 4.375, xl: 4 },
-        3: { xs: 12, md: 4.75, lg: 5.625, xl: 6.5 },
-    },
-    "#001": {
-        1: { xs: 12 },
-        2: { xs: 12 },
-        3: { xs: 12 },
-    },
-    "#010": {
-        1: { xs: 12 },
-        2: { xs: 12 },
-        3: { xs: 12 },
-    },
-    "#100": {
-        1: { xs: 12 },
-        2: { xs: 12 },
-        3: { xs: 12 },
-    },
-    "#011": {
-        1: { xs: 0 },
-        2: { xs: 12, md: 6 },
-        3: { xs: 12, md: 6 },
-    },
-    "#101": {
-        1: { xs: 12, md: 3 },
-        2: { xs: 12, md: 0 },
-        3: { xs: 12, md: 9 },
-    },
-    "#110": {
-        1: { xs: 12, md: 4 },
-        2: { xs: 12, md: 8 },
-        3: { xs: 12, md: 0 },
-    },
-};
+/** Panel widths a session starts with, in pixels; the user drags from here. */
+const DEFAULT_PANE_SIZES = [280, 440, 780];
+const PANE_SIZES_STORAGE_KEY = "materials-designer.paneSizes";
 
 class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMixin) {
     constructor(props) {
@@ -86,7 +53,6 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
             isVisibleThreeDEditorFullscreen: true,
             isVisibleJupyterLiteSessionDrawer: false,
             importMaterialsDialogProps: null,
-            selectedAtomIndices: [],
             // Owned here rather than in the header menu: the materials list opens these too.
             openDialog: null,
         };
@@ -109,25 +75,28 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
         }
     }
 
-    componentDidUpdate(prevProps) {
-        // Atom indices only mean something for the material they were picked in.
-        const hasSwitchedMaterial = prevProps.mdState.index !== this.props.mdState.index;
-        if (hasSwitchedMaterial && this.state.selectedAtomIndices.length) {
-            // eslint-disable-next-line react/no-did-update-set-state
-            this.setState({ selectedAtomIndices: [] });
+    /** Widths the user last dragged to, falling back to the defaults. */
+    // eslint-disable-next-line class-methods-use-this
+    get storedPaneSizes() {
+        try {
+            const stored = JSON.parse(window.localStorage.getItem(PANE_SIZES_STORAGE_KEY));
+            const isUsable =
+                Array.isArray(stored) &&
+                stored.length === DEFAULT_PANE_SIZES.length &&
+                stored.every((size) => Number.isFinite(size) && size > 0);
+            return isUsable ? stored : DEFAULT_PANE_SIZES;
+        } catch (error) {
+            // Storage can be unavailable (private browsing, embedded hosts): use the defaults.
+            return DEFAULT_PANE_SIZES;
         }
     }
 
-    getGridConfig = () => {
-        const { isVisibleItemsList, isVisibleSourceEditor, isVisibleThreeDEditorFullscreen } =
-            this.state;
-        const arrayOfOnesAsStrings = [
-            isVisibleItemsList,
-            isVisibleSourceEditor,
-            isVisibleThreeDEditorFullscreen,
-        ].map((e) => String(Number(e)));
-        const visibilityKey = `#${arrayOfOnesAsStrings.join("")}`;
-        return GRID_CONFIG_BY_VISIBILITY[visibilityKey];
+    onPanesResized = (sizes) => {
+        try {
+            window.localStorage.setItem(PANE_SIZES_STORAGE_KEY, JSON.stringify(sizes));
+        } catch (error) {
+            // Not being able to remember the layout is not worth interrupting the session for.
+        }
     };
 
     checkIfOnlyOneGridItemIsVisible = () => {
@@ -138,14 +107,6 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                 .map((e) => Number(e))
                 .reduce((a, b) => a + b, 0) === 1
         );
-    };
-
-    /**
-     * Atom selection lives in the 3D editor; mirroring it here lets the status bar (and, later,
-     * the source editor) describe what the user has picked.
-     */
-    onSelectionChanged = (selectedAtomIndices) => {
-        this.setState({ selectedAtomIndices: selectedAtomIndices || [] });
     };
 
     onOpenDialog = (openDialog) => this.setState({ openDialog });
@@ -173,7 +134,6 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
     render() {
         const { isVisibleItemsList, isVisibleSourceEditor, isVisibleThreeDEditorFullscreen } =
             this.state;
-        const gridConfig = this.getGridConfig();
         const mainContainerHeightDirective = `calc(100vh - ${
             APP_BAR_HEIGHT + FOOTER_HEIGHT - 8
         }px)`; // 8px is the padding + borders
@@ -246,81 +206,68 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                 overflowY: "auto",
                             }}
                         >
-                            <Grid
-                                container
-                                justifyContent="flex-start"
+                            <Allotment
                                 id="materials-designer-container"
-                                sx={{ height: "100%" }}
+                                className="materials-designer-panes"
                                 ref={this.containerRef}
+                                defaultSizes={this.storedPaneSizes}
+                                onDragEnd={this.onPanesResized}
                             >
-                                {isVisibleItemsList && (
-                                    <Grid
-                                        item
-                                        // eslint-disable-next-line react/jsx-props-no-spreading
-                                        {...gridConfig[1]}
-                                        sx={{
-                                            borderRight: `1px solid ${theme.palette.grey[800]}`,
-                                            height: "100%",
-                                            overflowY: "auto",
-                                        }}
+                                <Allotment.Pane
+                                    visible={isVisibleItemsList}
+                                    minSize={220}
+                                    preferredSize={this.storedPaneSizes[0]}
+                                >
+                                    <Box
+                                        className="materials-designer-items-list"
+                                        sx={{ height: "100%", overflowY: "auto" }}
                                     >
-                                        <Grid
-                                            item
-                                            className="materials-designer-items-list"
-                                            xs={12}
-                                            mt={0.25}
-                                        >
-                                            <ItemsList
-                                                materials={mdState.materials}
-                                                index={mdState.index}
-                                                updatedIndices={mdState.updatedIndices}
-                                                onItemClick={this.props.onItemClick}
-                                                onRemove={this.props.onRemove}
-                                                onRestore={this.props.onRestore}
-                                                onNameUpdate={this.props.onNameUpdate}
-                                                onClone={this.props.onClone}
-                                                onImport={() => this.onOpenDialog("standata")}
-                                                onUpload={() => this.onOpenDialog("upload")}
-                                            />
-                                        </Grid>
-                                    </Grid>
-                                )}
-                                {isVisibleSourceEditor && (
-                                    <Grid
-                                        item
-                                        // eslint-disable-next-line react/jsx-props-no-spreading
-                                        {...gridConfig[2]}
-                                        sx={{
-                                            borderRight: `1px solid ${theme.palette.grey[800]}`,
-                                            height: "100%",
-                                            width: "100%",
-                                            overflowY: "auto",
-                                        }}
+                                        <ItemsList
+                                            materials={mdState.materials}
+                                            index={mdState.index}
+                                            updatedIndices={mdState.updatedIndices}
+                                            onItemClick={this.props.onItemClick}
+                                            onRemove={this.props.onRemove}
+                                            onRestore={this.props.onRestore}
+                                            onNameUpdate={this.props.onNameUpdate}
+                                            onClone={this.props.onClone}
+                                            onImport={() => this.onOpenDialog("standata")}
+                                            onUpload={() => this.onOpenDialog("upload")}
+                                        />
+                                    </Box>
+                                </Allotment.Pane>
+
+                                <Allotment.Pane
+                                    visible={isVisibleSourceEditor}
+                                    minSize={300}
+                                    preferredSize={this.storedPaneSizes[1]}
+                                >
+                                    <Box
                                         className="materials-designer-source-editor"
+                                        sx={{ height: "100%", overflowY: "auto" }}
                                     >
-                                        <Grid item xs={12} mt={0.25}>
-                                            <LatticeEditor
-                                                material={globalMaterial}
-                                                onUpdate={this.props.onUpdate}
-                                            />
-                                        </Grid>
-                                        <Grid item xs={12} mt={0.25}>
-                                            <BasisEditor
-                                                material={globalMaterial}
-                                                onUpdate={this.props.onUpdate}
-                                            />
-                                        </Grid>
-                                    </Grid>
-                                )}
-                                {isVisibleThreeDEditorFullscreen && (
-                                    // eslint-disable-next-line react/jsx-props-no-spreading
-                                    <Grid item {...gridConfig[3]} mt={0.25}>
+                                        <LatticeEditor
+                                            material={globalMaterial}
+                                            onUpdate={this.props.onUpdate}
+                                        />
+                                        <BasisEditor
+                                            material={globalMaterial}
+                                            onUpdate={this.props.onUpdate}
+                                        />
+                                    </Box>
+                                </Allotment.Pane>
+
+                                <Allotment.Pane
+                                    visible={isVisibleThreeDEditorFullscreen}
+                                    minSize={320}
+                                >
+                                    <Box
+                                        className="materials-designer-3d-editor"
+                                        sx={{ height: "100%" }}
+                                    >
                                         <ThreeDEditorFullscreen
                                             editable
                                             material={globalMaterial}
-                                            // Ignored by wave.js releases that predate the
-                                            // callback; the status bar lights up once available.
-                                            onSelectionChanged={this.onSelectionChanged}
                                             isConventionalCellShown={
                                                 this.props.isConventionalCellShown
                                             }
@@ -334,30 +281,30 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                                 this.props.onUpdate(newMaterial);
                                             }}
                                         />
-                                    </Grid>
-                                )}
-                                {this.state.isVisibleJupyterLiteSessionDrawer && (
-                                    <JupyterLiteSessionDrawer
-                                        materials={mdState.materials}
-                                        show={this.state.isVisibleJupyterLiteSessionDrawer}
-                                        onMaterialsUpdate={(...args) => {
-                                            this.props.onAdd(...args);
-                                        }}
-                                        onHide={() => {
-                                            this.setState({
-                                                isVisibleJupyterLiteSessionDrawer: false,
-                                            });
-                                        }}
-                                        containerRef={this.containerRef}
-                                    />
-                                )}
-                            </Grid>
+                                    </Box>
+                                </Allotment.Pane>
+                            </Allotment>
+
+                            {this.state.isVisibleJupyterLiteSessionDrawer && (
+                                <JupyterLiteSessionDrawer
+                                    materials={mdState.materials}
+                                    show={this.state.isVisibleJupyterLiteSessionDrawer}
+                                    onMaterialsUpdate={(...args) => {
+                                        this.props.onAdd(...args);
+                                    }}
+                                    onHide={() => {
+                                        this.setState({
+                                            isVisibleJupyterLiteSessionDrawer: false,
+                                        });
+                                    }}
+                                    containerRef={this.containerRef}
+                                />
+                            )}
                         </Box>
                         <EditorSelectionInfo
                             material={globalMaterial}
                             index={mdState.index}
                             materialsCount={mdState.materials.length}
-                            selectedIndices={this.state.selectedAtomIndices}
                         />
 
                         <StandataImportDialog
