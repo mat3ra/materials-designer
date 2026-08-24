@@ -237,6 +237,10 @@ app embedding this package must either serve the wheels at that path or pass its
 The first open builds the environment in-browser (~30 s warm, longer cold); the panel stays mounted
 while hidden so closing it costs nothing. Test: `tests/cypress/e2e/repl/python-repl.feature`.
 
+Architecture and the staged roadmap (completions, editable environments, cove/AX extraction):
+[agents/plan/repl-minimal-architecture.md](agents/plan/repl-minimal-architecture.md). Every
+temporary solution in the code is marked `TODO(repl-vN)` pointing at its ladder step there.
+
 ## 4. Links
 
 1. [Create React App, GitHub Repository](https://github.com/facebook/create-react-app)

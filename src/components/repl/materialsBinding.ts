@@ -21,8 +21,11 @@ export interface MaterialsSyncPayload {
  * The namespace users see, ran once after the environment is built.
  *
  * Inline Python is deliberate bootstrap glue, kept to this file: the imports plus one scan
- * function. It moves into `mat3ra-notebooks-utils` once a release ships the REPL host bridge —
- * v1 must not depend on an unreleased wheel.
+ * function. v1 must not depend on an unreleased wheel.
+ *
+ * TODO(repl-v4): delete both snippets in favor of `mat3ra.notebooks_utils.preamble.material` and
+ * its `get_materials` / `sync_materials`, once a released notebooks-utils carries the host bridge
+ * (api-examples #355). This file then shrinks to the payload types plus two one-line calls.
  */
 export const MATERIALS_PREAMBLE = `
 from mat3ra.made.material import Material

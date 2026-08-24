@@ -4,6 +4,10 @@
 // JupyterLite deploy for its own kernel; the app serves them same-origin from public/repl-wheels
 // because browsers block cross-origin wheel fetches without CORS. Runs on prestart/prebuild and
 // skips wheels already present, so it costs one download ever.
+//
+// TODO(repl-infra): delete this script (and the same-origin requirement) once
+// jupyterlite.mat3ra.com serves /files/packages with CORS headers — every host could then fetch
+// wheels from it directly, and per-host provisioning becomes an optional cache.
 import { createWriteStream } from "node:fs";
 import { mkdir, readFile, rename, rm, stat } from "node:fs/promises";
 import { dirname, join } from "node:path";

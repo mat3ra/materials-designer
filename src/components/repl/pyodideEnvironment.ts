@@ -3,8 +3,10 @@
  * `mat3ra.made.tools` importable in the browser.
  *
  * The install order below is load-bearing and mirrors the environment the production JupyterLite
- * kernel builds from AX's `config.yml` (`made` profile). It is hardcoded here as v1's single source
- * of truth; a later version reads the AX manifest instead so the two environments cannot drift.
+ * kernel builds from AX's `config.yml` (`made` profile).
+ *
+ * TODO(repl-v4): replace these hardcoded lists with that manifest, read at build time, so this
+ * environment and JupyterLite's cannot drift — see agents/plan/repl-minimal-architecture.md §5.
  */
 
 /** Pinned rather than floating: an interpreter upgrade can break the prebuilt wheels below. */
@@ -83,7 +85,9 @@ let pyodideLoadPromise: Promise<Pyodide> | null = null;
  * Not cove's `PyodideLoader`: it calls `loadPyodide()` bare, and this app's bundled node polyfills
  * make Pyodide's own asset detection resolve to a filesystem path — it then fetches
  * `pyodide.asm.wasm` from `/Users/…` and hangs (caught by the e2e). Passing `indexURL` is the
- * proven cure; switch back to the cove loader if it ever learns to accept one.
+ * proven cure.
+ *
+ * TODO(repl-v3): teach cove's PyodideLoader to accept an indexURL, then delete this function.
  */
 export function loadPyodideRuntime(): Promise<Pyodide> {
     if (pyodideLoadPromise) return pyodideLoadPromise;
@@ -128,6 +132,9 @@ async function fetchWheelToFS(
 /**
  * Build the materials environment inside an already-loaded Pyodide. Sequential on purpose: order
  * matters, and logging before each install is what makes the ~30 s first load legible to the user.
+ *
+ * TODO(repl-v3): this install engine is domain-free and graduates to cove's Python session; only
+ * the package lists above stay behind (until repl-v4 moves those to the AX manifest).
  */
 export async function buildMaterialsReplEnvironment(
     pyodide: Pyodide,

@@ -48,6 +48,10 @@ interface PythonReplPanelProps {
 /**
  * The Python REPL drawer: editor, Run, plain text output. Stays mounted while hidden so the ~30 s
  * environment survives closing the panel; `show` only drives the drawer.
+ *
+ * TODO(repl-v3): the generic parts here (editor, run, output, status) graduate to cove as a
+ * reusable PythonRepl; this file then keeps only the materials wiring. Completions arrive with
+ * repl-v2. See agents/plan/repl-minimal-architecture.md §5.
  */
 function PythonReplPanel({
     materials,
