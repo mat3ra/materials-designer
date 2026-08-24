@@ -219,6 +219,24 @@ VITE_JUPYTERLITE_DEVELOPMENT_URL="https://deploy-preview-56--mat3ra-jupyterlite.
 
 This should source JL from the development distribution and run only notebook healthcheck tests.
 
+### 3.7. Python REPL (Pyodide)
+
+The **View → Python REPL** panel runs `mat3ra.made.tools` in the browser via
+[Pyodide](https://pyodide.org). The designer's materials are bound as `materials_in` (list order)
+and `material` (the selected one); any `Material` the code creates or reassigns syncs back into the
+list under a replaceable `python-repl` scope — re-running a cell never duplicates, and hand-made
+materials are never touched.
+
+The package set is defined in one place, `src/components/repl/pyodideEnvironment.ts`. Some of it
+(`pymatgen`, `spglib`, `pydantic`) does not build under Pyodide, so prebuilt pure-python wheels are
+served **same-origin at `/repl-wheels`** — browsers block cross-origin wheel fetches without CORS.
+In this repo `provision-repl-wheels` downloads them on `prestart`/`prebuild` (gitignored). A host
+app embedding this package must either serve the wheels at that path or pass its own location via
+`replWheelBaseUrl` on `MaterialsDesignerContainer`.
+
+The first open builds the environment in-browser (~30 s warm, longer cold); the panel stays mounted
+while hidden so closing it costs nothing. Test: `tests/cypress/e2e/repl/python-repl.feature`.
+
 ## 4. Links
 
 1. [Create React App, GitHub Repository](https://github.com/facebook/create-react-app)

@@ -6,6 +6,7 @@ import type {
 import { Made } from "@mat3ra/made";
 import type { SlabConfigSchema } from "@mat3ra/made/dist/js/tools/surface";
 
+import type { MaterialsSyncPayload } from "../components/repl/materialsBinding";
 import { displayMessage } from "../i18n/messages";
 import { MDMaterial } from "../MDMaterial";
 
@@ -194,4 +195,43 @@ export function materialsSetBoundaryConditionsForOne(
 
 export function materialsUpdateIndex(state: MDState, action: { index: number }): MDState {
     return { ...state, index: action.index };
+}
+
+/** Replace one producer-owned region, while upserting round-tripped authored materials by id. */
+export function materialsSyncScope(state: MDState, action: MaterialsSyncPayload): MDState {
+    const selected = state.materials[state.index];
+    const selectedId = selected?.id || selected?._id;
+    const materials = state.materials.filter((material) => material.syncScope !== action.syncScope);
+
+    const derived: MDMaterial[] = [];
+    action.entities
+        .filter((entity) => entity.type === "material")
+        .forEach(({ name, config }) => {
+            const id = config._id;
+            const existingIndex = id
+                ? materials.findIndex((candidate) => (candidate.id || candidate._id) === id)
+                : -1;
+            const existing = existingIndex >= 0 ? materials[existingIndex] : undefined;
+            const material = new MDMaterial({
+                ...config,
+                name,
+                metadata: { ...existing?.metadata, ...config.metadata },
+            });
+            material.isUpdated = true;
+            if (existingIndex >= 0) materials[existingIndex] = material;
+            else if (!id) {
+                material.syncScope = action.syncScope;
+                derived.push(material);
+            }
+        });
+
+    materials.push(...derived);
+    const survivingSelection = selectedId
+        ? materials.findIndex((material) => (material.id || material._id) === selectedId)
+        : materials.indexOf(selected);
+    const index =
+        survivingSelection >= 0
+            ? survivingSelection
+            : Math.max(0, Math.min(state.index, materials.length - 1));
+    return { ...state, materials, index };
 }

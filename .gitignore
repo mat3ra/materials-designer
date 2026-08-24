@@ -13,3 +13,6 @@ tests/cypress/downloads/*
 .idea/
 .DS_Store
 src/react-app-env.d.ts
+
+# Prebuilt Pyodide wheels for the Python REPL, downloaded by scripts/provision-repl-wheels.mjs.
+public/repl-wheels/
