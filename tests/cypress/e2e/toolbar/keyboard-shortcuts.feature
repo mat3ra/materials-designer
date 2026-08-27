@@ -34,3 +34,17 @@ Feature: Keyboard shortcuts drive the app without stealing keys from text fields
     Then material with following data exists in state
       | path          | index   |
       | si-clone.json | $INT{2} |
+
+  Scenario: Shift is a capital letter in a text field, not a material switch
+    When I open materials designer page
+    Then I see material designer page
+    When I clone material at index "1"
+    Then I see status bar showing
+      | group    | text  |
+      | position | 1 / 2 |
+
+    # Shift+D switches material, but only outside a field: typing "Diamond" must not navigate away
+    When I press "shift+d" inside the materials filter
+    Then I see status bar showing
+      | group    | text  |
+      | position | 1 / 2 |

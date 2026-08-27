@@ -18,6 +18,7 @@ import { closeSnackbar, enqueueSnackbar } from "notistack";
 import PropTypes from "prop-types";
 import React from "react";
 
+import { isTypingTarget } from "../header_menu/actions";
 import { theme } from "../../settings";
 import ItemsListHeader, { buildAddActions } from "./ItemsListHeader";
 
@@ -79,6 +80,10 @@ class ItemsList extends React.Component {
     initControlsSwitchFromKeyboard(event) {
         const { materials, index, onItemClick } = this.props;
         if (!event.shiftKey) return; // Shift key must be down
+        // Shift is also how you type a capital letter. Without this, naming a material "Diamond"
+        // or filtering for "Si" would switch the active material mid-word.
+        if (isTypingTarget(event.target)) return;
+        if (event.metaKey || event.ctrlKey || event.altKey) return;
 
         const nextIndex = materials.length === 1 + index ? 0 : index + 1;
         const previousIndex = index === 0 ? materials.length - 1 : index - 1;
@@ -103,9 +108,12 @@ class ItemsList extends React.Component {
     }
 
     blurListItem() {
-        const { onItemClick, onNameUpdate, index } = this.props;
+        const { materials, onItemClick, onNameUpdate, index } = this.props;
         const { editedName, editedIndex } = this.state;
-        onNameUpdate(editedName, editedIndex);
+        // Clicking a row focuses its name field, so simply browsing the list used to dispatch a
+        // rename on every click-away - each one an undo step for a name that never changed.
+        const edited = editedIndex >= 0 ? materials[editedIndex] : undefined;
+        if (edited && edited.name !== editedName) onNameUpdate(editedName, editedIndex);
         onItemClick(index);
         this.setState({ editedName: null, editedIndex: null });
     }
@@ -173,6 +181,8 @@ class ItemsList extends React.Component {
         const { editedIndex, editedName } = this.state;
         const isBeingEdited = editedIndex === index;
         const isBeingActive = index === indexFromState;
+        // Once per row: describeStructure parses the basis, which is not free for large materials.
+        const structureFacts = describeStructure(entity);
         const dynamicIconColor = isBeingActive ? theme.palette.grey[300] : theme.palette.grey[900];
         const neutralColor = theme.palette.grey[500];
         return (
@@ -286,7 +296,7 @@ class ItemsList extends React.Component {
                             <Typography
                                 variant="caption"
                                 component="span"
-                                title={[entity.formula, ...describeStructure(entity)].join(" · ")}
+                                title={[entity.formula, ...structureFacts].join(" · ")}
                                 sx={{
                                     fontSize: "0.8em",
                                     display: "flex",
@@ -317,7 +327,7 @@ class ItemsList extends React.Component {
                                         flexShrink: 1,
                                     }}
                                 >
-                                    {describeStructure(entity).join(" · ")}
+                                    {structureFacts.join(" · ")}
                                 </Box>
                                 {isUpdated && (
                                     <Tooltip title="Edited since it entered the session">

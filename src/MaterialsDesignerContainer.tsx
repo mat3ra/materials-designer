@@ -49,12 +49,17 @@ function useUndoableState<T extends MDState>(initialValue: T, maxPastSize = 50) 
     window.MDState = presentRef.current;
 
     const setState = useCallback(
-        (newValue: T) => {
+        (newValue: T, { recordHistory = true }: { recordHistory?: boolean } = {}) => {
             // Read the outgoing state before moving the ref: the updater below runs during the
             // next render, by which point `presentRef.current` is already `newValue`, and the
             // history would fill with copies of the new state.
             const previous = presentRef.current;
             presentRef.current = newValue;
+            if (!recordHistory) {
+                // Still a state change, so still a render - just not one the user can undo.
+                setHistory((history_) => ({ ...history_ }));
+                return;
+            }
             setHistory(({ past }) => ({
                 // Keep only the most recent maxPastSize entries
                 past: [...past, previous].slice(-maxPastSize),
@@ -135,15 +140,18 @@ export function MaterialsDesignerContainer({
     // would also mean re-hashing every material on every render.
     const baselineMaterials = React.useMemo(() => initialMaterials.map(stampOriginalSignature), []);
 
-    const [mdState, setMdState, undo, redo, reset] = useUndoableState<MDState>({
+    const [mdState, setMdState, undo, redo, reset, canUndo, canRedo] = useUndoableState<MDState>({
         index: 0,
         isLoading: false,
         materials: baselineMaterials,
         updatedIndices: [],
     });
 
+    // Mirroring the loading flag is not an edit. Recorded as one, it would run on mount and leave
+    // a phantom entry in the history: undo would light up before the user had done anything, and
+    // the first Mod+Z would swap the state for an identical copy of itself.
     useEffect(() => {
-        setMdState({ ...mdState.current, isLoading });
+        setMdState({ ...mdState.current, isLoading }, { recordHistory: false });
     }, [isLoading]);
 
     const onUpdate = useCallback((material: MDMaterial, index: number) => {
@@ -154,8 +162,10 @@ export function MaterialsDesignerContainer({
         setMdState(materialsUpdateNameForOne(mdState.current, { name, index }));
     }, []);
 
+    // Which material you are looking at is navigation, not an edit. Recorded, clicking through
+    // five materials would cost five presses of Mod+Z to get back to the last thing you changed.
     const onItemClick = useCallback((index: number) => {
-        setMdState(materialsUpdateIndex(mdState.current, { index }));
+        setMdState(materialsUpdateIndex(mdState.current, { index }), { recordHistory: false });
     }, []);
 
     const onClone = useCallback(() => {
@@ -193,8 +203,12 @@ export function MaterialsDesignerContainer({
         setMdState(materialsInsertAt(mdState.current, { material, index }));
     }, []);
 
+    // Exporting writes a file and returns the state untouched; recorded, it would leave a
+    // duplicate snapshot on the stack and an Undo that visibly does nothing.
     const onExport = useCallback((format: "json" | "poscar", useMultiple: boolean) => {
-        setMdState(materialsExport(mdState.current, { format, useMultiple }));
+        setMdState(materialsExport(mdState.current, { format, useMultiple }), {
+            recordHistory: false,
+        });
     }, []);
 
     const content = (
@@ -216,6 +230,8 @@ export function MaterialsDesignerContainer({
             onRemove={onRemove}
             onRestore={onRestore}
             onExport={onExport}
+            canUndo={canUndo}
+            canRedo={canRedo}
             {...props}
         />
     );
