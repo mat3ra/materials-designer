@@ -25,7 +25,7 @@ const emptyTransformation: Transformation = {
 };
 
 const DEFAULT_URL =
-    "https://api.github.com/repos/Exabyte-io/api-examples/contents/other/python_transformations";
+    "https://api.github.com/repos/mat3ra/api-examples/contents/other/python_transformations";
 
 const TITLE_REGEX = /^"""TITLE: (.*?)"""\n/;
 

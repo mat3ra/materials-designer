@@ -2,7 +2,7 @@ import { IframeBrowser } from "@mat3ra/tede/src/js/cypress/Browser";
 
 import Widget from "./Widget";
 
-// Selectors work for JL version https://github.com/Exabyte-io/jupyterlite/blob/7694a77e0a8cd495b0dbe1fb68cff3142fc5d32b/requirements.txt#L3
+// Selectors work for JL version https://github.com/mat3ra/jupyterlite/blob/7694a77e0a8cd495b0dbe1fb68cff3142fc5d32b/requirements.txt#L3
 const SELECTORS = {
     iframe: "iframe#jupyter-lite-iframe",
     main: "#main",

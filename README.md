@@ -1,4 +1,4 @@
-[![npm version](https://badge.fury.io/js/%40exabyte-io%2Fmaterials-designer.svg)](https://badge.fury.io/js/%40exabyte-io%2Fmaterials-designer)
+[![npm version](https://badge.fury.io/js/%40mat3ra%2Fmaterials-designer.svg)](https://badge.fury.io/js/%40mat3ra%2Fmaterials-designer)
 [![License: Apache](https://img.shields.io/badge/License-Apache-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
 # Materials Designer
@@ -18,13 +18,13 @@ application.
 Materials Designer can be installed from the source as follows:
 
 ```bash
-git clone git@github.com:Exabyte-io/materials-designer.git
+git clone git@github.com:mat3ra/materials-designer.git
 ```
 
 Or use https, if no SSH authentication is set up with GitHub:
 
 ```bash
-git clone https://github.com/Exabyte-io/materials-designer.git
+git clone https://github.com/mat3ra/materials-designer.git
 ```
 
 then start the application using Node v20.18:
@@ -143,8 +143,8 @@ sh run-tests.sh -f=menu/advanced/create-supercell.feature
 
 ### 3.3. Dependencies
 
-This package depends on [Made](https://github.com/mat3ra/made), [Wave](https://github.com/Exabyte-io/wave.js),
-and [Cove.js](https://github.com/Exabyte-io/cove.js) among other packages. For the full list,
+This package depends on [Made](https://github.com/mat3ra/made), [Wave](https://github.com/mat3ra/wave.js),
+and [Cove.js](https://github.com/mat3ra/cove) among other packages. For the full list,
 see [package.json](package.json).
 
 ### 3.4. CI Docker files

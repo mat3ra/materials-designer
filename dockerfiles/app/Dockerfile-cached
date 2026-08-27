@@ -1,4 +1,4 @@
-FROM ghcr.io/exabyte-io/materials-designer_x86_64:latest
+FROM ghcr.io/mat3ra/materials-designer_x86_64:latest
 
 WORKDIR /opt/app
 COPY . .

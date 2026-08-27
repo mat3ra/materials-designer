@@ -1,5 +1,5 @@
 {
-    "extends": ["@exabyte-io/eslint-config"],
+    "extends": ["@mat3ra/eslint-config"],
     "settings": {
         "import/resolver": {
             "node": {

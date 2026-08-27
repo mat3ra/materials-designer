@@ -297,7 +297,7 @@ class HeaderMenuToolbar extends React.Component {
             <ButtonActivatedMenuMaterialUI title="Help">
                 <MenuItem
                     onClick={() =>
-                        this.openPageByURL("https://docs.exabyte.io/materials-designer/overview/")
+                        this.openPageByURL("https://docs.mat3ra.com/materials-designer/overview/")
                     }
                 >
                     <ListItemIcon>
@@ -307,7 +307,7 @@ class HeaderMenuToolbar extends React.Component {
                 </MenuItem>
                 <MenuItem
                     onClick={() =>
-                        this.openPageByURL("https://docs.exabyte.io/tutorials/materials/overview/")
+                        this.openPageByURL("https://docs.mat3ra.com/tutorials/materials/overview/")
                     }
                 >
                     <ListItemIcon>

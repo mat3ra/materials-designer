@@ -37,7 +37,7 @@ runs:
 #    - name: Push updated application container
 #      shell: bash -l {0}
 #      run: |
-#        docker push ghcr.io/exabyte-io/materials-designer_x86_64:latest
+#        docker push ghcr.io/mat3ra/materials-designer_x86_64:latest
 
     - name: Build test container
       if: inputs.skip_build != 'true'

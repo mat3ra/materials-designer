@@ -18,7 +18,7 @@ jobs:
       - name: Checkout actions repository
         uses: actions/checkout@v4
         with:
-          repository: Exabyte-io/actions
+          repository: mat3ra/actions
           token: ${{ secrets.BOT_GITHUB_TOKEN }}
           path: actions
 

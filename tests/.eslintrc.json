@@ -1,6 +1,6 @@
 {
     "root": true,
-    "extends": ["@exabyte-io/eslint-config"],
+    "extends": ["@mat3ra/eslint-config"],
     "rules": {
         "jsx-a11y/label-has-associated-control": "off",
         "react/function-component-definition": "off"
