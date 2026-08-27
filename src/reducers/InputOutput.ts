@@ -7,7 +7,6 @@ import {
     addUpdatedIndices,
     adjustUpdatedIndicesForRemove,
     indicesForAddedMaterials,
-    isMaterialUpdated,
     syncUpdatedIndexBySignature,
 } from "./Material";
 
@@ -74,10 +73,10 @@ export function materialsInsertAt(
         ...state.materials.slice(index),
     ];
     const updatedIndices = state.updatedIndices.map((i) => (i >= index ? i + 1 : i));
-    const restored = { ...state, materials, updatedIndices, index };
-    return isMaterialUpdated(restored, index)
-        ? restored
-        : syncUpdatedIndexBySignature(restored, index);
+    // Shifting every flag at or past the insert point leaves `index` itself unflagged, so the
+    // restored material is re-judged against its own original signature: an edited material that
+    // was removed and put back is still edited.
+    return syncUpdatedIndexBySignature({ ...state, materials, updatedIndices, index }, index);
 }
 
 export function materialsExport(

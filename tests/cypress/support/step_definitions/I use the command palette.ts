@@ -45,3 +45,26 @@ Given("I do not see the {string} panel", (selector: string) => {
     // editor's state survive being toggled away. Cypress treats a zero-width element as not visible.
     new MaterialDesignerPage().designerWidget.browser.get(selector).should("not.be.visible");
 });
+
+/**
+ * Availability of a control on the quick-action row. `disabled` is read off the attribute rather
+ * than by clicking and asserting nothing happened: a control that looks live but does nothing is
+ * the thing being guarded against.
+ */
+Given(
+    "I see the {string} quick action is {string}",
+    (id: string, state: "enabled" | "disabled") => {
+        new MaterialDesignerPage().designerWidget.browser
+            .get(`.quick-action-${id}`)
+            .should(state === "disabled" ? "be.disabled" : "not.be.disabled");
+    },
+);
+
+Given(
+    "I see the {string} panel toggle is {string}",
+    (name: string, state: "enabled" | "disabled") => {
+        new MaterialDesignerPage().designerWidget.browser
+            .get(`.panel-toggle-${name}`)
+            .should(state === "disabled" ? "be.disabled" : "not.be.disabled");
+    },
+);

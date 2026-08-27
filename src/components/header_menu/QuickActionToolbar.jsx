@@ -37,6 +37,9 @@ function QuickActionToolbar({
     visibilityByName,
 }) {
     const actionById = new Map(actions.map((action) => [action.id, action]));
+    // The app always keeps one panel on screen. Rather than let the last toggle look live and do
+    // nothing, grey it out and say why.
+    const visibleCount = PANEL_TOGGLES.filter(({ name }) => visibilityByName[name]).length;
     return (
         <Toolbar
             variant="dense"
@@ -61,15 +64,19 @@ function QuickActionToolbar({
                         key={action.id}
                         title={shortcut ? `${action.label} (${shortcut})` : action.label}
                     >
-                        <IconButton
-                            size="small"
-                            color="inherit"
-                            aria-label={action.label}
-                            className={`quick-action quick-action-${action.id}`}
-                            onClick={action.run}
-                        >
-                            {action.icon}
-                        </IconButton>
+                        {/* A disabled button fires no events, so the tooltip needs a live wrapper */}
+                        <Box component="span" sx={{ display: "inline-flex" }}>
+                            <IconButton
+                                size="small"
+                                color="inherit"
+                                disabled={Boolean(action.disabled)}
+                                aria-label={action.label}
+                                className={`quick-action quick-action-${action.id}`}
+                                onClick={action.run}
+                            >
+                                {action.icon}
+                            </IconButton>
+                        </Box>
                     </Tooltip>
                 );
             })}
@@ -97,19 +104,32 @@ function QuickActionToolbar({
 
             <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
 
-            {PANEL_TOGGLES.map(({ name, label, icon }) => (
-                <Tooltip key={name} title={`${visibilityByName[name] ? "Hide" : "Show"} ${label}`}>
-                    <IconButton
-                        size="small"
-                        aria-label={`${visibilityByName[name] ? "Hide" : "Show"} ${label}`}
-                        className={`panel-toggle panel-toggle-${name}`}
-                        color={visibilityByName[name] ? "primary" : "inherit"}
-                        onClick={() => onSectionVisibilityToggle(name)}
+            {PANEL_TOGGLES.map(({ name, label, icon }) => {
+                const isVisible = visibilityByName[name];
+                const isLastVisible = isVisible && visibleCount === 1;
+                const verb = isVisible ? "Hide" : "Show";
+                return (
+                    <Tooltip
+                        key={name}
+                        title={
+                            isLastVisible ? `${label} is the only panel open` : `${verb} ${label}`
+                        }
                     >
-                        {icon}
-                    </IconButton>
-                </Tooltip>
-            ))}
+                        <Box component="span" sx={{ display: "inline-flex" }}>
+                            <IconButton
+                                size="small"
+                                disabled={isLastVisible}
+                                aria-label={`${verb} ${label}`}
+                                className={`panel-toggle panel-toggle-${name}`}
+                                color={isVisible ? "primary" : "inherit"}
+                                onClick={() => onSectionVisibilityToggle(name)}
+                            >
+                                {icon}
+                            </IconButton>
+                        </Box>
+                    </Tooltip>
+                );
+            })}
         </Toolbar>
     );
 }

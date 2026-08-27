@@ -1,26 +1,33 @@
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
-import Stack from "@mui/material/Stack";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import PropTypes from "prop-types";
 import React from "react";
 
+import { formatShortcut } from "../header_menu/actions";
 import { theme } from "../../settings";
-import { describeMaterial, SELECTION_HINTS } from "./materialInfo";
+import { describeMaterial } from "./materialInfo";
 
-export const FOOTER_HEIGHT = 54;
+/**
+ * A single strip, not a panel: label and value sit on one line so the bar can stay out of the
+ * way. Every pixel here is a pixel the 3D canvas does not get.
+ */
+export const FOOTER_HEIGHT = 36;
 
 function InfoGroup({ label, children, title, className }) {
     const content = (
-        <Stack spacing={0.25} sx={{ minWidth: 0 }} className={className}>
+        <Box
+            className={className}
+            sx={{ display: "flex", alignItems: "baseline", gap: 0.75, minWidth: 0 }}
+        >
             <Typography
                 variant="caption"
                 sx={{
                     fontSize: "0.6rem",
                     letterSpacing: "0.08em",
-                    lineHeight: 1,
                     color: theme.palette.grey[600],
+                    flexShrink: 0,
                 }}
             >
                 {label}
@@ -30,7 +37,6 @@ function InfoGroup({ label, children, title, className }) {
                 sx={{
                     fontFamily: "monospace",
                     fontSize: "0.78rem",
-                    lineHeight: 1.2,
                     whiteSpace: "nowrap",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
@@ -38,7 +44,7 @@ function InfoGroup({ label, children, title, className }) {
             >
                 {children}
             </Typography>
-        </Stack>
+        </Box>
     );
     return title ? <Tooltip title={title}>{content}</Tooltip> : content;
 }
@@ -53,10 +59,9 @@ InfoGroup.propTypes = {
 InfoGroup.defaultProps = { children: null, title: undefined, className: undefined };
 
 /**
- * Status bar under the three editor panels: what is selected in the 3D editor, what the active
- * material is, and where it sits in the list.
- */
-/**
+ * Status bar under the three editor panels: what the active material is and where it sits in the
+ * list.
+ *
  * Selection detail is deliberately absent: wave.js renders its own StatusBar and
  * SelectionInspector inside the 3D editor, so what is selected is described there, next to the
  * atoms it refers to. This bar covers what wave cannot know - the material and the list around it.
@@ -76,8 +81,10 @@ const EditorSelectionInfo = function EditorSelectionInfo({ material, index, mate
                 overflowX: "auto",
             }}
         >
-            <InfoGroup label="MATERIAL" className="status-material">{materialInfo.text}</InfoGroup>
-            <Divider orientation="vertical" flexItem />
+            <InfoGroup label="MATERIAL" className="status-material">
+                {materialInfo.text}
+            </InfoGroup>
+            <Divider orientation="vertical" flexItem sx={{ my: 0.75 }} />
             <InfoGroup label="POSITION" className="status-position">
                 {materialsCount ? `${index + 1} / ${materialsCount}` : "—"}
             </InfoGroup>
@@ -90,7 +97,7 @@ const EditorSelectionInfo = function EditorSelectionInfo({ material, index, mate
                     display: { xs: "none", lg: "block" },
                 }}
             >
-                {SELECTION_HINTS}
+                {`Shift+U / Shift+D switch material · ${formatShortcut("Mod+K")} to search`}
             </Typography>
         </Box>
     );

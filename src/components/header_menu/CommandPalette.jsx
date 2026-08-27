@@ -42,6 +42,9 @@ export function buildEntries({
     const entries = [];
 
     actions
+        // An unavailable action is left out rather than greyed out: a palette is a place to reach
+        // for something, and offering "Undo" with an empty history is only a dead end.
+        .filter((action) => !action.disabled)
         .filter((action) => !q || matches(q, `${action.label} ${action.group}`))
         .forEach((action) => entries.push({ ...action, kind: "action" }));
 

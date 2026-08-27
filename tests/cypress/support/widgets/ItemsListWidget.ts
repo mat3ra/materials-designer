@@ -11,6 +11,7 @@ export class ItemsListWidget extends Widget {
         iconButtonDelete: ".icon-button-delete",
         count: `${wrapper} .materials-count`,
         filterInput: `${wrapper} .materials-filter input`,
+        filterClear: `${wrapper} .materials-filter-clear`,
         rows: `${wrapper} ul>div`,
         emptyState: `${wrapper} .materials-empty-state`,
         addMenuButton: `${wrapper} .add-material-menu`,
@@ -43,6 +44,11 @@ export class ItemsListWidget extends Widget {
 
     clearFilter() {
         this.browser.clearInputValue(this.selectors.filterInput);
+    }
+
+    /** The "x" inside the field, which only exists while the filter has text. */
+    clearFilterWithButton() {
+        this.browser.click(this.selectors.filterClear);
     }
 
     openAddMenu() {

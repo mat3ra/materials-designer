@@ -1,6 +1,7 @@
 import Dropdown from "@mat3ra/cove/dist/mui/components/dropdown/Dropdown";
 import IconByName from "@mat3ra/cove/dist/mui/components/icon/IconByName";
 import AddIcon from "@mui/icons-material/Add";
+import ClearIcon from "@mui/icons-material/Close";
 import CloneIcon from "@mui/icons-material/Collections";
 import SearchIcon from "@mui/icons-material/Search";
 import Box from "@mui/material/Box";
@@ -63,13 +64,35 @@ function ItemsListHeader({ filter, onFilterChange, shownCount, totalCount, addAc
                 placeholder="Filter by name or formula"
                 value={filter}
                 onChange={(event) => onFilterChange(event.target.value)}
-                inputProps={{ "aria-label": "Filter materials" }}
+                // Escape clears rather than closes: there is nothing to close, and a filter that
+                // hides every material is otherwise a small dead end to type your way out of.
+                onKeyDown={(event) => {
+                    if (event.key !== "Escape" || !filter) return;
+                    event.stopPropagation();
+                    onFilterChange("");
+                }}
+                inputProps={{ "aria-label": "Filter materials", autoComplete: "off" }}
                 InputProps={{
                     startAdornment: (
                         <InputAdornment position="start">
                             <SearchIcon sx={{ fontSize: "1rem", color: theme.palette.grey[600] }} />
                         </InputAdornment>
                     ),
+                    endAdornment: filter ? (
+                        <InputAdornment position="end">
+                            <Tooltip title="Clear filter (Esc)">
+                                <IconButton
+                                    size="small"
+                                    aria-label="Clear filter"
+                                    className="materials-filter-clear"
+                                    onClick={() => onFilterChange("")}
+                                    sx={{ padding: 0.25 }}
+                                >
+                                    <ClearIcon sx={{ fontSize: "0.9rem" }} />
+                                </IconButton>
+                            </Tooltip>
+                        </InputAdornment>
+                    ) : null,
                     sx: { fontSize: "0.8rem" },
                 }}
             />

@@ -47,3 +47,11 @@ Feature: The materials list can be counted, filtered and added to
   Scenario: The add menu opens the Standata import dialog
     When I select "Import from Standata" from the add material menu
     Then I see Standata dialog
+
+  Scenario: The filter can be cleared without selecting the text
+    When I filter the materials list by "nothing-matches-this"
+    Then I see the empty state for the materials list
+
+    When I clear the materials list filter with the clear button
+    Then I see "3" materials in the list
+    And I see the materials count showing "3"

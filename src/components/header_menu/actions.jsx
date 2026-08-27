@@ -40,8 +40,10 @@ export function formatShortcut(shortcut) {
 }
 
 /**
- * The single registry of invocable actions, shared by the quick-action toolbar and the command
- * palette so the two can never drift. Each entry: `{ id, label, group, icon, shortcut, run }`.
+ * The single registry of invocable actions, shared by the quick-action toolbar, the keyboard
+ * shortcuts and the command palette so the three can never drift. Each entry:
+ * `{ id, label, group, icon, shortcut, run, disabled? }`. A `disabled` entry is greyed out on the
+ * toolbar, skipped by the shortcut handler and left out of the palette.
  */
 export function buildActions({
     onUndo,
@@ -50,6 +52,8 @@ export function buildActions({
     onOpenDialog,
     onUseConventionalCell,
     openLocalDialog,
+    canUndo = true,
+    canRedo = true,
 }) {
     return [
         {
@@ -59,6 +63,7 @@ export function buildActions({
             icon: <UndoIcon />,
             shortcut: "Mod+Z",
             run: onUndo,
+            disabled: !canUndo,
         },
         {
             id: "redo",
@@ -67,6 +72,7 @@ export function buildActions({
             icon: <RedoIcon />,
             shortcut: "Mod+Shift+Z",
             run: onRedo,
+            disabled: !canRedo,
         },
         {
             id: "clone",

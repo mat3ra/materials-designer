@@ -31,3 +31,7 @@ Given("I select {string} from the add material menu", (itemText: string) => {
 Given("I undo the removal", () => {
     itemsList().undoRemove();
 });
+
+Given("I clear the materials list filter with the clear button", () => {
+    itemsList().clearFilterWithButton();
+});

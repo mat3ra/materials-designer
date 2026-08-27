@@ -1,5 +1,3 @@
-export const SELECTION_HINTS = "Shift+U / Shift+D switch material";
-
 /** Formula, atom count and lattice of the active material, for the status bar. */
 export function describeMaterial(material) {
     if (!material) return { text: "—" };

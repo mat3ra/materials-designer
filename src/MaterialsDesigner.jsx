@@ -7,7 +7,6 @@ import { Allotment } from "allotment";
 import "allotment/dist/style.css";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
 import ScopedCssBaseline from "@mui/material/ScopedCssBaseline";
@@ -44,6 +43,21 @@ const APP_BAR_HEIGHT = MENU_BAR_HEIGHT + QUICK_ACTIONS_HEIGHT;
 const DEFAULT_PANE_SIZES = [280, 440, 780];
 const PANE_SIZES_STORAGE_KEY = "materials-designer.paneSizes";
 
+/** Widths the user last dragged to, falling back to the defaults. */
+function readStoredPaneSizes() {
+    try {
+        const stored = JSON.parse(window.localStorage.getItem(PANE_SIZES_STORAGE_KEY));
+        const isUsable =
+            Array.isArray(stored) &&
+            stored.length === DEFAULT_PANE_SIZES.length &&
+            stored.every((size) => Number.isFinite(size) && size > 0);
+        return isUsable ? stored : DEFAULT_PANE_SIZES;
+    } catch (error) {
+        // Storage can be unavailable (private browsing, embedded hosts): use the defaults.
+        return DEFAULT_PANE_SIZES;
+    }
+}
+
 class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMixin) {
     constructor(props) {
         super(props);
@@ -57,6 +71,9 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
             openDialog: null,
         };
         this.containerRef = React.createRef();
+        // Read once: `defaultSizes` is consumed on mount, and `preferredSize` is read again only
+        // when a hidden pane comes back. Re-reading storage on every render buys nothing.
+        this.paneSizes = readStoredPaneSizes();
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -75,25 +92,13 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
         }
     }
 
-    /** Widths the user last dragged to, falling back to the defaults. */
-    // eslint-disable-next-line class-methods-use-this
-    get storedPaneSizes() {
-        try {
-            const stored = JSON.parse(window.localStorage.getItem(PANE_SIZES_STORAGE_KEY));
-            const isUsable =
-                Array.isArray(stored) &&
-                stored.length === DEFAULT_PANE_SIZES.length &&
-                stored.every((size) => Number.isFinite(size) && size > 0);
-            return isUsable ? stored : DEFAULT_PANE_SIZES;
-        } catch (error) {
-            // Storage can be unavailable (private browsing, embedded hosts): use the defaults.
-            return DEFAULT_PANE_SIZES;
-        }
-    }
-
     onPanesResized = (sizes) => {
+        // Allotment reports a hidden pane as 0 wide. Persisting that zero would fail the
+        // "every size > 0" check on the next load and silently drop the whole layout, so a pane
+        // that is not on screen keeps whatever width it last had.
+        this.paneSizes = sizes.map((size, i) => (size > 0 ? size : this.paneSizes[i]));
         try {
-            window.localStorage.setItem(PANE_SIZES_STORAGE_KEY, JSON.stringify(sizes));
+            window.localStorage.setItem(PANE_SIZES_STORAGE_KEY, JSON.stringify(this.paneSizes));
         } catch (error) {
             // Not being able to remember the layout is not worth interrupting the session for.
         }
@@ -151,6 +156,8 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                 mdState={mdState}
                                 onUndo={this.props.onUndo}
                                 onRedo={this.props.onRedo}
+                                canUndo={this.props.canUndo}
+                                canRedo={this.props.canRedo}
                                 onReset={this.props.onReset}
                                 onClone={this.props.onClone}
                                 onToggleIsNonPeriodic={this.props.onToggleIsNonPeriodic}
@@ -210,13 +217,13 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                 id="materials-designer-container"
                                 className="materials-designer-panes"
                                 ref={this.containerRef}
-                                defaultSizes={this.storedPaneSizes}
+                                defaultSizes={this.paneSizes}
                                 onDragEnd={this.onPanesResized}
                             >
                                 <Allotment.Pane
                                     visible={isVisibleItemsList}
                                     minSize={220}
-                                    preferredSize={this.storedPaneSizes[0]}
+                                    preferredSize={this.paneSizes[0]}
                                 >
                                     <Box
                                         className="materials-designer-items-list"
@@ -240,7 +247,7 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                 <Allotment.Pane
                                     visible={isVisibleSourceEditor}
                                     minSize={300}
-                                    preferredSize={this.storedPaneSizes[1]}
+                                    preferredSize={this.paneSizes[1]}
                                 >
                                     <Box
                                         className="materials-designer-source-editor"
@@ -355,6 +362,8 @@ MaterialsDesigner.propTypes = {
     onUndo: PropTypes.func,
     onRedo: PropTypes.func,
     onReset: PropTypes.func,
+    canUndo: PropTypes.bool,
+    canRedo: PropTypes.bool,
 
     onAdd: PropTypes.func,
     onExport: PropTypes.func,
@@ -376,6 +385,8 @@ MaterialsDesigner.propTypes = {
 
 MaterialsDesigner.defaultProps = {
     defaultMaterialsSet: materialConfigs,
+    canUndo: true,
+    canRedo: true,
 };
 
 export default MaterialsDesigner;

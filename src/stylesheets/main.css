@@ -4,7 +4,7 @@
 
 /**
 $header-height: 92px; // menu row (54) + quick-action row (38)
-$footer-height: 54px;
+$footer-height: 36px;
 $crystal-lattice-accordion-height-with-borders: 56px;
 .three-renderer {
   height: calc(100vh - $footer-height - $header-height);
@@ -39,22 +39,22 @@ $crystal-lattice-accordion-height-with-borders: 56px;
 **/
 
 .three-renderer {
-    /* menu row + quick actions + footer: 54 + 38 + 54 */
-    height: calc(100vh - 146px);
+    /* menu row + quick actions + footer: 54 + 38 + 36 */
+    height: calc(100vh - 128px);
 }
 
 #basis-xyz {
-    height: calc(100vh - 318px);
+    height: calc(100vh - 300px);
     overflow-y: hidden;
 }
 
 #basis-xyz .cm-editor {
     font-size: 0.9em;
-    max-height: calc(100vh - 318px);
+    max-height: calc(100vh - 300px);
     resize: vertical;
     overflow-y: auto;
 }
 
 #basis-xyz .cm-editor .cm-scroller {
-    min-height: calc(100vh - 318px);
+    min-height: calc(100vh - 300px);
 }

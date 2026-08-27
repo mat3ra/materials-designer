@@ -85,7 +85,7 @@ class HeaderMenuToolbar extends React.Component {
     openLocalDialog = (stateKey) => this.setState({ [stateKey]: true });
 
     get actions() {
-        const { onUndo, onRedo, onClone, onOpenDialog } = this.props;
+        const { onUndo, onRedo, onClone, onOpenDialog, canUndo, canRedo } = this.props;
         return buildActions({
             onUndo,
             onRedo,
@@ -93,6 +93,8 @@ class HeaderMenuToolbar extends React.Component {
             onOpenDialog,
             onUseConventionalCell: this._handleConventionalCellSelect,
             openLocalDialog: this.openLocalDialog,
+            canUndo,
+            canRedo,
         });
     }
 
@@ -107,7 +109,10 @@ class HeaderMenuToolbar extends React.Component {
         if (isTypingTarget(event.target)) return;
         const action = this.actions.find(({ shortcut }) => matchesShortcut(event, shortcut));
         if (!action) return;
+        // Swallow the key even when the action is unavailable: Mod+Z with an empty history should
+        // do nothing here, not fall through to the browser's own undo.
         event.preventDefault();
+        if (action.disabled) return;
         action.run();
     };
 
@@ -165,16 +170,17 @@ class HeaderMenuToolbar extends React.Component {
     }
 
     renderEditMenu() {
-        const { onUndo, onRedo, onReset, onClone, onToggleIsNonPeriodic } = this.props;
+        const { onUndo, onRedo, onReset, onClone, onToggleIsNonPeriodic, canUndo, canRedo } =
+            this.props;
         return (
             <ButtonActivatedMenuMaterialUI title="Edit">
-                <MenuItem onClick={onUndo}>
+                <MenuItem disabled={!canUndo} onClick={onUndo}>
                     <ListItemIcon>
                         <UndoIcon />
                     </ListItemIcon>
                     Undo
                 </MenuItem>
-                <MenuItem onClick={onRedo}>
+                <MenuItem disabled={!canRedo} onClick={onRedo}>
                     <ListItemIcon>
                         <RedoIcon />
                     </ListItemIcon>
@@ -589,6 +595,8 @@ HeaderMenuToolbar.propTypes = {
     onUpdate: PropTypes.func.isRequired,
     onUndo: PropTypes.func.isRequired,
     onRedo: PropTypes.func.isRequired,
+    canUndo: PropTypes.bool,
+    canRedo: PropTypes.bool,
     onReset: PropTypes.func.isRequired,
     onClone: PropTypes.func.isRequired,
     onToggleIsNonPeriodic: PropTypes.func.isRequired,
@@ -622,6 +630,9 @@ HeaderMenuToolbar.defaultProps = {
     onExit: undefined,
     openImportModal: undefined,
     closeImportModal: undefined,
+    // Undefined reads as "available": embedders that do not track history keep working controls.
+    canUndo: true,
+    canRedo: true,
 };
 
 export default HeaderMenuToolbar;
