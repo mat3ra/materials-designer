@@ -1,5 +1,5 @@
 {
-    "extends": ["@exabyte-io/eslint-config"],
+    "extends": ["@mat3ra/eslint-config"],
     "ignorePatterns": ["dist/**/*.js", "dist/**/*.ts"],
     "rules": {
         "jsx-a11y/label-has-associated-control": "off",
