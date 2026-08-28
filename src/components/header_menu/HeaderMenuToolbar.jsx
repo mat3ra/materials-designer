@@ -23,6 +23,8 @@ import CombinatorialSetIcon from "@mui/icons-material/LibraryAdd";
 import RedoIcon from "@mui/icons-material/Redo";
 import SaveIcon from "@mui/icons-material/Save";
 import InterpolatedSetIcon from "@mui/icons-material/SwapVert";
+// Code, not Terminal: the JupyterLite item next to this one already uses the Terminal icon.
+import PythonReplIcon from "@mui/icons-material/Code";
 import Terminal from "@mui/icons-material/Terminal";
 // TODO: only used by the disabled Multi-Material 3D Editor menu item
 // import ThreeDEditorIcon from "@mui/icons-material/ThreeDRotation";
@@ -217,6 +219,12 @@ class HeaderMenuToolbar extends React.Component {
                         <Terminal />
                     </ListItemIcon>
                     JupyterLite Session
+                </MenuItem>
+                <MenuItem onClick={() => onSectionVisibilityToggle("PythonReplPanel")}>
+                    <ListItemIcon>
+                        <PythonReplIcon />
+                    </ListItemIcon>
+                    Python REPL
                 </MenuItem>
             </ButtonActivatedMenuMaterialUI>
         );

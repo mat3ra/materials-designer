@@ -4,6 +4,7 @@ import type { Matrix3X3Schema } from "@mat3ra/esse/dist/js/types";
 import type { ViewSettingsFromUrl } from "@mat3ra/wave.js/dist/utils/viewSettingsUrl";
 import React, { useCallback, useEffect, useState } from "react";
 
+import type { MaterialsSyncPayload } from "./components/repl/types";
 import MaterialsDesignerComponent from "./MaterialsDesigner";
 import { MDMaterial } from "./MDMaterial";
 import { materialsAdd, materialsExport, materialsRemove } from "./reducers/InputOutput";
@@ -15,6 +16,7 @@ import {
     materialsGenerateSupercellForOne,
     materialsGenerateSurfaceForOne,
     materialsSetBoundaryConditionsForOne,
+    materialsSyncScope,
     materialsToggleIsNonPeriodicForOne,
     materialsUpdateIndex,
     materialsUpdateNameForOne,
@@ -91,6 +93,8 @@ export interface ImportModalProps {
 
 export interface MaterialsDesignerContainerProps {
     skipAlertProvider?: boolean;
+    /** Where the embedded pyodide-repl page is served; defaults to the production deploy. */
+    replOriginURL?: string;
     isLoading?: boolean;
     initialMaterials?: MDMaterial[];
     openImportModal?: (params: ImportModalProps) => void;
@@ -121,6 +125,10 @@ export function MaterialsDesignerContainer({
 
     const onUpdate = useCallback((material: MDMaterial, index: number) => {
         setMdState(materialsUpdateOne(mdState.current, { material, index }));
+    }, []);
+
+    const onReplSync = useCallback((payload: MaterialsSyncPayload) => {
+        setMdState(materialsSyncScope(mdState.current, payload));
     }, []);
 
     const onNameUpdate = useCallback((name: string, index: number) => {
@@ -184,6 +192,7 @@ export function MaterialsDesignerContainer({
             onAdd={onAdd}
             onRemove={onRemove}
             onExport={onExport}
+            onReplSync={onReplSync}
             {...props}
         />
     );
