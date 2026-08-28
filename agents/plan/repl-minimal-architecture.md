@@ -1,7 +1,7 @@
 # Minimal Materials REPL — architecture memo
 
 2026-08-24 · SOF-7961 · after review refused MD #279 / cove #96 as too large.
-**Status: v1 built — PR #294 (branch `feature/SOF-7961-v1`). Each temporary in the code carries a
+**Status: superseded in part — the in-page Pyodide internals moved to github.com/mat3ra/pyodide-repl (PR #2 there); PR #294 now embeds that page over the JupyterLite-style iframe bridge. The syncScope reducer, menu and e2e survive unchanged. Each temporary in the code carries a
 `TODO(repl-vN)` marker pointing at the ladder in §5 — `grep -rn "TODO(repl-" src scripts` lists them.**
 
 ## 1. The one-minute version

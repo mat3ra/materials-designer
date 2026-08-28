@@ -1,5 +1,8 @@
 Feature: Python REPL synchronizes generated materials
 
+  # @ignore until a shared pyodide-repl deploy exists for CI to embed; runs locally against a
+  # `vite preview` of that repo — see README section 3.7.
+  @ignore
   Scenario: Generate a supercell in the Python REPL
     Given I open materials designer page
     When I open the Python REPL

@@ -6,7 +6,7 @@ import type {
 import { Made } from "@mat3ra/made";
 import type { SlabConfigSchema } from "@mat3ra/made/dist/js/tools/surface";
 
-import type { MaterialsSyncPayload } from "../components/repl/materialsBinding";
+import type { MaterialsSyncPayload } from "../components/repl/types";
 import { displayMessage } from "../i18n/messages";
 import { MDMaterial } from "../MDMaterial";
 

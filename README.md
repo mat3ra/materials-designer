@@ -221,25 +221,25 @@ This should source JL from the development distribution and run only notebook he
 
 ### 3.7. Python REPL (Pyodide)
 
-The **View → Python REPL** panel runs `mat3ra.made.tools` in the browser via
-[Pyodide](https://pyodide.org). The designer's materials are bound as `materials_in` (list order)
-and `material` (the selected one); any `Material` the code creates or reassigns syncs back into the
-list under a replaceable `python-repl` scope — re-running a cell never duplicates, and hand-made
-materials are never touched.
+The **View → Python REPL** panel embeds the [pyodide-repl](https://github.com/mat3ra/pyodide-repl)
+page in an iframe and talks to it over the same data bridge as the JupyterLite session. All Pyodide
+and Python concerns — the interpreter, the package environment, the wheels — live in that page and
+ship with its deploy; this app only answers `get-data` with its materials (`{ materials,
+selectedIndex }`) and merges the page's `set-data` payloads (`{ syncScope, entities }`) via the
+`materialsSyncScope` reducer: round-tripped ids upsert in place, REPL-created materials replace the
+previous `python-repl` batch, hand-made materials are never touched.
 
-The package set is defined in one place, `src/components/repl/pyodideEnvironment.ts`. Some of it
-(`pymatgen`, `spglib`, `pydantic`) does not build under Pyodide, so prebuilt pure-python wheels are
-served **same-origin at `/repl-wheels`** — browsers block cross-origin wheel fetches without CORS.
-In this repo `provision-repl-wheels` downloads them on `prestart`/`prebuild` (gitignored). A host
-app embedding this package must either serve the wheels at that path or pass its own location via
-`replWheelBaseUrl` on `MaterialsDesignerContainer`.
+The page's origin comes from `VITE_PYODIDE_REPL_URL` (defaults to the production deploy). To develop
+against a local build:
 
-The first open builds the environment in-browser (~30 s warm, longer cold); the panel stays mounted
-while hidden so closing it costs nothing. Test: `tests/cypress/e2e/repl/python-repl.feature`.
+```bash
+# in pyodide-repl:                    # in materials-designer:
+npm run build                          VITE_PYODIDE_REPL_URL=http://localhost:3021 npm start
+npx vite preview --port 3021 --host
+```
 
-Architecture and the staged roadmap (completions, editable environments, cove/AX extraction):
-[agents/plan/repl-minimal-architecture.md](agents/plan/repl-minimal-architecture.md). Every
-temporary solution in the code is marked `TODO(repl-vN)` pointing at its ladder step there.
+Test: `tests/cypress/e2e/repl/python-repl.feature` (tagged `@ignore` until a shared deploy of the
+page exists for CI to embed; run it locally with the two servers above).
 
 ## 4. Links
 

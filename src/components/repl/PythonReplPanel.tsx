@@ -1,39 +1,14 @@
 import ResizableDrawer from "@mat3ra/cove/dist/mui/components/custom/resizable-drawer/ResizableDrawer";
-import CodeMirror from "@mat3ra/cove/dist/other/codemirror/CodeMirror";
+import IframeToFromHostMessageHandler from "@mat3ra/cove/dist/other/iframe-messaging/IframeToFromHostMessageHandler";
+import { Action } from "@mat3ra/esse/dist/js/types";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import CircularProgress from "@mui/material/CircularProgress";
-import Stack from "@mui/material/Stack";
-import { useTheme } from "@mui/material/styles";
-import Typography from "@mui/material/Typography";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 
 import type { MDMaterial } from "../../MDMaterial";
-import {
-    type MaterialsSyncPayload,
-    MATERIALS_PREAMBLE,
-    pullMaterialsFromNamespace,
-    pushMaterialsIntoNamespace,
-} from "./materialsBinding";
-import {
-    type Pyodide,
-    buildMaterialsReplEnvironment,
-    loadPyodideRuntime,
-    REPL_DEFAULT_WHEEL_BASE_URL,
-} from "./pyodideEnvironment";
+import { PYODIDE_REPL_ORIGIN_URL } from "../../settings";
+import type { MaterialsSyncPayload } from "./types";
 
-const DEFAULT_CODE = `# materials_in = the designer's list, material = the selected one.
-# mat3ra.made.tools helpers are pre-imported. Shift+Enter to run.
-supercell = create_supercell(materials_in[0], scaling_factor=[2, 2, 1])`;
-
-const STATUS_LABEL = {
-    loading: "Preparing Python environment…",
-    ready: "Ready",
-    running: "Running…",
-    error: "Error",
-} as const;
-
-type ReplStatus = keyof typeof STATUS_LABEL;
+const IFRAME_ID = "pyodide-repl-iframe";
 
 interface PythonReplPanelProps {
     materials: MDMaterial[];
@@ -41,17 +16,17 @@ interface PythonReplPanelProps {
     onReplSync: (payload: MaterialsSyncPayload) => void;
     show: boolean;
     onHide: () => void;
-    wheelBaseUrl?: string;
+    replOriginURL?: string;
     containerRef?: React.RefObject<HTMLDivElement>;
 }
 
 /**
- * The Python REPL drawer: editor, Run, plain text output. Stays mounted while hidden so the ~30 s
- * environment survives closing the panel; `show` only drives the drawer.
+ * The Python REPL drawer: an embedded pyodide-repl page (github.com/mat3ra/pyodide-repl), driven
+ * over the same iframe data bridge as the JupyterLite session. All Pyodide and Python concerns live
+ * in that page; this component only answers `get-data` with the designer's materials and routes the
+ * page's `set-data` sync payloads into the reducer.
  *
- * TODO(repl-v3): the generic parts here (editor, run, output, status) graduate to cove as a
- * reusable PythonRepl; this file then keeps only the materials wiring. Completions arrive with
- * repl-v2. See agents/plan/repl-minimal-architecture.md §5.
+ * Stays mounted while hidden — the page's ~30 s Python environment survives closing the drawer.
  */
 function PythonReplPanel({
     materials,
@@ -59,18 +34,11 @@ function PythonReplPanel({
     onReplSync,
     show,
     onHide,
-    wheelBaseUrl = REPL_DEFAULT_WHEEL_BASE_URL,
+    replOriginURL = PYODIDE_REPL_ORIGIN_URL,
     containerRef,
 }: PythonReplPanelProps) {
-    const theme = useTheme();
-    const [status, setStatus] = useState<ReplStatus>("loading");
-    const [code, setCode] = useState(DEFAULT_CODE);
-    const [output, setOutput] = useState("");
-    const pyodideRef = useRef<Pyodide | null>(null);
-    const environmentStartedRef = useRef(false);
-
-    // Props change every designer edit; refs keep the run callback from going stale without
-    // re-creating it (and the CodeMirror beneath it) on each render.
+    // Refs, not handler re-registration: the designer's state changes every edit, and the bridge
+    // handlers must always read the current value without being torn down mid-conversation.
     const materialsRef = useRef(materials);
     materialsRef.current = materials;
     const activeIndexRef = useRef(activeIndex);
@@ -78,148 +46,39 @@ function PythonReplPanel({
     const onReplSyncRef = useRef(onReplSync);
     onReplSyncRef.current = onReplSync;
 
-    const appendOutput = useCallback((text: string) => {
-        setOutput((previous) => `${previous}${text}\n`);
-    }, []);
-
-    const initializeEnvironment = useCallback(
-        async (pyodide: Pyodide) => {
-            // stdout/stderr -> output pane, per https://pyodide.org/en/stable/usage/streams.html
-            pyodide.setStdout({ batched: appendOutput });
-            pyodide.setStderr({ batched: appendOutput });
-            try {
-                await buildMaterialsReplEnvironment(pyodide, wheelBaseUrl, appendOutput);
-                appendOutput("Preparing material namespace…");
-                await pyodide.runPythonAsync(MATERIALS_PREAMBLE);
-                pyodideRef.current = pyodide;
-                appendOutput("Environment ready.");
-                setStatus("ready");
-            } catch (error) {
-                appendOutput(String(error));
-                setStatus("error");
-            }
-        },
-        [appendOutput, wheelBaseUrl],
-    );
-
-    const runCode = useCallback(async () => {
-        const pyodide = pyodideRef.current;
-        if (!pyodide) return;
-        setStatus("running");
-        try {
-            await pushMaterialsIntoNamespace(pyodide, materialsRef.current, activeIndexRef.current);
-            const result = await pyodide.runPythonAsync(code);
-            // Echo the value of a trailing expression, REPL-style.
-            if (result !== undefined && result !== null) appendOutput(String(result));
-            setStatus("ready");
-        } catch (error) {
-            // Pyodide formats the Python traceback into the error message.
-            appendOutput(String(error));
-            setStatus("error");
-        } finally {
-            // Sync even after a failed run: code that raised halfway may still have produced
-            // materials worth keeping.
-            try {
-                onReplSyncRef.current(await pullMaterialsFromNamespace(pyodide));
-            } catch (syncError) {
-                appendOutput(String(syncError));
-            }
-        }
-    }, [appendOutput, code]);
-
-    // Bootstrap on first open only; the environment (and window.pyodide) then lives for the page.
     useEffect(() => {
-        if (!show || environmentStartedRef.current) return;
-        environmentStartedRef.current = true;
-        appendOutput("Loading Pyodide runtime from CDN…");
-        loadPyodideRuntime()
-            .then(initializeEnvironment)
-            .catch((error) => {
-                appendOutput(String(error));
-                setStatus("error");
-            });
-    }, [show, initializeEnvironment, appendOutput]);
-
-    const isBusy = status === "loading" || status === "running";
+        const messageHandler = new IframeToFromHostMessageHandler();
+        messageHandler.init(replOriginURL, IFRAME_ID);
+        // The REPL asks before every run; the reply is this handler's return value.
+        messageHandler.addHandlers(Action.getData, [
+            () => ({
+                materials: materialsRef.current.map((material) => material.toJSON()),
+                selectedIndex: activeIndexRef.current,
+            }),
+        ]);
+        // The REPL reports every public Material binding after every run, under its sync scope.
+        messageHandler.addHandlers(Action.setData, [
+            (payload: Partial<MaterialsSyncPayload>) => {
+                if (typeof payload?.syncScope === "string" && Array.isArray(payload.entities)) {
+                    onReplSyncRef.current(payload as MaterialsSyncPayload);
+                }
+            },
+        ]);
+        return () => messageHandler.destroy();
+    }, [replOriginURL]);
 
     return (
         <Box sx={{ display: show ? "block" : "none" }}>
             <ResizableDrawer open={show} onClose={onHide} containerRef={containerRef}>
-                <Box
-                    id="python-repl"
-                    sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        height: "100%",
-                        overflow: "hidden",
-                    }}
-                    // Capture phase so Shift/Cmd/Ctrl+Enter runs BEFORE CodeMirror inserts a newline.
-                    onKeyDownCapture={(event) => {
-                        if (
-                            event.key === "Enter" &&
-                            (event.shiftKey || event.metaKey || event.ctrlKey)
-                        ) {
-                            event.preventDefault();
-                            event.stopPropagation();
-                            if (!isBusy) runCode();
-                        }
-                    }}
-                >
-                    <Stack
-                        direction="row"
-                        alignItems="center"
-                        spacing={1}
-                        sx={{ p: 1, borderBottom: `1px solid ${theme.palette.grey[800]}` }}
-                    >
-                        <Typography variant="subtitle2" sx={{ flexGrow: 1 }}>
-                            Python REPL
-                        </Typography>
-                        {isBusy && <CircularProgress size={16} />}
-                        <Typography
-                            variant="caption"
-                            color={status === "error" ? "error" : "text.secondary"}
-                        >
-                            {STATUS_LABEL[status]}
-                        </Typography>
-                        <Button
-                            id="python-repl-run"
-                            size="small"
-                            variant="contained"
-                            color="success"
-                            disabled={isBusy}
-                            onClick={runCode}
-                            title="Run (Shift+Enter)"
-                        >
-                            Run
-                        </Button>
-                    </Stack>
-                    <Box sx={{ flex: "1 1 auto", minHeight: 80, overflowY: "auto" }}>
-                        <CodeMirror
-                            content={code}
-                            updateContent={setCode}
-                            options={{ lineNumbers: true }}
-                            theme={theme.palette.mode}
-                            language="python"
-                        />
-                    </Box>
-                    <Box
-                        id="python-repl-output"
-                        sx={{
-                            flex: "0 0 40%",
-                            minHeight: 0,
-                            overflowY: "auto",
-                            px: 1,
-                            py: 0.5,
-                            borderTop: `1px solid ${theme.palette.grey[800]}`,
-                            fontFamily: "monospace",
-                            fontSize: "0.78rem",
-                            lineHeight: 1.5,
-                            whiteSpace: "pre-wrap",
-                        }}
-                    >
-                        {output || "Output appears here."}
-                    </Box>
-                </Box>
+                <iframe
+                    id={IFRAME_ID}
+                    title="Python REPL"
+                    src={replOriginURL}
+                    sandbox="allow-scripts allow-same-origin allow-downloads"
+                    width="100%"
+                    height="100%"
+                    style={{ border: "none" }}
+                />
             </ResizableDrawer>
         </Box>
     );

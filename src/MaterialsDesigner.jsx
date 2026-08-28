@@ -322,7 +322,7 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                 materials={mdState.materials}
                                 activeIndex={mdState.index}
                                 onReplSync={this.props.onReplSync}
-                                wheelBaseUrl={this.props.replWheelBaseUrl}
+                                replOriginURL={this.props.replOriginURL}
                                 containerRef={this.containerRef}
                                 onHide={() => {
                                     this.setState({ isVisiblePythonReplPanel: false });
@@ -348,11 +348,8 @@ MaterialsDesigner.propTypes = {
     showToolbar: PropTypes.bool,
 
     onReplSync: PropTypes.func,
-    /**
-     * Where the Python REPL fetches its prebuilt wheels. Only for host apps that serve them
-     * somewhere other than the same-origin /repl-wheels default — see README section 3.7.
-     */
-    replWheelBaseUrl: PropTypes.string,
+    /** Where the embedded pyodide-repl page is served; defaults to the production deploy. */
+    replOriginURL: PropTypes.string,
 
     isConventionalCellShown: PropTypes.bool,
 

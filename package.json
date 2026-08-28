@@ -11,11 +11,9 @@
         "test": "echo 'Tests are in the tests subfolder. Use Node 20 (`nvm use 20`) and run `npm i` && `npm test` there'",
         "lint": "eslint src && prettier --write src",
         "lint:fix": "eslint src --fix && prettier --write src",
-        "prestart": "npm-link-shared ./node_modules/@mat3ra/cove/node_modules . react; npm-link-shared ./node_modules/@mat3ra/wave.js/node_modules . react; npm run provision-repl-wheels",
+        "prestart": "npm-link-shared ./node_modules/@mat3ra/cove/node_modules . react; npm-link-shared ./node_modules/@mat3ra/wave.js/node_modules . react",
         "prettier": "prettier --check src tests",
-        "prepublishOnly": "npm run transpile",
-        "provision-repl-wheels": "node scripts/provision-repl-wheels.mjs",
-        "prebuild": "node scripts/provision-repl-wheels.mjs"
+        "prepublishOnly": "npm run transpile"
     },
     "repository": {
         "type": "git",

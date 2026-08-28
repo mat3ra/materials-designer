@@ -4,7 +4,7 @@ import type { Matrix3X3Schema } from "@mat3ra/esse/dist/js/types";
 import type { ViewSettingsFromUrl } from "@mat3ra/wave.js/dist/utils/viewSettingsUrl";
 import React, { useCallback, useEffect, useState } from "react";
 
-import type { MaterialsSyncPayload } from "./components/repl/materialsBinding";
+import type { MaterialsSyncPayload } from "./components/repl/types";
 import MaterialsDesignerComponent from "./MaterialsDesigner";
 import { MDMaterial } from "./MDMaterial";
 import { materialsAdd, materialsExport, materialsRemove } from "./reducers/InputOutput";
@@ -93,8 +93,8 @@ export interface ImportModalProps {
 
 export interface MaterialsDesignerContainerProps {
     skipAlertProvider?: boolean;
-    /** See README section 3.7: hosts serving the REPL wheels off-origin pass their base URL here. */
-    replWheelBaseUrl?: string;
+    /** Where the embedded pyodide-repl page is served; defaults to the production deploy. */
+    replOriginURL?: string;
     isLoading?: boolean;
     initialMaterials?: MDMaterial[];
     openImportModal?: (params: ImportModalProps) => void;
