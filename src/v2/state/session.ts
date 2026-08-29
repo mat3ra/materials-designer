@@ -189,6 +189,53 @@ export function applyCoalescingOperation(
     return bump(state, { materials, past, future: [] });
 }
 
+/**
+ * Apply a set-producing operation: a marker step on the source material and one
+ * child material per emitted config, recorded as a single undoable change.
+ *
+ * The children are real materials with their own logs (origin =
+ * `create-from-config`), which is what makes a combinatorial batch navigable as
+ * lineage instead of a hundred unrelated rows.
+ */
+export function applySetOperation(
+    state: SessionState,
+    type: string,
+    params: Record<string, unknown>,
+    childConfigs: { config: unknown; label: string }[],
+    options: RecordOptions & { materialId?: string; setLabel?: string } = {},
+): SessionState {
+    const sourceId = options.materialId ?? state.activeId;
+    const source = getDoc(state, sourceId);
+    if (!source || !childConfigs.length) return state;
+
+    const set: SetDoc = {
+        id: uid("set"),
+        label: options.setLabel ?? getDefinition(type).title,
+        sourceId,
+        createdAt: Date.now(),
+    };
+    const op = makeOperation(type, { ...params, count: childConfigs.length }, options);
+    op.result = source.log[source.log.length - 1]?.result;
+
+    const docs = childConfigs.map((child) =>
+        createMaterialDoc(
+            "create-from-config",
+            { config: child.config, source: child.label },
+            { parentId: sourceId, setId: set.id },
+        ),
+    );
+
+    const materials = state.materials
+        .map((m) => (m.id === sourceId ? { ...m, log: [...m.log, op] } : m))
+        .concat(docs);
+
+    return pushChange(
+        state,
+        { kind: "set-produced", materialId: sourceId, op, docs, set },
+        { materials, sets: [...state.sets, set], activeId: docs[0].id },
+    );
+}
+
 // ----------------------------------------------------------------- materials
 
 export function addMaterials(state: SessionState, docs: MaterialDoc[], set?: SetDoc): SessionState {
@@ -295,6 +342,18 @@ function reverse(state: SessionState, change: Change): Partial<SessionState> {
                 activeId: change.materialId,
             };
         }
+        case "set-produced": {
+            const ids = new Set(change.docs.map((d) => d.id));
+            const materials = state.materials
+                .filter((m) => !ids.has(m.id))
+                .map((m) => (m.id === change.materialId ? { ...m, log: m.log.slice(0, -1) } : m));
+            if (!materials.length) return {};
+            return {
+                materials,
+                sets: state.sets.filter((s) => s.id !== change.set.id),
+                activeId: change.materialId,
+            };
+        }
         default:
             return {};
     }
@@ -341,6 +400,16 @@ function forward(state: SessionState, change: Change): Partial<SessionState> {
                 activeId: change.materialId,
             };
         }
+        case "set-produced":
+            return {
+                materials: state.materials
+                    .map((m) =>
+                        m.id === change.materialId ? { ...m, log: [...m.log, change.op] } : m,
+                    )
+                    .concat(change.docs),
+                sets: [...state.sets, change.set],
+                activeId: change.docs[0].id,
+            };
         default:
             return {};
     }

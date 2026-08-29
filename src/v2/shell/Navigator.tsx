@@ -3,8 +3,9 @@
  *
  * v1 showed a flat list, which collapses once a slab is derived from a bulk or
  * a combinatorial run emits a hundred children. Rows indent under the material
- * they came from, and the modified dot is revert-aware because it simply asks
- * whether the log has steps beyond its origin.
+ * they came from, sets fold into a single folder row, and the modified dot is
+ * revert-aware because it simply asks whether the log has steps beyond its
+ * origin.
  */
 import React, { useMemo, useState } from "react";
 
@@ -45,9 +46,12 @@ function toRows(materials: MaterialDoc[]): Row[] {
 
 export function Navigator({ state, onSelect, onRemove, onFork, onNew }: NavigatorProps) {
     const [filter, setFilter] = useState("");
+    const [openSets, setOpenSets] = useState<Record<string, boolean>>({});
     const rows = useMemo(() => toRows(state.materials), [state.materials]);
     const query = filter.trim().toLowerCase();
 
+    // Filtering flattens through set folders: a search should find a member
+    // even when its folder is closed.
     const visible = rows.filter(({ doc }) => {
         if (!query) return true;
         const { material, digest } = resolve(doc);
@@ -56,6 +60,94 @@ export function Navigator({ state, onSelect, onRemove, onFork, onNew }: Navigato
             digest.formula.toLowerCase().includes(query)
         );
     });
+
+    const toggleSet = (setId: string) =>
+        setOpenSets((open) => ({ ...open, [setId]: !open[setId] }));
+
+    function renderSetFolder(doc: MaterialDoc, depth: number) {
+        const setId = doc.setId as string;
+        const set = state.sets.find((s) => s.id === setId);
+        const members = state.materials.filter((m) => m.setId === setId);
+        const holdsActive = members.some((m) => m.id === state.activeId);
+        return (
+            <div
+                key={`set-${setId}`}
+                role="treeitem"
+                aria-selected={holdsActive}
+                aria-expanded={false}
+                tabIndex={0}
+                className="md2-trow md2-setrow"
+                style={{ marginLeft: depth * 14 }}
+                onClick={() => toggleSet(setId)}
+                onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") toggleSet(setId);
+                }}
+                data-testid="set-folder"
+            >
+                <span className="md2-twist">▸</span>
+                <span className="md2-swatch" />
+                <span className="md2-tname">{set?.label ?? "Set"}</span>
+                <span className="md2-setcount">{members.length}</span>
+            </div>
+        );
+    }
+
+    function renderMaterial(doc: MaterialDoc, depth: number) {
+        const { material, digest } = resolve(doc);
+        const active = doc.id === state.activeId;
+        return (
+            <div
+                key={doc.id}
+                role="treeitem"
+                aria-selected={active}
+                tabIndex={0}
+                className={`md2-trow${active ? " md2-active" : ""}`}
+                style={{ marginLeft: depth * 14 }}
+                onClick={() => onSelect(doc.id)}
+                onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") onSelect(doc.id);
+                }}
+                data-testid="material-row"
+            >
+                <span className="md2-swatch" />
+                <span className="md2-tname" title={material.name}>
+                    {material.name || "Untitled"}
+                </span>
+                <span className="md2-tmeta">{digest.atomCount}</span>
+                {isModified(doc) && (
+                    <span
+                        className="md2-mdot"
+                        title="Modified — clears if you revert to the origin"
+                        data-testid="modified-dot"
+                    />
+                )}
+                <span className="md2-rowacts">
+                    <button
+                        type="button"
+                        title="Fork a sibling from this material"
+                        aria-label={`Fork ${material.name}`}
+                        onClick={(event) => {
+                            event.stopPropagation();
+                            onFork(doc.id);
+                        }}
+                    >
+                        ⑂
+                    </button>
+                    <button
+                        type="button"
+                        title="Remove (undoable)"
+                        aria-label={`Remove ${material.name}`}
+                        onClick={(event) => {
+                            event.stopPropagation();
+                            onRemove(doc.id);
+                        }}
+                    >
+                        ✕
+                    </button>
+                </span>
+            </div>
+        );
+    }
 
     return (
         <div className="md2-nav">
@@ -68,7 +160,7 @@ export function Navigator({ state, onSelect, onRemove, onFork, onNew }: Navigato
                     value={filter}
                     placeholder="Filter by name or formula…"
                     aria-label="Filter materials"
-                    onChange={(e) => setFilter(e.target.value)}
+                    onChange={(event) => setFilter(event.target.value)}
                 />
                 <button type="button" className="md2-btn-new" onClick={onNew} title="New material">
                     + New
@@ -76,60 +168,13 @@ export function Navigator({ state, onSelect, onRemove, onFork, onNew }: Navigato
             </div>
             <div className="md2-tree" role="tree">
                 {visible.map(({ doc, depth }) => {
-                    const { material, digest } = resolve(doc);
-                    const active = doc.id === state.activeId;
-                    return (
-                        <div
-                            key={doc.id}
-                            role="treeitem"
-                            aria-selected={active}
-                            tabIndex={0}
-                            className={`md2-trow${active ? " md2-active" : ""}`}
-                            style={{ marginLeft: depth * 14 }}
-                            onClick={() => onSelect(doc.id)}
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter" || e.key === " ") onSelect(doc.id);
-                            }}
-                            data-testid="material-row"
-                        >
-                            <span className="md2-swatch" />
-                            <span className="md2-tname" title={material.name}>
-                                {material.name || "Untitled"}
-                            </span>
-                            <span className="md2-tmeta">{digest.atomCount}</span>
-                            {isModified(doc) && (
-                                <span
-                                    className="md2-mdot"
-                                    title="Modified — clears if you revert to the origin"
-                                    data-testid="modified-dot"
-                                />
-                            )}
-                            <span className="md2-rowacts">
-                                <button
-                                    type="button"
-                                    title="Fork a sibling from this material"
-                                    aria-label={`Fork ${material.name}`}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        onFork(doc.id);
-                                    }}
-                                >
-                                    ⑂
-                                </button>
-                                <button
-                                    type="button"
-                                    title="Remove (undoable)"
-                                    aria-label={`Remove ${material.name}`}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        onRemove(doc.id);
-                                    }}
-                                >
-                                    ✕
-                                </button>
-                            </span>
-                        </div>
-                    );
+                    const collapsed = doc.setId && !openSets[doc.setId] && !query;
+                    if (collapsed) {
+                        const members = state.materials.filter((m) => m.setId === doc.setId);
+                        // One folder row per set: render it on the first member only.
+                        return members[0]?.id === doc.id ? renderSetFolder(doc, depth) : null;
+                    }
+                    return renderMaterial(doc, depth);
                 })}
                 {!visible.length && <div className="md2-empty">No matches · clear the filter</div>}
             </div>

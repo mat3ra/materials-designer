@@ -65,6 +65,8 @@ export interface UseSession {
     redo: () => void;
     error: string | null;
     clearError: () => void;
+    /** Escape hatch for composite reducers (e.g. set-producing operations). */
+    run: (fn: (state: SessionState) => SessionState) => void;
 }
 
 export function useSession(): UseSession {
@@ -166,6 +168,7 @@ export function useSession(): UseSession {
         },
         canUndo: canUndo(state),
         canRedo: canRedo(state),
+        run,
         error,
         clearError: () => setError(null),
         ...api,

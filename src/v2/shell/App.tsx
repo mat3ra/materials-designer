@@ -10,16 +10,22 @@ import type Material from "@mat3ra/made/dist/js/Material";
 import React, { useCallback, useEffect, useState } from "react";
 
 import { CatalogLite, PANELS } from "../panels";
-import { createMaterialDoc, useSession } from "../state/useSession";
+import { applySetOperation, createMaterialDoc } from "../state/session";
+import { useSession } from "../state/useSession";
+import { CombinatorialPanel } from "./CombinatorialPanel";
 import { ConsoleDock } from "./ConsoleDock";
 import { Inspector } from "./Inspector";
 import { Navigator } from "./Navigator";
+import { StandataPanel } from "./StandataPanel";
 import { StatusBar } from "./StatusBar";
 import { Timeline } from "./Timeline";
 import { Viewport } from "./Viewport";
 import { WorkspaceBar } from "./WorkspaceBar";
 
 type Theme = "dark" | "light";
+
+/** Operations whose panel lives in the shell rather than the parameter kit. */
+const SHELL_PANELS = new Set(["standard-library", "combinatorial-set"]);
 
 export function App() {
     const session = useSession();
@@ -77,6 +83,72 @@ export function App() {
 
     const panel = panelType ? PANELS[panelType] : undefined;
     const PanelComponent = panel?.Component;
+
+    /** Panels that are part of the shell rather than the numeric-parameter kit. */
+    function renderShellPanel() {
+        if (panelType === "standard-library") {
+            return (
+                <StandataPanel
+                    onCancel={() => setPanelType(null)}
+                    onPick={(entry) => {
+                        session.add([
+                            createMaterialDoc("create-from-config", {
+                                config: entry.config,
+                                source: `${entry.name} (standard library)`,
+                            }),
+                        ]);
+                        setPanelType(null);
+                    }}
+                />
+            );
+        }
+        if (panelType === "combinatorial-set") {
+            return (
+                <CombinatorialPanel
+                    material={session.active.material}
+                    onCancel={() => setPanelType(null)}
+                    onApply={(configs, xyz) => {
+                        session.run((state) =>
+                            applySetOperation(state, "combinatorial-set", { xyz }, configs, {
+                                setLabel: "Combinatorial set",
+                            }),
+                        );
+                        setPanelType(null);
+                    }}
+                />
+            );
+        }
+        return null;
+    }
+
+    const shellPanel = renderShellPanel();
+
+    /**
+     * The right pane shows an operation panel while one is being configured and
+     * the Inspector otherwise — the modeless-configure half of the design.
+     */
+    function renderRightPane() {
+        if (shellPanel) return <div className="md2-inspector">{shellPanel}</div>;
+        if (PanelComponent) {
+            return (
+                <div className="md2-inspector">
+                    <PanelComponent
+                        material={session.active.material}
+                        onApply={handleApply}
+                        onCancel={() => setPanelType(null)}
+                    />
+                </div>
+            );
+        }
+        return (
+            <Inspector
+                material={session.active.material}
+                digest={session.active.digest}
+                selection={session.state.selection}
+                onApply={handleApply}
+            />
+        );
+    }
 
     return (
         <div className="md2-app">
@@ -143,22 +215,7 @@ export function App() {
                     onFork={(step) => session.fork(session.activeDoc.id, step)}
                 />
 
-                {PanelComponent ? (
-                    <div className="md2-inspector">
-                        <PanelComponent
-                            material={session.active.material}
-                            onApply={handleApply}
-                            onCancel={() => setPanelType(null)}
-                        />
-                    </div>
-                ) : (
-                    <Inspector
-                        material={session.active.material}
-                        digest={session.active.digest}
-                        selection={session.state.selection}
-                        onApply={handleApply}
-                    />
-                )}
+                {renderRightPane()}
             </div>
 
             <StatusBar
@@ -186,7 +243,7 @@ export function App() {
                         onClose={() => setCatalogOpen(false)}
                         onPick={(type) => {
                             setCatalogOpen(false);
-                            if (PANELS[type]) setPanelType(type);
+                            if (PANELS[type] || SHELL_PANELS.has(type)) setPanelType(type);
                             else apply(type, {}, { source: "form" });
                         }}
                     />

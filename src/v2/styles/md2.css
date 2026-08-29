@@ -1093,3 +1093,24 @@ select.md2-field {
 .md2-icon {
     font-size: 15px;
 }
+
+/* standard-library list */
+.md2-standata-list { display: flex; flex-direction: column; gap: 2px; max-height: 60vh; overflow-y: auto; }
+.md2-standata-row {
+    display: flex; align-items: center; gap: 8px; text-align: left;
+    padding: 6px 8px; border-radius: 6px; cursor: pointer;
+    background: none; border: 1px solid transparent; color: var(--text); font-size: 12.5px;
+}
+.md2-standata-row:hover { background: var(--bg2); border-color: var(--border); }
+
+/* set folder rows in the navigator */
+.md2-setrow { color: var(--text-dim); }
+.md2-setrow .md2-swatch {
+    border-radius: 4px;
+    background: linear-gradient(135deg, var(--accent-soft), var(--bg3));
+    box-shadow: inset 0 0 0 1px var(--border);
+}
+.md2-setcount {
+    font-size: 10.5px; color: var(--text-dim); background: var(--bg2);
+    border: 1px solid var(--border-soft); border-radius: 9px; padding: 0 6px;
+}

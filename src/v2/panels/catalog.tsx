@@ -26,6 +26,21 @@ const NOT_YET = "Not in the MVP";
 
 export const CATALOG: CatalogEntry[] = [
     {
+        type: "standard-library",
+        title: "Standard library",
+        icon: "◈",
+        description: "Start from one of the 74 curated Standata materials.",
+        engine: "native",
+    },
+    {
+        type: "combinatorial-set",
+        title: "Combinatorial set",
+        icon: "⋈",
+        description:
+            "One template, many materials: Si/Ge substitutions or Si/vac vacancies, emitted as a set.",
+        engine: "native",
+    },
+    {
         type: "supercell",
         title: PANEL_META.supercell.title,
         icon: PANEL_META.supercell.icon,

@@ -86,7 +86,19 @@ export type Change =
     | { kind: "op"; materialId: string; op: Operation }
     | { kind: "materials-added"; materialIds: string[]; docs: MaterialDoc[]; set?: SetDoc }
     | { kind: "material-removed"; doc: MaterialDoc; index: number }
-    | { kind: "log-truncated"; materialId: string; removed: Operation[] };
+    | { kind: "log-truncated"; materialId: string; removed: Operation[] }
+    /**
+     * A set-producing operation (combinatorial, interpolation) in one entry:
+     * the marker step on the source plus every material it emitted, so a single
+     * Cmd+Z removes the whole batch rather than one child at a time.
+     */
+    | {
+          kind: "set-produced";
+          materialId: string;
+          op: Operation;
+          docs: MaterialDoc[];
+          set: SetDoc;
+      };
 
 export interface SessionState {
     materials: MaterialDoc[];

@@ -94,6 +94,52 @@ check("a reload restores the session", (await atoms()) === "16 atoms", await ato
 check("and says so instead of restoring silently", await page.getByTestId("restore-notice").isVisible());
 await page.screenshot({ path: `${SHOTS}/06-restored.png` });
 
+// --- sets: one template, many materials, one undo -------------------------
+await page.getByTestId("restore-notice").isVisible().then(async (v) => {
+    if (v) await page.getByRole("button", { name: /Keep it/i }).click();
+});
+await page.keyboard.press("Control+k");
+await page.waitForSelector(".md2-catalog");
+await page.getByRole("button", { name: /Combinatorial set/i }).first().click();
+await page.waitForSelector(".md2-panel");
+const basisBox = page.getByLabel("Combinatorial basis in XYZ format");
+const seed = await basisBox.inputValue();
+// Turn the first line's element into a two-way substitution: Si -> Si/Ge.
+await basisBox.fill(seed.replace(/^(\s*)Si/m, "$1Si/Ge"));
+await page.waitForTimeout(400);
+const setForecast = (await page.locator(".md2-predict").first().innerText()).replace(/\s+/g, " ");
+check("combinatorial run forecasts the batch size", /material/.test(setForecast), setForecast);
+
+const materialsBefore = await page.getByTestId("material-row").count();
+await page.getByRole("button", { name: /^Apply/i }).click();
+await page.waitForTimeout(1500);
+const folders = await page.getByTestId("set-folder").count();
+check("the batch collapses into a set folder", folders === 1, `${folders} folder(s)`);
+await page.screenshot({ path: `${SHOTS}/08-set-folder.png` });
+
+await page.keyboard.press("Control+z");
+await page.waitForTimeout(900);
+const foldersAfterUndo = await page.getByTestId("set-folder").count();
+const materialsAfterUndo = await page.getByTestId("material-row").count();
+check(
+    "one Cmd+Z removes the whole batch",
+    foldersAfterUndo === 0 && materialsAfterUndo === materialsBefore,
+    `${foldersAfterUndo} folders, ${materialsAfterUndo} rows`,
+);
+
+// --- the standard library --------------------------------------------------
+await page.keyboard.press("Control+k");
+await page.waitForSelector(".md2-catalog");
+await page.getByRole("button", { name: /Standard library/i }).first().click();
+await page.waitForSelector(".md2-standata-list", { timeout: 10000 });
+const libCount = await page.locator(".md2-standata-row").count();
+check("the standard library lists real entries", libCount > 20, `${libCount} entries`);
+await page.locator(".md2-standata-row").first().click();
+await page.waitForTimeout(1200);
+const rowsNow = await page.getByTestId("material-row").count();
+check("picking one adds a material", rowsNow > materialsBefore, `${rowsNow} rows`);
+await page.screenshot({ path: `${SHOTS}/09-standata.png` });
+
 // --- light theme -----------------------------------------------------------
 await page.getByRole("button", { name: /toggle theme/i }).click();
 await page.waitForTimeout(600);
