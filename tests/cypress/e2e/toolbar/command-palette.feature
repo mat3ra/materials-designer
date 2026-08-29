@@ -30,3 +30,12 @@ Feature: The command palette searches actions, the session's materials and Stand
 
     When I search the command palette for "graphene"
     Then I see "Graphene" in the command palette
+
+  Scenario: A Standata entry actually imports the material it names
+    # Regression guard: the palette's import handler constructs an MDMaterial, and the import for
+    # it was commented out in HeaderMenuToolbar - so running this entry threw a ReferenceError.
+    # The earlier scenarios only assert that Standata rows are *visible*, never that one works.
+    When I open the command palette
+    And I search the command palette for "graphene"
+    And I run "Graphene" from the command palette
+    Then I see "2" materials in the list

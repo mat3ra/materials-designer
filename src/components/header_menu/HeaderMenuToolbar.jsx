@@ -41,8 +41,7 @@ import setClass from "classnames";
 import PropTypes from "prop-types";
 import React from "react";
 
-// TODO: only used by the disabled renderThreejsEditorModal below
-// import { MDMaterial } from "../../MDMaterial";
+import { MDMaterial } from "../../MDMaterial";
 import { BoundaryConditionsDialog } from "../3d_editor/advanced_geometry/BoundaryConditionsDialog";
 import CombinatorialBasisDialog from "../3d_editor/advanced_geometry/CombinatorialBasisDialog";
 import InterpolateBasesDialog from "../3d_editor/advanced_geometry/InterpolateBasesDialog";
@@ -126,7 +125,7 @@ class HeaderMenuToolbar extends React.Component {
     };
 
     renderIOMenu() {
-        const { openSaveActionDialog, onExit, openImportModal } = this.props;
+        const { openSaveActionDialog, onExit, openImportModal, onOpenDialog } = this.props;
         return (
             <ButtonActivatedMenuMaterialUI title="Input/Output">
                 <MenuItem disabled={!openImportModal} onClick={this.renderImportModal}>
@@ -135,13 +134,13 @@ class HeaderMenuToolbar extends React.Component {
                     </ListItemIcon>
                     Import
                 </MenuItem>
-                <MenuItem onClick={() => this.props.onOpenDialog("standata")}>
+                <MenuItem onClick={() => onOpenDialog("standata")}>
                     <ListItemIcon>
                         <AddCircleIcon />
                     </ListItemIcon>
                     Import from Standata
                 </MenuItem>
-                <MenuItem onClick={() => this.props.onOpenDialog("upload")}>
+                <MenuItem onClick={() => onOpenDialog("upload")}>
                     <ListItemIcon>
                         <IconByName name="actions.upload" />
                     </ListItemIcon>
