@@ -13,6 +13,7 @@ import React from "react";
 import s from "underscore.string";
 
 import { theme } from "../../settings";
+import BasisTable from "./BasisTable";
 import BasisText from "./BasisText";
 
 class BasisEditor extends React.Component {
@@ -23,6 +24,7 @@ class BasisEditor extends React.Component {
             xyzContent: props.material.getBasisAsXyz(),
             coordinateUnits: Made.ATOMIC_COORD_UNITS.crystal,
             checks: props.material.getConsistencyChecks(),
+            viewMode: "text",
         };
 
         this.handleBasisTextChange = this.handleBasisTextChange.bind(this);
@@ -75,8 +77,36 @@ class BasisEditor extends React.Component {
         );
     };
 
+    renderViewModeToggle() {
+        const { viewMode } = this.state;
+        return (
+            <ToggleButtonGroup
+                id="basis-view-mode"
+                value={viewMode}
+                exclusive
+                size="small"
+                onChange={(e, mode) => mode && this.setState({ viewMode: mode })}
+            >
+                <ToggleButton
+                    value="text"
+                    className="basis-view-text"
+                    sx={{ fontSize: theme.typography.caption.fontSize }}
+                >
+                    Text
+                </ToggleButton>
+                <ToggleButton
+                    value="table"
+                    className="basis-view-table"
+                    sx={{ fontSize: theme.typography.caption.fontSize }}
+                >
+                    Table
+                </ToggleButton>
+            </ToggleButtonGroup>
+        );
+    }
+
     render() {
-        const { coordinateUnits, checks, xyzContent } = this.state;
+        const { coordinateUnits, checks, xyzContent, viewMode } = this.state;
         const { material } = this.props;
         return (
             <Accordion defaultExpanded className="crystal-basis" elevation={2}>
@@ -85,13 +115,17 @@ class BasisEditor extends React.Component {
                 </AccordionSummary>
                 <AccordionDetails>
                     <Grid container spacing={0.125} id="crystal-basis">
-                        <Grid item xs={12}>
+                        <Grid
+                            item
+                            xs={12}
+                            sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}
+                        >
                             <ToggleButtonGroup
                                 id="basis-options"
                                 value={coordinateUnits}
-                                fullWidth
                                 exclusive
                                 size="small"
+                                sx={{ flex: 1 }}
                                 onChange={(e, unitsType) => {
                                     this.setState({
                                         coordinateUnits: unitsType,
@@ -102,13 +136,21 @@ class BasisEditor extends React.Component {
                                 {this.renderBasisUnitsLabel(Made.ATOMIC_COORD_UNITS.crystal)}
                                 {this.renderBasisUnitsLabel(Made.ATOMIC_COORD_UNITS.cartesian)}
                             </ToggleButtonGroup>
+                            {this.renderViewModeToggle()}
                         </Grid>
                         <Grid item xs={12}>
-                            <BasisText
-                                content={xyzContent}
-                                checks={checks}
-                                onChange={this.handleBasisTextChange}
-                            />
+                            {viewMode === "table" ? (
+                                <BasisTable
+                                    material={material}
+                                    onChange={this.handleBasisTextChange}
+                                />
+                            ) : (
+                                <BasisText
+                                    content={xyzContent}
+                                    checks={checks}
+                                    onChange={this.handleBasisTextChange}
+                                />
+                            )}
                         </Grid>
                     </Grid>
                 </AccordionDetails>

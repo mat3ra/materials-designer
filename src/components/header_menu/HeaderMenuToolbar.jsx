@@ -36,6 +36,7 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import MenuItem from "@mui/material/MenuItem";
 import Stack from "@mui/material/Stack";
 import Toolbar from "@mui/material/Toolbar";
+import Tooltip from "@mui/material/Tooltip";
 import setClass from "classnames";
 import PropTypes from "prop-types";
 import React from "react";
@@ -49,9 +50,10 @@ import JupyterLiteTransformation from "../3d_editor/advanced_geometry/python_tra
 import SupercellDialog from "../3d_editor/advanced_geometry/SupercellDialog";
 import SurfaceDialog from "../3d_editor/advanced_geometry/SurfaceDialog";
 import { ButtonActivatedMenuMaterialUI } from "../include/material-ui/ButtonActivatedMenu";
-import StandataImportDialog from "../include/StandataImportDialog";
-import UploadDialog from "../include/UploadDialog";
+import { buildActions, isTypingTarget, matchesShortcut } from "./actions";
+import CommandPalette from "./CommandPalette";
 import ExportActionDialog from "./ExportActionDialog";
+import QuickActionToolbar from "./QuickActionToolbar";
 
 class HeaderMenuToolbar extends React.Component {
     constructor(config) {
@@ -60,8 +62,6 @@ class HeaderMenuToolbar extends React.Component {
             showSupercellDialog: false,
             showSurfaceDialog: false,
             showExportMaterialsDialog: false,
-            showStandataImportDialog: false,
-            showDefaultImportModalDialog: false,
             showCombinatorialDialog: false,
             showInterpolateDialog: false,
             // TODO: unused while renderThreejsEditorModal is disabled, see comment
@@ -69,8 +69,52 @@ class HeaderMenuToolbar extends React.Component {
             // showThreejsEditorModal: false,
             showBoundaryConditionsDialog: false,
             showJupyterLiteTransformation: false,
+            showCommandPalette: false,
         };
     }
+
+    componentDidMount() {
+        window.addEventListener("keydown", this.handleShortcut);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener("keydown", this.handleShortcut);
+    }
+
+    /** Opens a dialog owned by this component, by state key. */
+    openLocalDialog = (stateKey) => this.setState({ [stateKey]: true });
+
+    get actions() {
+        const { onUndo, onRedo, onClone, onOpenDialog, canUndo, canRedo } = this.props;
+        return buildActions({
+            onUndo,
+            onRedo,
+            onClone,
+            onOpenDialog,
+            onUseConventionalCell: this._handleConventionalCellSelect,
+            openLocalDialog: this.openLocalDialog,
+            canUndo,
+            canRedo,
+        });
+    }
+
+    handleShortcut = (event) => {
+        if (matchesShortcut(event, "Mod+K")) {
+            event.preventDefault();
+            this.setState((state) => ({ showCommandPalette: !state.showCommandPalette }));
+            return;
+        }
+        // Everything below would otherwise steal keys from the basis editor and name fields,
+        // which have their own undo stacks.
+        if (isTypingTarget(event.target)) return;
+        const action = this.actions.find(({ shortcut }) => matchesShortcut(event, shortcut));
+        if (!action) return;
+        // Swallow the key even when the action is unavailable: Mod+Z with an empty history should
+        // do nothing here, not fall through to the browser's own undo.
+        event.preventDefault();
+        if (action.disabled) return;
+        action.run();
+    };
 
     _handleConventionalCellSelect = () => {
         const {
@@ -91,13 +135,13 @@ class HeaderMenuToolbar extends React.Component {
                     </ListItemIcon>
                     Import
                 </MenuItem>
-                <MenuItem onClick={() => this.setState({ showStandataImportDialog: true })}>
+                <MenuItem onClick={() => this.props.onOpenDialog("standata")}>
                     <ListItemIcon>
                         <AddCircleIcon />
                     </ListItemIcon>
                     Import from Standata
                 </MenuItem>
-                <MenuItem onClick={() => this.setState({ showDefaultImportModalDialog: true })}>
+                <MenuItem onClick={() => this.props.onOpenDialog("upload")}>
                     <ListItemIcon>
                         <IconByName name="actions.upload" />
                     </ListItemIcon>
@@ -126,16 +170,17 @@ class HeaderMenuToolbar extends React.Component {
     }
 
     renderEditMenu() {
-        const { onUndo, onRedo, onReset, onClone, onToggleIsNonPeriodic } = this.props;
+        const { onUndo, onRedo, onReset, onClone, onToggleIsNonPeriodic, canUndo, canRedo } =
+            this.props;
         return (
             <ButtonActivatedMenuMaterialUI title="Edit">
-                <MenuItem onClick={onUndo}>
+                <MenuItem disabled={!canUndo} onClick={onUndo}>
                     <ListItemIcon>
                         <UndoIcon />
                     </ListItemIcon>
                     Undo
                 </MenuItem>
-                <MenuItem onClick={onRedo}>
+                <MenuItem disabled={!canRedo} onClick={onRedo}>
                     <ListItemIcon>
                         <RedoIcon />
                     </ListItemIcon>
@@ -324,9 +369,13 @@ class HeaderMenuToolbar extends React.Component {
         return (
             <Stack spacing={2} direction="row" justifyContent="end" sx={{ flex: 1 }}>
                 {mdState.isLoading ? (
-                    <CircularProgress color="warning" size={30} />
+                    <Tooltip title="Working…">
+                        <CircularProgress color="warning" size={30} />
+                    </Tooltip>
                 ) : (
-                    <CheckIcon color="success" size={50} />
+                    <Tooltip title="All changes applied">
+                        <CheckIcon color="success" size={50} />
+                    </Tooltip>
                 )}
             </Stack>
         );
@@ -389,9 +438,8 @@ class HeaderMenuToolbar extends React.Component {
             showCombinatorialDialog,
             showExportMaterialsDialog,
             showInterpolateDialog,
-            showStandataImportDialog,
-            showDefaultImportModalDialog,
             showJupyterLiteTransformation,
+            showCommandPalette,
         } = this.state;
         const {
             children,
@@ -404,6 +452,11 @@ class HeaderMenuToolbar extends React.Component {
             onSetBoundaryConditions,
             maxCombinatorialBasesCount,
             defaultMaterialsSet,
+            onItemClick,
+            onSectionVisibilityToggle,
+            isVisibleItemsList,
+            isVisibleSourceEditor,
+            isVisibleThreeDEditorFullscreen,
         } = this.props;
 
         const material = materials[index];
@@ -412,17 +465,40 @@ class HeaderMenuToolbar extends React.Component {
         // if (showThreejsEditorModal) return this.renderThreejsEditorModal();
 
         return (
-            <Toolbar
-                variant="dense"
-                className={setClass(className, "materials-designer-header-menu")}
-            >
-                {children}
-                {this.renderIOMenu()}
-                {this.renderEditMenu()}
-                {this.renderViewMenu()}
-                {this.renderAdvancedMenu()}
-                {this.renderHelpMenu()}
-                {this.renderSpinner()}
+            <>
+                <Toolbar
+                    variant="dense"
+                    className={setClass(className, "materials-designer-header-menu")}
+                >
+                    {children}
+                    {this.renderIOMenu()}
+                    {this.renderEditMenu()}
+                    {this.renderViewMenu()}
+                    {this.renderAdvancedMenu()}
+                    {this.renderHelpMenu()}
+                    {this.renderSpinner()}
+                </Toolbar>
+
+                <QuickActionToolbar
+                    actions={this.actions}
+                    onOpenPalette={() => this.setState({ showCommandPalette: true })}
+                    onSectionVisibilityToggle={onSectionVisibilityToggle}
+                    visibilityByName={{
+                        ItemsList: isVisibleItemsList,
+                        SourceEditor: isVisibleSourceEditor,
+                        ThreeDEditorFullscreen: isVisibleThreeDEditorFullscreen,
+                    }}
+                />
+
+                <CommandPalette
+                    open={showCommandPalette}
+                    onClose={() => this.setState({ showCommandPalette: false })}
+                    actions={this.actions}
+                    materials={materials}
+                    standataConfigs={defaultMaterialsSet}
+                    onGoToMaterial={onItemClick}
+                    onImportStandata={(config) => onAdd([new MDMaterial(config)])}
+                />
 
                 <SupercellDialog
                     isOpen={showSupercellDialog}
@@ -456,25 +532,8 @@ class HeaderMenuToolbar extends React.Component {
                     onSubmit={onExport}
                 />
 
-                <StandataImportDialog
-                    modalId="standataImportModalDialog"
-                    show={showStandataImportDialog}
-                    onSubmit={(...args) => {
-                        onAdd(...args);
-                        this.setState({ showStandataImportDialog: false });
-                    }}
-                    onClose={() => this.setState({ showStandataImportDialog: false })}
-                    defaultMaterialConfigs={defaultMaterialsSet}
-                />
-
-                <UploadDialog
-                    show={showDefaultImportModalDialog}
-                    onClose={() => this.setState({ showDefaultImportModalDialog: false })}
-                    onSubmit={(...args) => {
-                        onAdd(...args);
-                        this.setState({ showDefaultImportModalDialog: false });
-                    }}
-                />
+                {/* The Standata and upload dialogs are owned by MaterialsDesigner: the materials
+                    list opens them too, from its "add material" menu. */}
 
                 <CombinatorialBasisDialog
                     title="Generate Combinatorial Set"
@@ -514,7 +573,7 @@ class HeaderMenuToolbar extends React.Component {
                         this.setState({ showJupyterLiteTransformation: false });
                     }}
                 />
-            </Toolbar>
+            </>
         );
     }
 }
@@ -536,6 +595,8 @@ HeaderMenuToolbar.propTypes = {
     onUpdate: PropTypes.func.isRequired,
     onUndo: PropTypes.func.isRequired,
     onRedo: PropTypes.func.isRequired,
+    canUndo: PropTypes.bool,
+    canRedo: PropTypes.bool,
     onReset: PropTypes.func.isRequired,
     onClone: PropTypes.func.isRequired,
     onToggleIsNonPeriodic: PropTypes.func.isRequired,
@@ -546,6 +607,10 @@ HeaderMenuToolbar.propTypes = {
     onGenerateSurface: PropTypes.func.isRequired,
     onSetBoundaryConditions: PropTypes.func.isRequired,
     onSectionVisibilityToggle: PropTypes.func.isRequired,
+    /** Opens a dialog owned by MaterialsDesigner: "standata" or "upload". */
+    onOpenDialog: PropTypes.func.isRequired,
+    /** Selects a material by index, used by the command palette's "go to" entries. */
+    onItemClick: PropTypes.func.isRequired,
     isVisibleItemsList: PropTypes.bool.isRequired,
     isVisibleSourceEditor: PropTypes.bool.isRequired,
     isVisibleThreeDEditorFullscreen: PropTypes.bool.isRequired,
@@ -565,6 +630,9 @@ HeaderMenuToolbar.defaultProps = {
     onExit: undefined,
     openImportModal: undefined,
     closeImportModal: undefined,
+    // Undefined reads as "available": embedders that do not track history keep working controls.
+    canUndo: true,
+    canRedo: true,
 };
 
 export default HeaderMenuToolbar;

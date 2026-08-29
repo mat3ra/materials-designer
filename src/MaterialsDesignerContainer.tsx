@@ -6,7 +6,12 @@ import React, { useCallback, useEffect, useState } from "react";
 
 import MaterialsDesignerComponent from "./MaterialsDesigner";
 import { MDMaterial } from "./MDMaterial";
-import { materialsAdd, materialsExport, materialsRemove } from "./reducers/InputOutput";
+import {
+    materialsAdd,
+    materialsExport,
+    materialsInsertAt,
+    materialsRemove,
+} from "./reducers/InputOutput";
 import {
     type BoundaryConditionsType,
     type MDState,
@@ -19,6 +24,7 @@ import {
     materialsUpdateIndex,
     materialsUpdateNameForOne,
     materialsUpdateOne,
+    stampOriginalSignature,
 } from "./reducers/Material";
 
 // Extend Window interface to include MDState
@@ -29,49 +35,70 @@ declare global {
 }
 
 function useUndoableState<T extends MDState>(initialValue: T, maxPastSize = 50) {
-    const [past, setPast] = useState<T[]>([]);
-    const [future, setFuture] = useState<T[]>([]);
+    /**
+     * Past and future are one piece of state on purpose. Held separately, moving through history
+     * takes two setters, and outside React's batching (a keyboard shortcut is a native listener)
+     * each one renders on its own. The render in between carries a `redo` that still closes over
+     * the empty future, and `MaterialsDesigner.shouldComponentUpdate` compares props with
+     * JSON.stringify - which drops functions - so the corrected callback never reaches the toolbar.
+     * One setter, one render, one consistent pair of callbacks.
+     */
+    const [history, setHistory] = useState<{ past: T[]; future: T[] }>({ past: [], future: [] });
     const presentRef = React.useRef<T>(initialValue);
 
     window.MDState = presentRef.current;
 
     const setState = useCallback(
-        (newValue: T) => {
-            setPast((prevPast) => {
-                const newPast = [...prevPast, presentRef.current];
-                // Keep only the most recent maxPastSize entries
-                return newPast.slice(-maxPastSize);
-            });
+        (newValue: T, { recordHistory = true }: { recordHistory?: boolean } = {}) => {
+            // Read the outgoing state before moving the ref: the updater below runs during the
+            // next render, by which point `presentRef.current` is already `newValue`, and the
+            // history would fill with copies of the new state.
+            const previous = presentRef.current;
             presentRef.current = newValue;
-            setFuture([]); // clear redo history on new change
+            if (!recordHistory) {
+                // Still a state change, so still a render - just not one the user can undo.
+                setHistory((history_) => ({ ...history_ }));
+                return;
+            }
+            setHistory(({ past }) => ({
+                // Keep only the most recent maxPastSize entries
+                past: [...past, previous].slice(-maxPastSize),
+                future: [], // a new change invalidates the redo history
+            }));
         },
         [maxPastSize],
     );
 
+    // The present is a ref, so it moves before the setter runs: an unbatched render that happened
+    // first would publish the outgoing state.
     const undo = useCallback(() => {
-        if (past.length === 0) return;
-        const previous = past[past.length - 1];
-        setPast(past.slice(0, -1));
-        setFuture([presentRef.current, ...future]);
-        presentRef.current = previous;
-    }, [past, future]);
+        if (history.past.length === 0) return;
+        const previous = presentRef.current;
+        presentRef.current = history.past[history.past.length - 1];
+        setHistory(({ past, future }) => ({
+            past: past.slice(0, -1),
+            future: [previous, ...future],
+        }));
+    }, [history]);
 
     const redo = useCallback(() => {
-        if (future.length === 0) return;
-        const next = future[0];
-        setFuture(future.slice(1));
-        setPast([...past, presentRef.current]);
+        if (history.future.length === 0) return;
+        const previous = presentRef.current;
+        const [next] = history.future;
         presentRef.current = next;
-    }, [future, past]);
+        setHistory(({ past, future }) => ({
+            past: [...past, previous],
+            future: future.slice(1),
+        }));
+    }, [history]);
 
     const reset = useCallback(() => {
-        setPast([]);
-        setFuture([]);
         presentRef.current = initialValue;
+        setHistory({ past: [], future: [] });
     }, []);
 
-    const canUndo = past.length > 0;
-    const canRedo = future.length > 0;
+    const canUndo = history.past.length > 0;
+    const canRedo = history.future.length > 0;
 
     return [presentRef, setState, undo, redo, reset, canUndo, canRedo] as [
         React.MutableRefObject<T>,
@@ -108,15 +135,23 @@ export function MaterialsDesignerContainer({
     isLoading = false,
     ...props
 }: MaterialsDesignerContainerProps) {
-    const [mdState, setMdState, undo, redo, reset] = useUndoableState<MDState>({
+    // Stamped once: the materials the session opens with are its baseline, so editing one and
+    // returning it to this state clears the "updated" marker again. Re-stamping on every render
+    // would also mean re-hashing every material on every render.
+    const baselineMaterials = React.useMemo(() => initialMaterials.map(stampOriginalSignature), []);
+
+    const [mdState, setMdState, undo, redo, reset, canUndo, canRedo] = useUndoableState<MDState>({
         index: 0,
         isLoading: false,
-        materials: initialMaterials,
+        materials: baselineMaterials,
         updatedIndices: [],
     });
 
+    // Mirroring the loading flag is not an edit. Recorded as one, it would run on mount and leave
+    // a phantom entry in the history: undo would light up before the user had done anything, and
+    // the first Mod+Z would swap the state for an identical copy of itself.
     useEffect(() => {
-        setMdState({ ...mdState.current, isLoading });
+        setMdState({ ...mdState.current, isLoading }, { recordHistory: false });
     }, [isLoading]);
 
     const onUpdate = useCallback((material: MDMaterial, index: number) => {
@@ -127,8 +162,10 @@ export function MaterialsDesignerContainer({
         setMdState(materialsUpdateNameForOne(mdState.current, { name, index }));
     }, []);
 
+    // Which material you are looking at is navigation, not an edit. Recorded, clicking through
+    // five materials would cost five presses of Mod+Z to get back to the last thing you changed.
     const onItemClick = useCallback((index: number) => {
-        setMdState(materialsUpdateIndex(mdState.current, { index }));
+        setMdState(materialsUpdateIndex(mdState.current, { index }), { recordHistory: false });
     }, []);
 
     const onClone = useCallback(() => {
@@ -162,8 +199,16 @@ export function MaterialsDesignerContainer({
         setMdState(materialsRemove(mdState.current, { index }));
     }, []);
 
+    const onRestore = useCallback((material: MDMaterial, index: number) => {
+        setMdState(materialsInsertAt(mdState.current, { material, index }));
+    }, []);
+
+    // Exporting writes a file and returns the state untouched; recorded, it would leave a
+    // duplicate snapshot on the stack and an Undo that visibly does nothing.
     const onExport = useCallback((format: "json" | "poscar", useMultiple: boolean) => {
-        setMdState(materialsExport(mdState.current, { format, useMultiple }));
+        setMdState(materialsExport(mdState.current, { format, useMultiple }), {
+            recordHistory: false,
+        });
     }, []);
 
     const content = (
@@ -183,7 +228,10 @@ export function MaterialsDesignerContainer({
             onSetBoundaryConditions={onSetBoundaryConditions}
             onAdd={onAdd}
             onRemove={onRemove}
+            onRestore={onRestore}
             onExport={onExport}
+            canUndo={canUndo}
+            canRedo={canRedo}
             {...props}
         />
     );
