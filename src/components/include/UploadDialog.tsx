@@ -2,6 +2,7 @@ import Dialog from "@mat3ra/cove/dist/mui/components/dialog/Dialog";
 import IconByName from "@mat3ra/cove/dist/mui/components/icon/IconByName";
 import { showErrorAlert, showWarningAlert } from "@mat3ra/cove/dist/other/alerts";
 import { Made } from "@mat3ra/made";
+import type { MaterialConfig } from "@mat3ra/made/dist/js/Material";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import FormControl from "@mui/material/FormControl";
@@ -9,14 +10,33 @@ import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import { DataGrid } from "@mui/x-data-grid";
+import { type GridColDef, type GridRenderCellParams, DataGrid } from "@mui/x-data-grid";
 import path from "path";
-import PropTypes from "prop-types";
 import React from "react";
 
 import { MDMaterial } from "../../MDMaterial";
 
-const dropZoneStyle = (dragging) => ({
+/** One file the user has dropped or picked, after its text has been read and format detected. */
+interface UploadedFile {
+    id: number;
+    fileName: string;
+    format: string;
+    text: string;
+    lastModified: string;
+}
+
+export interface UploadDialogProps {
+    show: boolean;
+    onClose: () => void;
+    onSubmit: (materials: MDMaterial[]) => void;
+}
+
+interface UploadDialogState {
+    files: UploadedFile[];
+    dragging: boolean;
+}
+
+const dropZoneStyle = (dragging: boolean): React.CSSProperties => ({
     height: 300,
     display: "flex",
     flexDirection: "column",
@@ -25,32 +45,31 @@ const dropZoneStyle = (dragging) => ({
     border: "2px dashed gray",
     borderRadius: "5px",
     cursor: "pointer",
-    backgroundColor: dragging && "grey",
+    backgroundColor: dragging ? "grey" : undefined,
 });
-const dataGridStyle = (dragging) => ({
-    backgroundColor: dragging && "grey",
+const dataGridStyle = (dragging: boolean): React.CSSProperties => ({
+    backgroundColor: dragging ? "grey" : undefined,
 });
 
-class UploadDialog extends React.Component {
-    constructor(props) {
+class UploadDialog extends React.Component<UploadDialogProps, UploadDialogState> {
+    /** Set by the hidden <input>; used to open the file picker from the drop zone. */
+    inputFileReaderRef: HTMLInputElement | null = null;
+
+    constructor(props: UploadDialogProps) {
         super(props);
         this.state = {
             files: [],
             dragging: false,
         };
-
-        this.reader = new FileReader();
-        this.reader.onloadend = this.handleFileRead;
+        // A `this.reader` FileReader and its `handleFileRead` handler used to be built here and
+        // never used - handleFileChange creates its own reader per file. The handler appended to
+        // a `texts` array that is not in state either, so it would have thrown had it ever run.
     }
-
-    handleFileRead = (evt) => {
-        this.setState((prevState) => ({ texts: [...prevState.texts, evt.target.result] }));
-    };
 
     handleSubmit() {
         const { files } = this.state;
-        const newMaterialConfigs = [];
-        const errors = [];
+        const newMaterialConfigs: MaterialConfig[] = [];
+        const errors: string[] = [];
 
         files.forEach((file) => {
             try {
@@ -69,7 +88,7 @@ class UploadDialog extends React.Component {
                     ),
                 });
             } catch (error) {
-                errors.push(error.message);
+                errors.push((error as Error).message);
             }
         });
 
@@ -92,7 +111,7 @@ class UploadDialog extends React.Component {
         });
     }
 
-    handleDragOver = (e) => {
+    handleDragOver = (e: React.DragEvent) => {
         const { dragging } = this.state;
         e.preventDefault();
         if (!dragging) {
@@ -100,21 +119,21 @@ class UploadDialog extends React.Component {
         }
     };
 
-    handleDragLeave = (e) => {
+    handleDragLeave = (e: React.DragEvent) => {
         e.preventDefault();
         this.setState({ dragging: false });
     };
 
-    handleDrop = (e) => {
+    handleDrop = (e: React.DragEvent) => {
         e.preventDefault();
         const { files } = e.dataTransfer;
         this.handleFileChange(files);
         this.setState({ dragging: false });
     };
 
-    handleFileChange(files) {
+    handleFileChange(files: FileList | null) {
         // Filter out invalid files
-        const validFiles = Array.from(files).filter((file) => file && file.size);
+        const validFiles = Array.from(files ?? []).filter((file) => file && file.size);
         if (validFiles.length === 0) {
             showWarningAlert("Error: file(s) cannot be read (inaccessible?)");
             return;
@@ -123,13 +142,16 @@ class UploadDialog extends React.Component {
         validFiles.forEach((file, index) => {
             const reader = new FileReader();
             reader.onloadend = (evt) => {
-                const text = evt.target.result;
+                const text = String(evt.target?.result ?? "");
                 const lastModifiedUNIX = new Date(file.lastModified);
                 const lastModified = this.formatDate(lastModifiedUNIX);
                 try {
                     const format = Made.parsers.nativeFormatParsers.detectFormat(text);
                     const newFile = {
-                        id: files.length + index,
+                        // Never read: render recomputes row ids from the array position. Kept so
+                        // the shape does not change, now off the filtered list rather than the
+                        // possibly-null FileList.
+                        id: validFiles.length + index,
                         fileName: file.name,
                         format,
                         text,
@@ -140,7 +162,8 @@ class UploadDialog extends React.Component {
                         files: [...prevState.files, newFile],
                     }));
                 } catch (error) {
-                    file.format = error.message;
+                    // Left on the File object, where nothing reads it; preserved as-is.
+                    Object.assign(file, { format: (error as Error).message });
                 }
             };
             reader.readAsText(file);
@@ -148,7 +171,7 @@ class UploadDialog extends React.Component {
     }
 
     // TODO: move to string utils in code.js
-    formatDate = (date) => {
+    formatDate = (date: Date) => {
         const hours = date.getHours().toString().padStart(2, "0");
         const minutes = date.getMinutes().toString().padStart(2, "0");
         const seconds = date.getSeconds().toString().padStart(2, "0");
@@ -160,7 +183,7 @@ class UploadDialog extends React.Component {
         return `${hours}:${minutes}:${seconds} ${month}/${day}/${year}`;
     };
 
-    handleFileRemove = (fileNameToRemove) => {
+    handleFileRemove = (fileNameToRemove: string) => {
         this.setState((prevState) => ({
             files: prevState.files.filter((file) => file.fileName !== fileNameToRemove),
         }));
@@ -183,7 +206,7 @@ class UploadDialog extends React.Component {
             format: file.format || "Not available",
         }));
 
-        const columns = [
+        const columns: GridColDef[] = [
             {
                 field: "fileName",
                 headerName: "File Name",
@@ -214,7 +237,7 @@ class UploadDialog extends React.Component {
                 sortable: false,
                 filterable: false,
                 disableColumnMenu: true,
-                renderCell: (params) => (
+                renderCell: (params: GridRenderCellParams<UploadedFile>) => (
                     <IconButton
                         id={`${params.row.fileName
                             .replace(/\s+/g, "-")
@@ -248,7 +271,7 @@ class UploadDialog extends React.Component {
                                 <Button
                                     data-name="upload-button"
                                     variant="text"
-                                    onClick={() => this.inputFileReaderRef.click()}
+                                    onClick={() => this.inputFileReaderRef?.click()}
                                 >
                                     Upload more
                                 </Button>
@@ -279,14 +302,13 @@ class UploadDialog extends React.Component {
                                         hideFooter
                                         rows={rows}
                                         columns={columns}
-                                        pageSize={1}
                                         style={dataGridStyle(dragging)}
                                     />
                                 ) : (
                                     <Box
                                         data-name="dropzone"
                                         style={dropZoneStyle(dragging)}
-                                        onClick={() => this.inputFileReaderRef.click()}
+                                        onClick={() => this.inputFileReaderRef?.click()}
                                     >
                                         <IconByName
                                             name="entities.file.externalUpload"
@@ -320,13 +342,5 @@ class UploadDialog extends React.Component {
         );
     }
 }
-
-UploadDialog.propTypes = {
-    show: PropTypes.bool.isRequired,
-    onClose: PropTypes.func.isRequired,
-    onSubmit: PropTypes.func.isRequired,
-};
-
-UploadDialog.defaultProps = {};
 
 export default UploadDialog;

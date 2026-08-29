@@ -1,9 +1,8 @@
 /**
  * @summary Generates random alphanumeric string with a specified length.
  * Returns lowercase string which starts with letter.
- * @param length {Number}
  */
-export function randomAlphanumeric(length) {
+export function randomAlphanumeric(length: number): string {
     // numerical value – create random alphanumeric string
     // Start from char at position 2, because Math.random().toString(36) starts with "0."
     const alphabet = "abcdefghijklmnopqrstuvwxyz";

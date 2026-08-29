@@ -4,23 +4,18 @@ import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import Typography from "@mui/material/Typography";
-import PropTypes from "prop-types";
 import React from "react";
 import _ from "underscore";
 
+import type { MDMaterial } from "../../MDMaterial";
 import LatticeConfigurationDialog from "./LatticeConfigurationDialog";
 
-class Lattice extends React.Component {
-    constructor(props) {
-        super(props);
+export interface LatticeProps {
+    material: MDMaterial;
+    onUpdate: (material: MDMaterial, index?: number) => void;
+}
 
-        this.state = {
-            showLatticeConfigurationDialog: false,
-        };
-    }
-
-    componentDidUpdate() {}
-
+class Lattice extends React.Component<LatticeProps> {
     latticeTypeOptions = () => {
         return _.map(Made.LATTICE_TYPE_CONFIGS, (item) => {
             return {
@@ -41,38 +36,25 @@ class Lattice extends React.Component {
 
     render() {
         const { material, onUpdate } = this.props;
-        const { showLatticeConfigurationDialog } = this.state;
         return (
             <Accordion className="crystal-lattice" elevation={2}>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                     <Typography>Crystal Lattice</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
+                    {/* Not actually a dialog: it renders a form inline in this accordion, and
+                        read none of the modalId / show / backdropColor / onHide props it used to
+                        be given. */}
                     <LatticeConfigurationDialog
-                        modalId="update-lattice"
                         unitOptions={this.latticeUnitOptions()}
                         typeOptions={this.latticeTypeOptions()}
-                        show={showLatticeConfigurationDialog}
-                        backdropColor="dark"
                         material={material}
                         onUpdate={onUpdate}
-                        onHide={() => {
-                            this.setState({ showLatticeConfigurationDialog: false });
-                        }}
-                        onSubmit={() => {
-                            this.setState({ showLatticeConfigurationDialog: false });
-                        }}
                     />
                 </AccordionDetails>
             </Accordion>
         );
     }
 }
-
-Lattice.propTypes = {
-    // eslint-disable-next-line react/forbid-prop-types
-    material: PropTypes.object.isRequired,
-    onUpdate: PropTypes.func.isRequired,
-};
 
 export default Lattice;

@@ -1,15 +1,36 @@
 /* eslint-disable react/sort-comp */
+import type { LatticeSchema } from "@mat3ra/esse/dist/js/types";
 import { Made } from "@mat3ra/made";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
-import PropTypes from "prop-types";
 import React from "react";
 
 import { MDMaterial } from "../../MDMaterial";
 import { deepClone } from "../../utils/index";
+
+export interface LatticeOption {
+    label: string;
+    value: string;
+}
+
+export interface LatticeConfigurationDialogProps {
+    unitOptions: LatticeOption[];
+    typeOptions: LatticeOption[];
+    submitButtonTxt?: string;
+    material: MDMaterial;
+    onUpdate: (material: MDMaterial, index?: number) => void;
+    /** Optional: the only caller renders the form inline and has nothing to close. */
+    onSubmit?: () => void;
+}
+
+interface LatticeConfigurationDialogState {
+    lattice: LatticeSchema;
+    /** Keeps the basis in Angstroms across the edit rather than rescaling it. */
+    preserveBasis: boolean;
+}
 
 /**
  * @summary Crystal Lattice configuration dialog.
@@ -19,8 +40,11 @@ import { deepClone } from "../../utils/index";
  * @property {object} lattice the lattice
  * @property {func} onSubmit submitting the data event
  */
-class LatticeConfigurationDialog extends React.Component {
-    constructor(props) {
+class LatticeConfigurationDialog extends React.Component<
+    LatticeConfigurationDialogProps,
+    LatticeConfigurationDialogState
+> {
+    constructor(props: LatticeConfigurationDialogProps) {
         super(props);
 
         this.state = {
@@ -30,14 +54,14 @@ class LatticeConfigurationDialog extends React.Component {
         };
     }
 
-    UNSAFE_componentWillReceiveProps(newProps) {
+    UNSAFE_componentWillReceiveProps(newProps: LatticeConfigurationDialogProps) {
         this.setState({ lattice: newProps.material.lattice });
     }
 
     // eslint-disable-next-line class-methods-use-this
     getEditModeOptions() {
         const options = ["Scale Interatomic Distances", "Preserve Interatomic Distances"];
-        const result = [];
+        const result: React.ReactElement[] = [];
         options.forEach((item, i) => {
             result.push(
                 <MenuItem value={i} key={item}>
@@ -49,7 +73,7 @@ class LatticeConfigurationDialog extends React.Component {
     }
 
     getLatticeUnitOptions() {
-        const result = [];
+        const result: React.ReactElement[] = [];
         const { unitOptions } = this.props;
         unitOptions.forEach((item, i) => {
             result.push(
@@ -63,7 +87,7 @@ class LatticeConfigurationDialog extends React.Component {
     }
 
     getLatticeTypeOptions() {
-        const result = [];
+        const result: React.ReactElement[] = [];
         const { typeOptions } = this.props;
         typeOptions.forEach((item, i) => {
             result.push(
@@ -76,30 +100,36 @@ class LatticeConfigurationDialog extends React.Component {
         return result;
     }
 
-    isDisabled = () => {
-        // TODO: implement converter from primitive to conventional cells and re-enable editables
+    // TODO: implement converter from primitive to conventional cells and re-enable editables.
+    // The parameter is what every call site already passes and what the commented-out lookup
+    // below needs; it stays declared so the signature matches its use.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, class-methods-use-this
+    isDisabled = (param: string) => {
         // const lattice = new Made.Lattice(this.state.lattice);
         return false; // !lattice.editables[param];
     };
 
-    handEditModeSelected = (e) => {
+    handEditModeSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
         const zeroOrOne = e.target.value;
         this.setState({ preserveBasis: Boolean(zeroOrOne) });
     };
 
-    handleLatticeUnitSelected = (e) => {
+    handleLatticeUnitSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { lattice } = this.state;
-        const units = e.target.value;
+        // `units` is `{ length, angle }`, and the dropdown edits the length unit. Assigning the
+        // bare string here replaced the whole object, so the field's own value - read as
+        // `lattice.units.length` - became the string's character count on the next render.
+        const length = e.target.value as NonNullable<LatticeSchema["units"]>["length"];
         const newLattice = new Made.Lattice({
             ...lattice,
-            units,
+            units: { ...lattice.units, length },
         });
         this.setState({ lattice: newLattice });
     };
 
-    handleLatticeTypeSelected = (e) => {
+    handleLatticeTypeSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { lattice } = this.state;
-        const type = e.target.value;
+        const type = e.target.value as LatticeSchema["type"];
         const newLattice = Made.Lattice.getDefaultPrimitiveLatticeConfigByType({
             ...lattice,
             type,
@@ -107,13 +137,16 @@ class LatticeConfigurationDialog extends React.Component {
         this.setState({ lattice: newLattice });
     };
 
-    handleLatticeInputChanged = (e) => {
+    handleLatticeInputChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { lattice } = this.state;
         const val = Number(e.target.value);
         const { name } = e.target;
-        const latticeConf = deepClone(lattice);
+        const latticeConf = deepClone(lattice) as unknown as Record<string, unknown>;
         latticeConf[name] = val;
-        const newLattice = Made.Lattice.getDefaultPrimitiveLatticeConfigByType(latticeConf, true);
+        // The second argument this used to pass is not in the signature and was ignored.
+        const newLattice = Made.Lattice.getDefaultPrimitiveLatticeConfigByType(
+            latticeConf as unknown as LatticeSchema,
+        );
         this.setState({ lattice: newLattice });
     };
 
@@ -136,11 +169,11 @@ class LatticeConfigurationDialog extends React.Component {
         // assert basis is stored in 'crystal' units
         newMaterial.toCrystal();
         onUpdate(newMaterial);
-        onSubmit();
+        onSubmit?.();
     };
 
     render() {
-        const { submitButtonTxt } = this.props;
+        const { submitButtonTxt = "Apply Edits" } = this.props;
         const { preserveBasis, lattice } = this.state;
         return (
             <Box component="form" className="crystal-lattice-config">
@@ -151,7 +184,7 @@ class LatticeConfigurationDialog extends React.Component {
                             fullWidth
                             id="form-lattice-units"
                             data-tid="units"
-                            value={lattice.units.length}
+                            value={lattice.units?.length ?? ""}
                             label="Lattice units"
                             size="small"
                             onChange={this.handleLatticeUnitSelected}
@@ -326,21 +359,5 @@ class LatticeConfigurationDialog extends React.Component {
         );
     }
 }
-
-LatticeConfigurationDialog.propTypes = {
-    // eslint-disable-next-line react/forbid-prop-types
-    unitOptions: PropTypes.array.isRequired,
-    // eslint-disable-next-line react/forbid-prop-types
-    typeOptions: PropTypes.array.isRequired,
-    submitButtonTxt: PropTypes.string,
-    // eslint-disable-next-line react/forbid-prop-types
-    material: PropTypes.object.isRequired,
-    onUpdate: PropTypes.func.isRequired,
-    onSubmit: PropTypes.func.isRequired,
-};
-
-LatticeConfigurationDialog.defaultProps = {
-    submitButtonTxt: "Apply Edits",
-};
 
 export default LatticeConfigurationDialog;

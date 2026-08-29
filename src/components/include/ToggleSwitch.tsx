@@ -1,16 +1,25 @@
 import Switch from "@mui/material/Switch";
-import PropTypes from "prop-types";
 import React from "react";
 
-const ToggleSwitch = function ToggleSwitch({
+export interface ToggleSwitchProps {
+    color: string;
+    title: string;
+    onStateChange: (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => void;
+    checked: boolean;
+    id: string;
+    name?: string;
+    disabled?: boolean;
+}
+
+function ToggleSwitch({
     color,
     id,
     title,
-    name,
+    name = "",
     checked,
-    disabled,
+    disabled = false,
     onStateChange,
-}) {
+}: ToggleSwitchProps) {
     const htmlFor = "form-" + id + "-label";
     return (
         <div data-ts-color={color}>
@@ -27,21 +36,6 @@ const ToggleSwitch = function ToggleSwitch({
             />
         </div>
     );
-};
-
-ToggleSwitch.propTypes = {
-    color: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-    onStateChange: PropTypes.func.isRequired,
-    checked: PropTypes.bool.isRequired,
-    id: PropTypes.string.isRequired,
-    name: PropTypes.string,
-    disabled: PropTypes.bool,
-};
-
-ToggleSwitch.defaultProps = {
-    name: "",
-    disabled: false,
-};
+}
 
 export default ToggleSwitch;
