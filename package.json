@@ -9,8 +9,8 @@
         "transpile": "tsc && npm run copy-css",
         "copy-css": "mkdir -p dist/stylesheets && cp src/stylesheets/* dist/stylesheets/",
         "test": "echo 'Tests are in the tests subfolder. Use Node 20 (`nvm use 20`) and run `npm i` && `npm test` there'",
-        "lint": "eslint src && prettier --write src",
-        "lint:fix": "eslint src --fix && prettier --write src",
+        "lint": "eslint src --ext .js,.jsx,.ts,.tsx && prettier --write src",
+        "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix && prettier --write src",
         "prestart": "npm-link-shared ./node_modules/@mat3ra/cove/node_modules . react; npm-link-shared ./node_modules/@mat3ra/wave.js/node_modules . react",
         "prettier": "prettier --check src tests",
         "prepublishOnly": "npm run transpile"
@@ -48,7 +48,6 @@
         "classnames": "2.3.2",
         "lodash": "^4.17.4",
         "mathjs": "^3.9.0",
-        "mixwith": "^0.1.1",
         "notistack": "^3.0.1",
         "path-browserify": "^1.0.1",
         "prop-types": "^15.8.0",
@@ -67,9 +66,9 @@
         "react-dom": "^17.0.0"
     },
     "devDependencies": {
-        "@mat3ra/eslint-config": "^2026.7.12-0",
         "@mat3ra/code": "2026.8.18-0",
         "@mat3ra/cove": "2026.8.19-4",
+        "@mat3ra/eslint-config": "^2026.7.12-0",
         "@mat3ra/esse": "2026.8.18-2",
         "@mat3ra/made": "2026.8.18-0",
         "@mat3ra/standata": "2026.8.18-0",
@@ -79,6 +78,7 @@
         "@types/mocha": "^10.0.1",
         "@types/node": "^20.4.2",
         "@types/random-seed": "^0.3.3",
+        "@types/react-dom": "^17.0.26",
         "@typescript-eslint/eslint-plugin": "^5.9.1",
         "@typescript-eslint/parser": "^5.9.1",
         "@vitejs/plugin-react": "^5.1.3",

@@ -3,18 +3,32 @@ import { BOUNDARY_CONDITIONS } from "@mat3ra/wave.js/dist/enums";
 import Grid from "@mui/material/Grid";
 import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
-import PropTypes from "prop-types";
 import React from "react";
 
-export class BoundaryConditionsDialog extends React.Component {
-    constructor(props) {
+import type { MDMaterial } from "../../../MDMaterial";
+import type { BoundaryConditions, BoundaryConditionsType } from "../../../reducers/Material";
+
+export interface BoundaryConditionsDialogProps {
+    title?: string;
+    isOpen: boolean;
+    material: MDMaterial;
+    onSubmit: (config: BoundaryConditions) => void;
+    onHide: () => void;
+    modalId: string;
+}
+
+/** State is the esse payload itself, so nothing renames `type`/`offset` on the way to the reducer. */
+export class BoundaryConditionsDialog extends React.Component<
+    BoundaryConditionsDialogProps,
+    BoundaryConditions
+> {
+    constructor(props: BoundaryConditionsDialogProps) {
         super(props);
         this.initializeState();
         this.handleSetBoundaryConditions = this.handleSetBoundaryConditions.bind(this);
     }
 
-    // eslint-disable-next-line no-unused-vars
-    UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
+    UNSAFE_componentWillReceiveProps() {
         this.initializeState(true);
     }
 
@@ -35,12 +49,14 @@ export class BoundaryConditionsDialog extends React.Component {
 
     initializeState(isUpdating = false) {
         const { material } = this.props;
-        if (!material.boundaryConditions) {
-            material.boundaryConditions = {};
-        }
-        const updatedState = {
-            boundaryType: material.boundaryConditions.type || "pbc",
-            boundaryOffset: material.boundaryConditions.offset || 0,
+        // `material.boundaryConditions` used to be defaulted to `{}` here. The getter already
+        // returns `{}` when there is no metadata, so the branch never ran - and had it ever run it
+        // would have thrown, since the property is a getter with no setter.
+        // MDMaterial types it as a bare `object`; these are the two keys it actually carries.
+        const boundaryConditions = material.boundaryConditions as Partial<BoundaryConditions>;
+        const updatedState: BoundaryConditions = {
+            type: boundaryConditions.type ?? "pbc",
+            offset: boundaryConditions.offset ?? 0,
         };
         if (!isUpdating) {
             this.state = updatedState;
@@ -50,8 +66,8 @@ export class BoundaryConditionsDialog extends React.Component {
     }
 
     render() {
-        const { isOpen, title, onHide, modalId } = this.props;
-        const { boundaryType, boundaryOffset } = this.state;
+        const { isOpen, title = "Set Boundary Conditions", onHide, modalId } = this.props;
+        const { type: boundaryType, offset: boundaryOffset } = this.state;
 
         return (
             <Dialog
@@ -72,7 +88,11 @@ export class BoundaryConditionsDialog extends React.Component {
                             label="Type"
                             size="small"
                             sx={{ minWidth: 0 }}
-                            onChange={(e) => this.setState({ boundaryType: e.target.value })}
+                            onChange={(e) =>
+                                this.setState({
+                                    type: e.target.value as BoundaryConditionsType,
+                                })
+                            }
                         >
                             {this.getBoundaryTypeOptions()}
                         </TextField>
@@ -90,7 +110,7 @@ export class BoundaryConditionsDialog extends React.Component {
                             type="number"
                             onChange={(e) =>
                                 this.setState({
-                                    boundaryOffset: parseFloat(e.target.value),
+                                    offset: parseFloat(e.target.value),
                                 })
                             }
                             InputProps={{
@@ -105,17 +125,3 @@ export class BoundaryConditionsDialog extends React.Component {
         );
     }
 }
-
-BoundaryConditionsDialog.propTypes = {
-    title: PropTypes.string,
-    isOpen: PropTypes.bool.isRequired,
-    // eslint-disable-next-line react/forbid-prop-types
-    material: PropTypes.object.isRequired,
-    onSubmit: PropTypes.func.isRequired,
-    onHide: PropTypes.func.isRequired,
-    modalId: PropTypes.string.isRequired,
-};
-
-BoundaryConditionsDialog.defaultProps = {
-    title: "Set Boundary Conditions",
-};

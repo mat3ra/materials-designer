@@ -1,41 +1,60 @@
 /* eslint-disable react/sort-comp */
-import CodeMirror from "@mat3ra/cove/dist/other/codemirror/CodeMirror";
+import CodeMirror, { type CodeMirrorProps } from "@mat3ra/cove/dist/other/codemirror/CodeMirror";
+import type { ConsistencyCheck } from "@mat3ra/esse/dist/js/types";
 import { Made } from "@mat3ra/made";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import setClass from "classnames";
-import PropTypes from "prop-types";
 import React from "react";
 
 import { displayMessage } from "../../i18n/messages";
 
-class BasisText extends React.Component {
-    codeMirrorRef = React.createRef();
+export interface BasisTextProps {
+    className?: string;
+    message?: string;
+    content?: string;
+    checks?: ConsistencyCheck[];
+    readOnly?: boolean;
+    codeMirrorOptions?: object;
+    onChange?: (content: string) => void;
+}
 
-    constructor(props) {
+interface BasisTextState {
+    content: string;
+    checks: ConsistencyCheck[];
+    isContentValidated: boolean;
+    message: string;
+}
+
+class BasisText extends React.Component<BasisTextProps, BasisTextState> {
+    /** Kept as a module constant rather than `defaultProps`, which React is deprecating. */
+    static DEFAULT_CONTENT = "---- No content passed ----\n";
+
+    codeMirrorRef = React.createRef<CodeMirror>();
+
+    constructor(props: BasisTextProps) {
         super(props);
         this.state = {
-            content: props.content,
-            checks: props.checks,
+            content: props.content ?? BasisText.DEFAULT_CONTENT,
+            checks: props.checks ?? [],
             isContentValidated: true, // assuming that initial content is valid
-            message: props.message,
+            message: props.message ?? "",
         };
         this.updateContent = this.updateContent.bind(this);
         // TODO: adjust tests to accommodate for the delay and re-enable
         // this.updateContent = _.debounce(this.updateContent, 700);
     }
 
-    // eslint-disable-next-line no-unused-vars
-    UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
+    UNSAFE_componentWillReceiveProps(nextProps: BasisTextProps) {
         const { content: nextContent, checks: nextChecks } = nextProps;
         const { content, checks } = this.props;
         if (content !== nextContent || checks !== nextChecks) {
-            this.reformatContentAndUpdateStateIfNoManualEdit(nextContent);
-            this.setState({ checks: nextChecks });
+            this.reformatContentAndUpdateStateIfNoManualEdit(nextContent ?? "");
+            this.setState({ checks: nextChecks ?? [] });
         }
     }
 
-    validateContent = (content) => {
+    validateContent = (content: string) => {
         try {
             Made.parsers.xyz.validate(content);
             return true;
@@ -44,7 +63,7 @@ class BasisText extends React.Component {
         }
     };
 
-    isContentPassingValidation(content) {
+    isContentPassingValidation(content: string) {
         const { isContentValidated } = this.state;
         const isValid = this.validateContent(content);
         let message = displayMessage("basis.validationError");
@@ -56,7 +75,7 @@ class BasisText extends React.Component {
         return isValid;
     }
 
-    reformatContentAndUpdateStateIfNoManualEdit = (newContent) => {
+    reformatContentAndUpdateStateIfNoManualEdit = (newContent: string) => {
         const { content } = this.state;
         // Change state only if user is not editing basis
         if (!this.codeMirrorRef.current?.state.isEditing && content !== newContent) {
@@ -71,17 +90,17 @@ class BasisText extends React.Component {
         }
     };
 
-    updateContent(newContent) {
+    updateContent(newContent: string) {
         const { onChange, content } = this.props;
         // Avoid triggering update actions when content is set from props
         if (content === newContent) return;
         if (this.isContentPassingValidation(newContent)) {
-            onChange(newContent);
+            onChange?.(newContent);
         }
     }
 
     render() {
-        const { className, readOnly, codeMirrorOptions } = this.props;
+        const { className = "", readOnly = false, codeMirrorOptions = {} } = this.props;
         const { content, isContentValidated, message, checks } = this.state;
         // Using `success.main` color below b/c of https://github.com/mui/material-ui/issues/29564
         return (
@@ -89,7 +108,6 @@ class BasisText extends React.Component {
                 <Grid item xs={12}>
                     <CodeMirror
                         ref={this.codeMirrorRef}
-                        id="xyz-codemirror"
                         content={content}
                         updateContent={this.updateContent}
                         readOnly={readOnly}
@@ -98,8 +116,10 @@ class BasisText extends React.Component {
                             ...codeMirrorOptions,
                         }}
                         theme="dark"
-                        completions={() => {}}
-                        updateOnFirstLoad
+                        // Deliberately empty - there are no completions for a basis. Cast
+                        // because cove types the source as returning a CompletionResult, while
+                        // CodeMirror's own API allows a source to return nothing.
+                        completions={(() => undefined) as unknown as CodeMirrorProps["completions"]}
                         language="exaxyz"
                         checks={checks}
                     />
@@ -117,27 +137,5 @@ class BasisText extends React.Component {
         );
     }
 }
-
-BasisText.propTypes = {
-    className: PropTypes.string,
-    message: PropTypes.string,
-    content: PropTypes.string,
-    // eslint-disable-next-line react/forbid-prop-types
-    checks: PropTypes.array,
-    readOnly: PropTypes.bool,
-    // eslint-disable-next-line react/forbid-prop-types
-    codeMirrorOptions: PropTypes.object,
-    onChange: PropTypes.func,
-};
-
-BasisText.defaultProps = {
-    className: "",
-    message: "",
-    readOnly: false,
-    content: "---- No content passed ----\n",
-    checks: [],
-    codeMirrorOptions: {},
-    onChange: () => {},
-};
 
 export default BasisText;

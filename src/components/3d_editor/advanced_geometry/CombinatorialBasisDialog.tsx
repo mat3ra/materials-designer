@@ -1,7 +1,8 @@
 import Dialog from "@mat3ra/cove/dist/mui/components/dialog/Dialog";
 import { showWarningAlert } from "@mat3ra/cove/dist/other/alerts";
 import { Made } from "@mat3ra/made";
-import PropTypes from "prop-types";
+import type { AtomicLabelValue } from "@mat3ra/made/dist/js/basis/labels";
+import type { Cell } from "@mat3ra/made/dist/js/cell/cell";
 import React from "react";
 import _ from "underscore";
 
@@ -11,8 +12,27 @@ import BasisText from "../../source_editor/BasisText";
 
 // TODO: adjust this component and SourceEditor to inherit from the same one - XYZBasisEditor
 
-class CombinatorialBasisDialog extends React.Component {
-    constructor(props) {
+export interface CombinatorialBasisDialogProps {
+    isOpen: boolean;
+    material: MDMaterial;
+    onSubmit: (materials: MDMaterial[]) => void;
+    onHide: () => void;
+    maxCombinatorialBasesCount?: number;
+    modalId: string;
+}
+
+interface CombinatorialBasisDialogState {
+    xyz: string;
+}
+
+class CombinatorialBasisDialog extends React.Component<
+    CombinatorialBasisDialogProps,
+    CombinatorialBasisDialogState
+> {
+    /** Set by the BasisText ref; consulted so an invalid basis is not submitted. */
+    BasisTextComponent: BasisText | null = null;
+
+    constructor(props: CombinatorialBasisDialogProps) {
         super(props);
         const { material } = this.props;
 
@@ -23,13 +43,13 @@ class CombinatorialBasisDialog extends React.Component {
         this.handleChange = this.handleChange.bind(this);
     }
 
-    handleChange(content) {
+    handleChange(content: string) {
         // update the input field immediately on typing
         this.setState({ xyz: content });
     }
 
     handleSubmit() {
-        if (!this.BasisTextComponent.state.isContentValidated) return; // don't proceed if cannot validate xyz
+        if (!this.BasisTextComponent?.state.isContentValidated) return; // don't proceed if cannot validate xyz
         const { xyz } = this.state;
         const { material, onSubmit } = this.props;
         // TODO: avoid modifying materials directly inside this component move the below logic to reducer
@@ -39,18 +59,22 @@ class CombinatorialBasisDialog extends React.Component {
 
         if (!this.assertCombinatorialBasesCount(newBases)) return;
 
-        const newMaterials = [];
-        // eslint-disable-next-line no-unused-vars
-        _.each(newBases, (elm, idx) => {
+        const newMaterials: MDMaterial[] = [];
+        _.each(newBases, (elm) => {
             // first set units from existing material, as allBasises() returns no units
             const latticeConfig = material.lattice;
             const lattice = new Made.Lattice(latticeConfig);
+            // Two arguments here disagree with made's declared types, and both are preserved
+            // rather than corrected: `cell` wants a Cell instance but is handed the raw vector
+            // arrays, and `labels` wants bare values but is handed the `{ id, value }` records,
+            // which `Labels.fromValues` then wraps a second time. Neither path is covered by a
+            // test - see plan/upcoming/bugfixes-2026-08-29.md.
             const basis = Made.Basis.fromElementsAndCoordinates({
                 elements: elm.elements,
                 coordinates: elm.coordinates,
-                cell: lattice.vectorArrays,
+                cell: lattice.vectorArrays as unknown as Cell,
                 units: material.basis.units,
-                labels: material.getBasis().labels,
+                labels: material.getBasis().labels as unknown as AtomicLabelValue[],
             });
             // then create material
             const newMaterialConfig = {
@@ -66,8 +90,8 @@ class CombinatorialBasisDialog extends React.Component {
         onSubmit(newMaterials);
     }
 
-    assertCombinatorialBasesCount(bases) {
-        const { maxCombinatorialBasesCount } = this.props;
+    assertCombinatorialBasesCount(bases: unknown[]) {
+        const { maxCombinatorialBasesCount = 100 } = this.props;
         if (bases.length > maxCombinatorialBasesCount) {
             showWarningAlert(
                 displayMessage("combinatorialBasesCountExceeded", maxCombinatorialBasesCount),
@@ -101,19 +125,5 @@ class CombinatorialBasisDialog extends React.Component {
         );
     }
 }
-
-CombinatorialBasisDialog.propTypes = {
-    isOpen: PropTypes.bool.isRequired,
-    // eslint-disable-next-line react/forbid-prop-types
-    material: PropTypes.object.isRequired,
-    onSubmit: PropTypes.func.isRequired,
-    onHide: PropTypes.func.isRequired,
-    maxCombinatorialBasesCount: PropTypes.number,
-    modalId: PropTypes.string.isRequired,
-};
-
-CombinatorialBasisDialog.defaultProps = {
-    maxCombinatorialBasesCount: 100,
-};
 
 export default CombinatorialBasisDialog;

@@ -7,13 +7,14 @@ import React, { useCallback, useEffect, useState } from "react";
 import MaterialsDesignerComponent from "./MaterialsDesigner";
 import { MDMaterial } from "./MDMaterial";
 import {
+    type ExportFormat,
     materialsAdd,
     materialsExport,
     materialsInsertAt,
     materialsRemove,
 } from "./reducers/InputOutput";
 import {
-    type BoundaryConditionsType,
+    type BoundaryConditions,
     type MDState,
     type SurfaceConfig,
     materialsCloneOne,
@@ -188,12 +189,9 @@ export function MaterialsDesignerContainer({
         setMdState(materialsGenerateSurfaceForOne(mdState.current, config));
     }, []);
 
-    const onSetBoundaryConditions = useCallback(
-        (config: { boundaryType: BoundaryConditionsType; boundaryOffset: number }) => {
-            setMdState(materialsSetBoundaryConditionsForOne(mdState.current, config));
-        },
-        [],
-    );
+    const onSetBoundaryConditions = useCallback((config: BoundaryConditions) => {
+        setMdState(materialsSetBoundaryConditionsForOne(mdState.current, config));
+    }, []);
 
     const onAdd = useCallback((materials: MDMaterial | MDMaterial[], addAtIndex?: boolean) => {
         setMdState(materialsAdd(mdState.current, { materials, addAtIndex }));
@@ -209,7 +207,7 @@ export function MaterialsDesignerContainer({
 
     // Exporting writes a file and returns the state untouched; recorded, it would leave a
     // duplicate snapshot on the stack and an Undo that visibly does nothing.
-    const onExport = useCallback((format: "json" | "poscar", useMultiple: boolean) => {
+    const onExport = useCallback((format: ExportFormat, useMultiple: boolean) => {
         setMdState(materialsExport(mdState.current, { format, useMultiple }), {
             recordHistory: false,
         });

@@ -7,13 +7,23 @@ import "./stylesheets/main.css";
 // do not put this in exports / library entry points.
 import JSONSchemasInterface from "@mat3ra/esse/dist/js/esse/JSONSchemasInterface";
 import allSchemas from "@mat3ra/esse/dist/js/schemas.json";
+import type { JSONSchema7 } from "json-schema";
 // eslint-disable-next-line import/no-unresolved, import/no-extraneous-dependencies
 import React from "react";
 import ReactDOM from "react-dom";
 
 import { MaterialsDesignerContainer } from "./MaterialsDesignerContainer";
 
-JSONSchemasInterface.setSchemas(allSchemas);
+declare global {
+    interface Window {
+        /** Exposed for debugging from the console and for Cypress to reach component state. */
+        MDContainer: unknown;
+    }
+}
+
+// `resolveJsonModule` infers the file's literal shape, where every `type` widens to `string`
+// rather than the JSONSchema7 type enum. The data is the schema set esse itself ships.
+JSONSchemasInterface.setSchemas(allSchemas as unknown as JSONSchema7[]);
 
 /*
  * Set timeout to ensure Codemirror CSS is loaded: https://github.com/graphql/graphiql/issues/33#issuecomment-318188555

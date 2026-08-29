@@ -15,7 +15,6 @@ import Paper from "@mui/material/Paper";
 import ScopedCssBaseline from "@mui/material/ScopedCssBaseline";
 import { type AllotmentHandle, Allotment } from "allotment";
 import setClass from "classnames";
-import { mix } from "mixwith";
 import React from "react";
 
 import { ThreeDEditorFullscreen } from "./components/3d_editor/ThreeDEditorFullscreen";
@@ -34,7 +33,8 @@ import BasisEditor from "./components/source_editor/Basis";
 import LatticeEditor from "./components/source_editor/Lattice";
 import type { ImportModalProps } from "./MaterialsDesignerContainer";
 import { MDMaterial } from "./MDMaterial";
-import type { BoundaryConditionsType, MDState, SurfaceConfig } from "./reducers/Material";
+import type { ExportFormat } from "./reducers/InputOutput";
+import type { BoundaryConditions, MDState, SurfaceConfig } from "./reducers/Material";
 import { theme } from "./settings";
 
 const data = MaterialStandata.runtimeData;
@@ -83,10 +83,7 @@ export interface MaterialsDesignerProps {
     // Toolbar
     onGenerateSupercell: (matrix: Matrix3X3Schema) => void;
     onGenerateSurface: (config: SurfaceConfig) => void;
-    onSetBoundaryConditions: (config: {
-        boundaryType: BoundaryConditionsType;
-        boundaryOffset: number;
-    }) => void;
+    onSetBoundaryConditions: (config: BoundaryConditions) => void;
     onToggleIsNonPeriodic: () => void;
 
     // Undo-Redo
@@ -97,7 +94,7 @@ export interface MaterialsDesignerProps {
     canRedo?: boolean;
 
     onAdd: (materials: MDMaterial | MDMaterial[], addAtIndex?: boolean) => void;
-    onExport: (format: "json" | "poscar", useMultiple: boolean) => void;
+    onExport: (format: ExportFormat, useMultiple: boolean) => void;
     onExit?: () => void;
 
     // Both are fire-and-effect: the host opens its own modal, and the return value
@@ -120,12 +117,19 @@ type MaterialsDesignerState = Record<VisibilityKey, boolean> & {
 };
 
 /**
- * mixwith is untyped, so the mixed base is asserted to be the React component it actually is -
- * without which the class body would see `{}` for both props and state. The mixin contributes
- * `toggleFullscreen` and a `FullscreenHandlerComponent` getter; neither is used here, and the
- * `render()` it supplies is overridden below, so nothing is lost by not declaring them.
+ * cove's mixin is a plain class factory, so it is applied directly rather than through mixwith.
+ * `mix(X).with(F)` is `mixins.reduce((c, m) => m(c), X)` - exactly `F(X)` for a single mixin - and
+ * cove does not wrap this one in mixwith's `Mixin()`, so none of the caching or
+ * `Symbol.hasInstance` machinery was ever involved. web-app does the same where one mixin applies
+ * (`class EntityOrEntitySet extends EntitySetMixin(Entity)`) and keeps `mix().with()` for the
+ * cases that compose several.
+ *
+ * The assertion supplies props and state: cove declares the returned constructor as
+ * `new (props: never)`, which nothing can satisfy. The mixin contributes `toggleFullscreen` and a
+ * `FullscreenHandlerComponent` getter, neither used here, and the `render()` it supplies is
+ * overridden below.
  */
-const MixedComponent = mix(React.Component).with(FullscreenComponentMixin) as new (
+const MixedComponent = FullscreenComponentMixin(React.Component) as unknown as new (
     props: MaterialsDesignerProps,
 ) => React.Component<MaterialsDesignerProps, MaterialsDesignerState>;
 
