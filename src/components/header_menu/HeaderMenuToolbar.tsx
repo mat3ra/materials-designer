@@ -43,7 +43,8 @@ import React from "react";
 
 import type { ImportModalProps } from "../../MaterialsDesignerContainer";
 import { MDMaterial } from "../../MDMaterial";
-import type { BoundaryConditionsType, MDState, SurfaceConfig } from "../../reducers/Material";
+import type { ExportFormat } from "../../reducers/InputOutput";
+import type { BoundaryConditions, MDState, SurfaceConfig } from "../../reducers/Material";
 import { BoundaryConditionsDialog } from "../3d_editor/advanced_geometry/BoundaryConditionsDialog";
 import CombinatorialBasisDialog from "../3d_editor/advanced_geometry/CombinatorialBasisDialog";
 import InterpolateBasesDialog from "../3d_editor/advanced_geometry/InterpolateBasesDialog";
@@ -78,14 +79,11 @@ export interface HeaderMenuToolbarProps {
     onClone: () => void;
     onToggleIsNonPeriodic: () => void;
     onAdd: (materials: MDMaterial | MDMaterial[], addAtIndex?: boolean) => void;
-    onExport: (format: "json" | "poscar", useMultiple: boolean) => void;
+    onExport: (format: ExportFormat, useMultiple: boolean) => void;
     onExit?: () => void;
     onGenerateSupercell: (matrix: Matrix3X3Schema) => void;
     onGenerateSurface: (config: SurfaceConfig) => void;
-    onSetBoundaryConditions: (config: {
-        boundaryType: BoundaryConditionsType;
-        boundaryOffset: number;
-    }) => void;
+    onSetBoundaryConditions: (config: BoundaryConditions) => void;
     onSectionVisibilityToggle: (name: SectionName) => void;
     /** Opens a dialog owned by MaterialsDesigner: "standata" or "upload". */
     onOpenDialog: (name: SharedDialogName) => void;

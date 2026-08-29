@@ -79,14 +79,22 @@ export function materialsInsertAt(
     return syncUpdatedIndexBySignature({ ...state, materials, updatedIndices, index }, index);
 }
 
+const exportHandlers = {
+    json: (m: MDMaterial) => JSON.stringify(m.toJSON()),
+    poscar: (m: MDMaterial) => m.getAsPOSCAR(),
+};
+
+/**
+ * The formats a material can be written as - the set of handlers above, so the two cannot drift.
+ * Deliberately not `detectFormat`'s return type, which also includes "unknown" for text that
+ * parses as neither.
+ */
+export type ExportFormat = keyof typeof exportHandlers;
+
 export function materialsExport(
     state: MDState,
-    action: { format: "json" | "poscar"; useMultiple: boolean },
+    action: { format: ExportFormat; useMultiple: boolean },
 ): MDState {
-    const exportHandlers = {
-        json: (m: MDMaterial) => JSON.stringify(m.toJSON()),
-        poscar: (m: MDMaterial) => m.getAsPOSCAR(),
-    };
     const format = Object.keys(exportHandlers).includes(action.format) ? action.format : "json";
 
     const materials = action.useMultiple ? state.materials : [state.materials[state.index]];

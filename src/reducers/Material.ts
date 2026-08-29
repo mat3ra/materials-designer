@@ -215,21 +215,30 @@ export function materialsGenerateSurfaceForOne(state: MDState, action: SurfaceCo
     });
 }
 
-export type BoundaryConditionsType = NonNullable<MaterialMetadataBoundaryConditions>["type"];
+/**
+ * The boundary-conditions payload, straight off the esse metadata schema rather than restated.
+ *
+ * Note the indexing: `MaterialMetadataBoundaryConditions` is the metadata *container*, and it
+ * carries an `[k: string]: unknown` index signature - so the previous
+ * `NonNullable<MaterialMetadataBoundaryConditions>["type"]` resolved to `unknown` through that
+ * signature rather than to the intended union, and typed nothing.
+ */
+export type BoundaryConditions = NonNullable<
+    MaterialMetadataBoundaryConditions["boundaryConditions"]
+>;
+
+export type BoundaryConditionsType = BoundaryConditions["type"];
 
 export function materialsSetBoundaryConditionsForOne(
     state: MDState,
-    action: { boundaryType: BoundaryConditionsType; boundaryOffset: number },
+    action: BoundaryConditions,
 ): MDState {
     const newMaterial = state.materials[state.index].clone();
     newMaterial.metadata = {
         ...newMaterial.metadata,
-        boundaryConditions: {
-            type: action.boundaryType,
-            offset: action.boundaryOffset,
-        },
+        boundaryConditions: { type: action.type, offset: action.offset },
     };
-    return materialsUpdateOne(state, Object.assign(action, { material: newMaterial }));
+    return materialsUpdateOne(state, { material: newMaterial });
 }
 
 export function materialsUpdateIndex(state: MDState, action: { index: number }): MDState {

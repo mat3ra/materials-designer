@@ -6,25 +6,21 @@ import TextField from "@mui/material/TextField";
 import React from "react";
 
 import type { MDMaterial } from "../../../MDMaterial";
-import type { BoundaryConditionsType } from "../../../reducers/Material";
-
-export interface BoundaryConditionsState {
-    boundaryType: BoundaryConditionsType;
-    boundaryOffset: number;
-}
+import type { BoundaryConditions, BoundaryConditionsType } from "../../../reducers/Material";
 
 export interface BoundaryConditionsDialogProps {
     title?: string;
     isOpen: boolean;
     material: MDMaterial;
-    onSubmit: (config: BoundaryConditionsState) => void;
+    onSubmit: (config: BoundaryConditions) => void;
     onHide: () => void;
     modalId: string;
 }
 
+/** State is the esse payload itself, so nothing renames `type`/`offset` on the way to the reducer. */
 export class BoundaryConditionsDialog extends React.Component<
     BoundaryConditionsDialogProps,
-    BoundaryConditionsState
+    BoundaryConditions
 > {
     constructor(props: BoundaryConditionsDialogProps) {
         super(props);
@@ -57,13 +53,10 @@ export class BoundaryConditionsDialog extends React.Component<
         // returns `{}` when there is no metadata, so the branch never ran - and had it ever run it
         // would have thrown, since the property is a getter with no setter.
         // MDMaterial types it as a bare `object`; these are the two keys it actually carries.
-        const boundaryConditions = material.boundaryConditions as {
-            type?: BoundaryConditionsType;
-            offset?: number;
-        };
-        const updatedState: BoundaryConditionsState = {
-            boundaryType: boundaryConditions.type ?? "pbc",
-            boundaryOffset: boundaryConditions.offset ?? 0,
+        const boundaryConditions = material.boundaryConditions as Partial<BoundaryConditions>;
+        const updatedState: BoundaryConditions = {
+            type: boundaryConditions.type ?? "pbc",
+            offset: boundaryConditions.offset ?? 0,
         };
         if (!isUpdating) {
             this.state = updatedState;
@@ -74,7 +67,7 @@ export class BoundaryConditionsDialog extends React.Component<
 
     render() {
         const { isOpen, title = "Set Boundary Conditions", onHide, modalId } = this.props;
-        const { boundaryType, boundaryOffset } = this.state;
+        const { type: boundaryType, offset: boundaryOffset } = this.state;
 
         return (
             <Dialog
@@ -97,7 +90,7 @@ export class BoundaryConditionsDialog extends React.Component<
                             sx={{ minWidth: 0 }}
                             onChange={(e) =>
                                 this.setState({
-                                    boundaryType: e.target.value as BoundaryConditionsType,
+                                    type: e.target.value as BoundaryConditionsType,
                                 })
                             }
                         >
@@ -117,7 +110,7 @@ export class BoundaryConditionsDialog extends React.Component<
                             type="number"
                             onChange={(e) =>
                                 this.setState({
-                                    boundaryOffset: parseFloat(e.target.value),
+                                    offset: parseFloat(e.target.value),
                                 })
                             }
                             InputProps={{

@@ -48,7 +48,6 @@
         "classnames": "2.3.2",
         "lodash": "^4.17.4",
         "mathjs": "^3.9.0",
-        "mixwith": "^0.1.1",
         "notistack": "^3.0.1",
         "path-browserify": "^1.0.1",
         "prop-types": "^15.8.0",

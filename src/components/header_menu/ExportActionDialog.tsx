@@ -4,7 +4,7 @@ import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import React from "react";
 
-export type ExportFormat = "json" | "poscar";
+import type { ExportFormat } from "../../reducers/InputOutput";
 
 export interface ExportActionDialogProps {
     title?: string;

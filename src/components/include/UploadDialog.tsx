@@ -20,7 +20,8 @@ import { MDMaterial } from "../../MDMaterial";
 interface UploadedFile {
     id: number;
     fileName: string;
-    format: string;
+    /** What `detectFormat` made of the text, including its "unknown" case. */
+    format: ReturnType<typeof Made.parsers.nativeFormatParsers.detectFormat>;
     text: string;
     lastModified: string;
 }
