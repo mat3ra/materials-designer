@@ -1,13 +1,25 @@
 import Dialog from "@mat3ra/cove/dist/mui/components/dialog/Dialog";
+import type { Matrix3X3Schema } from "@mat3ra/esse/dist/js/types";
 import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import math from "mathjs";
-import PropTypes from "prop-types";
 import React from "react";
 
-class SupercellDialog extends React.Component {
-    constructor(props) {
+/** The nine matrix cells, by the state key each input writes to. */
+type MatrixKey = `m${1 | 2 | 3}${1 | 2 | 3}`;
+
+export interface SupercellDialogProps {
+    onSubmit: (matrix: Matrix3X3Schema) => void;
+    onHide: () => void;
+    isOpen: boolean;
+    modalId: string;
+}
+
+type SupercellDialogState = Record<MatrixKey, number> & { message: string };
+
+class SupercellDialog extends React.Component<SupercellDialogProps, SupercellDialogState> {
+    constructor(props: SupercellDialogProps) {
         super(props);
         this.state = {
             m11: 1,
@@ -36,7 +48,7 @@ class SupercellDialog extends React.Component {
                 message: "",
             },
             () => {
-                onSubmit(matrix.toArray());
+                onSubmit(matrix.toArray() as unknown as Matrix3X3Schema);
                 onHide();
             },
         );
@@ -66,11 +78,11 @@ class SupercellDialog extends React.Component {
                 onSubmit={this.handleGenerateSupercell}
             >
                 <Grid container spacing={2}>
-                    {matrix.toArray().map((rowOfElements, i) => {
+                    {(matrix.toArray() as number[][]).map((rowOfElements, i) => {
                         return rowOfElements.map((element, j) => {
-                            const elementName = `m${i + 1}${j + 1}`;
+                            const elementName = `m${i + 1}${j + 1}` as MatrixKey;
                             return (
-                                <Grid item xs={4}>
+                                <Grid item xs={4} key={elementName}>
                                     <TextField
                                         fullWidth
                                         size="small"
@@ -81,7 +93,7 @@ class SupercellDialog extends React.Component {
                                         onChange={(e) => {
                                             this.setState({
                                                 [elementName]: parseFloat(e.target.value),
-                                            });
+                                            } as Pick<SupercellDialogState, MatrixKey>);
                                         }}
                                         InputProps={{
                                             inputProps: {
@@ -103,12 +115,5 @@ class SupercellDialog extends React.Component {
         );
     }
 }
-
-SupercellDialog.propTypes = {
-    onSubmit: PropTypes.func.isRequired,
-    onHide: PropTypes.func.isRequired,
-    isOpen: PropTypes.bool.isRequired,
-    modalId: PropTypes.string.isRequired,
-};
 
 export default SupercellDialog;

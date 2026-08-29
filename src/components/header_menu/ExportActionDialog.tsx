@@ -2,11 +2,25 @@ import Dialog from "@mat3ra/cove/dist/mui/components/dialog/Dialog";
 import Grid from "@mui/material/Grid";
 import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
-import PropTypes from "prop-types";
 import React from "react";
 
-class ExportActionDialog extends React.Component {
-    constructor(props) {
+export type ExportFormat = "json" | "poscar";
+
+export interface ExportActionDialogProps {
+    title?: string;
+    isOpen: boolean;
+    onSubmit: (format: ExportFormat, useMultiple: boolean) => void;
+    onHide: () => void;
+    modalId: string;
+}
+
+interface ExportActionDialogState {
+    format: ExportFormat;
+    useMultiple: boolean;
+}
+
+class ExportActionDialog extends React.Component<ExportActionDialogProps, ExportActionDialogState> {
+    constructor(props: ExportActionDialogProps) {
         super(props);
         this.state = {
             format: "json",
@@ -14,8 +28,17 @@ class ExportActionDialog extends React.Component {
         };
     }
 
-    handleChange = (name) => (event) => {
-        this.setState({ [name]: event.target.value });
+    handleFormatChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        this.setState({ format: event.target.value as ExportFormat });
+    };
+
+    /**
+     * The select's values are "yes"/"no" while the state is a boolean. A shared handler used to
+     * store the raw string, and because "no" is truthy the field snapped back to "yes" and every
+     * export went out as "all items".
+     */
+    handleUseMultipleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        this.setState({ useMultiple: event.target.value === "yes" });
     };
 
     onSubmit = () => {
@@ -27,7 +50,7 @@ class ExportActionDialog extends React.Component {
 
     render() {
         const { format, useMultiple } = this.state;
-        const { isOpen, title, onHide, modalId } = this.props;
+        const { isOpen, title = "Export Items", onHide, modalId } = this.props;
         return (
             <Dialog
                 id={modalId}
@@ -46,7 +69,7 @@ class ExportActionDialog extends React.Component {
                             value={format}
                             label="Format"
                             size="small"
-                            onChange={this.handleChange("format")}
+                            onChange={this.handleFormatChange}
                         >
                             <MenuItem value="json" key="json">
                                 json
@@ -65,7 +88,7 @@ class ExportActionDialog extends React.Component {
                             value={useMultiple ? "yes" : "no"}
                             label="Export All Items"
                             size="small"
-                            onChange={this.handleChange("useMultiple")}
+                            onChange={this.handleUseMultipleChange}
                         >
                             <MenuItem value="yes" key="yes">
                                 yes
@@ -80,17 +103,5 @@ class ExportActionDialog extends React.Component {
         );
     }
 }
-
-ExportActionDialog.propTypes = {
-    title: PropTypes.string,
-    isOpen: PropTypes.bool.isRequired,
-    onSubmit: PropTypes.func.isRequired,
-    onHide: PropTypes.func.isRequired,
-    modalId: PropTypes.string.isRequired,
-};
-
-ExportActionDialog.defaultProps = {
-    title: "Export Items",
-};
 
 export default ExportActionDialog;

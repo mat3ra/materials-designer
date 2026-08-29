@@ -569,7 +569,6 @@ class HeaderMenuToolbar extends React.Component<HeaderMenuToolbarProps, HeaderMe
                 <SupercellDialog
                     isOpen={showSupercellDialog}
                     modalId="supercellModal"
-                    backdropColor="dark"
                     onSubmit={onGenerateSupercell}
                     onHide={() => this.setState({ showSupercellDialog: false })}
                 />
@@ -577,7 +576,6 @@ class HeaderMenuToolbar extends React.Component<HeaderMenuToolbarProps, HeaderMe
                 <SurfaceDialog
                     isOpen={showSurfaceDialog}
                     modalId="surfaceModal"
-                    backdropColor="dark"
                     onSubmit={onGenerateSurface}
                     onHide={() => this.setState({ showSurfaceDialog: false })}
                 />
@@ -585,7 +583,6 @@ class HeaderMenuToolbar extends React.Component<HeaderMenuToolbarProps, HeaderMe
                 <BoundaryConditionsDialog
                     isOpen={showBoundaryConditionsDialog}
                     modalId="BoundaryConditionsModal"
-                    backdropColor="dark"
                     material={material}
                     onSubmit={onSetBoundaryConditions}
                     onHide={() => this.setState({ showBoundaryConditionsDialog: false })}
@@ -601,12 +598,11 @@ class HeaderMenuToolbar extends React.Component<HeaderMenuToolbarProps, HeaderMe
                 {/* The Standata and upload dialogs are owned by MaterialsDesigner: the materials
                     list opens them too, from its "add material" menu. */}
 
+                {/* The dialog titles itself; the prop was never read. */}
                 <CombinatorialBasisDialog
-                    title="Generate Combinatorial Set"
                     modalId="combinatorialSetModal"
                     isOpen={showCombinatorialDialog}
                     maxCombinatorialBasesCount={maxCombinatorialBasesCount}
-                    backdropColor="dark"
                     material={material}
                     onHide={() => this.setState({ showCombinatorialDialog: false })}
                     onSubmit={(newMaterials: MDMaterial[]) => {
@@ -619,7 +615,6 @@ class HeaderMenuToolbar extends React.Component<HeaderMenuToolbarProps, HeaderMe
                     title="Generate Interpolated Set"
                     modalId="interpolatedSetModal"
                     isOpen={showInterpolateDialog}
-                    backdropColor="dark"
                     material={material}
                     material2={materials[index + 1 === materials.length ? 0 : index + 1]}
                     onHide={() => this.setState({ showInterpolateDialog: false })}

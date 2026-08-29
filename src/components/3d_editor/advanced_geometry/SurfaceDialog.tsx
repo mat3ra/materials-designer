@@ -2,11 +2,21 @@ import Dialog from "@mat3ra/cove/dist/mui/components/dialog/Dialog";
 import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import PropTypes from "prop-types";
 import React from "react";
 
-class SurfaceDialog extends React.Component {
-    constructor(props) {
+import type { SurfaceConfig } from "../../../reducers/Material";
+
+export interface SurfaceDialogProps {
+    onSubmit: (config: SurfaceConfig) => void;
+    onHide: () => void;
+    isOpen: boolean;
+    modalId: string;
+}
+
+type SurfaceDialogState = SurfaceConfig & { message: string };
+
+class SurfaceDialog extends React.Component<SurfaceDialogProps, SurfaceDialogState> {
+    constructor(props: SurfaceDialogProps) {
         super(props);
         this.state = {
             h: 1,
@@ -199,12 +209,5 @@ class SurfaceDialog extends React.Component {
         );
     }
 }
-
-SurfaceDialog.propTypes = {
-    onSubmit: PropTypes.func.isRequired,
-    onHide: PropTypes.func.isRequired,
-    isOpen: PropTypes.bool.isRequired,
-    modalId: PropTypes.string.isRequired,
-};
 
 export default SurfaceDialog;

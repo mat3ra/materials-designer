@@ -1,9 +1,9 @@
 import Dialog from "@mat3ra/cove/dist/mui/components/dialog/Dialog";
 import { Made } from "@mat3ra/made";
+import type { Basis } from "@mat3ra/made/dist/js/basis/basis";
 import Grid from "@mui/material/Grid";
 import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
-import PropTypes from "prop-types";
 import React from "react";
 import _ from "underscore";
 
@@ -11,8 +11,27 @@ import { displayMessage } from "../../../i18n/messages";
 import { MDMaterial } from "../../../MDMaterial";
 import BasisText from "../../source_editor/BasisText";
 
-class InterpolateBasesDialog extends React.Component {
-    constructor(props) {
+export interface InterpolateBasesDialogProps {
+    title: string;
+    isOpen: boolean;
+    material: MDMaterial;
+    material2: MDMaterial;
+    onSubmit: (materials: MDMaterial[], addAtIndex?: boolean) => void;
+    onHide: () => void;
+    modalId: string;
+}
+
+interface InterpolateBasesDialogState {
+    message: string;
+    numberOfSteps: number;
+    materialIndex: number;
+}
+
+class InterpolateBasesDialog extends React.Component<
+    InterpolateBasesDialogProps,
+    InterpolateBasesDialogState
+> {
+    constructor(props: InterpolateBasesDialogProps) {
         super(props);
         this.state = {
             message: "",
@@ -22,8 +41,7 @@ class InterpolateBasesDialog extends React.Component {
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
-    // eslint-disable-next-line no-unused-vars
-    UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
+    UNSAFE_componentWillReceiveProps(nextProps: InterpolateBasesDialogProps) {
         const basis1 = nextProps.material.getBasis();
         const basis2 = nextProps.material2.getBasis();
         if (!_.isEqual(basis1.elementsArray, basis2.elementsArray)) {
@@ -44,11 +62,18 @@ class InterpolateBasesDialog extends React.Component {
         const basis1 = material.getBasis();
         const basis2 = material2.getBasis();
 
-        // create combinatorial set from a given basis
-        // eslint-disable-next-line new-cap
-        const newBases = new Made.tools.basis.interpolate(basis1, basis2, numberOfSteps);
+        // create combinatorial set from a given basis.
+        // `interpolate` is a plain function returning an array; calling it with `new` happened to
+        // work - a constructor call yields the returned object - but it is not a constructor.
+        // The casts are made's own variance wrinkle: ConstrainedBasis narrows `toJSON`, so it is
+        // not assignable to the Basis this expects even though it is one.
+        const newBases = Made.tools.basis.interpolate(
+            basis1 as unknown as Basis,
+            basis2 as unknown as Basis,
+            numberOfSteps,
+        );
 
-        const newMaterials = [];
+        const newMaterials: MDMaterial[] = [];
         _.each(newBases, (newBasis, idx) => {
             const newMaterialConfig = {
                 ...material.toJSON(),
@@ -132,17 +157,5 @@ class InterpolateBasesDialog extends React.Component {
         );
     }
 }
-
-InterpolateBasesDialog.propTypes = {
-    title: PropTypes.string.isRequired,
-    isOpen: PropTypes.bool.isRequired,
-    // eslint-disable-next-line react/forbid-prop-types
-    material: PropTypes.object.isRequired,
-    // eslint-disable-next-line react/forbid-prop-types
-    material2: PropTypes.object.isRequired,
-    onSubmit: PropTypes.func.isRequired,
-    onHide: PropTypes.func.isRequired,
-    modalId: PropTypes.string.isRequired,
-};
 
 export default InterpolateBasesDialog;
