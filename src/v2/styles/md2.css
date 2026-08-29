@@ -1137,3 +1137,11 @@ select.md2-field {
     border-radius: 9px;
     padding: 0 6px;
 }
+
+/* a step being edited, and one an edit invalidated */
+.md2-chip.md2-editing { border-color: var(--accent); background: var(--accent-soft); }
+.md2-chip.md2-editing::before { border-color: var(--accent); background: var(--accent); }
+.md2-chip.md2-stale { border-color: color-mix(in srgb, var(--warn) 55%, var(--border)); }
+.md2-chip.md2-stale::before { border-color: var(--warn); }
+.md2-chip.md2-stale .md2-chip-title { color: var(--warn); }
+.md2-chip-stale { margin-top: 4px; font-size: 10.5px; color: var(--warn); line-height: 1.4; }

@@ -91,11 +91,18 @@ function parseDraft(draft: Draft): Parsed {
     return { params, invalidReason: null };
 }
 
-export function SurfacePanel({ material, onApply, onCancel }: OperationPanelProps): JSX.Element {
+export function SurfacePanel({
+    material,
+    onApply,
+    onCancel,
+    initialParams,
+    applyLabel,
+}: OperationPanelProps): JSX.Element {
     const recalled = recallLastUsed<SurfaceParams>(TYPE);
-    const [draft, setDraft] = useState<Draft>(() =>
-        recalled ? toDraft(recalled.params) : DEFAULTS,
-    );
+    const [draft, setDraft] = useState<Draft>(() => {
+        if (initialParams) return toDraft(initialParams as SurfaceParams);
+        return recalled ? toDraft(recalled.params) : DEFAULTS;
+    });
     const fieldId = useFieldIds(TYPE);
 
     const { params, invalidReason } = useMemo(() => parseDraft(draft), [draft]);
@@ -112,6 +119,7 @@ export function SurfacePanel({ material, onApply, onCancel }: OperationPanelProp
 
     return (
         <PanelFrame
+            applyLabel={applyLabel}
             icon={PANEL_META.surface.icon}
             title={PANEL_META.surface.title}
             canApply={forecast.ok}

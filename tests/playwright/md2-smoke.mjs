@@ -119,10 +119,50 @@ check("a reload restores the session", (await atoms()) === "16 atoms", await ato
 check("and says so instead of restoring silently", await page.getByTestId("restore-notice").isVisible());
 await page.screenshot({ path: `${SHOTS}/06-restored.png` });
 
+// --- editing a past step ---------------------------------------------------
+// The parametric claim: a step's parameters stay live, and changing one
+// re-runs everything after it.
+if (await page.getByTestId("restore-notice").isVisible()) {
+    await page.getByRole("button", { name: /Keep it/i }).click();
+}
+await page.getByRole("tab", { name: /Structure/i }).click();
+await page.getByRole("button", { name: /conventional cell/i }).click();
+await page.waitForTimeout(900);
+const chipsBeforeEdit = await chips();
+await page.getByTestId("timeline-chip").nth(1).hover();
+await page.getByTestId("edit-step").first().click();
+await page.waitForSelector(".md2-panel");
+const editInputs = page.locator(".md2-matrix-grid input");
+check(
+    "editing a step pre-fills its parameters",
+    (await editInputs.nth(0).inputValue()) === "2",
+    `m11=${await editInputs.nth(0).inputValue()}`,
+);
+const applyBtn = page.getByRole("button", { name: /Apply & replay/i });
+check("and says how many steps will replay", await applyBtn.isVisible(), await applyBtn.innerText());
+await editInputs.nth(0).fill("3");
+await editInputs.nth(4).fill("3");
+await editInputs.nth(8).fill("3");
+await page.waitForTimeout(400);
+await applyBtn.click();
+await page.waitForTimeout(1500);
+check("the edit replaces the step in place", (await chips()) === chipsBeforeEdit, `${await chips()} chips`);
+check("and downstream steps re-ran", (await atoms()) === "54 atoms", await atoms());
+const editedChip = (await page.getByTestId("timeline-chip").nth(1).innerText()).replace(/\s+/g, " ");
+check(
+    "the edited chip reports its new result, not the old one",
+    /2 → 54/.test(editedChip),
+    editedChip,
+);
+await page.screenshot({ path: `${SHOTS}/11-edit-step.png` });
+
+await page.keyboard.press("Control+z");
+await page.waitForTimeout(800);
+check("one undo restores the pre-edit log", (await atoms()) === "16 atoms", await atoms());
+await page.keyboard.press("Control+Shift+z");
+await page.waitForTimeout(800);
+
 // --- sets: one template, many materials, one undo -------------------------
-await page.getByTestId("restore-notice").isVisible().then(async (v) => {
-    if (v) await page.getByRole("button", { name: /Keep it/i }).click();
-});
 await page.keyboard.press("Control+k");
 await page.waitForSelector(".md2-catalog");
 await page.getByRole("button", { name: /Combinatorial set/i }).first().click();

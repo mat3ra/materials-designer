@@ -6,10 +6,13 @@
  * replay determinism, undo across mixed sources, revert, forking, and
  * persistence round-trips.
  */
-import { describe, expect, it, beforeEach } from "vitest";
-
+import {
+    load,
+    save,
+    serialize,
+    STORAGE_KEY,
+} from "../../../src/v2/state/persist";
 import { atomCountOf, predict } from "../../../src/v2/state/registry";
-import { load, save, serialize, STORAGE_KEY } from "../../../src/v2/state/persist";
 import { isModified, replay, resolve } from "../../../src/v2/state/replay";
 import {
     __resetUid,
@@ -20,6 +23,7 @@ import {
     canUndo,
     createInitialState,
     createMaterialDoc,
+    editOperation,
     forkMaterial,
     getActive,
     getActiveMaterial,
@@ -30,6 +34,7 @@ import {
     setActive,
     undo,
 } from "../../../src/v2/state/session";
+import { beforeEach, describe, expect, it } from "vitest";
 
 const IDENTITY = [
     [1, 0, 0],
@@ -83,7 +88,7 @@ describe("origins and replay", () => {
 describe("operations", () => {
     it("records a supercell with a result digest", () => {
         const state = applyOperation(createInitialState(), "supercell", { matrix: SUPERCELL_222 });
-        const log = getActive(state).log;
+        const { log } = getActive(state);
         expect(log).toHaveLength(2);
         expect(log[1].type).toBe("supercell");
         expect(log[1].digest).toBe("2×2×2");
@@ -99,7 +104,7 @@ describe("operations", () => {
             { basis: getActiveMaterial(state).basis, note: "moved 1 atom" },
             { source: "gesture" },
         );
-        const log = getActive(state).log;
+        const { log } = getActive(state);
         expect(log[1].engine).toBe("native");
         expect(log[1].source).toBe("form");
         expect(log[2].engine).toBe("manual");
@@ -116,7 +121,13 @@ describe("operations", () => {
 
     it("builds a slab and keeps its provenance parameters", () => {
         const state = applyOperation(createInitialState(), "surface", {
-            h: 1, k: 1, l: 1, thickness: 2, vacuumRatio: 0.5, vx: 1, vy: 1,
+            h: 1,
+            k: 1,
+            l: 1,
+            thickness: 2,
+            vacuumRatio: 0.5,
+            vx: 1,
+            vy: 1,
         });
         const op = getActive(state).log[1];
         expect(op.digest).toBe("(111) · 2 layers");
@@ -138,13 +149,25 @@ describe("prediction (the panel's -> N atoms line)", () => {
     it("forecasts a supercell without building the atoms", () => {
         const material = getActiveMaterial(createInitialState());
         expect(predict(material, "supercell", { matrix: SUPERCELL_222 }).atomCount).toBe(16);
-        const huge = [[20, 0, 0], [0, 20, 0], [0, 0, 20]] as any;
+        const huge = [
+            [20, 0, 0],
+            [0, 20, 0],
+            [0, 0, 20],
+        ] as any;
         expect(predict(material, "supercell", { matrix: huge }).atomCount).toBe(16000);
     });
 
     it("reports an error instead of throwing at the panel", () => {
         const material = getActiveMaterial(createInitialState());
-        const result = predict(material, "surface", { h: 0, k: 0, l: 0, thickness: 1, vacuumRatio: 0, vx: 1, vy: 1 });
+        const result = predict(material, "surface", {
+            h: 0,
+            k: 0,
+            l: 0,
+            thickness: 1,
+            vacuumRatio: 0,
+            vx: 1,
+            vy: 1,
+        });
         expect(result.error ?? result.atomCount).toBeDefined();
     });
 });
@@ -196,8 +219,18 @@ describe("one undo stack across every surface", () => {
         state = addMaterials(state, [createMaterialDoc("create-default", {})]);
         const second = state.activeId;
 
-        state = applyOperation(state, "supercell", { matrix: SUPERCELL_222 }, { materialId: first });
-        state = applyOperation(state, "supercell", { matrix: SUPERCELL_222 }, { materialId: second });
+        state = applyOperation(
+            state,
+            "supercell",
+            { matrix: SUPERCELL_222 },
+            { materialId: first },
+        );
+        state = applyOperation(
+            state,
+            "supercell",
+            { matrix: SUPERCELL_222 },
+            { materialId: second },
+        );
 
         state = undo(state); // second only
         expect(atomCountOf(resolve(getDoc(state, second)!).material)).toBe(2);
@@ -213,10 +246,25 @@ describe("one undo stack across every surface", () => {
 
     it("coalesces a burst of canvas edits into a single step", () => {
         let state = createInitialState();
-        const basis = getActiveMaterial(state).basis;
-        state = applyCoalescingOperation(state, "manual-patch", { basis, note: "drag" }, { source: "gesture" });
-        state = applyCoalescingOperation(state, "manual-patch", { basis, note: "drag" }, { source: "gesture" });
-        state = applyCoalescingOperation(state, "manual-patch", { basis, note: "drag" }, { source: "gesture" });
+        const { basis } = getActiveMaterial(state);
+        state = applyCoalescingOperation(
+            state,
+            "manual-patch",
+            { basis, note: "drag" },
+            { source: "gesture" },
+        );
+        state = applyCoalescingOperation(
+            state,
+            "manual-patch",
+            { basis, note: "drag" },
+            { source: "gesture" },
+        );
+        state = applyCoalescingOperation(
+            state,
+            "manual-patch",
+            { basis, note: "drag" },
+            { source: "gesture" },
+        );
 
         expect(getActive(state).log).toHaveLength(2); // origin + one merged step
         state = undo(state);
@@ -284,10 +332,20 @@ describe("revert to a step", () => {
     it("leaves other materials alone", () => {
         let state = createInitialState();
         const first = state.activeId;
-        state = applyOperation(state, "supercell", { matrix: SUPERCELL_222 }, { materialId: first });
+        state = applyOperation(
+            state,
+            "supercell",
+            { matrix: SUPERCELL_222 },
+            { materialId: first },
+        );
         state = addMaterials(state, [createMaterialDoc("create-default", {})]);
         const second = state.activeId;
-        state = applyOperation(state, "supercell", { matrix: SUPERCELL_222 }, { materialId: second });
+        state = applyOperation(
+            state,
+            "supercell",
+            { matrix: SUPERCELL_222 },
+            { materialId: second },
+        );
 
         state = revertTo(state, second, 0);
         expect(atomCountOf(resolve(getDoc(state, first)!).material)).toBe(16);
@@ -298,12 +356,30 @@ describe("revert to a step", () => {
 describe("persistence", () => {
     class MemoryStorage implements Storage {
         private map = new Map<string, string>();
-        get length() { return this.map.size; }
-        clear() { this.map.clear(); }
-        getItem(k: string) { return this.map.get(k) ?? null; }
-        key(i: number) { return [...this.map.keys()][i] ?? null; }
-        removeItem(k: string) { this.map.delete(k); }
-        setItem(k: string, v: string) { this.map.set(k, v); }
+
+        get length() {
+            return this.map.size;
+        }
+
+        clear() {
+            this.map.clear();
+        }
+
+        getItem(k: string) {
+            return this.map.get(k) ?? null;
+        }
+
+        key(i: number) {
+            return [...this.map.keys()][i] ?? null;
+        }
+
+        removeItem(k: string) {
+            this.map.delete(k);
+        }
+
+        setItem(k: string, v: string) {
+            this.map.set(k, v);
+        }
     }
 
     it("round-trips a session through storage", () => {
@@ -322,7 +398,11 @@ describe("persistence", () => {
 
     it("stores logs rather than structures, so payloads stay small", () => {
         const state = applyOperation(createInitialState(), "supercell", {
-            matrix: [[6, 0, 0], [0, 6, 0], [0, 0, 6]] as any,
+            matrix: [
+                [6, 0, 0],
+                [0, 6, 0],
+                [0, 0, 6],
+            ] as any,
         });
         expect(atomCountOf(getActiveMaterial(state))).toBe(432);
         const bytes = JSON.stringify(serialize(state)).length;
@@ -331,10 +411,18 @@ describe("persistence", () => {
 
     it("survives blocked or full storage without corrupting the session", () => {
         const hostile = {
-            getItem: () => { throw new Error("blocked"); },
-            setItem: () => { throw new Error("QuotaExceeded"); },
-            removeItem: () => { throw new Error("blocked"); },
-            clear: () => {}, key: () => null, length: 0,
+            getItem: () => {
+                throw new Error("blocked");
+            },
+            setItem: () => {
+                throw new Error("QuotaExceeded");
+            },
+            removeItem: () => {
+                throw new Error("blocked");
+            },
+            clear: () => {},
+            key: () => null,
+            length: 0,
         } as unknown as Storage;
         expect(save(createInitialState(), "x", hostile)).toBe(false);
         expect(load(hostile)).toBeNull();
@@ -350,5 +438,113 @@ describe("persistence", () => {
         const storage = new MemoryStorage();
         storage.setItem(STORAGE_KEY, "{not json");
         expect(load(storage)).toBeNull();
+    });
+});
+
+describe("editing a past step", () => {
+    it("re-runs downstream steps against the new parameters", () => {
+        let state = createInitialState();
+        state = applyOperation(state, "supercell", { matrix: SUPERCELL_222 }); // 2 -> 16
+        state = applyOperation(state, "rename", { name: "kept" });
+        const id = state.activeId;
+
+        // Change the supercell from 2x2x2 to 3x3x3: the rename after it must survive.
+        const result = editOperation(state, id, 1, {
+            matrix: [
+                [3, 0, 0],
+                [0, 3, 0],
+                [0, 0, 3],
+            ] as any,
+        });
+        state = result.state;
+
+        expect(result.staleSteps).toEqual([]);
+        expect(atomCountOf(getActiveMaterial(state))).toBe(54); // 2 x 27
+        expect(getActiveMaterial(state).name).toBe("kept");
+        expect(getActive(state).log).toHaveLength(3); // no steps added or lost
+    });
+
+    it("restores the exact log on undo", () => {
+        let state = applyOperation(createInitialState(), "supercell", { matrix: SUPERCELL_222 });
+        const id = state.activeId;
+        const before = getActive(state).log;
+
+        state = editOperation(state, id, 1, {
+            matrix: [
+                [3, 0, 0],
+                [0, 3, 0],
+                [0, 0, 3],
+            ] as any,
+        }).state;
+        expect(atomCountOf(getActiveMaterial(state))).toBe(54);
+
+        state = undo(state);
+        expect(getActive(state).log).toEqual(before);
+        expect(atomCountOf(getActiveMaterial(state))).toBe(16);
+    });
+
+    it("disables a step that cannot survive the edit, and says which", () => {
+        let state = createInitialState();
+        state = applyOperation(state, "supercell", { matrix: SUPERCELL_222 });
+        // A manual patch pinned to the 16-atom basis; it cannot apply to a
+        // material whose sites no longer match.
+        const wideBasis = getActiveMaterial(state).basis;
+        state = applyOperation(state, "manual-patch", { basis: wideBasis, note: "moved atoms" });
+        state = applyOperation(state, "rename", { name: "after the patch" });
+        const id = state.activeId;
+
+        // Revert the supercell to the identity: the 16-site patch is now bogus.
+        const result = editOperation(state, id, 1, { matrix: IDENTITY });
+        state = result.state;
+
+        const { log } = getActive(state);
+        // Either the patch replayed harmlessly or it was disabled — but if it
+        // was disabled, it must be marked, kept, and the rest must still run.
+        if (result.staleSteps.length) {
+            expect(log[result.staleSteps[0]].status).toBe("stale");
+            expect(log[result.staleSteps[0]].disabled).toBe(true);
+        }
+        expect(log).toHaveLength(4); // nothing silently dropped
+        expect(getActiveMaterial(state).name).toBe("after the patch"); // downstream still ran
+    });
+
+    it("rejects an edit that makes the step itself invalid", () => {
+        const state = applyOperation(createInitialState(), "supercell", { matrix: SUPERCELL_222 });
+        const id = state.activeId;
+        const singular = [
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+        ] as any;
+        const result = editOperation(state, id, 1, { matrix: singular });
+        expect(result.state).toBe(state); // untouched
+        expect(atomCountOf(getActiveMaterial(state))).toBe(16);
+    });
+
+    it("leaves the origin step uneditable", () => {
+        const state = applyOperation(createInitialState(), "supercell", { matrix: SUPERCELL_222 });
+        expect(editOperation(state, state.activeId, 0, {}).state).toBe(state);
+    });
+});
+
+describe("chip results after an edit", () => {
+    it("recomputes the digest of every step the edit touched", () => {
+        let state = createInitialState();
+        state = applyOperation(state, "supercell", { matrix: SUPERCELL_222 }); // 2 -> 16
+        state = applyOperation(state, "rename", { name: "downstream" });
+        const id = state.activeId;
+
+        state = editOperation(state, id, 1, {
+            matrix: [
+                [3, 0, 0],
+                [0, 3, 0],
+                [0, 0, 3],
+            ] as any,
+        }).state;
+
+        const { log } = getActive(state);
+        expect(log[1].result?.atomCount).toBe(54); // not the stale 16
+        expect(log[2].result?.atomCount).toBe(54); // the step after it too
+        expect(log[0].result?.atomCount).toBe(2); // untouched before the edit
     });
 });

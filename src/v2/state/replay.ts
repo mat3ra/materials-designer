@@ -28,9 +28,10 @@ export function replay(log: Operation[], upTo = log.length): Material {
     let material: Material | undefined;
     for (let i = 0; i < Math.min(upTo, log.length); i++) {
         const op = log[i];
-        const def = getDefinition(op.type);
+        // A stale step is stepped over, not replayed.
+        const def = op.disabled ? null : getDefinition(op.type);
         try {
-            material = def.apply(material as Material, op.params);
+            if (def) material = def.apply(material as Material, op.params);
         } catch (e) {
             throw new ReplayError(
                 `Step ${i + 1} (${op.label}) failed: ${e instanceof Error ? e.message : String(e)}`,
@@ -40,6 +41,37 @@ export function replay(log: Operation[], upTo = log.length): Material {
         }
     }
     return material as Material;
+}
+
+/**
+ * Replay once, capturing the digest after every step.
+ *
+ * Used when a log is rewritten (editing a past step): each chip's recorded
+ * result has to be recomputed, or the timeline shows the atom counts of a
+ * history that no longer exists.
+ */
+export function replayWithDigests(log: Operation[]): {
+    material: Material;
+    digests: (ResultDigest | undefined)[];
+} {
+    if (log.length === 0) throw new Error("Cannot replay an empty log: no origin operation.");
+    const digests: (ResultDigest | undefined)[] = [];
+    let material: Material | undefined;
+    for (let i = 0; i < log.length; i++) {
+        const op = log[i];
+        const def = op.disabled ? null : getDefinition(op.type);
+        try {
+            if (def) material = def.apply(material as Material, op.params);
+        } catch (e) {
+            throw new ReplayError(
+                `Step ${i + 1} (${op.label}) failed: ${e instanceof Error ? e.message : String(e)}`,
+                i,
+                op,
+            );
+        }
+        digests.push(def && material ? digestOf(material) : undefined);
+    }
+    return { material: material as Material, digests };
 }
 
 /** Replay with caching + digest. The Navigator/Viewport/Status bar all read this. */

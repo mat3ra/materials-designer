@@ -62,9 +62,13 @@ export function BoundaryConditionsPanel({
     material,
     onApply,
     onCancel,
+    initialParams,
+    applyLabel,
 }: OperationPanelProps): JSX.Element {
     const current = currentConditions(material);
-    const [draft, setDraft] = useState<Draft>(() => toDraft(current));
+    const [draft, setDraft] = useState<Draft>(() =>
+        toDraft((initialParams as ReturnType<typeof currentConditions>) ?? current),
+    );
     const fieldId = useFieldIds("bc");
 
     // v1 re-initialised the dialog whenever it received new props; a panel that
@@ -98,6 +102,7 @@ export function BoundaryConditionsPanel({
 
     return (
         <PanelFrame
+            applyLabel={applyLabel}
             icon={PANEL_META["boundary-conditions"].icon}
             title={PANEL_META["boundary-conditions"].title}
             canApply={forecast.ok}

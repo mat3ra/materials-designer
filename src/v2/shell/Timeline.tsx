@@ -13,6 +13,11 @@ export interface TimelineProps {
     doc: MaterialDoc;
     onRevertTo: (step: number) => void;
     onFork: (step: number) => void;
+    /** Re-open a step's panel, pre-filled — the parametric half of the design. */
+    onEditStep: (step: number) => void;
+    /** Operation types that have a panel to edit them with. */
+    editableTypes: Set<string>;
+    editingStep?: number | null;
 }
 
 const ENGINE_LABEL: Record<string, string> = {
@@ -23,7 +28,14 @@ const ENGINE_LABEL: Record<string, string> = {
     ai: "AI",
 };
 
-export function Timeline({ doc, onRevertTo, onFork }: TimelineProps) {
+export function Timeline({
+    doc,
+    onRevertTo,
+    onFork,
+    onEditStep,
+    editableTypes,
+    editingStep,
+}: TimelineProps) {
     return (
         <div className="md2-timeline">
             <div className="md2-tl-head">
@@ -37,12 +49,17 @@ export function Timeline({ doc, onRevertTo, onFork }: TimelineProps) {
                     const current = op.result?.atomCount;
                     const changed =
                         previous !== undefined && current !== undefined && previous !== current;
+                    const stale = op.status === "stale" || op.disabled;
+                    const classes = [
+                        "md2-chip",
+                        index === 0 ? "md2-origin" : "",
+                        stale ? "md2-stale" : "",
+                        editingStep === index ? "md2-editing" : "",
+                    ]
+                        .filter(Boolean)
+                        .join(" ");
                     return (
-                        <div
-                            key={op.id}
-                            className={`md2-chip${index === 0 ? " md2-origin" : ""}`}
-                            data-testid="timeline-chip"
-                        >
+                        <div key={op.id} className={classes} data-testid="timeline-chip">
                             <div className="md2-chip-line">
                                 <span className="md2-chip-title">{op.label}</span>
                                 <span className={`md2-badge md2-badge-${op.engine}`}>
@@ -55,7 +72,22 @@ export function Timeline({ doc, onRevertTo, onFork }: TimelineProps) {
                                     {previous} → {current} atoms
                                 </div>
                             )}
+                            {stale && (
+                                <div className="md2-chip-stale" data-testid="stale-chip">
+                                    ⚠ skipped — an upstream edit invalidated this step
+                                </div>
+                            )}
                             <div className="md2-chip-acts">
+                                {index > 0 && editableTypes.has(op.type) && (
+                                    <button
+                                        type="button"
+                                        onClick={() => onEditStep(index)}
+                                        title="Edit this step and replay the ones after it"
+                                        data-testid="edit-step"
+                                    >
+                                        ✎ edit
+                                    </button>
+                                )}
                                 {index < doc.log.length - 1 && (
                                     <button
                                         type="button"

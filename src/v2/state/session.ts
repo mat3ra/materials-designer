@@ -12,7 +12,7 @@
 import type Material from "@mat3ra/made/dist/js/Material";
 
 import { digestOf, getDefinition } from "./registry";
-import { resolve } from "./replay";
+import { ReplayError, replayWithDigests, resolve } from "./replay";
 import type {
     Change,
     Engine,
@@ -342,6 +342,13 @@ function reverse(state: SessionState, change: Change): Partial<SessionState> {
                 activeId: change.materialId,
             };
         }
+        case "log-edited":
+            return {
+                materials: state.materials.map((m) =>
+                    m.id === change.materialId ? { ...m, log: change.before } : m,
+                ),
+                activeId: change.materialId,
+            };
         case "set-produced": {
             const ids = new Set(change.docs.map((d) => d.id));
             const materials = state.materials
@@ -400,6 +407,13 @@ function forward(state: SessionState, change: Change): Partial<SessionState> {
                 activeId: change.materialId,
             };
         }
+        case "log-edited":
+            return {
+                materials: state.materials.map((m) =>
+                    m.id === change.materialId ? { ...m, log: change.after } : m,
+                ),
+                activeId: change.materialId,
+            };
         case "set-produced":
             return {
                 materials: state.materials
@@ -460,4 +474,71 @@ export function revertTo(state: SessionState, materialId: string, step: number):
         { kind: "log-truncated", materialId, removed },
         { materials, activeId: materialId },
     );
+}
+
+/**
+ * Edit a past step and replay everything after it.
+ *
+ * This is what makes the Timeline more than a log: parameters stay live, so a
+ * supercell chosen ten steps ago can be changed and the rest of the derivation
+ * recomputed. Steps that cannot survive the change (typically a manual patch
+ * whose target sites no longer exist) are marked `stale` and skipped rather
+ * than silently dropped or left to break the replay — the user can see exactly
+ * what the edit cost, and undo restores the log verbatim.
+ */
+export function editOperation(
+    state: SessionState,
+    materialId: string,
+    step: number,
+    params: unknown,
+): { state: SessionState; staleSteps: number[] } {
+    const doc = getDoc(state, materialId);
+    if (!doc || step <= 0 || step >= doc.log.length) return { state, staleSteps: [] };
+
+    const def = getDefinition(doc.log[step].type);
+    const edited: Operation = {
+        ...doc.log[step],
+        params: params as Record<string, unknown>,
+        digest: def.digest?.(params as never),
+        disabled: false,
+        status: "ok",
+    };
+    let log = [...doc.log.slice(0, step), edited, ...doc.log.slice(step + 1)];
+
+    // Replay forward, disabling any step that cannot run against the new state.
+    // Bounded by the log length: each pass disables at least one step.
+    const staleSteps: number[] = [];
+    for (let guard = 0; guard <= log.length; guard += 1) {
+        try {
+            resolve({ ...doc, log });
+            break;
+        } catch (e) {
+            const failedAt = e instanceof ReplayError ? e.step : -1;
+            if (failedAt <= step || failedAt < 0) {
+                // The edited step itself is invalid: reject the edit outright.
+                return { state, staleSteps: [] };
+            }
+            staleSteps.push(failedAt);
+            log = log.map((op, index) =>
+                index === failedAt ? { ...op, disabled: true, status: "stale" as const } : op,
+            );
+        }
+    }
+
+    // Every step from the edit onward has a new result; recompute them all, or
+    // the timeline reports atom counts from a history that no longer exists.
+    const { digests } = replayWithDigests(log);
+    log = log.map((op, index) =>
+        index >= step ? { ...op, result: digests[index] ?? op.result } : op,
+    );
+
+    const materials = state.materials.map((m) => (m.id === materialId ? { ...m, log } : m));
+    return {
+        state: pushChange(
+            state,
+            { kind: "log-edited", materialId, before: doc.log, after: log },
+            { materials, activeId: materialId },
+        ),
+        staleSteps,
+    };
 }

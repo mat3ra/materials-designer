@@ -23,6 +23,13 @@ export interface OperationPanelProps {
     material: Material;
     onApply: (type: string, params: unknown) => void;
     onCancel: () => void;
+    /**
+     * Pre-fills the form, overriding last-used recall. Set when re-opening the
+     * panel to edit a step that is already in the timeline.
+     */
+    initialParams?: unknown;
+    /** Replaces the Apply label, e.g. "Apply & replay 3 steps". */
+    applyLabel?: string;
 }
 
 /**

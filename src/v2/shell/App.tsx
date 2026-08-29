@@ -10,7 +10,8 @@ import type Material from "@mat3ra/made/dist/js/Material";
 import React, { useCallback, useEffect, useState } from "react";
 
 import { CatalogLite, PANELS } from "../panels";
-import { applySetOperation, createMaterialDoc } from "../state/session";
+import { replay } from "../state/replay";
+import { applySetOperation, createMaterialDoc, editOperation } from "../state/session";
 import { useSession } from "../state/useSession";
 import { CombinatorialPanel } from "./CombinatorialPanel";
 import { ConsoleDock } from "./ConsoleDock";
@@ -27,12 +28,25 @@ type Theme = "dark" | "light";
 /** Operations whose panel lives in the shell rather than the parameter kit. */
 const SHELL_PANELS = new Set(["standard-library", "combinatorial-set"]);
 
+/** Apply-button wording: an edit says how much history it will re-run. */
+function editApplyLabel(editing: boolean, downstream: number): string | undefined {
+    if (!editing) return undefined;
+    if (!downstream) return "Apply";
+    return `Apply & replay ${downstream} step${downstream === 1 ? "" : "s"}`;
+}
+
+/** Steps whose parameters can be re-opened and replayed. */
+const EDITABLE_TYPES = new Set(Object.keys(PANELS));
+
 export function App() {
     const session = useSession();
     const [theme, setTheme] = useState<Theme>("dark");
     const [catalogOpen, setCatalogOpen] = useState(false);
     const [catalogQuery, setCatalogQuery] = useState("");
+    const [notice, setNotice] = useState<string | null>(null);
     const [panelType, setPanelType] = useState<string | null>(null);
+    /** Set while re-editing a step already in the timeline. */
+    const [editingStep, setEditingStep] = useState<number | null>(null);
 
     useEffect(() => {
         document.documentElement.setAttribute("data-theme", theme);
@@ -79,6 +93,40 @@ export function App() {
             setPanelType(null);
         },
         [apply],
+    );
+
+    /**
+     * Applying from an *edit* replaces the step in place and replays what
+     * follows, rather than appending a new one. Steps that cannot survive the
+     * change come back as `staleSteps` and are reported, not hidden.
+     */
+    const handleApplyEdit = useCallback(
+        (_type: string, params: unknown) => {
+            const step = editingStep;
+            if (step === null) return;
+            const materialId = session.state.activeId;
+            session.run((state) => {
+                const { state: next, staleSteps } = editOperation(state, materialId, step, params);
+                if (next === state) {
+                    throw new Error(
+                        "That change makes the step itself invalid, so the edit was refused.",
+                    );
+                }
+                if (staleSteps.length) {
+                    window.setTimeout(
+                        () =>
+                            setNotice(
+                                `Replayed. ${staleSteps.length} later step(s) could not survive the change and were skipped — see the timeline.`,
+                            ),
+                        0,
+                    );
+                }
+                return next;
+            });
+            setEditingStep(null);
+            setPanelType(null);
+        },
+        [editingStep, session],
     );
 
     const panel = panelType ? PANELS[panelType] : undefined;
@@ -130,12 +178,31 @@ export function App() {
     function renderRightPane() {
         if (shellPanel) return <div className="md2-inspector">{shellPanel}</div>;
         if (PanelComponent) {
+            const editing = editingStep !== null;
+            const downstream = editing
+                ? session.activeDoc.log.length - 1 - (editingStep as number)
+                : 0;
             return (
                 <div className="md2-inspector">
                     <PanelComponent
-                        material={session.active.material}
-                        onApply={handleApply}
-                        onCancel={() => setPanelType(null)}
+                        material={
+                            // An edit is configured against the state the step
+                            // originally ran on, not against the current tip.
+                            editing
+                                ? replay(session.activeDoc.log, editingStep as number)
+                                : session.active.material
+                        }
+                        initialParams={
+                            editing
+                                ? session.activeDoc.log[editingStep as number]?.params
+                                : undefined
+                        }
+                        applyLabel={editApplyLabel(editing, downstream)}
+                        onApply={editing ? handleApplyEdit : handleApply}
+                        onCancel={() => {
+                            setPanelType(null);
+                            setEditingStep(null);
+                        }}
                     />
                 </div>
             );
@@ -179,6 +246,14 @@ export function App() {
                     </button>
                 </div>
             )}
+            {notice && (
+                <div className="md2-notice" data-testid="notice">
+                    <span>{notice}</span>
+                    <button type="button" onClick={() => setNotice(null)}>
+                        Dismiss
+                    </button>
+                </div>
+            )}
             {session.error && (
                 <div className="md2-notice md2-error" data-testid="error-notice">
                     <span>{session.error}</span>
@@ -211,6 +286,12 @@ export function App() {
 
                 <Timeline
                     doc={session.activeDoc}
+                    editableTypes={EDITABLE_TYPES}
+                    editingStep={editingStep}
+                    onEditStep={(step) => {
+                        setEditingStep(step);
+                        setPanelType(session.activeDoc.log[step].type);
+                    }}
                     onRevertTo={(step) => session.revert(session.activeDoc.id, step)}
                     onFork={(step) => session.fork(session.activeDoc.id, step)}
                 />

@@ -58,11 +58,19 @@ function summarize(matrix: number[][]): string {
     )}`;
 }
 
-export function SupercellPanel({ material, onApply, onCancel }: OperationPanelProps): JSX.Element {
+export function SupercellPanel({
+    material,
+    onApply,
+    onCancel,
+    initialParams,
+    applyLabel,
+}: OperationPanelProps): JSX.Element {
     const recalled = recallLastUsed<SupercellParams>(TYPE);
-    const [cells, setCells] = useState<string[]>(() =>
-        recalled ? toCells(recalled.params.matrix) : IDENTITY,
-    );
+    const [cells, setCells] = useState<string[]>(() => {
+        const preset = (initialParams as SupercellParams | undefined)?.matrix;
+        if (preset) return toCells(preset);
+        return recalled ? toCells(recalled.params.matrix) : IDENTITY;
+    });
     const fieldId = useFieldIds(TYPE);
 
     const { params, invalidReason, determinant, hasFraction } = useMemo(() => {
@@ -100,6 +108,7 @@ export function SupercellPanel({ material, onApply, onCancel }: OperationPanelPr
 
     return (
         <PanelFrame
+            applyLabel={applyLabel}
             icon={PANEL_META.supercell.icon}
             title={PANEL_META.supercell.title}
             canApply={forecast.ok}

@@ -42,6 +42,12 @@ export interface Operation<P = Record<string, unknown>> {
     digest?: string;
     result?: ResultDigest;
     status: OperationStatus;
+    /**
+     * Skipped during replay. Set when an upstream edit invalidates a step
+     * (it goes `stale`) so the rest of the history still resolves, rather than
+     * leaving the material unreplayable.
+     */
+    disabled?: boolean;
     createdAt: number;
     /** Reproducibility context: an AI prompt, a notebook ref, library versions. */
     provenance?: Record<string, unknown>;
@@ -92,6 +98,8 @@ export type Change =
      * the marker step on the source plus every material it emitted, so a single
      * Cmd+Z removes the whole batch rather than one child at a time.
      */
+    /** Editing a past step: the whole log before and after, so undo is exact. */
+    | { kind: "log-edited"; materialId: string; before: Operation[]; after: Operation[] }
     | {
           kind: "set-produced";
           materialId: string;
