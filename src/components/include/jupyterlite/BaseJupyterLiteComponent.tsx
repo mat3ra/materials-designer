@@ -18,11 +18,17 @@ export interface BaseJupyterLiteProps {
     onHide: () => void;
     // eslint-disable-next-line react/no-unused-prop-types
     title?: string;
+    /**
+     * Currently the Allotment imperative handle rather than a DOM node - MaterialsDesigner has no
+     * container element to hand over. Unused either way; see the TODO in JupyterLiteSessionDrawer.
+     */
     // eslint-disable-next-line react/no-unused-prop-types
-    containerRef?: React.RefObject<HTMLDivElement>;
+    containerRef?: React.RefObject<unknown>;
 }
 
-class BaseJupyterLiteSessionComponent<P = never, S = never> extends React.Component<
+// `P = never` would collapse `P & BaseJupyterLiteProps` to `never`, leaving every subclass
+// impossible to render from a typed parent.
+class BaseJupyterLiteSessionComponent<P = unknown, S = unknown> extends React.Component<
     P & BaseJupyterLiteProps,
     S
 > {
