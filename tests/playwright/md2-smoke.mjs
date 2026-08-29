@@ -205,6 +205,43 @@ const rowsNow = await page.getByTestId("material-row").count();
 check("picking one adds a material", rowsNow > materialsBefore, `${rowsNow} rows`);
 await page.screenshot({ path: `${SHOTS}/09-standata.png` });
 
+// --- file round trip -------------------------------------------------------
+// Export the active material, then import the file back: the structure must
+// survive the trip, and the copy's provenance must start at the import.
+await page.getByTestId("app-menu-button").click();
+await page.waitForSelector('[data-testid="app-menu"]');
+const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    page.getByRole("menuitem", { name: /Export as JSON/i }).click(),
+]);
+const exportPath = `${SHOTS}/exported.json`;
+await download.saveAs(exportPath);
+const exported = JSON.parse(await (await import("node:fs/promises")).readFile(exportPath, "utf8"));
+check(
+    "export writes the active material",
+    Array.isArray(exported?.basis?.elements) && exported.basis.elements.length > 0,
+    `${exported?.basis?.elements?.length} sites`,
+);
+
+const rowsBeforeImport = await page.getByTestId("material-row").count();
+await page.getByTestId("app-menu-button").click();
+const chooser = page.waitForEvent("filechooser");
+await page.getByRole("menuitem", { name: /Import from file/i }).click();
+await (await chooser).setFiles(exportPath);
+await page.waitForTimeout(1800);
+check(
+    "importing it back adds a material",
+    (await page.getByTestId("material-row").count()) > rowsBeforeImport,
+    `${await page.getByTestId("material-row").count()} rows`,
+);
+const importedChip = (await page.getByTestId("timeline-chip").first().innerText()).replace(/\s+/g, " ");
+check(
+    "whose history starts at the import, naming the detected format",
+    /Imported/.test(importedChip) && /json/i.test(importedChip),
+    importedChip,
+);
+await page.screenshot({ path: `${SHOTS}/12-import-export.png` });
+
 // --- light theme -----------------------------------------------------------
 await page.getByRole("button", { name: /toggle theme/i }).click();
 await page.waitForTimeout(600);

@@ -16,6 +16,7 @@ export interface WorkspaceBarProps {
     onUndo: () => void;
     onRedo: () => void;
     onOpenCatalog: () => void;
+    onOpenMenu: () => void;
     theme: "dark" | "light";
     onToggleTheme: () => void;
 }
@@ -37,6 +38,7 @@ export function WorkspaceBar({
     onUndo,
     onRedo,
     onOpenCatalog,
+    onOpenMenu,
     theme,
     onToggleTheme,
 }: WorkspaceBarProps) {
@@ -45,8 +47,10 @@ export function WorkspaceBar({
             <button
                 type="button"
                 className="md2-wbtn md2-icon"
-                title="App menu"
+                title="App menu — import, export"
                 aria-label="App menu"
+                onClick={onOpenMenu}
+                data-testid="app-menu-button"
             >
                 ☰
             </button>

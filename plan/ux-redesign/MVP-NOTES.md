@@ -26,7 +26,9 @@ spine. Both suites are green. The load-bearing checks:
 | Preview before commit | The panel reads `→ 2 → 16 atoms · 1 material` before Apply, and the viewport stays visible and orbitable while configuring |
 | Sets are lineage, not list spam | A combinatorial batch collapses into one folder row under its source, and **one** undo removes the whole batch |
 | Three projections, one selection | Clicking an atom in the 3D canvas updates the app's status bar (`1 of 2 selected`) |
+| Steps stay live (parametric) | Editing a supercell from 2×2×2 to 3×3×3 re-runs the conventional-cell step after it (16 → 54 atoms), replaces the step in place, and one undo restores the log exactly |
 | The recipe is the artifact | The Console's Script tab renders the log as runnable Python |
+| Structures can get in and out | A material exported as JSON and re-imported comes back with its provenance starting at the import step |
 | A refresh does not cost the session | Reload restores 16 atoms and says so, with a "Start fresh" escape |
 | One token set, two themes | Light theme renders across the app chrome |
 
@@ -48,14 +50,23 @@ dock (Script + Log live), Status Bar, and one token set for dark/light.
 conditions, Combinatorial set, Standard library; each with v1's defaults and validation plus a
 predicted result. Catalog-lite with engine badges and disabled-with-reason entries.
 
+**Editing the past** — a chip's `✎ edit` re-opens its panel pre-filled and configured against the
+state that step originally ran on; Apply replaces the step and replays what follows, with the
+button naming the cost. Steps that cannot survive an upstream change are marked stale, disabled
+and skipped, so the material still resolves and the loss is visible rather than silent.
+
+**File I/O** — import via the app menu, the Catalog, or dropping files anywhere on the window
+(JSON and POSCAR, the formats made.js implements); export the active material or all of them.
+Import is an origin operation carrying the payload, so provenance starts at the file.
+
 ## 3. What was deliberately left out
 
-Ghost-atom previews (the panels predict numerically, they do not render the result); edit-a-past-
-step with downstream replay and stale resolution (the Timeline reverts and forks, it does not
-re-parameterise); the Assistant; share links and named sessions beyond a single autosave; the
-read-only viewer and picker modes; editable lattice fields with symmetry locking; the 3×3 vector
-form; NEB interpolation; file import/export; REPL and Notebook docking (both are labelled
-not-wired in the Console rather than faked).
+Ghost-atom previews (the panels predict numerically, they do not render the result); the
+Assistant; share links and named sessions beyond a single autosave; the read-only viewer and
+picker modes; editable lattice fields with symmetry locking; the 3×3 vector form; NEB
+interpolation; zip bundling for multi-export; REPL and Notebook docking (both are labelled
+not-wired in the Console rather than faked). Stale-step resolution is automatic (skip with a
+marker) rather than the design's explicit re-map / skip / fork choice.
 
 ## 4. Findings that change the plan
 
@@ -84,7 +95,16 @@ not-wired in the Console rather than faked).
    bootstrap the standalone host does; without it replay fails with
    `ESSE schema not found: material-enhanced-hashed`. Worth documenting for anyone testing
    made.js in isolation.
-7. **The lint gate does not see `.jsx`, but does see `.ts(x)`.** The bugfix memo on #299 predicted
+7. **Recorded results go stale when a log is rewritten.** Editing a past step recomputes the
+   material but not the digests already stored on later chips — the timeline then reports atom
+   counts from a history that no longer exists. Caught by driving the app, not by the unit tests,
+   which is an argument for keeping the browser suite in the loop; both suites now cover it. Any
+   future log-rewriting feature (disable a step, reorder, flatten) needs the same recomputation.
+8. **`eslint --fix` rewrites relative test imports into unresolvable package paths.** It turned
+   `../../../src/v2/state/...` into `@mat3ra/materials-designer/src/v2/state/...`, which vitest
+   cannot resolve. Harmless once known, but worth a lint override for `tests/` before anyone runs
+   `--fix` over the test tree.
+9. **The lint gate does not see `.jsx`, but does see `.ts(x)`.** The bugfix memo on #299 predicted
    this; writing v2 in TypeScript meant the pre-commit hook caught four real errors (including a
    use-before-define and a strict-null violation) that the equivalent `.jsx` files would have
    sailed past. An argument for the TS migration independent of the redesign.
@@ -92,9 +112,10 @@ not-wired in the Console rather than faked).
 ## 5. Effort, measured against the estimate
 
 §14.1 priced the MVP at **9–10 engineer-weeks**, with a note that this team's AI-assisted mode
-might reach 3–4 calendar weeks. This session produced the spine, the shell, five panels, the
-catalog, sets, the standard library, 29 unit tests and a 23-check browser suite in **roughly two
-hours of agent time** (one parallel subagent for the panels).
+might reach 3–4 calendar weeks. This session produced the spine, the shell, six panels, the
+catalog, sets, the standard library, editing-the-past with replay, file import/export, 35 unit
+tests and a 32-check browser suite in **roughly two and a half hours of agent time** (one parallel
+subagent for the panels).
 
 The honest reading is not "the estimate was 20× too high":
 
@@ -114,6 +135,6 @@ correctness or UX-quality bar attached.
 ```bash
 npm install --legacy-peer-deps     # CI uses the same flag
 npm start                          # v1 at /, MD 2.0 at /v2.html
-npm run test:unit                  # 29 spine tests
-npm run test:md2-smoke             # 23 browser checks (needs the dev server up)
+npm run test:unit                  # 35 spine tests
+npm run test:md2-smoke             # 32 browser checks (needs the dev server up)
 ```

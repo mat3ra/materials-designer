@@ -104,11 +104,16 @@ const definitions: OperationDefinition[] = [
         engine: "native",
         title: "Imported",
         isOrigin: true,
-        apply: (_m, p: { content: string; format: string; name: string }) => {
+        apply: (_m, p: { content: string; name: string }) => {
+            // made.js sniffs the format itself (JSON or POSCAR today), so the
+            // step stores the payload and lets detection happen at replay.
             const config = Made.parsers.nativeFormatParsers.convertFromNativeFormat(p.content);
             return new Material({ ...(config as any), name: p.name });
         },
-        digest: (p: { name: string; format: string }) => `${p.name} (${p.format})`,
+        digest: (p: { name: string; content: string }) => {
+            const format = Made.parsers.nativeFormatParsers.detectFormat(p.content);
+            return `${p.name} · ${format}`;
+        },
     },
 
     // ------------------------------------------------------------- transforms

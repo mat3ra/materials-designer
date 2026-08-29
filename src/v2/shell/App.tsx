@@ -10,9 +10,11 @@ import type Material from "@mat3ra/made/dist/js/Material";
 import React, { useCallback, useEffect, useState } from "react";
 
 import { CatalogLite, PANELS } from "../panels";
-import { replay } from "../state/replay";
+import { exportMaterials, readFiles } from "../state/io";
+import { replay, resolve } from "../state/replay";
 import { applySetOperation, createMaterialDoc, editOperation } from "../state/session";
 import { useSession } from "../state/useSession";
+import { AppMenu } from "./AppMenu";
 import { CombinatorialPanel } from "./CombinatorialPanel";
 import { ConsoleDock } from "./ConsoleDock";
 import { Inspector } from "./Inspector";
@@ -44,6 +46,8 @@ export function App() {
     const [catalogOpen, setCatalogOpen] = useState(false);
     const [catalogQuery, setCatalogQuery] = useState("");
     const [notice, setNotice] = useState<string | null>(null);
+    const [menuOpen, setMenuOpen] = useState(false);
+    const [dragging, setDragging] = useState(false);
     const [panelType, setPanelType] = useState<string | null>(null);
     /** Set while re-editing a step already in the timeline. */
     const [editingStep, setEditingStep] = useState<number | null>(null);
@@ -127,6 +131,62 @@ export function App() {
             setPanelType(null);
         },
         [editingStep, session],
+    );
+
+    /**
+     * Import: each file becomes a material whose origin step holds the payload,
+     * so provenance starts at "where it came from". Format detection is
+     * made.js's, so the accepted set is exactly v1's (JSON and POSCAR).
+     */
+    const importFiles = useCallback(
+        async (files: FileList | File[]) => {
+            try {
+                const read = await readFiles(files);
+                const docs = read.map((file) =>
+                    createMaterialDoc("import-file", {
+                        content: file.content,
+                        name: file.name.replace(/\.[^.]+$/, ""),
+                    }),
+                );
+                session.add(docs);
+                setNotice(`Imported ${docs.length} material${docs.length === 1 ? "" : "s"}.`);
+            } catch (e) {
+                setNotice(
+                    `Import failed: ${
+                        e instanceof Error ? e.message : String(e)
+                    }. Supported formats are JSON and POSCAR.`,
+                );
+            }
+        },
+        [session],
+    );
+
+    const pickFiles = useCallback(() => {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.multiple = true;
+        input.accept = ".json,.poscar,.vasp,.txt,application/json,text/plain";
+        input.onchange = () => {
+            if (input.files?.length) {
+                importFiles(input.files).catch(() => setNotice("Import failed."));
+            }
+        };
+        input.click();
+    }, [importFiles]);
+
+    const handleExport = useCallback(
+        (format: "json" | "poscar", all: boolean) => {
+            const docs = all ? session.state.materials : [session.activeDoc];
+            exportMaterials(
+                docs.map((doc) => {
+                    const { material } = resolve(doc);
+                    return { material, name: material.name ?? "material" };
+                }),
+                format,
+            );
+            setMenuOpen(false);
+        },
+        [session.state.materials, session.activeDoc],
     );
 
     const panel = panelType ? PANELS[panelType] : undefined;
@@ -218,7 +278,25 @@ export function App() {
     }
 
     return (
-        <div className="md2-app">
+        <div
+            className="md2-app"
+            onDragOver={(event) => {
+                if (event.dataTransfer.types.includes("Files")) {
+                    event.preventDefault();
+                    setDragging(true);
+                }
+            }}
+            onDragLeave={(event) => {
+                if (event.currentTarget === event.target) setDragging(false);
+            }}
+            onDrop={(event) => {
+                event.preventDefault();
+                setDragging(false);
+                if (event.dataTransfer.files?.length) {
+                    importFiles(event.dataTransfer.files).catch(() => setNotice("Import failed."));
+                }
+            }}
+        >
             <WorkspaceBar
                 sessionName={session.sessionName}
                 onRename={session.setSessionName}
@@ -228,6 +306,7 @@ export function App() {
                 onUndo={session.undo}
                 onRedo={session.redo}
                 onOpenCatalog={() => setCatalogOpen(true)}
+                onOpenMenu={() => setMenuOpen((open) => !open)}
                 theme={theme}
                 onToggleTheme={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
             />
@@ -244,6 +323,22 @@ export function App() {
                     <button type="button" onClick={session.dismissRestoreNotice}>
                         Keep it
                     </button>
+                </div>
+            )}
+            {menuOpen && (
+                <AppMenu
+                    materialCount={session.state.materials.length}
+                    onImport={() => {
+                        setMenuOpen(false);
+                        pickFiles();
+                    }}
+                    onExport={handleExport}
+                    onClose={() => setMenuOpen(false)}
+                />
+            )}
+            {dragging && (
+                <div className="md2-dropzone" data-testid="dropzone">
+                    Drop JSON or POSCAR files to import
                 </div>
             )}
             {notice && (
@@ -324,7 +419,8 @@ export function App() {
                         onClose={() => setCatalogOpen(false)}
                         onPick={(type) => {
                             setCatalogOpen(false);
-                            if (PANELS[type] || SHELL_PANELS.has(type)) setPanelType(type);
+                            if (type === "import-file") pickFiles();
+                            else if (PANELS[type] || SHELL_PANELS.has(type)) setPanelType(type);
                             else apply(type, {}, { source: "form" });
                         }}
                     />

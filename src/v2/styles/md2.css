@@ -1139,9 +1139,51 @@ select.md2-field {
 }
 
 /* a step being edited, and one an edit invalidated */
-.md2-chip.md2-editing { border-color: var(--accent); background: var(--accent-soft); }
-.md2-chip.md2-editing::before { border-color: var(--accent); background: var(--accent); }
-.md2-chip.md2-stale { border-color: color-mix(in srgb, var(--warn) 55%, var(--border)); }
-.md2-chip.md2-stale::before { border-color: var(--warn); }
-.md2-chip.md2-stale .md2-chip-title { color: var(--warn); }
-.md2-chip-stale { margin-top: 4px; font-size: 10.5px; color: var(--warn); line-height: 1.4; }
+.md2-chip.md2-editing {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+}
+.md2-chip.md2-editing::before {
+    border-color: var(--accent);
+    background: var(--accent);
+}
+.md2-chip.md2-stale {
+    border-color: color-mix(in srgb, var(--warn) 55%, var(--border));
+}
+.md2-chip.md2-stale::before {
+    border-color: var(--warn);
+}
+.md2-chip.md2-stale .md2-chip-title {
+    color: var(--warn);
+}
+.md2-chip-stale {
+    margin-top: 4px;
+    font-size: 10.5px;
+    color: var(--warn);
+    line-height: 1.4;
+}
+
+/* app menu */
+.md2-menu {
+    position: absolute; top: 42px; left: 8px; z-index: 50; min-width: 234px;
+    background: var(--bg1); border: 1px solid var(--border);
+    border-radius: 9px; box-shadow: var(--shadow); padding: 5px;
+}
+.md2-mi {
+    display: flex; align-items: center; gap: 9px; width: 100%; text-align: left;
+    font-size: 12.5px; color: var(--text); background: none; border: none;
+    padding: 7px 10px; border-radius: 6px; cursor: pointer;
+}
+.md2-mi:hover:not(:disabled) { background: var(--bg2); }
+.md2-mi:disabled { color: var(--text-faint); cursor: default; }
+.md2-mic { width: 16px; text-align: center; color: var(--text-dim); }
+.md2-msep { height: 1px; background: var(--border-soft); margin: 5px 4px; }
+.md2-mnote { padding: 6px 10px 4px; font-size: 11px; color: var(--text-faint); line-height: 1.5; }
+
+/* drag-and-drop target */
+.md2-dropzone {
+    position: fixed; inset: 0; z-index: 60;
+    display: flex; align-items: center; justify-content: center;
+    background: color-mix(in srgb, var(--accent) 12%, rgba(4, 7, 11, 0.55));
+    border: 3px dashed var(--accent); font-size: 16px; font-weight: 650; color: var(--text);
+}

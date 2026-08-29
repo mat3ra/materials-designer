@@ -26,6 +26,13 @@ const NOT_YET = "Not in the MVP";
 
 export const CATALOG: CatalogEntry[] = [
     {
+        type: "import-file",
+        title: "From file",
+        icon: "⇪",
+        description: "Import JSON or POSCAR from disk — or drop files anywhere on the window.",
+        engine: "native",
+    },
+    {
         type: "standard-library",
         title: "Standard library",
         icon: "◈",
