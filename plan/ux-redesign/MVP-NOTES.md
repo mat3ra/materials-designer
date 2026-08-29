@@ -109,7 +109,26 @@ marker) rather than the design's explicit re-map / skip / fork choice.
    use-before-define and a strict-null violation) that the equivalent `.jsx` files would have
    sailed past. An argument for the TS migration independent of the redesign.
 
-## 5. Effort, measured against the estimate
+## 5. What the review caught
+
+A high-effort review of the finished branch found **fifteen real defects** — four of them data
+loss or dead ends (a failed autosave deleting the last good save; an unreplayable stored session
+white-screening every load; a cancelled drag leaving an overlay over the whole app; the basis
+editor discarding typing when an edit was rejected), plus a correctness bug that would destroy any
+cartesian structure edited through the basis field, and a handful of interaction faults (a menu
+that could not close itself, a set folder that could not be re-collapsed). All are fixed, with
+regression tests for the ones that could recur silently.
+
+Two things are worth carrying forward from that:
+
+- **The browser suite caught what the unit tests could not, and vice versa.** The stale-digest bug
+  only appeared by driving the app; the autosave and units bugs only appeared by reasoning about
+  the code. Neither suite alone was sufficient.
+- **Freshly written code that passes its own tests is not reviewed code.** Every one of these
+  defects survived a green suite. Budget review time for the real phases; do not read the speed in
+  §5 as evidence that the review step can be skipped.
+
+## 6. Effort, measured against the estimate
 
 §14.1 priced the MVP at **9–10 engineer-weeks**, with a note that this team's AI-assisted mode
 might reach 3–4 calendar weeks. This session produced the spine, the shell, six panels, the
@@ -128,9 +147,10 @@ The honest reading is not "the estimate was 20× too high":
 
 A fair revision: the *scaffolding* is far cheaper than estimated; the *finishing* is not. Plan
 Phase 0 + Phase 1 in days rather than weeks, and keep the original estimate for everything with a
-correctness or UX-quality bar attached.
+correctness or UX-quality bar attached — the fifteen defects in §5 are what "finishing" means, and
+they cost about a quarter of the build time to find and fix on a codebase this small.
 
-## 6. How to run it
+## 7. How to run it
 
 ```bash
 npm install --legacy-peer-deps     # CI uses the same flag
