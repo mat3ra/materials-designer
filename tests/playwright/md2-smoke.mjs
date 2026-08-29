@@ -78,6 +78,31 @@ await page.keyboard.press("Control+Shift+z");
 await page.waitForTimeout(700);
 check("redo restores it", (await atoms()) === "16 atoms", await atoms());
 
+// --- selection is shared state --------------------------------------------
+// Wave only picks atoms once the viewer is interactive AND in edit mode; both
+// are wave-side preconditions, not app state.
+await page.locator(".md2-viewport button").first().click();
+await page.waitForTimeout(1000);
+await page.getByTestId("viewport").click({ position: { x: 40, y: 300 } });
+await page.keyboard.press("t");
+await page.waitForTimeout(1200);
+const vpBox = await page.getByTestId("viewport").boundingBox();
+let picked = false;
+for (const [dx, dy] of [[0.6, 0.68], [0.5, 0.55], [0.45, 0.6], [0.55, 0.5], [0.5, 0.62]]) {
+    await page.mouse.click(vpBox.x + vpBox.width * dx, vpBox.y + vpBox.height * dy);
+    await page.waitForTimeout(500);
+    if (!/no selection/i.test(await page.getByTestId("selection-readout").innerText())) {
+        picked = true;
+        break;
+    }
+}
+check(
+    "a 3D pick reaches the app's shared selection",
+    picked,
+    (await page.getByTestId("selection-readout").innerText()).trim(),
+);
+await page.screenshot({ path: `${SHOTS}/10-selection.png` });
+
 // --- provenance as code ----------------------------------------------------
 await page.getByRole("button", { name: /Script/i }).click();
 await page.waitForTimeout(400);

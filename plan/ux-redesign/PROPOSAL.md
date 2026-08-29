@@ -326,6 +326,13 @@ The viewport is a static SVG of a real computed Si(111) slab standing in for wav
 
 ### 14.1 The MVP — the smallest honest slice (~9–10 engineer-weeks)
 
+> **Built and measured.** A working MVP now exists on this branch (`src/v2/`, served at
+> `/v2.html`), with 29 spine unit tests and a 23-check browser suite. See
+> [`MVP-NOTES.md`](MVP-NOTES.md) for what it proved, what it deliberately omits, seven findings
+> that change this plan — notably that **wave.js's `onEditCommit`/`onSelectionChanged` already
+> exist in the pinned release**, removing the biggest external dependency — and a revised reading
+> of the effort estimate below.
+
 The MVP must include the operation-log spine — without it the result is #299 with a facelift, not 2.0. Everything else is cut or borrowed:
 
 **In:** one operation log + unified undo (adopting wave's `onEditCommit`, already in the pinned `2026.8.19-0`) · the new shell (Workspace Bar + ☰, tokens) · Navigator with lineage indent + the combinatorial set-folder case · **read-only Timeline** (chips + click-to-revert; no edit-past/replay yet) · Inspector porting the lattice form + the #299 basis table · the 5 dialogs as non-blocking Operation Panels with **predicted-count lines** (no ghost previews) · Catalog-lite (searchable list, not the card gallery) · Console dock wrapping the JupyterLite drawer + the #294 REPL · autosave/restore (already spec'd in the #299 follow-ups) · the embed contract untouched.
