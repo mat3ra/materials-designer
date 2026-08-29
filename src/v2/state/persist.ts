@@ -50,13 +50,10 @@ export function save(state: SessionState, name?: string, storage?: Storage): boo
         store.setItem(STORAGE_KEY, JSON.stringify(serialize(state, name)));
         return true;
     } catch (e) {
-        // Quota exceeded or storage blocked: keep the in-memory session rather
-        // than leaving a half-written entry behind.
-        try {
-            store.removeItem(STORAGE_KEY);
-        } catch {
-            /* storage is gone entirely; nothing to clean up */
-        }
+        // Quota exceeded or storage blocked. setItem is atomic, so the previous
+        // entry is still intact and still the user's best recovery point —
+        // deleting it here would cause exactly the data loss this file exists
+        // to prevent. Report the failure and leave it alone.
         return false;
     }
 }

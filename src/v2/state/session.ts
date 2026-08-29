@@ -78,13 +78,20 @@ export function createMaterialDoc(
     return doc;
 }
 
-export function createInitialState(docs?: MaterialDoc[]): SessionState {
+export function createInitialState(
+    docs?: MaterialDoc[],
+    restored?: { sets?: SetDoc[]; activeId?: string },
+): SessionState {
     const materials = docs?.length ? docs : [createMaterialDoc("create-default", {})];
+    const activeId =
+        restored?.activeId && materials.some((m) => m.id === restored.activeId)
+            ? restored.activeId
+            : materials[0].id;
     return {
         materials,
-        sets: [],
-        activeId: materials[0].id,
-        selection: { materialId: materials[0].id, siteIds: [] },
+        sets: restored?.sets ?? [],
+        activeId,
+        selection: { materialId: activeId, siteIds: [] },
         past: [],
         future: [],
         revision: 0,

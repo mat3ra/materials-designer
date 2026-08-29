@@ -409,6 +409,46 @@ describe("persistence", () => {
         expect(bytes).toBeLessThan(8000); // a 432-atom cell costs a 3x3 matrix on disk
     });
 
+    it("keeps the last good save when a later one fails", () => {
+        // setItem is atomic: a failed save leaves the previous entry intact, and
+        // that entry is the user's recovery point. Deleting it would cause the
+        // exact data loss persistence exists to prevent.
+        const storage = new MemoryStorage();
+        const good = applyOperation(createInitialState(), "rename", { name: "recoverable" });
+        expect(save(good, "good", storage)).toBe(true);
+
+        let failing = false;
+        const flaky = new Proxy(storage, {
+            get(target, prop, receiver) {
+                if (prop === "setItem" && failing) {
+                    return () => {
+                        throw new Error("QuotaExceededError");
+                    };
+                }
+                return Reflect.get(target, prop, receiver);
+            },
+        }) as Storage;
+        failing = true;
+        expect(save(good, "too big", flaky)).toBe(false);
+        expect(load(storage)?.name).toBe("good");
+    });
+
+    it("restores sets and the active material, not just the list", () => {
+        const storage = new MemoryStorage();
+        let state = createInitialState();
+        state = addMaterials(state, [createMaterialDoc("create-default", {})]);
+        const activeId = state.activeId;
+        save(state, "with sets", storage);
+
+        const restored = load(storage)!;
+        const rebuilt = createInitialState(restored.materials, {
+            sets: restored.sets,
+            activeId: restored.activeId,
+        });
+        expect(rebuilt.activeId).toBe(activeId);
+        expect(rebuilt.sets).toEqual(state.sets);
+    });
+
     it("survives blocked or full storage without corrupting the session", () => {
         const hostile = {
             getItem: () => {
@@ -546,5 +586,53 @@ describe("chip results after an edit", () => {
         expect(log[1].result?.atomCount).toBe(54); // not the stale 16
         expect(log[2].result?.atomCount).toBe(54); // the step after it too
         expect(log[0].result?.atomCount).toBe(2); // untouched before the edit
+    });
+});
+
+describe("regressions found by review", () => {
+    it("keeps coalescing across a long drag (the window slides)", async () => {
+        // The merged step must carry a fresh timestamp, or the window is
+        // anchored at the start of the drag and a slow drag splits into steps.
+        let state = createInitialState();
+        const basis = getActiveMaterial(state).basis;
+        for (let i = 0; i < 4; i += 1) {
+            state = applyCoalescingOperation(
+                state,
+                "manual-patch",
+                { basis, note: `drag ${i}` },
+                { source: "gesture" },
+            );
+            // eslint-disable-next-line no-await-in-loop
+            await new Promise((r) => {
+                setTimeout(r, 30);
+            });
+        }
+        expect(getActive(state).log).toHaveLength(2); // origin + one merged step
+    });
+
+    it("writes the basis back in the units it was read in", () => {
+        // Reading with getBasisAsXyz() and writing with a hardcoded "crystal"
+        // reinterprets angstroms as fractions and destroys the structure.
+        let state = createInitialState();
+        const material = getActiveMaterial(state);
+        const cartesian = new (material.constructor as typeof import("@mat3ra/made/dist/js/Material").default)(
+            material.toJSON(),
+        );
+        cartesian.toCartesian();
+        state = createInitialState([
+            createMaterialDoc("create-from-config", { config: cartesian.toJSON() }),
+        ]);
+
+        const before = getActiveMaterial(state);
+        const units = (before.basis as { units?: "crystal" | "cartesian" }).units;
+        expect(units).toBe("cartesian");
+
+        const xyz = before.getBasisAsXyz();
+        state = applyOperation(state, "set-basis", { xyz, units });
+        const after = getActiveMaterial(state);
+
+        // A no-op round trip must not move any atom.
+        expect(atomCountOf(after)).toBe(atomCountOf(before));
+        expect(after.getBasisAsXyz()).toBe(xyz);
     });
 });

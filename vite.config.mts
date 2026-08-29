@@ -35,7 +35,10 @@ export default defineConfig({
                 v2: "v2.html",
             },
             output: {
-                entryFileNames: "main.js", // Name the main output bundle as main.js
+                // The v1 entry keeps its published name; anything else is named
+                // after its entry. With a constant here the two entries collided
+                // and rollup silently decided which one became main.js.
+                entryFileNames: (chunk) => (chunk.name === "main" ? "main.js" : "[name].js"),
                 chunkFileNames: "[name]-[hash].js", // Optional: Name for dynamic imports or shared chunks
                 assetFileNames: "[name]-[hash].[ext]", // Optional: Name for assets like CSS or images
             },

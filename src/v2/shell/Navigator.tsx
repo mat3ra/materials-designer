@@ -64,7 +64,7 @@ export function Navigator({ state, onSelect, onRemove, onFork, onNew }: Navigato
     const toggleSet = (setId: string) =>
         setOpenSets((open) => ({ ...open, [setId]: !open[setId] }));
 
-    function renderSetFolder(doc: MaterialDoc, depth: number) {
+    function renderSetFolder(doc: MaterialDoc, depth: number, open: boolean) {
         const setId = doc.setId as string;
         const set = state.sets.find((s) => s.id === setId);
         const members = state.materials.filter((m) => m.setId === setId);
@@ -74,7 +74,7 @@ export function Navigator({ state, onSelect, onRemove, onFork, onNew }: Navigato
                 key={`set-${setId}`}
                 role="treeitem"
                 aria-selected={holdsActive}
-                aria-expanded={false}
+                aria-expanded={open}
                 tabIndex={0}
                 className="md2-trow md2-setrow"
                 style={{ marginLeft: depth * 14 }}
@@ -84,7 +84,7 @@ export function Navigator({ state, onSelect, onRemove, onFork, onNew }: Navigato
                 }}
                 data-testid="set-folder"
             >
-                <span className="md2-twist">▸</span>
+                <span className="md2-twist">{open ? "▾" : "▸"}</span>
                 <span className="md2-swatch" />
                 <span className="md2-tname">{set?.label ?? "Set"}</span>
                 <span className="md2-setcount">{members.length}</span>
@@ -168,11 +168,20 @@ export function Navigator({ state, onSelect, onRemove, onFork, onNew }: Navigato
             </div>
             <div className="md2-tree" role="tree">
                 {visible.map(({ doc, depth }) => {
-                    const collapsed = doc.setId && !openSets[doc.setId] && !query;
-                    if (collapsed) {
+                    // A set always shows its folder row (on its first member),
+                    // so an expanded set can be folded back up again; the
+                    // members follow only while it is open.
+                    if (doc.setId && !query) {
                         const members = state.materials.filter((m) => m.setId === doc.setId);
-                        // One folder row per set: render it on the first member only.
-                        return members[0]?.id === doc.id ? renderSetFolder(doc, depth) : null;
+                        const isFirst = members[0]?.id === doc.id;
+                        const open = Boolean(openSets[doc.setId]);
+                        if (!open) return isFirst ? renderSetFolder(doc, depth, false) : null;
+                        return (
+                            <React.Fragment key={`set-member-${doc.id}`}>
+                                {isFirst && renderSetFolder(doc, depth, true)}
+                                {renderMaterial(doc, depth + 1)}
+                            </React.Fragment>
+                        );
                     }
                     return renderMaterial(doc, depth);
                 })}

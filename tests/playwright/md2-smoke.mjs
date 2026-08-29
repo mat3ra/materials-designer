@@ -19,7 +19,13 @@ function check(name, ok, detail = "") {
     console.log(`${ok ? "PASS" : "FAIL"}  ${name}${detail ? ` — ${detail}` : ""}`);
 }
 
-const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium", args: ["--no-sandbox", "--use-gl=swiftshader"] });
+// Use Playwright's managed browser unless one is pinned by the environment,
+// so this runs on CI and on a developer's machine, not just where it was written.
+const executablePath = process.env.MD2_CHROMIUM || undefined;
+const browser = await chromium.launch({
+    ...(executablePath ? { executablePath } : {}),
+    args: ["--no-sandbox", "--use-gl=swiftshader"],
+});
 const page = await browser.newPage({ viewport: { width: 1600, height: 950 } });
 const errors = [];
 page.on("pageerror", (e) => errors.push(String(e)));
@@ -241,6 +247,61 @@ check(
     importedChip,
 );
 await page.screenshot({ path: `${SHOTS}/12-import-export.png` });
+
+// --- regressions found by review ------------------------------------------
+// A drag that leaves without dropping must not leave a full-screen overlay
+// covering the app forever.
+const overlayShown = await page.evaluate(() => {
+    const app = document.querySelector(".md2-app");
+    const dt = new DataTransfer();
+    const fire = (type) => app.dispatchEvent(new DragEvent(type, { bubbles: true, dataTransfer: dt }));
+    // A real DataTransfer with no files still reports the Files type while a
+    // drag is in flight, which is what the handler keys on.
+    Object.defineProperty(dt, "types", { value: ["Files"] });
+    fire("dragenter");
+    fire("dragover");
+    return document.querySelectorAll('[data-testid="dropzone"]').length;
+});
+await page.evaluate(() => {
+    const app = document.querySelector(".md2-app");
+    const dt = new DataTransfer();
+    Object.defineProperty(dt, "types", { value: ["Files"] });
+    app.dispatchEvent(new DragEvent("dragleave", { bubbles: true, dataTransfer: dt }));
+});
+await page.waitForTimeout(300);
+check(
+    "a cancelled drag dismisses its overlay",
+    overlayShown === 1 && (await page.getByTestId("dropzone").count()) === 0,
+    `overlay while dragging: ${overlayShown}, after leaving: ${await page.getByTestId("dropzone").count()}`,
+);
+
+// The hamburger must be able to close the menu it opened.
+await page.getByTestId("app-menu-button").click();
+await page.waitForSelector('[data-testid="app-menu"]');
+await page.getByTestId("app-menu-button").click();
+await page.waitForTimeout(400);
+check("the app menu toggles shut from its own button", (await page.getByTestId("app-menu").count()) === 0);
+
+// An expanded set must be collapsible again.
+await page.keyboard.press("Control+k");
+await page.waitForSelector(".md2-catalog");
+await page.getByRole("button", { name: /Combinatorial set/i }).first().click();
+await page.waitForSelector(".md2-panel");
+const seed2 = await page.getByLabel("Combinatorial basis in XYZ format").inputValue();
+await page.getByLabel("Combinatorial basis in XYZ format").fill(seed2.replace(/^(\s*)(\w+)/m, "$1$2/Ge"));
+await page.waitForTimeout(400);
+await page.getByRole("button", { name: /^Apply/i }).click();
+await page.waitForTimeout(1500);
+await page.getByTestId("set-folder").first().click();
+await page.waitForTimeout(500);
+const expandedFolders = await page.getByTestId("set-folder").count();
+await page.getByTestId("set-folder").first().click();
+await page.waitForTimeout(500);
+check(
+    "an expanded set can be folded back up",
+    expandedFolders === 1 && (await page.getByTestId("set-folder").count()) === 1,
+    `folder visible while expanded: ${expandedFolders}`,
+);
 
 // --- light theme -----------------------------------------------------------
 await page.getByRole("button", { name: /toggle theme/i }).click();

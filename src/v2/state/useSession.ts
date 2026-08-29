@@ -9,7 +9,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { clear as clearStorage, load, save } from "./persist";
+import { type PersistedSession, clear as clearStorage, load, save } from "./persist";
 import { resolve } from "./replay";
 import {
     type RecordOptions,
@@ -70,14 +70,43 @@ export interface UseSession {
 }
 
 export function useSession(): UseSession {
-    const [restored] = useState(() => load());
-    const [state, setState] = useState<SessionState>(() => createInitialState(restored?.materials));
-    const [sessionName, setSessionName] = useState(restored?.name ?? "Untitled session");
-    const [savedAt, setSavedAt] = useState<number | null>(restored?.savedAt ?? null);
-    const [restoredFrom, setRestoredFrom] = useState<string | null>(
-        restored ? new Date(restored.savedAt).toLocaleString() : null,
+    // A stored session is only usable if it still replays: a dependency bump can
+    // leave an operation unreplayable, and rendering an unresolvable material
+    // would white-screen the app on every load with no way back. Check before
+    // adopting it, and fall back to a fresh session with an explanation.
+    const [restored] = useState<(PersistedSession & { unusable?: string }) | null>(() => {
+        const payload = load();
+        if (!payload) return null;
+        try {
+            payload.materials.forEach((doc) => resolve(doc));
+            return payload;
+        } catch (e) {
+            return { ...payload, unusable: e instanceof Error ? e.message : String(e) };
+        }
+    });
+    const usable = Boolean(restored && !restored.unusable);
+    const [state, setState] = useState<SessionState>(() =>
+        restored && usable
+            ? createInitialState(restored.materials, {
+                  sets: restored.sets,
+                  activeId: restored.activeId,
+              })
+            : createInitialState(),
     );
-    const [error, setError] = useState<string | null>(null);
+    const [sessionName, setSessionName] = useState(
+        restored && usable ? restored.name : "Untitled session",
+    );
+    const [savedAt, setSavedAt] = useState<number | null>(
+        restored && usable ? restored.savedAt : null,
+    );
+    const [restoredFrom, setRestoredFrom] = useState<string | null>(
+        restored && usable ? new Date(restored.savedAt).toLocaleString() : null,
+    );
+    const [error, setError] = useState<string | null>(
+        restored && !usable
+            ? `Your saved session could not be reopened (${restored.unusable}), so this is a fresh one. The saved data is untouched in storage.`
+            : null,
+    );
     const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     // Autosave on idle. Restoring silently would be worse than not restoring —

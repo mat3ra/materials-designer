@@ -61,7 +61,9 @@ function copyOf(material: Material): Material {
     return new Material(material.toJSON());
 }
 
-function determinant(m: Matrix3X3Schema): number {
+/** Exported so the supercell panel gates Apply on the same number the
+ *  forecast scales by — two copies of this formula could drift apart. */
+export function determinant(m: Matrix3X3Schema): number {
     return (
         m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) -
         m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0]) +

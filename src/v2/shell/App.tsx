@@ -7,7 +7,7 @@
  * assistant all read the same record, so no surface can hold private history.
  */
 import type Material from "@mat3ra/made/dist/js/Material";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { CatalogLite, PANELS } from "../panels";
 import { exportMaterials, readFiles } from "../state/io";
@@ -48,6 +48,8 @@ export function App() {
     const [notice, setNotice] = useState<string | null>(null);
     const [menuOpen, setMenuOpen] = useState(false);
     const [dragging, setDragging] = useState(false);
+    /** Nested dragenter/dragleave pairs; the overlay hides only at zero. */
+    const dragDepth = useRef(0);
     const [panelType, setPanelType] = useState<string | null>(null);
     /** Set while re-editing a step already in the timeline. */
     const [editingStep, setEditingStep] = useState<number | null>(null);
@@ -192,6 +194,16 @@ export function App() {
     const panel = panelType ? PANELS[panelType] : undefined;
     const PanelComponent = panel?.Component;
 
+    /**
+     * An edit is configured against the state the step originally ran on.
+     * Memoised: replay() is uncached, and a fresh object identity on every
+     * render resets panels that re-initialise when the material changes.
+     */
+    const editBaseMaterial = useMemo(
+        () => (editingStep === null ? null : replay(session.activeDoc.log, editingStep)),
+        [editingStep, session.activeDoc.log],
+    );
+
     /** Panels that are part of the shell rather than the numeric-parameter kit. */
     function renderShellPanel() {
         if (panelType === "standard-library") {
@@ -245,13 +257,7 @@ export function App() {
             return (
                 <div className="md2-inspector">
                     <PanelComponent
-                        material={
-                            // An edit is configured against the state the step
-                            // originally ran on, not against the current tip.
-                            editing
-                                ? replay(session.activeDoc.log, editingStep as number)
-                                : session.active.material
-                        }
+                        material={editBaseMaterial ?? session.active.material}
                         initialParams={
                             editing
                                 ? session.activeDoc.log[editingStep as number]?.params
@@ -281,20 +287,29 @@ export function App() {
         <div
             className="md2-app"
             onDragOver={(event) => {
-                if (event.dataTransfer.types.includes("Files")) {
-                    event.preventDefault();
-                    setDragging(true);
-                }
+                if (!event.dataTransfer.types.includes("Files")) return;
+                event.preventDefault();
+                setDragging(true);
             }}
             onDragLeave={(event) => {
-                if (event.currentTarget === event.target) setDragging(false);
+                // Track depth rather than trusting the target: the overlay
+                // itself becomes the event target the moment it appears, so a
+                // drag that leaves the window without dropping would otherwise
+                // leave the overlay up forever, blocking the whole app.
+                dragDepth.current = Math.max(0, dragDepth.current - 1);
+                if (dragDepth.current === 0) setDragging(false);
+            }}
+            onDragEnter={(event) => {
+                if (event.dataTransfer.types.includes("Files")) dragDepth.current += 1;
             }}
             onDrop={(event) => {
-                event.preventDefault();
+                dragDepth.current = 0;
                 setDragging(false);
-                if (event.dataTransfer.files?.length) {
-                    importFiles(event.dataTransfer.files).catch(() => setNotice("Import failed."));
-                }
+                // Only claim file drops; text dropped into a field is the
+                // browser's to handle.
+                if (!event.dataTransfer.files?.length) return;
+                event.preventDefault();
+                importFiles(event.dataTransfer.files).catch(() => setNotice("Import failed."));
             }}
         >
             <WorkspaceBar
@@ -327,6 +342,7 @@ export function App() {
             )}
             {menuOpen && (
                 <AppMenu
+                    anchorSelector='[data-testid="app-menu-button"]'
                     materialCount={session.state.materials.length}
                     onImport={() => {
                         setMenuOpen(false);
@@ -337,7 +353,7 @@ export function App() {
                 />
             )}
             {dragging && (
-                <div className="md2-dropzone" data-testid="dropzone">
+                <div className="md2-dropzone" data-testid="dropzone" aria-hidden="true">
                     Drop JSON or POSCAR files to import
                 </div>
             )}

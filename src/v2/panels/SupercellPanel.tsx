@@ -6,8 +6,10 @@
  * the forecast: the registry's closed form scales the atom count by |det|, so
  * the panel can say "8 -> 72 atoms" (and refuse a 20x20x20) before Apply.
  */
+import type { Matrix3X3Schema } from "@mat3ra/esse/dist/js/types";
 import React, { useMemo, useState } from "react";
 
+import { determinant as matrixDeterminant } from "../state/registry";
 import type { Forecast, OperationPanelProps } from "./shared";
 import {
     formatNumber,
@@ -37,14 +39,6 @@ function toCells(matrix: number[][]): string[] {
         const value = matrix[Math.floor(index / 3)]?.[index % 3];
         return typeof value === "number" ? String(value) : fallback;
     });
-}
-
-function determinantOf(m: number[][]): number {
-    return (
-        m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) -
-        m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0]) +
-        m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0])
-    );
 }
 
 export interface SupercellParams {
@@ -85,7 +79,7 @@ export function SupercellPanel({
         }
         const values = numbers as number[];
         const matrix = [values.slice(0, 3), values.slice(3, 6), values.slice(6, 9)];
-        const det = determinantOf(matrix);
+        const det = matrixDeterminant(matrix as Matrix3X3Schema);
         return {
             params: { matrix } as SupercellParams,
             // v1's only rule, kept verbatim including the message.

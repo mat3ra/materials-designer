@@ -135,15 +135,22 @@ function SelectionTab({
     selection: SelectionModel;
     onApply: (type: string, params: unknown) => void;
 }) {
+    // Read and write in the same units. getBasisAsXyz() emits whatever the
+    // basis currently holds, so writing back with a hardcoded "crystal" would
+    // reinterpret angstroms as fractions and destroy a cartesian structure.
+    const units = (material.basis as { units?: "crystal" | "cartesian" })?.units ?? "crystal";
     const current = material.getBasisAsXyz();
     const [draft, setDraft] = useState(current);
     const [dirty, setDirty] = useState(false);
 
     // Follow the material unless the user is mid-edit, so applying an operation
-    // elsewhere does not silently discard their typing.
+    // elsewhere does not silently discard their typing. A successful apply
+    // changes `current`, which clears the dirty flag; a rejected one does not,
+    // so the draft survives to be corrected.
     useEffect(() => {
-        if (!dirty) setDraft(current);
-    }, [current, dirty]);
+        setDraft(current);
+        setDirty(false);
+    }, [current]);
 
     const lines = draft.split("\n");
 
@@ -209,8 +216,10 @@ function SelectionTab({
                         className="md2-btn md2-btn-primary"
                         disabled={!dirty}
                         onClick={() => {
-                            onApply("set-basis", { xyz: draft, units: "crystal" });
-                            setDirty(false);
+                            // Keep the draft dirty: if the operation is rejected
+                            // the effect below must not overwrite what the user
+                            // typed with the unchanged material's basis.
+                            onApply("set-basis", { xyz: draft, units });
                         }}
                     >
                         Apply — adds 1 step
