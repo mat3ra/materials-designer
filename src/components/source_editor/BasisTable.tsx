@@ -11,16 +11,28 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
-import PropTypes from "prop-types";
 import React from "react";
 
+import type { MDMaterial } from "../../MDMaterial";
 import { theme } from "../../settings";
 
-const AXES = ["x", "y", "z"];
+const AXES = ["x", "y", "z"] as const;
 const COORDINATE_PRECISION = 6;
 
+/**
+ * One editable site. Deliberately not `AtomicCoordinateSchema` and friends: this is a keystroke
+ * buffer, so a coordinate holds the raw string while its cell has focus and only becomes a number
+ * on blur. Constraints are stored as "is free", which is how the checkboxes read.
+ */
+export interface BasisRow {
+    key: string;
+    element: string;
+    coordinates: (number | string)[];
+    constraints: boolean[];
+}
+
 /** One row per site, read out of the material's basis. */
-export function rowsFromMaterial(material) {
+export function rowsFromMaterial(material: MDMaterial): BasisRow[] {
     const basis = material.getBasis();
     const constraintsByIndex = new Map(
         (basis.constraints || []).map(({ id, value }) => [id, value]),
@@ -42,7 +54,7 @@ export function rowsFromMaterial(material) {
  * text view share one mutation path. Constraint columns are only written when a site is actually
  * constrained, keeping the text identical to what the app produces today for free bases.
  */
-export function rowsToXyz(rows) {
+export function rowsToXyz(rows: BasisRow[]): string {
     const anyConstrained = rows.some(({ constraints }) => constraints.some((free) => !free));
     return `${rows
         .map(({ element, coordinates, constraints }) => {
@@ -57,32 +69,43 @@ export function rowsToXyz(rows) {
         .join("\n")}\n`;
 }
 
+export interface BasisTableProps {
+    material: MDMaterial;
+    onChange: (xyz: string) => void;
+}
+
+interface BasisTableState {
+    rows: BasisRow[];
+    /** `<row key>-<axis>` of the cell being typed in, or null when nothing has focus. */
+    editingKey: string | null;
+}
+
 /**
  * Spreadsheet view of the basis: the same state as the XYZ text, but with one input per value so a
  * single coordinate can be corrected without hand-editing a text buffer.
  */
-class BasisTable extends React.Component {
-    constructor(props) {
+class BasisTable extends React.Component<BasisTableProps, BasisTableState> {
+    constructor(props: BasisTableProps) {
         super(props);
         this.state = { rows: rowsFromMaterial(props.material), editingKey: null };
     }
 
-    // eslint-disable-next-line no-unused-vars
-    UNSAFE_componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps: BasisTableProps) {
         const { material } = this.props;
+        const { editingKey } = this.state;
         // Do not pull the material back in mid-keystroke: it would reformat the cell being typed.
-        if (material !== nextProps.material && this.state.editingKey === null) {
+        if (material !== nextProps.material && editingKey === null) {
             this.setState({ rows: rowsFromMaterial(nextProps.material) });
         }
     }
 
-    commit = (rows) => {
+    commit = (rows: BasisRow[]) => {
         const { onChange } = this.props;
         this.setState({ rows });
         onChange(rowsToXyz(rows));
     };
 
-    updateRow = (index, changes, { commit = true } = {}) => {
+    updateRow = (index: number, changes: Partial<BasisRow>, { commit = true } = {}) => {
         const { rows } = this.state;
         const next = rows.map((row, i) => (i === index ? { ...row, ...changes } : row));
         if (commit) this.commit(next);
@@ -102,13 +125,13 @@ class BasisTable extends React.Component {
         ]);
     };
 
-    removeRow = (index) => {
+    removeRow = (index: number) => {
         const { rows } = this.state;
         if (rows.length <= 1) return;
         this.commit(rows.filter((_, i) => i !== index));
     };
 
-    renderCoordinateCell(row, rowIndex, axis) {
+    renderCoordinateCell(row: BasisRow, rowIndex: number, axis: number) {
         const { editingKey } = this.state;
         const isEditing = editingKey === `${row.key}-${axis}`;
         const raw = row.coordinates[axis];
@@ -184,7 +207,7 @@ class BasisTable extends React.Component {
                                                 { commit: false },
                                             )
                                         }
-                                        onBlur={() => this.commit(this.state.rows)}
+                                        onBlur={() => this.commit(rows)}
                                     />
                                 </TableCell>
                                 {AXES.map((_, axis) =>
@@ -244,11 +267,5 @@ class BasisTable extends React.Component {
         );
     }
 }
-
-BasisTable.propTypes = {
-    // eslint-disable-next-line react/forbid-prop-types
-    material: PropTypes.object.isRequired,
-    onChange: PropTypes.func.isRequired,
-};
 
 export default BasisTable;

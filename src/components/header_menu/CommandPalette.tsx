@@ -1,3 +1,4 @@
+import type { MaterialSchema } from "@mat3ra/esse/dist/js/types";
 import HexIcon from "@mui/icons-material/Hexagon";
 import SearchIcon from "@mui/icons-material/Search";
 import UploadIcon from "@mui/icons-material/Upload";
@@ -11,15 +12,39 @@ import ListItemText from "@mui/material/ListItemText";
 import ListSubheader from "@mui/material/ListSubheader";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import PropTypes from "prop-types";
 import React from "react";
 
+import type { MDMaterial } from "../../MDMaterial";
 import { theme } from "../../settings";
-import { formatShortcut } from "./actions";
+import { type Action, formatShortcut } from "./actions";
 
 const MAX_PER_GROUP = 6;
 
-function matches(query, text) {
+/**
+ * A row in the palette. Wider than {@link Action} in two ways: `group` also carries the headings
+ * for materials and Standata, and `hint` shows a formula under a material's name.
+ */
+export interface PaletteEntry {
+    id: string;
+    kind: "action" | "material" | "standata";
+    group: string;
+    label: string;
+    icon: React.ReactElement;
+    hint?: string;
+    shortcut?: string;
+    run: () => void;
+}
+
+export interface BuildEntriesParams {
+    query: string;
+    actions: Action[];
+    materials: MDMaterial[];
+    standataConfigs: MaterialSchema[];
+    onGoToMaterial: (index: number) => void;
+    onImportStandata: (config: MaterialSchema) => void;
+}
+
+function matches(query: string, text?: string): boolean {
     return String(text || "")
         .toLowerCase()
         .includes(query);
@@ -37,9 +62,9 @@ export function buildEntries({
     standataConfigs,
     onGoToMaterial,
     onImportStandata,
-}) {
+}: BuildEntriesParams): PaletteEntry[] {
     const q = query.trim().toLowerCase();
-    const entries = [];
+    const entries: PaletteEntry[] = [];
 
     actions
         // An unavailable action is left out rather than greyed out: a palette is a place to reach
@@ -80,14 +105,30 @@ export function buildEntries({
     return entries;
 }
 
+export interface CommandPaletteProps {
+    open: boolean;
+    onClose: () => void;
+    actions: Action[];
+    materials: MDMaterial[];
+    /** Optional: `get entries` falls back to an empty list, so no defaultProps are needed. */
+    standataConfigs?: MaterialSchema[];
+    onGoToMaterial: (index: number) => void;
+    onImportStandata: (config: MaterialSchema) => void;
+}
+
+interface CommandPaletteState {
+    query: string;
+    activeIndex: number;
+}
+
 /** One searchable entry point over the actions, the session's materials, and Standata. */
-class CommandPalette extends React.Component {
-    constructor(props) {
+class CommandPalette extends React.Component<CommandPaletteProps, CommandPaletteState> {
+    constructor(props: CommandPaletteProps) {
         super(props);
         this.state = { query: "", activeIndex: 0 };
     }
 
-    componentDidUpdate(prevProps) {
+    componentDidUpdate(prevProps: CommandPaletteProps) {
         const { open } = this.props;
         if (open && !prevProps.open) {
             // eslint-disable-next-line react/no-did-update-set-state
@@ -95,7 +136,7 @@ class CommandPalette extends React.Component {
         }
     }
 
-    get entries() {
+    get entries(): PaletteEntry[] {
         const { actions, materials, standataConfigs, onGoToMaterial, onImportStandata } =
             this.props;
         const { query } = this.state;
@@ -103,19 +144,19 @@ class CommandPalette extends React.Component {
             query,
             actions,
             materials,
-            standataConfigs,
+            standataConfigs: standataConfigs || [],
             onGoToMaterial,
             onImportStandata,
         });
     }
 
-    runEntry = (entry) => {
+    runEntry = (entry?: PaletteEntry) => {
         const { onClose } = this.props;
         onClose();
         entry?.run?.();
     };
 
-    handleKeyDown = (event) => {
+    handleKeyDown = (event: React.KeyboardEvent) => {
         const { entries } = this;
         const { activeIndex } = this.state;
         if (event.key === "ArrowDown") {
@@ -134,7 +175,7 @@ class CommandPalette extends React.Component {
         const { open, onClose } = this.props;
         const { query, activeIndex } = this.state;
         const { entries } = this;
-        let lastGroup = null;
+        let lastGroup: string | null = null;
         return (
             <Dialog
                 open={open}
@@ -223,20 +264,5 @@ class CommandPalette extends React.Component {
         );
     }
 }
-
-CommandPalette.propTypes = {
-    open: PropTypes.bool.isRequired,
-    onClose: PropTypes.func.isRequired,
-    // eslint-disable-next-line react/forbid-prop-types
-    actions: PropTypes.array.isRequired,
-    // eslint-disable-next-line react/forbid-prop-types
-    materials: PropTypes.array.isRequired,
-    // eslint-disable-next-line react/forbid-prop-types
-    standataConfigs: PropTypes.array,
-    onGoToMaterial: PropTypes.func.isRequired,
-    onImportStandata: PropTypes.func.isRequired,
-};
-
-CommandPalette.defaultProps = { standataConfigs: [] };
 
 export default CommandPalette;

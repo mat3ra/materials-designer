@@ -1,7 +1,9 @@
+import type { MDMaterial } from "../../MDMaterial";
+
 /** Formula, atom count and lattice of the active material, for the status bar. */
-export function describeMaterial(material) {
+export function describeMaterial(material?: MDMaterial): { text: string } {
     if (!material) return { text: "—" };
-    const parts = [];
+    const parts: string[] = [];
     try {
         if (material.formula) parts.push(material.formula);
         const atomsCount = material.getBasis().elements.length;

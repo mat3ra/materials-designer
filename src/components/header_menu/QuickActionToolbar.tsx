@@ -8,11 +8,10 @@ import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import Toolbar from "@mui/material/Toolbar";
 import Tooltip from "@mui/material/Tooltip";
-import PropTypes from "prop-types";
 import React from "react";
 
 import { theme } from "../../settings";
-import { formatShortcut, TOOLBAR_ACTION_IDS } from "./actions";
+import { type Action, formatShortcut, TOOLBAR_ACTION_IDS } from "./actions";
 
 /**
  * Fixed so the panels below can subtract it. Kept in sync with `main.css`, which sizes the 3D
@@ -20,11 +19,21 @@ import { formatShortcut, TOOLBAR_ACTION_IDS } from "./actions";
  */
 export const QUICK_ACTIONS_HEIGHT = 38;
 
+/** The three panels, by the suffix of their `isVisible*` key on MaterialsDesigner's state. */
 const PANEL_TOGGLES = [
     { name: "ItemsList", label: "Materials list", icon: <ViewSidebarIcon fontSize="small" /> },
     { name: "SourceEditor", label: "Source editor", icon: <CodeIcon fontSize="small" /> },
     { name: "ThreeDEditorFullscreen", label: "3D viewer", icon: <ThreeDIcon fontSize="small" /> },
-];
+] as const;
+
+export type PanelName = typeof PANEL_TOGGLES[number]["name"];
+
+export interface QuickActionToolbarProps {
+    actions: Action[];
+    onOpenPalette: () => void;
+    onSectionVisibilityToggle: (name: PanelName) => void;
+    visibilityByName: Record<PanelName, boolean>;
+}
 
 /**
  * A slim row of the most-used actions under the menu bar, so the common operations cost one click
@@ -35,7 +44,7 @@ function QuickActionToolbar({
     onOpenPalette,
     onSectionVisibilityToggle,
     visibilityByName,
-}) {
+}: QuickActionToolbarProps) {
     const actionById = new Map(actions.map((action) => [action.id, action]));
     // The app always keeps one panel on screen. Rather than let the last toggle look live and do
     // nothing, grey it out and say why.
@@ -133,14 +142,5 @@ function QuickActionToolbar({
         </Toolbar>
     );
 }
-
-QuickActionToolbar.propTypes = {
-    // eslint-disable-next-line react/forbid-prop-types
-    actions: PropTypes.array.isRequired,
-    onOpenPalette: PropTypes.func.isRequired,
-    onSectionVisibilityToggle: PropTypes.func.isRequired,
-    // eslint-disable-next-line react/forbid-prop-types
-    visibilityByName: PropTypes.object.isRequired,
-};
 
 export default QuickActionToolbar;

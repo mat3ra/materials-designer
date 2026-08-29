@@ -13,6 +13,48 @@ import UndoIcon from "@mui/icons-material/Undo";
 import UploadIcon from "@mui/icons-material/Upload";
 import React from "react";
 
+/** Dialogs owned by MaterialsDesigner, which the materials list opens too. */
+export type SharedDialogName = "standata" | "upload";
+
+/** Dialogs owned by HeaderMenuToolbar's own state, addressed by state key. */
+export type LocalDialogKey =
+    | "showBoundaryConditionsDialog"
+    | "showCombinatorialDialog"
+    | "showExportMaterialsDialog"
+    | "showInterpolateDialog"
+    | "showJupyterLiteTransformation"
+    | "showSupercellDialog"
+    | "showSurfaceDialog";
+
+/** A "Mod+Shift+Z"-style descriptor. `Mod` is ⌘ on a Mac and Ctrl everywhere else. */
+export type Shortcut = `${string}+${string}`;
+
+/**
+ * One invocable command. Not a `DropdownAction` from cove: this carries a keyboard shortcut and a
+ * group used for palette headings, and is rendered as an icon button rather than a menu row.
+ */
+export interface Action {
+    id: string;
+    label: string;
+    group: "Edit" | "Input/Output" | "Advanced";
+    icon: React.ReactElement;
+    shortcut?: Shortcut;
+    run: () => void;
+    /** Greyed out on the toolbar, skipped by the shortcut handler, absent from the palette. */
+    disabled?: boolean;
+}
+
+export interface BuildActionsParams {
+    onUndo: () => void;
+    onRedo: () => void;
+    onClone: () => void;
+    onOpenDialog: (name: SharedDialogName) => void;
+    onUseConventionalCell: () => void;
+    openLocalDialog: (key: LocalDialogKey) => void;
+    canUndo?: boolean;
+    canRedo?: boolean;
+}
+
 /** Ids of the actions the quick-action toolbar shows, in order. `|` marks a separator. */
 export const TOOLBAR_ACTION_IDS = [
     "undo",
@@ -32,7 +74,7 @@ const isMac = () =>
     typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform || "");
 
 /** Renders a shortcut for the current platform: "Mod+Z" reads as ⌘Z or Ctrl+Z. */
-export function formatShortcut(shortcut) {
+export function formatShortcut(shortcut?: string): string {
     if (!shortcut) return "";
     return isMac()
         ? shortcut.replace("Mod+", "⌘").replace("Shift+", "⇧")
@@ -41,9 +83,8 @@ export function formatShortcut(shortcut) {
 
 /**
  * The single registry of invocable actions, shared by the quick-action toolbar, the keyboard
- * shortcuts and the command palette so the three can never drift. Each entry:
- * `{ id, label, group, icon, shortcut, run, disabled? }`. A `disabled` entry is greyed out on the
- * toolbar, skipped by the shortcut handler and left out of the palette.
+ * shortcuts and the command palette so the three can never drift. A `disabled` entry is greyed out
+ * on the toolbar, skipped by the shortcut handler and left out of the palette.
  */
 export function buildActions({
     onUndo,
@@ -54,7 +95,7 @@ export function buildActions({
     openLocalDialog,
     canUndo = true,
     canRedo = true,
-}) {
+}: BuildActionsParams): Action[] {
     return [
         {
             id: "undo",
@@ -159,19 +200,23 @@ export function buildActions({
  * Whether a keyboard shortcut should be ignored because the user is typing. The basis editor and
  * the name fields have their own undo stacks, and stealing Mod+Z from them would lose text.
  */
-export function isTypingTarget(target) {
-    if (!target) return false;
-    const tag = target.tagName;
+export function isTypingTarget(target: EventTarget | null): boolean {
+    // Duck-typed rather than `instanceof HTMLElement`: an element from another document (the
+    // JupyterLite iframe) belongs to a different realm and would fail the instance check.
+    const element = target as Partial<
+        Pick<HTMLElement, "tagName" | "isContentEditable" | "closest">
+    > | null;
+    if (!element) return false;
     return (
-        tag === "INPUT" ||
-        tag === "TEXTAREA" ||
-        target.isContentEditable === true ||
-        Boolean(target.closest?.(".cm-editor"))
+        element.tagName === "INPUT" ||
+        element.tagName === "TEXTAREA" ||
+        element.isContentEditable === true ||
+        Boolean(element.closest?.(".cm-editor"))
     );
 }
 
 /** Matches a keyboard event against a "Mod+Shift+Z"-style descriptor. */
-export function matchesShortcut(event, shortcut) {
+export function matchesShortcut(event: KeyboardEvent, shortcut?: string): boolean {
     if (!shortcut) return false;
     const parts = shortcut.split("+");
     const key = parts[parts.length - 1].toLowerCase();

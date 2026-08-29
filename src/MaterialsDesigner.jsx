@@ -1,15 +1,16 @@
+import "allotment/dist/style.css";
+
 import IconByName from "@mat3ra/cove/dist/mui/components/icon/IconByName";
 import FullscreenComponentMixin from "@mat3ra/cove/dist/other/fullscreen";
 import ThemeProvider from "@mat3ra/cove/dist/theme/provider";
 // eslint-disable-next-line import/no-unresolved
 import { MaterialStandata } from "@mat3ra/standata";
-import { Allotment } from "allotment";
-import "allotment/dist/style.css";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
 import ScopedCssBaseline from "@mui/material/ScopedCssBaseline";
+import { Allotment } from "allotment";
 import setClass from "classnames";
 import { mix } from "mixwith";
 import PropTypes from "prop-types";

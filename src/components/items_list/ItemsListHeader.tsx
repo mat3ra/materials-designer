@@ -1,3 +1,4 @@
+import type { DropdownAction } from "@mat3ra/cove/dist/mui/components/dropdown/Dropdown";
 import Dropdown from "@mat3ra/cove/dist/mui/components/dropdown/Dropdown";
 import IconByName from "@mat3ra/cove/dist/mui/components/icon/IconByName";
 import AddIcon from "@mui/icons-material/Add";
@@ -11,16 +12,29 @@ import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
-import PropTypes from "prop-types";
 import React from "react";
 
 import { theme } from "../../settings";
+
+export interface ItemsListHeaderProps {
+    filter: string;
+    onFilterChange: (value: string) => void;
+    shownCount: number;
+    totalCount: number;
+    addActions: DropdownAction[];
+}
 
 /**
  * Title, count, filter and the "add material" menu. Deliberately rendered outside the list's `ul`:
  * the Cypress widgets address items as `ul > div:nth-of-type(N) li`.
  */
-function ItemsListHeader({ filter, onFilterChange, shownCount, totalCount, addActions }) {
+function ItemsListHeader({
+    filter,
+    onFilterChange,
+    shownCount,
+    totalCount,
+    addActions,
+}: ItemsListHeaderProps) {
     return (
         <Box
             className="materials-designer-items-list-header"
@@ -100,17 +114,16 @@ function ItemsListHeader({ filter, onFilterChange, shownCount, totalCount, addAc
     );
 }
 
-ItemsListHeader.propTypes = {
-    filter: PropTypes.string.isRequired,
-    onFilterChange: PropTypes.func.isRequired,
-    shownCount: PropTypes.number.isRequired,
-    totalCount: PropTypes.number.isRequired,
-    // eslint-disable-next-line react/forbid-prop-types
-    addActions: PropTypes.array.isRequired,
-};
-
 /** Actions for the "+" menu, in the shape cove's Dropdown expects. */
-export function buildAddActions({ onClone, onImport, onUpload }) {
+export function buildAddActions({
+    onClone,
+    onImport,
+    onUpload,
+}: {
+    onClone: () => void;
+    onImport: () => void;
+    onUpload: () => void;
+}): DropdownAction[] {
     return [
         {
             id: "clone-active-material",

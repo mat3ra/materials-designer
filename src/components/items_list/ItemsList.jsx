@@ -18,8 +18,8 @@ import { closeSnackbar, enqueueSnackbar } from "notistack";
 import PropTypes from "prop-types";
 import React from "react";
 
-import { isTypingTarget } from "../header_menu/actions";
 import { theme } from "../../settings";
+import { isTypingTarget } from "../header_menu/actions";
 import ItemsListHeader, { buildAddActions } from "./ItemsListHeader";
 
 /** Short structural facts for a list row: lattice type and site count. */

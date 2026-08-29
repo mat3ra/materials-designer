@@ -5,8 +5,8 @@ import Typography from "@mui/material/Typography";
 import PropTypes from "prop-types";
 import React from "react";
 
-import { formatShortcut } from "../header_menu/actions";
 import { theme } from "../../settings";
+import { formatShortcut } from "../header_menu/actions";
 import { describeMaterial } from "./materialInfo";
 
 /**
