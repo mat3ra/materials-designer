@@ -103,7 +103,9 @@ export function materialsUpdateOne(
     action: { material: MDMaterial; index?: number },
 ): MDState {
     const materials = state.materials.slice(); // get copy of array
-    const index = action.index || state.index; // not passing index when modifying currently displayed material
+    // `??` rather than `||`: index 0 is a real index, and would otherwise fall through to the
+    // active one. Omitting it entirely still means "the material currently displayed".
+    const index = action.index ?? state.index;
     const material = action.material.clone(); // clone material to assert props re-render
     // TODO: consider adjusting the logic to avoid expensive cloning procedure below
     materials[index] = material;

@@ -1,5 +1,6 @@
 /* eslint-disable react/sort-comp */
 import IconByName from "@mat3ra/cove/dist/mui/components/icon/IconByName";
+import type { MaterialSchema, Matrix3X3Schema } from "@mat3ra/esse/dist/js/types";
 // TODO: wave.js removed ThreejsEditorModal in favor of an in-viewer edit mode
 // (InteractiveStructureEditorMixin); re-wire this menu to that once materials-designer
 // adopts it. See https://github.com/mat3ra/wave.js/commit/751a7e3.
@@ -38,10 +39,11 @@ import Stack from "@mui/material/Stack";
 import Toolbar from "@mui/material/Toolbar";
 import Tooltip from "@mui/material/Tooltip";
 import setClass from "classnames";
-import PropTypes from "prop-types";
 import React from "react";
 
+import type { ImportModalProps } from "../../MaterialsDesignerContainer";
 import { MDMaterial } from "../../MDMaterial";
+import type { BoundaryConditionsType, MDState, SurfaceConfig } from "../../reducers/Material";
 import { BoundaryConditionsDialog } from "../3d_editor/advanced_geometry/BoundaryConditionsDialog";
 import CombinatorialBasisDialog from "../3d_editor/advanced_geometry/CombinatorialBasisDialog";
 import InterpolateBasesDialog from "../3d_editor/advanced_geometry/InterpolateBasesDialog";
@@ -49,13 +51,65 @@ import JupyterLiteTransformation from "../3d_editor/advanced_geometry/python_tra
 import SupercellDialog from "../3d_editor/advanced_geometry/SupercellDialog";
 import SurfaceDialog from "../3d_editor/advanced_geometry/SurfaceDialog";
 import { ButtonActivatedMenuMaterialUI } from "../include/material-ui/ButtonActivatedMenu";
-import { buildActions, isTypingTarget, matchesShortcut } from "./actions";
+import {
+    type LocalDialogKey,
+    type SharedDialogName,
+    buildActions,
+    isTypingTarget,
+    matchesShortcut,
+} from "./actions";
 import CommandPalette from "./CommandPalette";
 import ExportActionDialog from "./ExportActionDialog";
-import QuickActionToolbar from "./QuickActionToolbar";
+import QuickActionToolbar, { type SectionName } from "./QuickActionToolbar";
 
-class HeaderMenuToolbar extends React.Component {
-    constructor(config) {
+export interface HeaderMenuToolbarProps {
+    mdState: MDState;
+    className?: string;
+    maxCombinatorialBasesCount?: number;
+    defaultMaterialsSet: MaterialSchema[];
+
+    onUpdate: (material: MDMaterial, index?: number) => void;
+    onUndo: () => void;
+    onRedo: () => void;
+    /** Undefined reads as "available": embedders that do not track history keep working controls. */
+    canUndo?: boolean;
+    canRedo?: boolean;
+    onReset: () => void;
+    onClone: () => void;
+    onToggleIsNonPeriodic: () => void;
+    onAdd: (materials: MDMaterial | MDMaterial[], addAtIndex?: boolean) => void;
+    onExport: (format: "json" | "poscar", useMultiple: boolean) => void;
+    onExit?: () => void;
+    onGenerateSupercell: (matrix: Matrix3X3Schema) => void;
+    onGenerateSurface: (config: SurfaceConfig) => void;
+    onSetBoundaryConditions: (config: {
+        boundaryType: BoundaryConditionsType;
+        boundaryOffset: number;
+    }) => void;
+    onSectionVisibilityToggle: (name: SectionName) => void;
+    /** Opens a dialog owned by MaterialsDesigner: "standata" or "upload". */
+    onOpenDialog: (name: SharedDialogName) => void;
+    /** Selects a material by index, used by the command palette's "go to" entries. */
+    onItemClick: (index: number) => void;
+
+    isVisibleItemsList: boolean;
+    isVisibleSourceEditor: boolean;
+    isVisibleThreeDEditorFullscreen: boolean;
+
+    // Both are fire-and-effect: the host opens its own modal, and the return value
+    // is discarded - these are wired straight to a MenuItem onClick.
+    openImportModal?: (params: ImportModalProps) => void;
+    closeImportModal?: () => void;
+    openSaveActionDialog?: ((state: MDState) => void) | null;
+
+    children?: React.ReactNode;
+}
+
+/** Every dialog this component owns, plus the palette, keyed by the state flag that opens it. */
+type HeaderMenuToolbarState = Record<LocalDialogKey, boolean> & { showCommandPalette: boolean };
+
+class HeaderMenuToolbar extends React.Component<HeaderMenuToolbarProps, HeaderMenuToolbarState> {
+    constructor(config: HeaderMenuToolbarProps) {
         super(config);
         this.state = {
             showSupercellDialog: false,
@@ -80,8 +134,12 @@ class HeaderMenuToolbar extends React.Component {
         window.removeEventListener("keydown", this.handleShortcut);
     }
 
-    /** Opens a dialog owned by this component, by state key. */
-    openLocalDialog = (stateKey) => this.setState({ [stateKey]: true });
+    /**
+     * Opens a dialog owned by this component, by state key. The cast is the standard escape for a
+     * computed `setState` key: TypeScript widens `{ [stateKey]: true }` to an index signature.
+     */
+    openLocalDialog = (stateKey: LocalDialogKey) =>
+        this.setState({ [stateKey]: true } as Pick<HeaderMenuToolbarState, LocalDialogKey>);
 
     get actions() {
         const { onUndo, onRedo, onClone, onOpenDialog, canUndo, canRedo } = this.props;
@@ -97,7 +155,7 @@ class HeaderMenuToolbar extends React.Component {
         });
     }
 
-    handleShortcut = (event) => {
+    handleShortcut = (event: KeyboardEvent) => {
         if (matchesShortcut(event, "Mod+K")) {
             event.preventDefault();
             this.setState((state) => ({ showCommandPalette: !state.showCommandPalette }));
@@ -169,8 +227,17 @@ class HeaderMenuToolbar extends React.Component {
     }
 
     renderEditMenu() {
-        const { onUndo, onRedo, onReset, onClone, onToggleIsNonPeriodic, canUndo, canRedo } =
-            this.props;
+        const {
+            onUndo,
+            onRedo,
+            onReset,
+            onClone,
+            onToggleIsNonPeriodic,
+            // Undefined reads as "available": embedders that do not track history keep working
+            // controls, which is what defaultProps used to guarantee.
+            canUndo = true,
+            canRedo = true,
+        } = this.props;
         return (
             <ButtonActivatedMenuMaterialUI title="Edit">
                 <MenuItem disabled={!canUndo} onClick={onUndo}>
@@ -332,7 +399,7 @@ class HeaderMenuToolbar extends React.Component {
         );
     }
 
-    openPageByURL = (url) => {
+    openPageByURL = (url: string) => {
         window.open(url, "_blank");
     };
 
@@ -373,7 +440,7 @@ class HeaderMenuToolbar extends React.Component {
                     </Tooltip>
                 ) : (
                     <Tooltip title="All changes applied">
-                        <CheckIcon color="success" size={50} />
+                        <CheckIcon color="success" />
                     </Tooltip>
                 )}
             </Stack>
@@ -386,9 +453,9 @@ class HeaderMenuToolbar extends React.Component {
             ? openImportModal({
                   modalId: "defaultImportModalDialog",
                   show: true,
-                  onSubmit: (materials) => {
+                  onSubmit: (materials: MDMaterial[]) => {
                       onAdd(materials);
-                      closeImportModal();
+                      closeImportModal?.();
                   },
                   onClose: closeImportModal,
                   defaultMaterialsSet,
@@ -449,7 +516,7 @@ class HeaderMenuToolbar extends React.Component {
             onGenerateSupercell,
             onGenerateSurface,
             onSetBoundaryConditions,
-            maxCombinatorialBasesCount,
+            maxCombinatorialBasesCount = 10,
             defaultMaterialsSet,
             onItemClick,
             onSectionVisibilityToggle,
@@ -542,8 +609,8 @@ class HeaderMenuToolbar extends React.Component {
                     backdropColor="dark"
                     material={material}
                     onHide={() => this.setState({ showCombinatorialDialog: false })}
-                    onSubmit={(...args) => {
-                        onAdd(...args);
+                    onSubmit={(newMaterials: MDMaterial[]) => {
+                        onAdd(newMaterials);
                         this.setState({ showCombinatorialDialog: false });
                     }}
                 />
@@ -556,8 +623,8 @@ class HeaderMenuToolbar extends React.Component {
                     material={material}
                     material2={materials[index + 1 === materials.length ? 0 : index + 1]}
                     onHide={() => this.setState({ showInterpolateDialog: false })}
-                    onSubmit={(...args) => {
-                        onAdd(...args);
+                    onSubmit={(newMaterials: MDMaterial[], addAtIndex?: boolean) => {
+                        onAdd(newMaterials, addAtIndex);
                         this.setState({ showInterpolateDialog: false });
                     }}
                 />
@@ -576,62 +643,5 @@ class HeaderMenuToolbar extends React.Component {
         );
     }
 }
-
-HeaderMenuToolbar.propTypes = {
-    mdState: PropTypes.shape({
-        index: PropTypes.number,
-        isLoading: PropTypes.bool,
-        materials: PropTypes.arrayOf(PropTypes.object),
-        updatedIndices: PropTypes.arrayOf(PropTypes.number),
-    }).isRequired,
-
-    className: PropTypes.string,
-
-    maxCombinatorialBasesCount: PropTypes.number,
-    // eslint-disable-next-line react/forbid-prop-types
-    defaultMaterialsSet: PropTypes.array.isRequired,
-
-    onUpdate: PropTypes.func.isRequired,
-    onUndo: PropTypes.func.isRequired,
-    onRedo: PropTypes.func.isRequired,
-    canUndo: PropTypes.bool,
-    canRedo: PropTypes.bool,
-    onReset: PropTypes.func.isRequired,
-    onClone: PropTypes.func.isRequired,
-    onToggleIsNonPeriodic: PropTypes.func.isRequired,
-    onAdd: PropTypes.func.isRequired,
-    onExport: PropTypes.func.isRequired,
-    onExit: PropTypes.func,
-    onGenerateSupercell: PropTypes.func.isRequired,
-    onGenerateSurface: PropTypes.func.isRequired,
-    onSetBoundaryConditions: PropTypes.func.isRequired,
-    onSectionVisibilityToggle: PropTypes.func.isRequired,
-    /** Opens a dialog owned by MaterialsDesigner: "standata" or "upload". */
-    onOpenDialog: PropTypes.func.isRequired,
-    /** Selects a material by index, used by the command palette's "go to" entries. */
-    onItemClick: PropTypes.func.isRequired,
-    isVisibleItemsList: PropTypes.bool.isRequired,
-    isVisibleSourceEditor: PropTypes.bool.isRequired,
-    isVisibleThreeDEditorFullscreen: PropTypes.bool.isRequired,
-
-    openImportModal: PropTypes.func,
-    closeImportModal: PropTypes.func,
-    openSaveActionDialog: PropTypes.func,
-
-    children: PropTypes.node,
-};
-
-HeaderMenuToolbar.defaultProps = {
-    className: undefined,
-    maxCombinatorialBasesCount: 10,
-    openSaveActionDialog: null,
-    children: null,
-    onExit: undefined,
-    openImportModal: undefined,
-    closeImportModal: undefined,
-    // Undefined reads as "available": embedders that do not track history keep working controls.
-    canUndo: true,
-    canRedo: true,
-};
 
 export default HeaderMenuToolbar;

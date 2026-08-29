@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import { AlertProvider } from "@mat3ra/cove/dist/theme/provider";
-import type { Matrix3X3Schema } from "@mat3ra/esse/dist/js/types";
+import type { MaterialSchema, Matrix3X3Schema } from "@mat3ra/esse/dist/js/types";
 import type { ViewSettingsFromUrl } from "@mat3ra/wave.js/dist/utils/viewSettingsUrl";
 import React, { useCallback, useEffect, useState } from "react";
 
@@ -111,9 +111,13 @@ function useUndoableState<T extends MDState>(initialValue: T, maxPastSize = 50) 
     ];
 }
 
+/** What HeaderMenuToolbar hands to a host-supplied `openImportModal`. */
 export interface ImportModalProps {
+    modalId: string;
     show: boolean;
     onSubmit: (materials: MDMaterial[]) => void;
+    onClose?: () => void;
+    defaultMaterialsSet: MaterialSchema[];
 }
 
 export interface MaterialsDesignerContainerProps {
@@ -154,7 +158,7 @@ export function MaterialsDesignerContainer({
         setMdState({ ...mdState.current, isLoading }, { recordHistory: false });
     }, [isLoading]);
 
-    const onUpdate = useCallback((material: MDMaterial, index: number) => {
+    const onUpdate = useCallback((material: MDMaterial, index?: number) => {
         setMdState(materialsUpdateOne(mdState.current, { material, index }));
     }, []);
 
@@ -212,7 +216,6 @@ export function MaterialsDesignerContainer({
     }, []);
 
     const content = (
-        // @ts-ignore
         <MaterialsDesignerComponent
             mdState={mdState.current}
             onUndo={undo}

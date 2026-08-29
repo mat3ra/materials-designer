@@ -3,38 +3,44 @@ import "allotment/dist/style.css";
 import IconByName from "@mat3ra/cove/dist/mui/components/icon/IconByName";
 import FullscreenComponentMixin from "@mat3ra/cove/dist/other/fullscreen";
 import ThemeProvider from "@mat3ra/cove/dist/theme/provider";
+import type { MaterialSchema, Matrix3X3Schema } from "@mat3ra/esse/dist/js/types";
+import type Material from "@mat3ra/made/dist/js/Material";
 // eslint-disable-next-line import/no-unresolved
 import { MaterialStandata } from "@mat3ra/standata";
+import type { ViewSettingsFromUrl } from "@mat3ra/wave.js/dist/utils/viewSettingsUrl";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
 import ScopedCssBaseline from "@mui/material/ScopedCssBaseline";
-import { Allotment } from "allotment";
+import { type AllotmentHandle, Allotment } from "allotment";
 import setClass from "classnames";
 import { mix } from "mixwith";
-import PropTypes from "prop-types";
 import React from "react";
 
-// TODO: use when converting to typescript
-// import {MaterialSchema} from "@mat3ra/code/dist/js/types";
 import { ThreeDEditorFullscreen } from "./components/3d_editor/ThreeDEditorFullscreen";
 import EditorSelectionInfo, {
     FOOTER_HEIGHT,
 } from "./components/3d_editor_selection_info/EditorSelectionInfo";
 import JupyterLiteSessionDrawer from "./components/drawer_session/JupyterLiteSessionDrawer";
+import type { SharedDialogName } from "./components/header_menu/actions";
 import HeaderMenuToolbar from "./components/header_menu/HeaderMenuToolbar";
+import type { SectionName } from "./components/header_menu/QuickActionToolbar";
 import { QUICK_ACTIONS_HEIGHT } from "./components/header_menu/QuickActionToolbar";
 import StandataImportDialog from "./components/include/StandataImportDialog";
 import UploadDialog from "./components/include/UploadDialog";
 import ItemsList from "./components/items_list/ItemsList";
 import BasisEditor from "./components/source_editor/Basis";
 import LatticeEditor from "./components/source_editor/Lattice";
+import type { ImportModalProps } from "./MaterialsDesignerContainer";
 import { MDMaterial } from "./MDMaterial";
+import type { BoundaryConditionsType, MDState, SurfaceConfig } from "./reducers/Material";
 import { theme } from "./settings";
 
 const data = MaterialStandata.runtimeData;
-const materialConfigs = Object.values(data.filesMapByName);
+// Standata infers one anonymous literal type per bundled file, with `lattice.type` widened to
+// `string` and no `metadata`. Narrowed once here so every consumer sees the schema it expects.
+const materialConfigs = Object.values(data.filesMapByName) as unknown as MaterialSchema[];
 
 const MENU_BAR_HEIGHT = 54;
 // The app bar stacks the menu row and the quick-action row; the panels below subtract both.
@@ -47,7 +53,8 @@ const PANE_SIZES_STORAGE_KEY = "materials-designer.paneSizes";
 /** Widths the user last dragged to, falling back to the defaults. */
 function readStoredPaneSizes() {
     try {
-        const stored = JSON.parse(window.localStorage.getItem(PANE_SIZES_STORAGE_KEY));
+        const raw = window.localStorage.getItem(PANE_SIZES_STORAGE_KEY);
+        const stored = raw ? JSON.parse(raw) : null;
         const isUsable =
             Array.isArray(stored) &&
             stored.length === DEFAULT_PANE_SIZES.length &&
@@ -59,32 +66,99 @@ function readStoredPaneSizes() {
     }
 }
 
-class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMixin) {
-    constructor(props) {
+export interface MaterialsDesignerProps {
+    mdState: MDState;
+    className?: string;
+    isConventionalCellShown?: boolean;
+
+    onUpdate: (material: MDMaterial, index?: number) => void;
+
+    // ItemsList
+    onItemClick: (index: number) => void;
+    onNameUpdate: (name: string, index: number) => void;
+    onRemove: (index: number) => void;
+    onRestore?: (material: MDMaterial, index: number) => void;
+    onClone: () => void;
+
+    // Toolbar
+    onGenerateSupercell: (matrix: Matrix3X3Schema) => void;
+    onGenerateSurface: (config: SurfaceConfig) => void;
+    onSetBoundaryConditions: (config: {
+        boundaryType: BoundaryConditionsType;
+        boundaryOffset: number;
+    }) => void;
+    onToggleIsNonPeriodic: () => void;
+
+    // Undo-Redo
+    onUndo: () => void;
+    onRedo: () => void;
+    onReset: () => void;
+    canUndo?: boolean;
+    canRedo?: boolean;
+
+    onAdd: (materials: MDMaterial | MDMaterial[], addAtIndex?: boolean) => void;
+    onExport: (format: "json" | "poscar", useMultiple: boolean) => void;
+    onExit?: () => void;
+
+    // Both are fire-and-effect: the host opens its own modal, and the return value
+    // is discarded - these are wired straight to a MenuItem onClick.
+    openImportModal?: (params: ImportModalProps) => void;
+    closeImportModal?: () => void;
+    openSaveActionDialog?: ((state: MDState) => void) | null;
+
+    maxCombinatorialBasesCount?: number;
+    defaultMaterialsSet?: MaterialSchema[];
+    initialViewSettings?: ViewSettingsFromUrl;
+}
+
+/** The `isVisible*` state keys, derived so they cannot drift from {@link SectionName}. */
+type VisibilityKey = `isVisible${SectionName}`;
+
+type MaterialsDesignerState = Record<VisibilityKey, boolean> & {
+    /** Owned here rather than in the header menu: the materials list opens these too. */
+    openDialog: SharedDialogName | null;
+};
+
+/**
+ * mixwith is untyped, so the mixed base is asserted to be the React component it actually is -
+ * without which the class body would see `{}` for both props and state. The mixin contributes
+ * `toggleFullscreen` and a `FullscreenHandlerComponent` getter; neither is used here, and the
+ * `render()` it supplies is overridden below, so nothing is lost by not declaring them.
+ */
+const MixedComponent = mix(React.Component).with(FullscreenComponentMixin) as new (
+    props: MaterialsDesignerProps,
+) => React.Component<MaterialsDesignerProps, MaterialsDesignerState>;
+
+class MaterialsDesigner extends MixedComponent {
+    /** Attached to Allotment, so it holds its imperative handle rather than a DOM node. */
+    containerRef: React.RefObject<AllotmentHandle>;
+
+    /** Widths in px, one per pane. Mutated in place on drag rather than held in state. */
+    paneSizes: number[];
+
+    constructor(props: MaterialsDesignerProps) {
         super(props);
         this.state = {
             isVisibleItemsList: true,
             isVisibleSourceEditor: true,
             isVisibleThreeDEditorFullscreen: true,
             isVisibleJupyterLiteSessionDrawer: false,
-            importMaterialsDialogProps: null,
-            // Owned here rather than in the header menu: the materials list opens these too.
             openDialog: null,
         };
-        this.containerRef = React.createRef();
+        this.containerRef = React.createRef<AllotmentHandle>();
         // Read once: `defaultSizes` is consumed on mount, and `preferredSize` is read again only
         // when a hidden pane comes back. Re-reading storage on every render buys nothing.
         this.paneSizes = readStoredPaneSizes();
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
+    shouldComponentUpdate(nextProps: MaterialsDesignerProps, nextState: MaterialsDesignerState) {
         try {
             const [nextProps_, thisProps_, nextState_, thisState_] = [
                 nextProps,
                 this.props,
                 nextState,
                 this.state,
-            ].map(JSON.stringify);
+            ].map((value) => JSON.stringify(value));
             return !(nextProps_ === thisProps_) || !(nextState_ === thisState_);
         } catch (error) {
             // JSON.stringify calls material.toJSON(); schema failures must not white-screen the app.
@@ -93,7 +167,7 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
         }
     }
 
-    onPanesResized = (sizes) => {
+    onPanesResized = (sizes: number[]) => {
         // Allotment reports a hidden pane as 0 wide. Persisting that zero would fail the
         // "every size > 0" check on the next load and silently drop the whole layout, so a pane
         // that is not on screen keeps whatever width it last had.
@@ -115,25 +189,32 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
         );
     };
 
-    onOpenDialog = (openDialog) => this.setState({ openDialog });
+    onOpenDialog = (openDialog: SharedDialogName) => this.setState({ openDialog });
 
     onCloseDialog = () => this.setState({ openDialog: null });
 
-    onAddFromDialog = (...args) => {
-        this.props.onAdd(...args);
+    onAddFromDialog = (materials: MDMaterial | MDMaterial[], addAtIndex?: boolean) => {
+        const { onAdd } = this.props;
+        onAdd(materials, addAtIndex);
         this.onCloseDialog();
     };
 
-    onSectionVisibilityToggle = (componentName) => {
-        const stateKey = `isVisible${componentName}`;
+    onSectionVisibilityToggle = (componentName: SectionName) => {
+        const stateKey: VisibilityKey = `isVisible${componentName}`;
         if (stateKey in this.state) {
             // if only one grid item is visible, it should not be possible to hide it
             if (this.checkIfOnlyOneGridItemIsVisible() && this.state[stateKey]) return;
             // otherwise, toggle the visibility
-            this.setState({ [stateKey]: !this.state[stateKey] }, () => {
-                // Trigger resize event to update the 3D viewer/editor size
-                window.dispatchEvent(new Event("resize"));
-            });
+            this.setState(
+                { [stateKey]: !this.state[stateKey] } as Pick<
+                    MaterialsDesignerState,
+                    VisibilityKey
+                >,
+                () => {
+                    // Trigger resize event to update the 3D viewer/editor size
+                    window.dispatchEvent(new Event("resize"));
+                },
+            );
         }
     };
 
@@ -144,7 +225,7 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
             APP_BAR_HEIGHT + FOOTER_HEIGHT - 8
         }px)`; // 8px is the padding + borders
 
-        const { mdState } = this.props;
+        const { mdState, defaultMaterialsSet = materialConfigs } = this.props;
         const globalMaterial = mdState.materials[mdState.index];
 
         return (
@@ -173,16 +254,13 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                 onGenerateSurface={this.props.onGenerateSurface}
                                 onSetBoundaryConditions={this.props.onSetBoundaryConditions}
                                 maxCombinatorialBasesCount={this.props.maxCombinatorialBasesCount}
-                                defaultMaterialsSet={this.props.defaultMaterialsSet}
+                                defaultMaterialsSet={defaultMaterialsSet}
                                 onSectionVisibilityToggle={this.onSectionVisibilityToggle}
                                 onOpenDialog={this.onOpenDialog}
                                 onItemClick={this.props.onItemClick}
                                 isVisibleItemsList={isVisibleItemsList}
                                 isVisibleSourceEditor={isVisibleSourceEditor}
                                 isVisibleThreeDEditorFullscreen={isVisibleThreeDEditorFullscreen}
-                                isVisibleJupyterLiteSessionDrawer={
-                                    this.state.isVisibleJupyterLiteSessionDrawer
-                                }
                             >
                                 <IconButton
                                     color="inherit"
@@ -193,8 +271,6 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                     sx={{ mr: 0.75 }}
                                 >
                                     <IconByName
-                                        size="large"
-                                        edge="start"
                                         color="inherit"
                                         name="entities.material"
                                         sx={{ fontSize: "1.5rem" }}
@@ -281,10 +357,17 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                                             }
                                             boundaryConditions={globalMaterial.boundaryConditions}
                                             initialViewSettings={this.props.initialViewSettings}
-                                            onUpdate={(material) => {
+                                            onUpdate={(material: Material) => {
+                                                // `fromMadeMaterial` spreads its second argument
+                                                // over the config, so metadata lands as stray
+                                                // top-level keys rather than under `metadata` -
+                                                // which looks like it drops boundary conditions on
+                                                // every 3D edit. Preserved exactly as it ships;
+                                                // the 3D update path has no test to change it
+                                                // behind. See plan/upcoming/bugfixes-2026-08-29.md.
                                                 const newMaterial = MDMaterial.fromMadeMaterial(
                                                     material,
-                                                    globalMaterial.metadata,
+                                                    globalMaterial.metadata as Partial<MaterialSchema>,
                                                 );
                                                 this.props.onUpdate(newMaterial);
                                             }}
@@ -315,12 +398,12 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
                             materialsCount={mdState.materials.length}
                         />
 
+                        {/* StandataImportDialog reads no modalId - it renders its own dialog. */}
                         <StandataImportDialog
-                            modalId="standataImportModalDialog"
                             show={this.state.openDialog === "standata"}
                             onSubmit={this.onAddFromDialog}
                             onClose={this.onCloseDialog}
-                            defaultMaterialConfigs={this.props.defaultMaterialsSet}
+                            defaultMaterialConfigs={defaultMaterialsSet}
                         />
 
                         <UploadDialog
@@ -334,60 +417,5 @@ class MaterialsDesigner extends mix(React.Component).with(FullscreenComponentMix
         );
     }
 }
-
-MaterialsDesigner.propTypes = {
-    mdState: PropTypes.shape({
-        index: PropTypes.number,
-        isLoading: PropTypes.bool,
-        materials: PropTypes.arrayOf(PropTypes.object),
-        updatedIndices: PropTypes.arrayOf(PropTypes.number),
-    }).isRequired,
-
-    showToolbar: PropTypes.bool,
-
-    isConventionalCellShown: PropTypes.bool,
-
-    onUpdate: PropTypes.func,
-
-    // ItemsList
-    onItemClick: PropTypes.func,
-    onNameUpdate: PropTypes.func,
-
-    // Toolbar
-    onGenerateSupercell: PropTypes.func,
-    onGenerateSurface: PropTypes.func,
-    onSetBoundaryConditions: PropTypes.func,
-    onToggleIsNonPeriodic: PropTypes.func,
-
-    // Undo-Redo
-    onUndo: PropTypes.func,
-    onRedo: PropTypes.func,
-    onReset: PropTypes.func,
-    canUndo: PropTypes.bool,
-    canRedo: PropTypes.bool,
-
-    onAdd: PropTypes.func,
-    onExport: PropTypes.func,
-    onExit: PropTypes.func,
-
-    openImportModal: PropTypes.func,
-    closeImportModal: PropTypes.func,
-    openSaveActionDialog: PropTypes.func,
-
-    onRemove: PropTypes.func,
-    onRestore: PropTypes.func,
-
-    maxCombinatorialBasesCount: PropTypes.number,
-    // eslint-disable-next-line react/forbid-prop-types
-    defaultMaterialsSet: PropTypes.array,
-    // eslint-disable-next-line react/forbid-prop-types
-    initialViewSettings: PropTypes.object,
-};
-
-MaterialsDesigner.defaultProps = {
-    defaultMaterialsSet: materialConfigs,
-    canUndo: true,
-    canRedo: true,
-};
 
 export default MaterialsDesigner;

@@ -2,9 +2,9 @@ import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
-import PropTypes from "prop-types";
 import React from "react";
 
+import type { MDMaterial } from "../../MDMaterial";
 import { theme } from "../../settings";
 import { formatShortcut } from "../header_menu/actions";
 import { describeMaterial } from "./materialInfo";
@@ -15,7 +15,14 @@ import { describeMaterial } from "./materialInfo";
  */
 export const FOOTER_HEIGHT = 36;
 
-function InfoGroup({ label, children, title, className }) {
+interface InfoGroupProps {
+    label: string;
+    children?: React.ReactNode;
+    title?: string;
+    className?: string;
+}
+
+function InfoGroup({ label, children, title, className }: InfoGroupProps) {
     const content = (
         <Box
             className={className}
@@ -49,14 +56,11 @@ function InfoGroup({ label, children, title, className }) {
     return title ? <Tooltip title={title}>{content}</Tooltip> : content;
 }
 
-InfoGroup.propTypes = {
-    label: PropTypes.string.isRequired,
-    children: PropTypes.node,
-    title: PropTypes.string,
-    className: PropTypes.string,
-};
-
-InfoGroup.defaultProps = { children: null, title: undefined, className: undefined };
+export interface EditorSelectionInfoProps {
+    material?: MDMaterial;
+    index?: number;
+    materialsCount?: number;
+}
 
 /**
  * Status bar under the three editor panels: what the active material is and where it sits in the
@@ -66,7 +70,11 @@ InfoGroup.defaultProps = { children: null, title: undefined, className: undefine
  * SelectionInspector inside the 3D editor, so what is selected is described there, next to the
  * atoms it refers to. This bar covers what wave cannot know - the material and the list around it.
  */
-const EditorSelectionInfo = function EditorSelectionInfo({ material, index, materialsCount }) {
+function EditorSelectionInfo({
+    material,
+    index = 0,
+    materialsCount = 0,
+}: EditorSelectionInfoProps) {
     const materialInfo = describeMaterial(material);
     return (
         <Box
@@ -101,19 +109,6 @@ const EditorSelectionInfo = function EditorSelectionInfo({ material, index, mate
             </Typography>
         </Box>
     );
-};
-
-EditorSelectionInfo.propTypes = {
-    // eslint-disable-next-line react/forbid-prop-types
-    material: PropTypes.object,
-    index: PropTypes.number,
-    materialsCount: PropTypes.number,
-};
-
-EditorSelectionInfo.defaultProps = {
-    material: undefined,
-    index: 0,
-    materialsCount: 0,
-};
+}
 
 export default EditorSelectionInfo;

@@ -26,7 +26,14 @@ const PANEL_TOGGLES = [
     { name: "ThreeDEditorFullscreen", label: "3D viewer", icon: <ThreeDIcon fontSize="small" /> },
 ] as const;
 
+/** The three panels this row toggles. */
 export type PanelName = typeof PANEL_TOGGLES[number]["name"];
+
+/**
+ * Everything MaterialsDesigner can show or hide. The JupyterLite drawer is reachable from the
+ * View menu but has no button on this row, so it is outside {@link PanelName}.
+ */
+export type SectionName = PanelName | "JupyterLiteSessionDrawer";
 
 export interface QuickActionToolbarProps {
     actions: Action[];

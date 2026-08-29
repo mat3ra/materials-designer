@@ -1,4 +1,5 @@
 /* eslint-disable react/sort-comp */
+import type { BasisSchema, ConsistencyCheck } from "@mat3ra/esse/dist/js/types";
 import { Made } from "@mat3ra/made";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Accordion from "@mui/material/Accordion";
@@ -8,21 +9,42 @@ import Grid from "@mui/material/Grid";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Typography from "@mui/material/Typography";
-import PropTypes from "prop-types";
 import React from "react";
 import s from "underscore.string";
 
+import type { MDMaterial } from "../../MDMaterial";
 import { theme } from "../../settings";
 import BasisTable from "./BasisTable";
 import BasisText from "./BasisText";
 
-class BasisEditor extends React.Component {
-    constructor(props) {
+/**
+ * made types these two constants as plain `string`, but they are the only values the basis
+ * accepts. Narrowed once here so everything downstream carries the union rather than a cast.
+ */
+const COORDINATE_UNITS = Made.ATOMIC_COORD_UNITS as {
+    crystal: BasisSchema["units"];
+    cartesian: BasisSchema["units"];
+};
+
+export interface BasisEditorProps {
+    material: MDMaterial;
+    onUpdate: (material: MDMaterial) => void;
+}
+
+interface BasisEditorState {
+    xyzContent: string;
+    coordinateUnits: BasisSchema["units"];
+    checks: ConsistencyCheck[];
+    viewMode: "text" | "table";
+}
+
+class BasisEditor extends React.Component<BasisEditorProps, BasisEditorState> {
+    constructor(props: BasisEditorProps) {
         super(props);
 
         this.state = {
             xyzContent: props.material.getBasisAsXyz(),
-            coordinateUnits: Made.ATOMIC_COORD_UNITS.crystal,
+            coordinateUnits: COORDINATE_UNITS.crystal,
             checks: props.material.getConsistencyChecks(),
             viewMode: "text",
         };
@@ -30,8 +52,7 @@ class BasisEditor extends React.Component {
         this.handleBasisTextChange = this.handleBasisTextChange.bind(this);
     }
 
-    // eslint-disable-next-line no-unused-vars
-    UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
+    UNSAFE_componentWillReceiveProps(nextProps: BasisEditorProps) {
         const { material } = this.props;
         if (material !== nextProps.material) {
             this.setState({
@@ -41,12 +62,12 @@ class BasisEditor extends React.Component {
         }
     }
 
-    getXYZInCoordUnits = (material, coordinateUnits) => {
+    getXYZInCoordUnits = (material: MDMaterial, coordinateUnits: BasisSchema["units"]) => {
         switch (coordinateUnits) {
-            case Made.ATOMIC_COORD_UNITS.cartesian:
+            case COORDINATE_UNITS.cartesian:
                 material.toCartesian();
                 break;
-            case Made.ATOMIC_COORD_UNITS.crystal:
+            case COORDINATE_UNITS.crystal:
                 material.toCrystal();
                 break;
             default:
@@ -55,7 +76,7 @@ class BasisEditor extends React.Component {
         return material.getBasisAsXyz();
     };
 
-    handleBasisTextChange(content) {
+    handleBasisTextChange(content: string) {
         // "clone" original material from props to assert state updates
         const { material, onUpdate } = this.props;
         const { coordinateUnits } = this.state;
@@ -64,7 +85,7 @@ class BasisEditor extends React.Component {
         onUpdate(newMaterial);
     }
 
-    renderBasisUnitsLabel = (unitsType = "crystal") => {
+    renderBasisUnitsLabel = (unitsType: BasisSchema["units"] = "crystal") => {
         return (
             <ToggleButton
                 value={unitsType}
@@ -133,8 +154,8 @@ class BasisEditor extends React.Component {
                                     });
                                 }}
                             >
-                                {this.renderBasisUnitsLabel(Made.ATOMIC_COORD_UNITS.crystal)}
-                                {this.renderBasisUnitsLabel(Made.ATOMIC_COORD_UNITS.cartesian)}
+                                {this.renderBasisUnitsLabel(COORDINATE_UNITS.crystal)}
+                                {this.renderBasisUnitsLabel(COORDINATE_UNITS.cartesian)}
                             </ToggleButtonGroup>
                             {this.renderViewModeToggle()}
                         </Grid>
@@ -158,11 +179,5 @@ class BasisEditor extends React.Component {
         );
     }
 }
-
-BasisEditor.propTypes = {
-    // eslint-disable-next-line react/forbid-prop-types
-    material: PropTypes.object.isRequired,
-    onUpdate: PropTypes.func.isRequired,
-};
 
 export default BasisEditor;

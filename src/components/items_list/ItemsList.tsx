@@ -15,16 +15,16 @@ import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import setClass from "classnames";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
-import PropTypes from "prop-types";
 import React from "react";
 
+import type { MDMaterial } from "../../MDMaterial";
 import { theme } from "../../settings";
 import { isTypingTarget } from "../header_menu/actions";
 import ItemsListHeader, { buildAddActions } from "./ItemsListHeader";
 
 /** Short structural facts for a list row: lattice type and site count. */
-function describeStructure(material) {
-    const facts = [];
+function describeStructure(material: MDMaterial): string[] {
+    const facts: string[] = [];
     try {
         if (material.lattice?.type) facts.push(material.lattice.type);
         const sites = material.getBasis().elements.length;
@@ -35,8 +35,36 @@ function describeStructure(material) {
     return facts;
 }
 
-class ItemsList extends React.Component {
-    constructor(props) {
+export interface ItemsListProps {
+    materials: MDMaterial[];
+    index: number;
+    updatedIndices: number[];
+    onItemClick: (index: number) => void;
+    onRemove: (index: number) => void;
+    onNameUpdate: (name: string, index: number) => void;
+    /** Puts a removed material back; without it, removal is not offered as undoable. */
+    onRestore?: (material: MDMaterial, index: number) => void;
+    onClone: () => void;
+    onImport: () => void;
+    onUpload: () => void;
+}
+
+interface ItemsListState {
+    /** Buffer for the name field of the row being renamed; null once the edit is committed. */
+    editedName: string | null;
+    /** Index of the row being renamed, or -1 when none is. */
+    editedIndex: number | null;
+    filter: string;
+}
+
+/** One filtered row, carrying the index the material has in the unfiltered list. */
+interface VisibleEntry {
+    material: MDMaterial;
+    index: number;
+}
+
+class ItemsList extends React.Component<ItemsListProps, ItemsListState> {
+    constructor(props: ItemsListProps) {
         super(props);
         this.state = this.defaultState;
         this.focusListItem = this.focusListItem.bind(this);
@@ -45,7 +73,7 @@ class ItemsList extends React.Component {
         window.addEventListener("keydown", this.initControlsSwitchFromKeyboard, false);
     }
 
-    get defaultState() {
+    get defaultState(): ItemsListState {
         const { materials, index } = this.props;
         return {
             editedName: materials[index].name,
@@ -55,7 +83,7 @@ class ItemsList extends React.Component {
     }
 
     /** Materials matching the filter, each keeping the index it has in the unfiltered list. */
-    get visibleEntries() {
+    get visibleEntries(): VisibleEntry[] {
         const { materials } = this.props;
         const { filter } = this.state;
         const query = filter.trim().toLowerCase();
@@ -70,14 +98,14 @@ class ItemsList extends React.Component {
         );
     }
 
-    componentDidUpdate(prevProps) {
+    componentDidUpdate(prevProps: ItemsListProps) {
         const { materials, index } = this.props;
         if (prevProps.materials.length > materials.length)
             // eslint-disable-next-line react/no-did-update-set-state
             this.setState({ editedName: materials[index].name, editedIndex: index });
     }
 
-    initControlsSwitchFromKeyboard(event) {
+    initControlsSwitchFromKeyboard(event: KeyboardEvent) {
         const { materials, index, onItemClick } = this.props;
         if (!event.shiftKey) return; // Shift key must be down
         // Shift is also how you type a capital letter. Without this, naming a material "Diamond"
@@ -103,7 +131,7 @@ class ItemsList extends React.Component {
         window.removeEventListener("keydown", this.initControlsSwitchFromKeyboard, false);
     }
 
-    focusListItem(event, index) {
+    focusListItem(event: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>, index: number) {
         this.setState({ editedIndex: index, editedName: event.target.value });
     }
 
@@ -111,9 +139,13 @@ class ItemsList extends React.Component {
         const { materials, onItemClick, onNameUpdate, index } = this.props;
         const { editedName, editedIndex } = this.state;
         // Clicking a row focuses its name field, so simply browsing the list used to dispatch a
-        // rename on every click-away - each one an undo step for a name that never changed.
-        const edited = editedIndex >= 0 ? materials[editedIndex] : undefined;
-        if (edited && edited.name !== editedName) onNameUpdate(editedName, editedIndex);
+        // rename on every click-away - each one an undo step for a name that never changed. The
+        // null checks matter too: a blur that arrives with the buffer already cleared would
+        // otherwise rename material `null` to `null`.
+        if (editedIndex !== null && editedIndex >= 0 && editedName !== null) {
+            const edited = materials[editedIndex];
+            if (edited && edited.name !== editedName) onNameUpdate(editedName, editedIndex);
+        }
         onItemClick(index);
         this.setState({ editedName: null, editedIndex: null });
     }
@@ -127,15 +159,15 @@ class ItemsList extends React.Component {
      * @param {Number} index - index of element that should be removed
      */
     // eslint-disable-next-line react/sort-comp
-    onDeleteIconClick(e, index) {
+    onDeleteIconClick(e: React.MouseEvent, index: number) {
         const { materials, onRemove, onRestore } = this.props;
         e.preventDefault();
         // Captured before the removal so the offer to undo restores this exact material - including
         // its original signature - at the position it came from.
         const removed = materials[index];
-        const canRestore = materials.length > 1 && Boolean(onRestore);
         onRemove(index);
-        if (!canRestore) return;
+        // Removing the last material is refused by the reducer, so there would be nothing to undo.
+        if (materials.length <= 1 || !onRestore) return;
         // The undo control lives in the message rather than notistack's `action` slot: cove's
         // AlertProvider supplies its own Snackbar component for every variant, and that component
         // renders only the message.
@@ -168,14 +200,19 @@ class ItemsList extends React.Component {
      * @param {React.MouseEvent} e - js dom event
      * @param {Number} index - index of element that should be removed
      */
-    onItemListClick(e, index) {
+    onItemListClick(e: React.MouseEvent, index: number) {
         const { onItemClick } = this.props;
         if (e.defaultPrevented) return;
         e.preventDefault();
         onItemClick(index);
     }
 
-    renderListItem(entity, index, indexFromState, updatedIndices) {
+    renderListItem(
+        entity: MDMaterial,
+        index: number,
+        indexFromState: number,
+        updatedIndices: number[],
+    ) {
         const { name, isNonPeriodic } = entity;
         const isUpdated = updatedIndices.includes(index);
         const { editedIndex, editedName } = this.state;
@@ -388,24 +425,5 @@ class ItemsList extends React.Component {
         );
     }
 }
-
-ItemsList.propTypes = {
-    // eslint-disable-next-line react/forbid-prop-types
-    materials: PropTypes.array.isRequired,
-    index: PropTypes.number.isRequired,
-    updatedIndices: PropTypes.arrayOf(PropTypes.number).isRequired,
-    onItemClick: PropTypes.func.isRequired,
-    onRemove: PropTypes.func.isRequired,
-    onNameUpdate: PropTypes.func.isRequired,
-    /** Puts a removed material back; without it, removal is not offered as undoable. */
-    onRestore: PropTypes.func,
-    onClone: PropTypes.func.isRequired,
-    onImport: PropTypes.func.isRequired,
-    onUpload: PropTypes.func.isRequired,
-};
-
-ItemsList.defaultProps = {
-    onRestore: undefined,
-};
 
 export default ItemsList;
