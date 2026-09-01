@@ -108,6 +108,19 @@ marker) rather than the design's explicit re-map / skip / fork choice.
    this; writing v2 in TypeScript meant the pre-commit hook caught four real errors (including a
    use-before-define and a strict-null violation) that the equivalent `.jsx` files would have
    sailed past. An argument for the TS migration independent of the redesign.
+10. **The MVP had no design language, and neither did anything upstream.** The palette it shipped
+    with was improvised, and on inspection turned out to be GitHub Primer's (`#0d1117`, `#3fb950`,
+    `#f85149`) — not Mat3ra's. That was not laziness so much as a vacuum: cove ships one violet plus
+    stock MUI with `paletteDark` structurally missing every surface, text and border value (v1
+    therefore renders on stock MUI `#121212` and routes around the gap via `palette.grey[800]`),
+    wave.js hard-codes its own nested theme, and no tokens, storybook or brand guide exists in any
+    `@mat3ra` package. The brand itself lived only on the marketing site. Closed by
+    [DESIGN-LANGUAGE.md](./DESIGN-LANGUAGE.md) — *Mat3rial D3sign* — with `src/v2/styles/tokens.ts`
+    as the single source of truth for the CSS variables, the MUI theme and the mockups, and a
+    contrast suite that fails the build on an unreadable hex. Two of its assertions immediately
+    caught real defects (light-mode accent at 4.45:1 on hover rows; selection cyan indistinguishable
+    from the success green in light mode), which is the argument for making a design language
+    executable rather than a PDF.
 
 ## 5. What the review caught
 

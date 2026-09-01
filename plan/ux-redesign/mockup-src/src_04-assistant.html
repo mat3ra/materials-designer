@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>04 · Assistant</title>
+@@CSS@@
+<style>
+.qchips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.qchip {
+    font-size: 11.5px; color: var(--text);
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 16px; padding: 4px 11px; cursor: pointer;
+}
+.qchip.picked { border-color: var(--ai); color: var(--ai); background: color-mix(in srgb, var(--ai) 12%, transparent); }
+.ghostnote {
+    position: absolute; z-index: 5;
+    font: 600 11.5px ui-monospace, Menlo, monospace; color: var(--ghost);
+    background: color-mix(in srgb, var(--bg0) 80%, transparent);
+    border: 1px dashed color-mix(in srgb, var(--ghost) 55%, var(--border));
+    border-radius: 6px; padding: 4px 9px;
+}
+</style>
+</head>
+<body data-legend="collapsed">
+<div class="stage">
+<div class="app">
+    @@WBAR@@
+    <div class="main">
+        @@NAV@@
+        <div class="center">
+            @@VTOOLBAR@@
+            <div class="viewport" data-vp="cell3,scene72,atom41si,ghostP">
+                <div class="ghostnote" style="left: 52%; top: 34%;">+ P (proposed) — ghost until Apply</div>
+                <div class="vp-hint"><span>proposal preview: additions ghost-green, removals ghost-red, moves arrowed</span></div>
+            </div>
+        </div>
+        @@TIMELINE@@
+        @@INSPECTOR@@
+
+        <!-- assistant flyout covers the inspector zone -->
+        <div class="flyout">
+            <div class="fly-head"><span class="ftitle">✦ Assistant</span><span style="font-size:11px;color:var(--text-faint)">sees: active material + selection</span><span class="fclose">✕</span></div>
+            <div class="fly-body">
+                <div class="msg-user">what am I looking at?</div>
+                <div class="msg-ai">
+                    A 4-bilayer <b>Si(111) slab</b>, 3×3 in-plane, 10 Å vacuum.
+                    <ul class="facts">
+                        <li>Space group (slab): <b>P3m1</b> · source: symmetry analysis, same code as the Inspector</li>
+                        <li>Top layer: 9 sites, each with 1 dangling bond</li>
+                    </ul>
+                </div>
+                <div class="msg-user">substitute one surface Si with phosphorus and pin the bottom two layers for relaxation</div>
+                <div class="msg-ai">Which site for the P dopant?
+                    <div class="qchips"><span class="qchip picked">Most-coordinated ✓</span><span class="qchip">Random</span><span class="qchip">Pick in 3D</span></div>
+                </div>
+                <div class="proposal">
+                    <div class="phead">Plan — <b>2 operations</b> on <b>Si(111) slab ×3×3</b>:</div>
+                    <div class="oprow"><span class="oic">⇄</span><span class="oname">Substitute Si → P</span><span class="oparam">site 41 · surface</span></div>
+                    <div class="oprow"><span class="oic">🔒</span><span class="oname">Constraints: fix layers</span><span class="oparam">bottom 2 · 24 sites</span></div>
+                    <div class="pdigest">→ Si₇₁P₁ · 72 atoms · 24 sites fixed · 1 material</div>
+                    <div class="pprev"><span class="switch"></span>Preview in Viewport<span style="margin-left:auto;color:var(--ghost)">ghost diff ON</span></div>
+                    <div class="pacts">
+                        <button class="btn primary">Apply all</button>
+                        <button class="btn">Step-by-step</button>
+                        <button class="btn ghosty">Edit as code</button>
+                        <button class="btn ghosty">Discard</button>
+                    </div>
+                </div>
+            </div>
+            <div class="fly-input"><div class="box">✦&nbsp; Describe a structure or a change…<span style="margin-left:auto"><kbd>⌘J</kbd></span></div></div>
+        </div>
+    </div>
+    @@CONSOLE@@
+    @@STATUS@@
+
+    <!-- pins -->
+    <button class="pin" style="right: 330px; top: 100px;" data-pin="**Context, not clairvoyance** — the Assistant is handed the active material and the current selection, so “pin the bottom two layers” resolves against real sites. It lives in a flyout (⌘J) beside the preview, and is also reachable from ⌘K zero-results, error toasts (“explain this failure”), and the selection context menu."></button>
+    <button class="pin" style="right: 316px; top: 232px;" data-pin="**Explain answers cite computed facts** — space group, coordination, spacings come from the same analysis code the Inspector uses, not from model memory; “why did this fail” reads the actual Console log entry."></button>
+    <button class="pin" style="right: 316px; top: 418px;" data-pin="**Ask, don't guess** — when the request is ambiguous (which site?), the Assistant asks one inline question with option chips instead of inventing an answer."></button>
+    <button class="pin" style="right: 316px; top: 524px;" data-pin="**The Proposal Card is the contract** — restated interpretation, the compiled operation list (every row is a real Catalog op with params — the same vocabulary as the rest of the app), a predicted digest, and a live ghost-diff preview. **Nothing auto-applies.** Apply all / step-by-step / edit as code / discard."></button>
+    <button class="pin" style="left: 46%; top: 40%;" data-pin="**Preview before commit, again** — the proposed P substitution renders as a ghost with a halo; removals would ghost red, moves get arrows. Oversized results (atom/material thresholds) demand an extra confirmation."></button>
+    <button class="pin" style="right: 540px; top: 372px;" data-pin="**Applied = ordinary history** — accepted proposals land as normal Timeline steps with the ✦ AI badge and the originating prompt stored in provenance. Undoable, re-editable, forkable — exactly like steps 3–4 here, which this very exchange produced."></button>
+</div>
+</div>
+@@JS@@
+<script>
+// Timeline narrative: this exchange is the moment steps 3-4 were proposed; they are not applied yet.
+document.addEventListener("DOMContentLoaded", function () {
+    var ch3 = document.getElementById("ch3"), ch4 = document.getElementById("ch4");
+    [ch3, ch4].forEach(function (c) {
+        c.style.borderStyle = "dashed"; c.style.opacity = ".8";
+        c.querySelector(".ctitle").style.color = "var(--ghost)";
+    });
+    ch3.querySelector(".cparams").textContent = "proposed · not applied";
+    ch4.querySelector(".cparams").textContent = "proposed · not applied";
+    var st = document.querySelector(".statusbar");
+    st.querySelector(".sseg b").textContent = "Si₇₂";
+    st.querySelectorAll(".sseg")[4].innerHTML = '<span style="color:var(--ai)">✦ proposal previewing · 2 ops</span>';
+});
+</script>
+</body>
+</html>

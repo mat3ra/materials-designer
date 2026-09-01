@@ -2,6 +2,7 @@
 
 **Status: proposal for review · v2 track · stack-agnostic (implementation path decided separately)**
 **Companion mockups:** [`mockups/index.html`](mockups/index.html) — six screens + hub, self-contained HTML, no build step, dark + light.
+**Companion design language:** [`DESIGN-LANGUAGE.md`](DESIGN-LANGUAGE.md) — *Mat3rial D3sign*: how the concepts below are encoded visually (selection owns the signature cyan, engines own the badge hues, previews are always dashed), the brand-derived token set, and the contrast suite that enforces it.
 
 **Reading guide.** Five minutes: §1 (summary) + §4 (the five decisions) + the mockups. Thirty minutes: add §3 (concepts), §7 (architecture), §14 (MVP + roadmap). Full review before implementation: everything, with §12 (parity) checked against your own workflows.
 
@@ -140,7 +141,7 @@ Overlays: CATALOG (browse) · COMMAND PALETTE (⌘K) · ASSISTANT flyout (⌘J) 
 | **Inspector / Operation Panel** (source-editor column + wave's selection inspector + all five modal dialogs) | Structure (lattice + symmetry locks + 3×3 vectors, cell, periodicity, boundary conditions) · Selection (species, coords, constraints, measurements) · Display; transforms configure here | Configuring a transform must not hide the 3D view or previews are impossible (D5); properties and operations share one zone because both are "details of the current focus" |
 | **Catalog** (Advanced menu + Standata dialog + notebook picker) | Every create/transform op as searchable cards: engine badges, input requirements, disabled-with-reason, Recents | One door for all generation (concept 4); modal to browse, modeless to configure (D5); zero-results hand off to the Assistant |
 | **Console** (JupyterLite drawer + transformation dialog + #294 REPL) | One dock: REPL · Notebook · Script (history-as-code) · Log | Three bolted-on code surfaces become one projection (concept 3); Script is where "Copy as script" lands, closing the reproducibility loop |
-| **Workspace Bar + Status Bar** (header + five menus / empty footer) | Session identity, ☰ file menu, one undo pair, ⌘K, ✦, Share / live facts, selection count, global units, autosave truth | The bar shrinks because menus retire (D2); the footer fills because v1 reserved 54 px for selection info that never shipped |
+| **Workspace Bar + Status Bar** (header + five menus / empty footer) | Product identity, session identity, ☰ file menu, one undo pair, ⌘K, ✦, **Send to** (platform hand-off: new job · notebook · materials bank — §16.1), Share / live facts, selection count, global units, autosave truth | The bar shrinks because menus retire (D2); the footer fills because v1 reserved 54 px for selection info that never shipped |
 | **Command Palette** (#299 ⌘K) | Everything, typed; argument parsing ("supercell 3 3 1"); "go to step"; zero-results → Assistant | One registry of stable command IDs feeds palette, keyboard map, onboarding, telemetry, and AI compilation |
 | **Assistant** (new) | Right flyout: NL → Proposal Card → ghost-diff preview → apply as ordinary history | A flyout, not a chat page, because proposals must sit beside the preview they describe; it compiles to the Catalog vocabulary so it can never do what the UI cannot |
 
@@ -152,7 +153,7 @@ Overlays: CATALOG (browse) · COMMAND PALETTE (⌘K) · ASSISTANT flyout (⌘J) 
 
 ### 7.2 Command surfaces
 
-No menu bar (D2). Commands live in the Catalog (create/transform), Inspector/Operation Panels (properties), Viewport Toolbar (tools), palette (everything), context menus (selection- and chip-scoped), and the single ☰ app menu (file-level + host-injected Import/Save/Exit — the unchanged embed contract).
+No menu bar (D2). Commands live in the Catalog (create/transform), Inspector/Operation Panels (properties), Viewport Toolbar (tools), palette (everything), context menus (selection- and chip-scoped), and the single ☰ app menu (file-level + host-injected Import/Save/Exit — the unchanged embed contract). Hand-offs to the platform are **named verbs** rather than an implied export: *Send to › New job · Notebook · Materials bank* (§16.1).
 
 ### 7.3 Feature landing map (summary; full parity in §12)
 
@@ -360,7 +361,7 @@ The MVP must include the operation-log spine — without it the result is #299 w
 - **Phase 0 — Spine (invisible).** Operation log + unified undo + shared SelectionModel bridged behind the current UI; wave's `onEditCommit` adopted; viewer history disabled/bridged; state layer rebuilt. *Exit: one ⌘Z everywhere; no visible UX change; existing tests green.*
 - **Phase 1 — Shell.** Workspace regions + tokens (dark/light), Navigator with lineage + set folders, Status Bar, palette v2, ☰ replacing five menus. *Exit: navigation/command parity; Cypress off menu ordinals.*
 - **Phase 2 — Catalog.** Operation Panels with previews replace the modals; notebook-op metadata contract; Console unifies REPL/Notebook/Script/Log; Combine v2. *Exit: no blocking transform modals; notebook workflows visible as cards.*
-- **Phase 3 — Provenance & sessions.** Timeline UI over the Phase-0 log (edit-past, replay, fork, script export); autosave + sessions; share links; viewer/embedded/picker modes. *Exit: refresh-restore; a shared read-only link renders the MaterialGeometry-grade view.*
+- **Phase 3 — Provenance & sessions.** Timeline UI over the Phase-0 log (edit-past, replay, fork, script export); autosave + sessions; share links; viewer/embedded/picker modes; **Set Table** projection and **named Recipes** (§16.1). *Exit: refresh-restore; a shared read-only link renders the MaterialGeometry-grade view.*
 - **Phase 4 — Assistant & polish.** Proposal loop; onboarding; a11y completion.
 
 **The MVP maps onto the phases as:** Phase 0 in full + most of Phase 1 + Phase 2 minus previews + the autosave slice of Phase 3.
@@ -387,6 +388,49 @@ The React 17 pin is shared with cove and wave.js peers (`--legacy-peer-deps` in 
 ---
 
 ## 16. Appendix
+
+### 16.1 Prior art — QuantumATK NanoLab and BIOVIA Materials Studio
+
+The two incumbent materials-modeling IDEs were reviewed against this design. Both are
+desktop applications an order of magnitude older than MD, and both independently reached
+several of the same conclusions — which is reassuring — while differing on the one thing
+this proposal treats as its centre of gravity.
+
+**What they validate.** NanoLab's whole philosophy is *the GUI writes Python*: structures
+accumulate in a **Stash** (a working set, not files), an explicit **"Send to"** hands one
+to the **Workflow Builder**, and calculation steps are composable **blocks that compile
+to a script** — with branches, parameter sweeps, and "block of blocks" for reusable
+sub-workflows. That is D1 and the Console's Script projection, proven in a shipping
+product. Materials Studio validates D5 from the other side: its module dialogs are
+**modeless and sit beside the 3D view** while parameters are tuned, and its
+Project/Properties/Job **Explorers** map cleanly onto our Navigator/Inspector/platform jobs.
+
+**What we adopt.**
+
+1. **Set Table projection** (from MS's *Study Table*, where rows are structures and
+   columns are computed properties): a combinatorial set folder should open as a sortable
+   table with bulk selection — concept 3 ("another projection of the same model") applied
+   to sets, serving benchmark workflow 5. *Roadmap, Phase 3.*
+2. **Named Recipes from timeline slices** (from NanoLab's block-of-blocks): "save these
+   three steps as a recipe" → it appears as a Catalog card. Nearly free once the
+   operation log exists. *Roadmap, Phase 3.*
+3. **Explicit "Send to" verbs** (from NanoLab's Builder → Scripter → Job Manager chain):
+   the platform hand-off is named — *Send to › New job · Notebook · Materials bank* — in
+   the Workspace Bar rather than implied by Export (§7.2, mockup 01).
+4. **Selection-aware catalog filtering** (from LabFloor's data inspectors, which surface
+   only the analyzers valid for the selected object): the Catalog gains a "only what this
+   input supports" filter alongside the existing disabled-with-reason cards.
+5. **Properties-grid density** (from the Properties Explorer): the Inspector's Selection
+   tab stays a filterable grid, which survives 10,000-atom selections where forms do not.
+
+**What they confirm we should reject.** Both are menu forests with deep modal dialogs
+(*Build ▸ Surfaces ▸ Cleave Surface…*) — D2. Materials Studio is MDI with free-floating
+document windows — D4. And neither round-trips: NanoLab compiles GUI → script one way
+(an edited script does not come back as blocks), and MaterialsScript is disconnected from
+GUI history entirely. **Our editable operation log, synchronized in both directions, is
+the genuine differentiator** — as is the four-costume story (§8.3): both are desktop
+applications with no embed, viewer, or picker mode at all, which is precisely the
+platform-native ground MD occupies.
 
 **Glossary:** Workspace Bar · Navigator · Viewport · Viewport Toolbar · Timeline · Inspector · Operation Panel · Console · Status Bar · Catalog · Command Palette · Assistant · Operation · Recipe · Set folder · Costume/mode.
 
