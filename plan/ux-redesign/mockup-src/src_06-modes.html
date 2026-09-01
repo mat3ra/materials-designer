@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>06 · Product Modes</title>
+@@CSS@@
+<style>
+.wrap { max-width: 1380px; margin: 0 auto; padding: 8px 8px 40px; position: relative; }
+.hero { margin: 18px 4px 6px; }
+.hero h1 { font-size: 22px; margin: 0 0 6px; }
+.hero p { margin: 0; color: var(--text-dim); max-width: 880px; line-height: 1.6; }
+.modegrid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 22px 0; }
+.mode {
+    background: var(--bg1); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden; box-shadow: var(--shadow);
+    position: relative; display: flex; flex-direction: column;
+}
+.mode .mhd { display: flex; align-items: baseline; gap: 10px; padding: 13px 16px 4px; }
+.mode .mhd b { font-size: 14.5px; }
+.mode .mhd span { font-size: 11.5px; color: var(--text-faint); }
+.mode .mbody { padding: 10px 16px 16px; flex: 1; display: flex; flex-direction: column; }
+.mode .mcap { font-size: 11.5px; color: var(--text-dim); line-height: 1.55; margin-top: 10px; }
+.mode .mcap b { color: var(--text); }
+
+/* skeleton mini-layouts */
+.skel { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--bg0); flex: 1; display: flex; flex-direction: column; min-height: 240px; }
+.sk-bar { height: 22px; background: var(--bg2); border-bottom: 1px solid var(--border-soft); display: flex; align-items: center; gap: 6px; padding: 0 8px; font-size: 9.5px; color: var(--text-faint); }
+.sk-bar .b { background: var(--bg3); border-radius: 3px; padding: 1px 6px; }
+.sk-bar .b.acc { background: var(--accent-soft); color: var(--accent); }
+.sk-bar .b.ai { color: var(--ai); }
+.sk-main { flex: 1; display: flex; min-height: 0; }
+.sk-col { border-right: 1px solid var(--border-soft); background: var(--bg1); display: flex; align-items: flex-start; justify-content: center; padding-top: 8px; font-size: 9.5px; color: var(--text-faint); }
+.sk-vp { flex: 1; background: var(--vp-bg); display: flex; align-items: center; justify-content: center; color: var(--text-faint); font-size: 10px; position: relative; }
+.sk-right { border-left: 1px solid var(--border-soft); background: var(--bg1); display: flex; align-items: flex-start; justify-content: center; padding-top: 8px; font-size: 9.5px; color: var(--text-faint); }
+.sk-foot { height: 16px; background: var(--bg1); border-top: 1px solid var(--border-soft); font-size: 8.5px; color: var(--text-faint); display: flex; align-items: center; padding: 0 8px; gap: 8px; }
+.sk-console { height: 18px; background: var(--bg1); border-top: 1px solid var(--border-soft); font-size: 8.5px; color: var(--text-faint); display: flex; align-items: center; padding: 0 8px; gap: 8px; }
+.off { opacity: .32; text-decoration: line-through; }
+.hostbar { height: 26px; background: var(--bg3); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; padding: 0 10px; font-size: 10.5px; color: var(--text-dim); }
+.hostbar .save { margin-left: auto; background: var(--accent); color: #fff; border-radius: 4px; padding: 1.5px 8px; font-weight: 600; }
+
+/* real mini viewport for the viewer mode */
+.vpmini { position: relative; flex: 1; min-height: 190px; background: var(--vp-bg); overflow: hidden; }
+.vpmini svg { position: absolute; inset: -12% -6%; width: 112%; height: 124%; }
+.viewerbar { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-bottom: 1px solid var(--border-soft); background: var(--bg1); font-size: 11.5px; }
+.viewerbar b { font-size: 12px; }
+.viewerdots { display: flex; align-items: center; gap: 5px; padding: 6px 10px; border-top: 1px solid var(--border-soft); background: var(--bg1); font-size: 10px; color: var(--text-faint); }
+.viewerdots .dotstep { margin: 0; width: 8px; height: 8px; }
+
+/* picker */
+.pickmodal { border: 1px solid var(--border); border-radius: 10px; background: var(--bg1); overflow: hidden; flex: 1; display: flex; flex-direction: column; }
+.pickrow { display: flex; align-items: center; gap: 9px; padding: 8px 12px; border-bottom: 1px solid var(--border-soft); font-size: 12px; }
+.pickrow .sw { width: 12px; height: 12px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #f4d7ad, #dfb27c 55%, #9a6f3f); }
+.pickrow .fm { margin-left: auto; font: 10.5px ui-monospace, Menlo, monospace; color: var(--text-faint); }
+.pickrow.sel { background: var(--accent-soft); }
+
+/* matrix */
+.matrix { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+.matrix th, .matrix td { border: 1px solid var(--border-soft); padding: 7px 10px; text-align: center; }
+.matrix th { background: var(--bg2); font-size: 11px; letter-spacing: .03em; }
+.matrix td:first-child, .matrix th:first-child { text-align: left; }
+.matrix td:first-child { color: var(--text-dim); }
+.matrix .y { color: var(--ok); font-weight: 700; }
+.matrix .n { color: var(--text-faint); }
+.matrix .p { color: var(--warn); font-size: 11px; }
+
+/* force-light frame: light tokens scoped to one card */
+.force-light {
+    --bg-page: #e8ecf1; --bg0: #f4f6f9; --bg1: #ffffff; --bg2: #f0f3f7; --bg3: #e4e9f0;
+    --border: #ccd5e0; --border-soft: #dde3eb;
+    --text: #1c232c; --text-dim: #56636f; --text-faint: #8b97a3;
+    --accent: #146fd7; --accent-strong: #0f5cb5; --accent-soft: rgba(20, 111, 215, 0.1);
+    --ok: #1a7f37; --warn: #9a6700; --err: #cf222e; --ghost: #158746; --ai: #7d4dcc;
+    --nb: #b07514; --code: #57606a; --bond: #9aa6b4; --cellline: #77839a;
+    --vp-bg: radial-gradient(120% 90% at 50% 20%, #fdfeff 0%, #e9eef5 70%);
+    --shadow: 0 14px 40px rgba(31, 45, 61, 0.18); --scrim: rgba(238, 242, 247, 0.6);
+    color: var(--text);
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+    <div class="hero">
+        <h1>One core, four costumes</h1>
+        <p>Standalone IDE, platform-embedded editor, read-only viewer, and micro picker share one document model, one operation engine, and one component set. Only chrome and permissions change — nothing in the core may assume a costume. This is the contract that lets Materials Designer 2.0 also serve as the platform's MaterialGeometry view and its material picker, instead of three divergent implementations.</p>
+    </div>
+
+    <div class="modegrid">
+        <div class="mode">
+            <div class="mhd"><b>1 · Standalone IDE</b><span>mat3ra-materials-designer.netlify.app · full chrome, local sessions, user theme</span></div>
+            <div class="mbody">
+                <div class="skel">
+                    <div class="sk-bar"><span class="b">☰</span><span class="b">Session ▾ · Saved ●</span><span class="b">↶ ↷</span><span style="flex:1"></span><span class="b acc">⌘K search</span><span class="b ai">✦</span><span class="b acc">Share</span></div>
+                    <div class="sk-main">
+                        <div class="sk-col" style="width:17%">NAVIGATOR<br>&nbsp;· lineage tree</div>
+                        <div class="sk-vp">VIEWPORT + toolbar<div style="position:absolute;right:6px;top:6px;font-size:8.5px;border:1px dashed var(--border);border-radius:4px;padding:1px 5px">ghost previews</div></div>
+                        <div class="sk-right" style="width:15%">TIMELINE</div>
+                        <div class="sk-right" style="width:20%">INSPECTOR<br>&nbsp;/ op panel</div>
+                    </div>
+                    <div class="sk-console">CONSOLE · REPL / Notebook / Script / Log</div>
+                    <div class="sk-foot">STATUS · formula · atoms · selection · units · autosave</div>
+                </div>
+                <div class="mcap"><b>Everything on.</b> Local named sessions, Catalog, Console, Assistant, theming. The full picture is <a href="01-workspace.html" style="color:var(--accent)">screen 01</a>.</div>
+            </div>
+        </div>
+
+        <div class="mode">
+            <div class="mhd"><b>2 · Embedded editor</b><span>inside the Mat3ra web app · host owns persistence & theme</span></div>
+            <div class="mbody">
+                <div class="skel">
+                    <div class="hostbar">▦ mat3ra.com › Project Perseus › Materials › <b style="color:var(--text)">Graphene–SiO₂ stack</b><span class="save">Save to platform</span><span style="font-size:10px">Exit ✕</span></div>
+                    <div class="sk-bar"><span class="b">↶ ↷</span><span class="b">draft autosaved ·</span><span style="flex:1"></span><span class="b acc">⌘K</span><span class="b ai">✦ policy</span></div>
+                    <div class="sk-main">
+                        <div class="sk-col" style="width:17%">NAVIGATOR<br>&nbsp;· host's materials</div>
+                        <div class="sk-vp">VIEWPORT</div>
+                        <div class="sk-right" style="width:15%">TIMELINE</div>
+                        <div class="sk-right" style="width:20%">INSPECTOR</div>
+                    </div>
+                    <div class="sk-console"><span class="off">CONSOLE</span>&nbsp;· enabled per host policy flag</div>
+                    <div class="sk-foot">STATUS · formula · atoms · units · <span style="color:var(--warn)">&nbsp;platform save pending ⌘S</span></div>
+                </div>
+                <div class="mcap"><b>Same editor, host rules.</b> No session switcher — the host names the document; Import/Save/Exit are the injected callbacks from the v1 contract; theme comes from host tokens; Console/Assistant behind policy flags.</div>
+            </div>
+        </div>
+
+        <div class="mode force-light">
+            <div class="mhd"><b>3 · Read-only viewer</b><span>the MaterialGeometry embed · forced to host light theme here, on purpose</span></div>
+            <div class="mbody">
+                <div class="skel" style="background:var(--bg1)">
+                    <div class="viewerbar"><b>Si(111) slab ×3×3</b><span style="color:var(--text-faint)">Si₇₁P₁ · 72 atoms · HEX P3m1</span><span style="margin-left:auto;color:var(--accent);font-size:11px">Open in Designer ↗</span></div>
+                    <div class="vpmini" data-vp="cell3,scene72,atom41p"></div>
+                    <div class="viewerdots">provenance
+                        <span class="dotstep on"></span><span class="dotstep on"></span><span class="dotstep on"></span><span class="dotstep on"></span><span class="dotstep on"></span>
+                        <span>5 steps · view recipe</span>
+                        <span style="margin-left:auto">orbit · zoom · measure — no editing</span>
+                    </div>
+                </div>
+                <div class="mcap"><b>Viewer, not toy editor.</b> Orbit/zoom/measure and display toggles stay; every mutation surface is gone (not merely disabled). Timeline collapses to read-only dots — provenance still visible. One token set means full light/dark parity, proven here by forcing this frame light.</div>
+            </div>
+        </div>
+
+        <div class="mode">
+            <div class="mhd"><b>4 · Picker</b><span>inside a host dialog · returns a selection via callback</span></div>
+            <div class="mbody">
+                <div class="pickmodal">
+                    <div class="viewerbar" style="background:var(--bg2)"><b>Select a material</b><span style="margin-left:auto;color:var(--text-faint)">✕</span></div>
+                    <div style="padding:8px 10px;border-bottom:1px solid var(--border-soft)"><div class="fld" style="font-family:inherit">⌕ graph…<span class="unit">74 standard + upload</span></div></div>
+                    <div class="pickrow sel"><span class="sw" style="background:radial-gradient(circle at 35% 30%,#b9c6d4,#7e8b99 55%,#454e59)"></span>Graphene<span style="font-size:10px;color:var(--accent)">monolayer</span><span class="fm">C₂</span></div>
+                    <div class="pickrow"><span class="sw" style="background:radial-gradient(circle at 35% 30%,#b9c6d4,#7e8b99 55%,#454e59)"></span>Graphite<span class="fm">C₄</span></div>
+                    <div class="pickrow"><span class="sw"></span>SiC (graphene on)…<span class="fm">SiC</span></div>
+                    <div style="flex:1"></div>
+                    <div class="dlg-foot" style="padding:10px 12px"><button class="btn ghosty" style="flex:none;padding:0 14px">Cancel</button><button class="btn primary" style="flex:none;padding:0 14px">Select</button></div>
+                </div>
+                <div class="mcap"><b>Minimal surface.</b> Standard library + upload only; no Console, no Timeline, no editing. Returns the chosen material through a callback — the modern form of v1's injected import modal.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="hero" style="margin-top:6px"><h1 style="font-size:16px">The mode matrix — the contract, per surface</h1></div>
+    <table class="matrix">
+        <tr><th>Surface</th><th>Standalone IDE</th><th>Embedded editor</th><th>Read-only viewer</th><th>Picker</th></tr>
+        <tr><td>Workspace Bar</td><td class="y">full</td><td class="p">slim · host Save/Exit</td><td class="p">title strip</td><td class="n">host dialog chrome</td></tr>
+        <tr><td>Navigator</td><td class="y">✓ lineage tree</td><td class="y">✓</td><td class="p">optional flat list</td><td class="p">search + list</td></tr>
+        <tr><td>Timeline / provenance</td><td class="y">✓ editable</td><td class="y">✓ editable</td><td class="p">read-only dots</td><td class="n">—</td></tr>
+        <tr><td>Inspector & Operation Panels</td><td class="y">✓</td><td class="y">✓</td><td class="p">read-only Structure</td><td class="n">—</td></tr>
+        <tr><td>Catalog / transforms</td><td class="y">✓</td><td class="y">✓</td><td class="n">—</td><td class="p">Standata + upload</td></tr>
+        <tr><td>Console (REPL · Notebook · Script)</td><td class="y">✓</td><td class="p">policy flag</td><td class="n">—</td><td class="n">—</td></tr>
+        <tr><td>Assistant</td><td class="y">✓</td><td class="p">policy flag</td><td class="n">—</td><td class="n">—</td></tr>
+        <tr><td>Persistence</td><td class="y">local sessions</td><td class="p">host save + local draft</td><td class="n">none</td><td class="p">selection via callback</td></tr>
+        <tr><td>Theme</td><td class="y">user choice</td><td class="p">host tokens</td><td class="p">host tokens</td><td class="p">host tokens</td></tr>
+    </table>
+
+    <button class="pin" style="left: 47%; top: 182px;" data-pin="**Why modes are first-class** — v1 already lives two lives (standalone + platform-embedded via injected import/save/exit callbacks) and is wanted as the platform's read-only MaterialGeometry view. Designing the four costumes up front keeps every later feature honestly suppressible instead of hacked off per embed."></button>
+    <button class="pin" style="left: 24%; top: 56%;" data-pin="**Theme parity is architectural** — one token set drives dark and light; embeds accept host token overrides. This frame is pinned light while the page is dark to prove components never hardcode a palette."></button>
+    <button class="pin" style="right: 190px; top: 44%;" data-pin="**The picker closes the loop** — v1's host-injected import modal becomes a proper product mode: same Standata catalog card data as the full Catalog, same upload sniffing, tiny surface, callback out."></button>
+</div>
+@@JS@@
+</body>
+</html>
