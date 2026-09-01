@@ -13,3 +13,7 @@ tests/cypress/downloads/*
 .idea/
 .DS_Store
 src/react-app-env.d.ts
+
+# Python bytecode (mockup build helpers)
+__pycache__/
+*.pyc

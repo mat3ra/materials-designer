@@ -6,7 +6,9 @@
  * the whole point: the Timeline, the undo stack, autosave and (later) the
  * assistant all read the same record, so no surface can hold private history.
  */
+import CoveThemeProvider from "@mat3ra/cove/dist/theme/provider/ThemeProvider";
 import type Material from "@mat3ra/made/dist/js/Material";
+import { createTheme } from "@mui/material/styles";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { CatalogLite, PANELS } from "../panels";
@@ -14,6 +16,7 @@ import { exportMaterials, readFiles } from "../state/io";
 import { replay, resolve } from "../state/replay";
 import { applySetOperation, createMaterialDoc, editOperation } from "../state/session";
 import { useSession } from "../state/useSession";
+import { toMuiTheme } from "../styles/tokens";
 import { AppMenu } from "./AppMenu";
 import { CombinatorialPanel } from "./CombinatorialPanel";
 import { ConsoleDock } from "./ConsoleDock";
@@ -57,6 +60,11 @@ export function App() {
     useEffect(() => {
         document.documentElement.setAttribute("data-theme", theme);
     }, [theme]);
+
+    // Shell chrome reads the CSS tokens directly; cove/MUI components read this
+    // theme. Both are generated from src/v2/styles/tokens.ts, so a component
+    // dropped in from cove lands in Mat3rial D3sign rather than cove's violet.
+    const muiTheme = useMemo(() => createTheme(toMuiTheme(theme)), [theme]);
 
     // The palette chord opens the same Catalog the toolbar does — one command
     // surface, several doors into it.
@@ -284,164 +292,166 @@ export function App() {
     }
 
     return (
-        <div
-            className="md2-app"
-            onDragOver={(event) => {
-                if (!event.dataTransfer.types.includes("Files")) return;
-                event.preventDefault();
-                setDragging(true);
-            }}
-            onDragLeave={(event) => {
-                // Track depth rather than trusting the target: the overlay
-                // itself becomes the event target the moment it appears, so a
-                // drag that leaves the window without dropping would otherwise
-                // leave the overlay up forever, blocking the whole app.
-                dragDepth.current = Math.max(0, dragDepth.current - 1);
-                if (dragDepth.current === 0) setDragging(false);
-            }}
-            onDragEnter={(event) => {
-                if (event.dataTransfer.types.includes("Files")) dragDepth.current += 1;
-            }}
-            onDrop={(event) => {
-                dragDepth.current = 0;
-                setDragging(false);
-                // Only claim file drops; text dropped into a field is the
-                // browser's to handle.
-                if (!event.dataTransfer.files?.length) return;
-                event.preventDefault();
-                importFiles(event.dataTransfer.files).catch(() => setNotice("Import failed."));
-            }}
-        >
-            <WorkspaceBar
-                sessionName={session.sessionName}
-                onRename={session.setSessionName}
-                savedAt={session.savedAt}
-                canUndo={session.canUndo}
-                canRedo={session.canRedo}
-                onUndo={session.undo}
-                onRedo={session.redo}
-                onOpenCatalog={() => setCatalogOpen(true)}
-                onOpenMenu={() => setMenuOpen((open) => !open)}
-                theme={theme}
-                onToggleTheme={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
-            />
-
-            {session.restoredFrom && (
-                <div className="md2-notice" data-testid="restore-notice">
-                    <span>
-                        Restored your last session (saved {session.restoredFrom}). Restoring
-                        silently would be worse than not restoring at all.
-                    </span>
-                    <button type="button" onClick={session.startFresh}>
-                        Start fresh
-                    </button>
-                    <button type="button" onClick={session.dismissRestoreNotice}>
-                        Keep it
-                    </button>
-                </div>
-            )}
-            {menuOpen && (
-                <AppMenu
-                    anchorSelector='[data-testid="app-menu-button"]'
-                    materialCount={session.state.materials.length}
-                    onImport={() => {
-                        setMenuOpen(false);
-                        pickFiles();
-                    }}
-                    onExport={handleExport}
-                    onClose={() => setMenuOpen(false)}
-                />
-            )}
-            {dragging && (
-                <div className="md2-dropzone" data-testid="dropzone" aria-hidden="true">
-                    Drop JSON or POSCAR files to import
-                </div>
-            )}
-            {notice && (
-                <div className="md2-notice" data-testid="notice">
-                    <span>{notice}</span>
-                    <button type="button" onClick={() => setNotice(null)}>
-                        Dismiss
-                    </button>
-                </div>
-            )}
-            {session.error && (
-                <div className="md2-notice md2-error" data-testid="error-notice">
-                    <span>{session.error}</span>
-                    <button type="button" onClick={session.clearError}>
-                        Dismiss
-                    </button>
-                </div>
-            )}
-
-            <div className="md2-main">
-                <Navigator
-                    state={session.state}
-                    onSelect={session.select}
-                    onRemove={session.remove}
-                    onFork={(id) => session.fork(id)}
-                    onNew={() => session.add([createMaterialDoc("create-default", {})])}
+        <CoveThemeProvider theme={muiTheme}>
+            <div
+                className="md2-app"
+                onDragOver={(event) => {
+                    if (!event.dataTransfer.types.includes("Files")) return;
+                    event.preventDefault();
+                    setDragging(true);
+                }}
+                onDragLeave={(event) => {
+                    // Track depth rather than trusting the target: the overlay
+                    // itself becomes the event target the moment it appears, so a
+                    // drag that leaves the window without dropping would otherwise
+                    // leave the overlay up forever, blocking the whole app.
+                    dragDepth.current = Math.max(0, dragDepth.current - 1);
+                    if (dragDepth.current === 0) setDragging(false);
+                }}
+                onDragEnter={(event) => {
+                    if (event.dataTransfer.types.includes("Files")) dragDepth.current += 1;
+                }}
+                onDrop={(event) => {
+                    dragDepth.current = 0;
+                    setDragging(false);
+                    // Only claim file drops; text dropped into a field is the
+                    // browser's to handle.
+                    if (!event.dataTransfer.files?.length) return;
+                    event.preventDefault();
+                    importFiles(event.dataTransfer.files).catch(() => setNotice("Import failed."));
+                }}
+            >
+                <WorkspaceBar
+                    sessionName={session.sessionName}
+                    onRename={session.setSessionName}
+                    savedAt={session.savedAt}
+                    canUndo={session.canUndo}
+                    canRedo={session.canRedo}
+                    onUndo={session.undo}
+                    onRedo={session.redo}
+                    onOpenCatalog={() => setCatalogOpen(true)}
+                    onOpenMenu={() => setMenuOpen((open) => !open)}
+                    theme={theme}
+                    onToggleTheme={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
                 />
 
-                <div className="md2-center">
-                    <Viewport
-                        material={session.active.material}
-                        onEdit={handleCanvasEdit}
-                        onSelectionChanged={session.selectSites}
-                    />
-                    <ConsoleDock
-                        doc={session.activeDoc}
-                        materialName={session.active.material.name ?? "material"}
-                    />
-                </div>
-
-                <Timeline
-                    doc={session.activeDoc}
-                    editableTypes={EDITABLE_TYPES}
-                    editingStep={editingStep}
-                    onEditStep={(step) => {
-                        setEditingStep(step);
-                        setPanelType(session.activeDoc.log[step].type);
-                    }}
-                    onRevertTo={(step) => session.revert(session.activeDoc.id, step)}
-                    onFork={(step) => session.fork(session.activeDoc.id, step)}
-                />
-
-                {renderRightPane()}
-            </div>
-
-            <StatusBar
-                digest={session.active.digest}
-                selection={session.state.selection}
-                stepCount={session.activeDoc.log.length}
-                materialIndex={session.state.materials.findIndex(
-                    (m) => m.id === session.state.activeId,
+                {session.restoredFrom && (
+                    <div className="md2-notice" data-testid="restore-notice">
+                        <span>
+                            Restored your last session (saved {session.restoredFrom}). Restoring
+                            silently would be worse than not restoring at all.
+                        </span>
+                        <button type="button" onClick={session.startFresh}>
+                            Start fresh
+                        </button>
+                        <button type="button" onClick={session.dismissRestoreNotice}>
+                            Keep it
+                        </button>
+                    </div>
                 )}
-                materialCount={session.state.materials.length}
-                saved={session.savedAt !== null}
-            />
-
-            {catalogOpen && (
-                <div
-                    className="md2-scrim"
-                    role="presentation"
-                    onClick={(e) => {
-                        if (e.target === e.currentTarget) setCatalogOpen(false);
-                    }}
-                >
-                    <CatalogLite
-                        query={catalogQuery}
-                        onQueryChange={setCatalogQuery}
-                        onClose={() => setCatalogOpen(false)}
-                        onPick={(type) => {
-                            setCatalogOpen(false);
-                            if (type === "import-file") pickFiles();
-                            else if (PANELS[type] || SHELL_PANELS.has(type)) setPanelType(type);
-                            else apply(type, {}, { source: "form" });
+                {menuOpen && (
+                    <AppMenu
+                        anchorSelector='[data-testid="app-menu-button"]'
+                        materialCount={session.state.materials.length}
+                        onImport={() => {
+                            setMenuOpen(false);
+                            pickFiles();
                         }}
+                        onExport={handleExport}
+                        onClose={() => setMenuOpen(false)}
                     />
+                )}
+                {dragging && (
+                    <div className="md2-dropzone" data-testid="dropzone" aria-hidden="true">
+                        Drop JSON or POSCAR files to import
+                    </div>
+                )}
+                {notice && (
+                    <div className="md2-notice" data-testid="notice">
+                        <span>{notice}</span>
+                        <button type="button" onClick={() => setNotice(null)}>
+                            Dismiss
+                        </button>
+                    </div>
+                )}
+                {session.error && (
+                    <div className="md2-notice md2-error" data-testid="error-notice">
+                        <span>{session.error}</span>
+                        <button type="button" onClick={session.clearError}>
+                            Dismiss
+                        </button>
+                    </div>
+                )}
+
+                <div className="md2-main">
+                    <Navigator
+                        state={session.state}
+                        onSelect={session.select}
+                        onRemove={session.remove}
+                        onFork={(id) => session.fork(id)}
+                        onNew={() => session.add([createMaterialDoc("create-default", {})])}
+                    />
+
+                    <div className="md2-center">
+                        <Viewport
+                            material={session.active.material}
+                            onEdit={handleCanvasEdit}
+                            onSelectionChanged={session.selectSites}
+                        />
+                        <ConsoleDock
+                            doc={session.activeDoc}
+                            materialName={session.active.material.name ?? "material"}
+                        />
+                    </div>
+
+                    <Timeline
+                        doc={session.activeDoc}
+                        editableTypes={EDITABLE_TYPES}
+                        editingStep={editingStep}
+                        onEditStep={(step) => {
+                            setEditingStep(step);
+                            setPanelType(session.activeDoc.log[step].type);
+                        }}
+                        onRevertTo={(step) => session.revert(session.activeDoc.id, step)}
+                        onFork={(step) => session.fork(session.activeDoc.id, step)}
+                    />
+
+                    {renderRightPane()}
                 </div>
-            )}
-        </div>
+
+                <StatusBar
+                    digest={session.active.digest}
+                    selection={session.state.selection}
+                    stepCount={session.activeDoc.log.length}
+                    materialIndex={session.state.materials.findIndex(
+                        (m) => m.id === session.state.activeId,
+                    )}
+                    materialCount={session.state.materials.length}
+                    saved={session.savedAt !== null}
+                />
+
+                {catalogOpen && (
+                    <div
+                        className="md2-scrim"
+                        role="presentation"
+                        onClick={(e) => {
+                            if (e.target === e.currentTarget) setCatalogOpen(false);
+                        }}
+                    >
+                        <CatalogLite
+                            query={catalogQuery}
+                            onQueryChange={setCatalogQuery}
+                            onClose={() => setCatalogOpen(false)}
+                            onPick={(type) => {
+                                setCatalogOpen(false);
+                                if (type === "import-file") pickFiles();
+                                else if (PANELS[type] || SHELL_PANELS.has(type)) setPanelType(type);
+                                else apply(type, {}, { source: "form" });
+                            }}
+                        />
+                    </div>
+                )}
+            </div>
+        </CoveThemeProvider>
     );
 }

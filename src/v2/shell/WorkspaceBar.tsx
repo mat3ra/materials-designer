@@ -5,6 +5,12 @@
  * session state and history; everything else lives in the Catalog, the panels,
  * or the palette (design decision D2).
  */
+import DarkModeIcon from "@mui/icons-material/DarkMode";
+import LightModeIcon from "@mui/icons-material/LightMode";
+import MenuIcon from "@mui/icons-material/Menu";
+import RedoIcon from "@mui/icons-material/Redo";
+import SearchIcon from "@mui/icons-material/Search";
+import UndoIcon from "@mui/icons-material/Undo";
 import React from "react";
 
 export interface WorkspaceBarProps {
@@ -52,8 +58,14 @@ export function WorkspaceBar({
                 onClick={onOpenMenu}
                 data-testid="app-menu-button"
             >
-                ☰
+                <MenuIcon fontSize="small" />
             </button>
+            {/* Standalone wears the product's identity; the embedded costume
+                hides this block, since the host supplies its own chrome. */}
+            <span className="md2-brand" data-testid="brand">
+                <span className="md2-brand-mark">M3</span>
+                <span className="md2-brand-name">Materials Designer</span>
+            </span>
             <input
                 className="md2-session-name"
                 value={sessionName}
@@ -70,35 +82,40 @@ export function WorkspaceBar({
                 className="md2-wbtn md2-icon"
                 onClick={onUndo}
                 disabled={!canUndo}
-                title="Undo (⌘Z) — one history for every surface"
+                // Disabled controls say why they are disabled, never just grey out.
+                title={canUndo ? "Undo (⌘Z) — one history for every surface" : "Nothing to undo"}
                 aria-label="Undo"
                 data-testid="undo"
             >
-                ↶
+                <UndoIcon fontSize="small" />
             </button>
             <button
                 type="button"
                 className="md2-wbtn md2-icon"
                 onClick={onRedo}
                 disabled={!canRedo}
-                title="Redo (⇧⌘Z)"
+                title={canRedo ? "Redo (⇧⌘Z)" : "Nothing to redo"}
                 aria-label="Redo"
                 data-testid="redo"
             >
-                ↷
+                <RedoIcon fontSize="small" />
             </button>
             <span className="md2-spacer" />
             <button type="button" className="md2-searchpill" onClick={onOpenCatalog}>
-                ⌕ Create or transform…<kbd>⌘K</kbd>
+                <SearchIcon fontSize="small" /> Create or transform…<kbd>⌘K</kbd>
             </button>
             <button
                 type="button"
                 className="md2-wbtn md2-icon"
                 onClick={onToggleTheme}
-                title="Toggle theme"
+                title={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
                 aria-label="Toggle theme"
             >
-                {theme === "dark" ? "☀" : "◐"}
+                {theme === "dark" ? (
+                    <LightModeIcon fontSize="small" />
+                ) : (
+                    <DarkModeIcon fontSize="small" />
+                )}
             </button>
         </div>
     );

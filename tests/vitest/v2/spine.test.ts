@@ -6,12 +6,7 @@
  * replay determinism, undo across mixed sources, revert, forking, and
  * persistence round-trips.
  */
-import {
-    load,
-    save,
-    serialize,
-    STORAGE_KEY,
-} from "../../../src/v2/state/persist";
+import { load, save, serialize, STORAGE_KEY } from "../../../src/v2/state/persist";
 import { atomCountOf, predict } from "../../../src/v2/state/registry";
 import { isModified, replay, resolve } from "../../../src/v2/state/replay";
 import {
@@ -615,9 +610,10 @@ describe("regressions found by review", () => {
         // reinterprets angstroms as fractions and destroys the structure.
         let state = createInitialState();
         const material = getActiveMaterial(state);
-        const cartesian = new (material.constructor as typeof import("@mat3ra/made/dist/js/Material").default)(
-            material.toJSON(),
-        );
+        const cartesian =
+            new (material.constructor as typeof import("@mat3ra/made/dist/js/Material").default)(
+                material.toJSON(),
+            );
         cartesian.toCartesian();
         state = createInitialState([
             createMaterialDoc("create-from-config", { config: cartesian.toJSON() }),
