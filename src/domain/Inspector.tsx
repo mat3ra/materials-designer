@@ -8,7 +8,7 @@
 import type Material from "@mat3ra/made/dist/js/Material";
 import React, { useEffect, useState } from "react";
 
-import type { ResultDigest, SelectionModel } from "../state/types";
+import type { ResultDigest, SelectionModel } from "../core/types";
 
 export interface InspectorProps {
     material: Material;

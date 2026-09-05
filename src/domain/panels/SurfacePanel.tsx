@@ -9,7 +9,7 @@
  */
 import React, { useMemo, useState } from "react";
 
-import type { SurfaceParams } from "../state/registry";
+import type { SurfaceParams } from "../../core/registry";
 import type { Forecast, OperationPanelProps } from "./shared";
 import {
     isWholeNumber,

@@ -6,9 +6,9 @@
  * replay determinism, undo across mixed sources, revert, forking, and
  * persistence round-trips.
  */
-import { load, save, serialize, STORAGE_KEY } from "../../../src/v2/state/persist";
-import { atomCountOf, predict } from "../../../src/v2/state/registry";
-import { isModified, replay, resolve } from "../../../src/v2/state/replay";
+import { load, save, serialize, STORAGE_KEY } from "../../../src/core/persist";
+import { atomCountOf, predict } from "../../../src/core/registry";
+import { isModified, replay, resolve } from "../../../src/core/replay";
 import {
     __resetUid,
     addMaterials,
@@ -28,7 +28,7 @@ import {
     revertTo,
     setActive,
     undo,
-} from "../../../src/v2/state/session";
+} from "../../../src/core/session";
 import { beforeEach, describe, expect, it } from "vitest";
 
 const IDENTITY = [

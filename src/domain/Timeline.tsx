@@ -7,7 +7,7 @@
  */
 import React from "react";
 
-import type { MaterialDoc } from "../state/types";
+import type { MaterialDoc } from "../core/types";
 
 export interface TimelineProps {
     doc: MaterialDoc;

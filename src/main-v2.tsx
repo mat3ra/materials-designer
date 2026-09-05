@@ -18,7 +18,7 @@ import allSchemas from "@mat3ra/esse/dist/js/schemas.json";
 import React from "react";
 import ReactDOM from "react-dom";
 
-import { App } from "./shell/App";
+import { App } from "./domain/MaterialsDesigner";
 
 JSONSchemasInterface.setSchemas(allSchemas as never);
 

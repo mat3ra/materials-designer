@@ -11,12 +11,12 @@ import type Material from "@mat3ra/made/dist/js/Material";
 import { createTheme } from "@mui/material/styles";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { CatalogLite, PANELS } from "../panels";
-import { exportMaterials, readFiles } from "../state/io";
-import { replay, resolve } from "../state/replay";
-import { applySetOperation, createMaterialDoc, editOperation } from "../state/session";
-import { useSession } from "../state/useSession";
-import { toMuiTheme } from "../styles/tokens";
+import { CatalogLite, PANELS } from "./panels";
+import { exportMaterials, readFiles } from "../core/io";
+import { replay, resolve } from "../core/replay";
+import { applySetOperation, createMaterialDoc, editOperation } from "../core/session";
+import { useSession } from "../core/useSession";
+import { toMuiTheme } from "../kit/theme/tokens";
 import { AppMenu } from "./AppMenu";
 import { CombinatorialPanel } from "./CombinatorialPanel";
 import { ConsoleDock } from "./ConsoleDock";
@@ -62,7 +62,7 @@ export function App() {
     }, [theme]);
 
     // Shell chrome reads the CSS tokens directly; cove/MUI components read this
-    // theme. Both are generated from src/v2/styles/tokens.ts, so a component
+    // theme. Both are generated from src/kit/theme/tokens.ts, so a component
     // dropped in from cove lands in Mat3rial D3sign rather than cove's violet.
     const muiTheme = useMemo(() => createTheme(toMuiTheme(theme)), [theme]);
 

@@ -1,15 +1,88 @@
 {
-    "extends": ["@mat3ra/eslint-config"],
-    "ignorePatterns": ["dist/**/*.js", "dist/**/*.ts"],
+    "extends": [
+        "@mat3ra/eslint-config"
+    ],
+    "ignorePatterns": [
+        "dist/**/*.js",
+        "dist/**/*.ts"
+    ],
     "rules": {
         "jsx-a11y/label-has-associated-control": "off",
         "react/function-component-definition": "off",
-        "@typescript-eslint/explicit-module-boundary-types": "off"
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "import/no-restricted-paths": [
+            "error",
+            {
+                "basePath": "src",
+                "zones": [
+                    {
+                        "target": "./core",
+                        "from": "./kit",
+                        "message": "core is headless \u2014 it must not import UI."
+                    },
+                    {
+                        "target": "./core",
+                        "from": "./domain",
+                        "message": "core is headless \u2014 it must not import UI."
+                    },
+                    {
+                        "target": "./core",
+                        "from": "./shell",
+                        "message": "core is headless \u2014 it must not import UI."
+                    },
+                    {
+                        "target": "./core",
+                        "from": "./embed",
+                        "message": "core must not know about the embedding host."
+                    },
+                    {
+                        "target": "./kit",
+                        "from": "./core",
+                        "message": "kit is cove-bound \u2014 it must not depend on MD's kernel. Take values as props."
+                    },
+                    {
+                        "target": "./kit",
+                        "from": "./domain",
+                        "message": "kit is cove-bound \u2014 it must not depend on MD's domain."
+                    },
+                    {
+                        "target": "./kit",
+                        "from": "./shell",
+                        "message": "kit is cove-bound \u2014 it must not depend on the shell."
+                    },
+                    {
+                        "target": "./kit",
+                        "from": "./embed",
+                        "message": "kit is cove-bound \u2014 it must not depend on the embed layer."
+                    },
+                    {
+                        "target": "./shell",
+                        "from": "./domain",
+                        "message": "the shell is domain-agnostic \u2014 regions arrive as props, not imports."
+                    },
+                    {
+                        "target": "./shell",
+                        "from": "./embed",
+                        "message": "the shell must not depend on the embed layer."
+                    },
+                    {
+                        "target": "./domain",
+                        "from": "./embed",
+                        "message": "domain must not import the embed adapters \u2014 the dependency runs the other way."
+                    }
+                ]
+            }
+        ]
     },
     "settings": {
         "import/resolver": {
             "node": {
-                "extensions": [".js", ".jsx", ".ts", ".tsx"]
+                "extensions": [
+                    ".js",
+                    ".jsx",
+                    ".ts",
+                    ".tsx"
+                ]
             }
         }
     }

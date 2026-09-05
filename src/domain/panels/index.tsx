@@ -6,7 +6,7 @@
  * forecasts the result through the registry on every keystroke, and commits
  * exactly one operation when Apply is pressed. Nothing here mutates the
  * session — a panel only calls `onApply(type, params)`, and the caller records
- * the step (src/v2/state/session.ts `applyOperation`).
+ * the step (src/core/session.ts `applyOperation`).
  *
  * ---------------------------------------------------------------------------
  * CSS CONTRACT — every class name used by this folder. All are plain strings,

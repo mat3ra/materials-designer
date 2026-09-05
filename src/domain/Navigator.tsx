@@ -9,8 +9,8 @@
  */
 import React, { useMemo, useState } from "react";
 
-import { isModified, resolve } from "../state/replay";
-import type { MaterialDoc, SessionState } from "../state/types";
+import { isModified, resolve } from "../core/replay";
+import type { MaterialDoc, SessionState } from "../core/types";
 
 export interface NavigatorProps {
     state: SessionState;

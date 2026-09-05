@@ -3,7 +3,7 @@
  */
 import React from "react";
 
-import type { ResultDigest, SelectionModel } from "../state/types";
+import type { ResultDigest, SelectionModel } from "../core/types";
 
 export interface StatusBarProps {
     digest: ResultDigest;

@@ -20,7 +20,7 @@ import {
     ThemeMode,
     toCssBlock,
     toMuiTheme,
-} from "../../../src/v2/styles/tokens";
+} from "../../../src/kit/theme/tokens";
 
 const REPO = path.resolve(__dirname, "../../..");
 
@@ -154,7 +154,7 @@ describe("Mat3rial D3sign — generated artefacts agree", () => {
     };
 
     it("md2.css embeds the generated block verbatim", () => {
-        const css = fs.readFileSync(path.join(REPO, "src/v2/styles/md2.css"), "utf8");
+        const css = fs.readFileSync(path.join(REPO, "src/styles/md2.css"), "utf8");
         expect(css).toContain(block.app);
     });
 
@@ -171,7 +171,7 @@ describe("Mat3rial D3sign — generated artefacts agree", () => {
     });
 
     it("no component stylesheet names a colour outside the token block", () => {
-        const css = fs.readFileSync(path.join(REPO, "src/v2/styles/md2.css"), "utf8");
+        const css = fs.readFileSync(path.join(REPO, "src/styles/md2.css"), "utf8");
         const lines = css.slice(css.indexOf(GENERATED_MARKERS.end)).split("\n");
         // A literal is allowed only where the line above states why it is not a
         // theme colour (element colours belong to chemistry, not to the theme).

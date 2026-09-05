@@ -13,8 +13,8 @@
 import type Material from "@mat3ra/made/dist/js/Material";
 import React, { useCallback, useMemo, useState } from "react";
 
-import { digestOf, predict } from "../state/registry";
-import type { ResultDigest } from "../state/types";
+import { digestOf, predict } from "../../core/registry";
+import type { ResultDigest } from "../../core/types";
 
 /** Which machinery runs an operation; rendered as the md2-badge. */
 export type PanelEngine = "native" | "notebook" | "code";

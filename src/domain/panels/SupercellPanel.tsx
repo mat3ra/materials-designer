@@ -9,7 +9,7 @@
 import type { Matrix3X3Schema } from "@mat3ra/esse/dist/js/types";
 import React, { useMemo, useState } from "react";
 
-import { determinant as matrixDeterminant } from "../state/registry";
+import { determinant as matrixDeterminant } from "../../core/registry";
 import type { Forecast, OperationPanelProps } from "./shared";
 import {
     formatNumber,
