@@ -1,3 +1,4 @@
+@parity_2_0
 Feature: A material is flagged as updated only while it differs from how it entered the session
 
   # README TODO: "switch the color back to white when the material is back to the original after

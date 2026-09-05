@@ -1,3 +1,4 @@
+@parity_2_0
 Feature: Keyboard shortcuts drive the app without stealing keys from text fields
 
   # A shortcut is a native keydown listener, which React does not batch. That path is exactly where

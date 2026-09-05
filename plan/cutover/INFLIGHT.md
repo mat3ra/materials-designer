@@ -79,3 +79,12 @@ MD-local. It composes with cove's designer branch rather than competing: Mat3ria
 wires, nodes); both are validated by the same measured-contrast method. Nothing in the cutover waits
 on the outcome — MD applies the tokens locally either way, and a hue change is an edit to
 `tokens.ts` values re-validated by the existing suite.
+
+### How the harvested specs are gated
+
+They are tagged **`@parity_2_0`** and excluded from the default Cypress run in `tests/run-tests.sh`.
+Untagged, they would have run against v1 on the next push and turned CI red — they describe
+behaviour that does not exist yet. They are the parity specification, so they are meant to be red;
+the tag keeps that from blocking everyone else. Run them deliberately with `TAGS='@parity_2_0'`,
+and drop the tag from each feature as its implementation lands in Phase 2. When the last tag is
+gone, parity is closed.

@@ -1,3 +1,4 @@
+@parity_2_0
 Feature: The basis can be edited as a table as well as XYZ text
 
   Background:

@@ -1,3 +1,4 @@
+@parity_2_0
 Feature: The status bar describes the active material and where it sits in the list
 
   # Selection detail is wave.js's job: it renders its own StatusBar and SelectionInspector inside

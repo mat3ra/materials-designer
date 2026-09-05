@@ -1,3 +1,4 @@
+@parity_2_0
 Feature: The quick-action row reaches common operations in one click
 
   Background:
