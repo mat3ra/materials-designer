@@ -157,26 +157,12 @@ export function useSession(): UseSession {
         [run],
     );
 
-    // One keyboard path for undo/redo, whichever surface produced the edit.
-    // Guarded so the chords still belong to a focused text field.
-    useEffect(() => {
-        function onKeyDown(event: KeyboardEvent) {
-            const target = event.target as HTMLElement | null;
-            const typing =
-                !!target &&
-                (target.tagName === "INPUT" ||
-                    target.tagName === "TEXTAREA" ||
-                    target.isContentEditable);
-            const mod = event.metaKey || event.ctrlKey;
-            if (!mod || event.key.toLowerCase() !== "z") return;
-            if (typing) return;
-            event.preventDefault();
-            if (event.shiftKey) api.redo();
-            else api.undo();
-        }
-        window.addEventListener("keydown", onKeyDown);
-        return () => window.removeEventListener("keydown", onKeyDown);
-    }, [api]);
+    // Undo/redo shortcuts are not bound here.
+    //
+    // They belong to the command registry (`shell/commands.ts`), which owns every chord in one
+    // place along with the typing guard and the enabled-state check. Binding them here as well
+    // meant a single ⌘Z ran undo twice — the browser dispatches to both listeners — which walked
+    // the history back two steps at a time.
 
     const activeDoc = getActive(state);
 

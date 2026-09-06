@@ -52,10 +52,10 @@ a named spec passes. Specs tagged `@parity_2_0` are harvested from PR #299 and r
 | Materials list: filter, count, empty state | Navigator filter + count | **done** | `materials-list/filter-and-count` @parity_2_0 |
 | Modified / updated marker | Navigator dot, revert-aware | **partial** — dot exists; `@parity_2_0` spec not yet run | `materials-list/updated-marker` @parity_2_0 |
 | Status bar (v1 footer was empty) | Status Bar segments | **partial** — bar exists; needs the group/text shape the spec asserts | `status-bar/status-bar` @parity_2_0 |
-| Command palette | ⌘K over the command registry | **partial** — ⌘K opens the Catalog; no command registry yet | `toolbar/command-palette` @parity_2_0 |
-| Quick actions row | Workspace Bar | **absent** | `toolbar/quick-actions` @parity_2_0 |
-| Keyboard shortcuts + control availability | command registry + disabled-with-reason | **absent** | `toolbar/keyboard-shortcuts`, `toolbar/control-availability` @parity_2_0 |
-| Shift+U/D cycling (broken while typing) | `[` / `]` with field-focus guards | **absent** | `toolbar/keyboard-shortcuts` @parity_2_0 |
+| Command palette | ⌘K over the command registry | **partial** — registry exists (`shell/commands.ts` + `domain/commands.ts`); ⌘K still opens the Catalog rather than a palette over actions/materials/Standata | `toolbar/command-palette` @parity_2_0 |
+| Quick actions row | Workspace Bar | **partial** — undo/redo/clone/Standata render from the registry with `data-command` ids and disabled-with-reason; panel toggles not yet in the row | `toolbar/quick-actions` @parity_2_0 |
+| Keyboard shortcuts + control availability | command registry + disabled-with-reason | **partial** — chords bound through the registry with one typing guard; `[`/`]` cycling and the last-panel rule are declared but their UI is not wired | `toolbar/keyboard-shortcuts`, `toolbar/control-availability` @parity_2_0 |
+| Shift+U/D cycling (broken while typing) | `[` / `]` with field-focus guards | **partial** — `material.next`/`material.previous` bound to `]`/`[` behind the typing guard | `toolbar/keyboard-shortcuts` @parity_2_0 |
 | View menu panel toggles | Alt+1…5 layout toggles | **absent** | `toolbar/quick-actions` @parity_2_0 |
 
 ## Code surfaces

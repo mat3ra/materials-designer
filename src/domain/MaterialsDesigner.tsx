@@ -11,17 +11,19 @@ import type Material from "@mat3ra/made/dist/js/Material";
 import { createTheme } from "@mui/material/styles";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { CatalogLite, PANELS } from "./panels";
 import { exportMaterials, readFiles } from "../core/io";
 import { replay, resolve } from "../core/replay";
 import { applySetOperation, createMaterialDoc, editOperation } from "../core/session";
 import { useSession } from "../core/useSession";
 import { toMuiTheme } from "../kit/theme/tokens";
+import { resolveCommands, useCommandShortcuts } from "../shell/commands";
 import { AppMenu } from "./AppMenu";
 import { CombinatorialPanel } from "./CombinatorialPanel";
+import { type CommandContext, type RegionName, COMMANDS } from "./commands";
 import { ConsoleDock } from "./ConsoleDock";
 import { Inspector } from "./Inspector";
 import { Navigator } from "./Navigator";
+import { CatalogLite, PANELS } from "./panels";
 import { StandataPanel } from "./StandataPanel";
 import { StatusBar } from "./StatusBar";
 import { Timeline } from "./Timeline";
@@ -56,6 +58,15 @@ export function App() {
     const [panelType, setPanelType] = useState<string | null>(null);
     /** Set while re-editing a step already in the timeline. */
     const [editingStep, setEditingStep] = useState<number | null>(null);
+    /** Which regions are visible. The command registry refuses to hide the last one. */
+    const [regions, setRegions] = useState<Record<RegionName, boolean>>({
+        navigator: true,
+        timeline: true,
+        inspector: true,
+        console: true,
+    });
+    /** Material whose name is being edited inline in the Navigator. */
+    const [renamingId, setRenamingId] = useState<string | null>(null);
 
     useEffect(() => {
         document.documentElement.setAttribute("data-theme", theme);
@@ -199,6 +210,36 @@ export function App() {
         [session.state.materials, session.activeDoc],
     );
 
+    // One registry behind every trigger: the bar's buttons, the palette, the keyboard and the
+    // Cypress suite all address the same ids, so rearranging the UI does not disturb any of them.
+    const commandContext = useMemo<CommandContext>(
+        () => ({
+            session,
+            regions,
+            // Standalone has no host; each file-level command self-disables, exactly as v1's
+            // menu items did when the platform did not inject them.
+            host: {},
+            ui: {
+                openPanel: setPanelType,
+                openCatalog: () => setCatalogOpen(true),
+                openPalette: () => setCatalogOpen(true),
+                pickFiles,
+                exportActive: (format) => handleExport(format, false),
+                exportAll: () => handleExport("json", true),
+                toggleRegion: (region) =>
+                    setRegions((current) => ({ ...current, [region]: !current[region] })),
+                toggleTheme: () => setTheme((t) => (t === "dark" ? "light" : "dark")),
+                startRename: setRenamingId,
+            },
+        }),
+        [session, regions, pickFiles, handleExport],
+    );
+
+    const commands = useMemo(() => resolveCommands(COMMANDS, commandContext), [commandContext]);
+
+    // Shortcuts are off while a panel or overlay owns the keyboard.
+    useCommandShortcuts(commands, !catalogOpen && panelType === null);
+
     const panel = panelType ? PANELS[panelType] : undefined;
     const PanelComponent = panel?.Component;
 
@@ -325,14 +366,10 @@ export function App() {
                     sessionName={session.sessionName}
                     onRename={session.setSessionName}
                     savedAt={session.savedAt}
-                    canUndo={session.canUndo}
-                    canRedo={session.canRedo}
-                    onUndo={session.undo}
-                    onRedo={session.redo}
+                    commands={commands}
                     onOpenCatalog={() => setCatalogOpen(true)}
                     onOpenMenu={() => setMenuOpen((open) => !open)}
                     theme={theme}
-                    onToggleTheme={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
                 />
 
                 {session.restoredFrom && (
