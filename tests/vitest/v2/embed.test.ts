@@ -81,3 +81,32 @@ describe("toMDState — the shape the platform reads back", () => {
         expect(() => toMDState({ ...state, materials: [...state.materials, broken] })).not.toThrow();
     });
 });
+
+describe("toMDState — positions stay aligned with what is published", () => {
+    it("indexes into the published list, not the session's", () => {
+        // A material that cannot be serialised is left out. If positions were still counted
+        // against the full list, materials[index] would point at the wrong material — and the
+        // platform's save dialog writes whatever it is handed.
+        const state = createInitialState();
+        // An operation type the registry does not know: the document cannot be rebuilt at all.
+        const doomed: (typeof state.materials)[number] = {
+            ...state.materials[0],
+            id: "doomed",
+            log: [{ ...state.materials[0].log[0], id: "op-doomed", type: "no-such-operation" }],
+        };
+        const view = toMDState({
+            ...state,
+            materials: [doomed, ...state.materials],
+            activeId: state.materials[0].id,
+        });
+
+        expect(view.materials).toHaveLength(1);
+        expect(view.index).toBe(0);
+        expect(view.materials[view.index]).toBeDefined();
+        expect(view.updatedIndices.every((i) => i < view.materials.length)).toBe(true);
+    });
+
+    it("reports isLoading as given", () => {
+        expect(toMDState(createInitialState(), true).isLoading).toBe(true);
+    });
+});

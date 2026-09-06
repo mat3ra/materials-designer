@@ -83,6 +83,17 @@ export function MaterialsDesigner({
     const [panelType, setPanelType] = useState<string | null>(null);
     /** Set while re-editing a step already in the timeline. */
     const [editingStep, setEditingStep] = useState<number | null>(null);
+
+    /**
+     * Closing a panel always forgets what it was editing.
+     *
+     * These two pieces of state are one idea, and separating them means the next panel opened from
+     * any source is treated as an in-place edit of a step it has nothing to do with.
+     */
+    const closePanel = useCallback(() => {
+        setPanelType(null);
+        setEditingStep(null);
+    }, []);
     /** Which regions are visible. The command registry refuses to hide the last one. */
     const [regions, setRegions] = useState<Record<RegionName, boolean>>({
         navigator: true,
@@ -113,7 +124,11 @@ export function MaterialsDesigner({
             if (event.key === "Escape") {
                 setCatalogOpen(false);
                 setPaletteOpen(false);
-                setPanelType(null);
+                closePanel();
+                // Clearing the panel without clearing what it was editing leaves the next panel —
+                // from any source — treated as an in-place edit of a step it has nothing to do
+                // with, rewriting it with the wrong parameters.
+                setEditingStep(null);
             }
         }
         window.addEventListener("keydown", onKeyDown);
@@ -141,7 +156,7 @@ export function MaterialsDesigner({
     const handleApply = useCallback(
         (type: string, params: unknown) => {
             apply(type, params, { source: "form" });
-            setPanelType(null);
+            closePanel();
         },
         [apply],
     );
@@ -175,7 +190,7 @@ export function MaterialsDesigner({
                 return next;
             });
             setEditingStep(null);
-            setPanelType(null);
+            closePanel();
         },
         [editingStep, session],
     );
@@ -187,23 +202,31 @@ export function MaterialsDesigner({
      */
     const importFiles = useCallback(
         async (files: FileList | File[]) => {
-            try {
-                const read = await readFiles(files);
-                const docs = read.map((file) =>
-                    createMaterialDoc("import-file", {
-                        content: file.content,
-                        name: file.name.replace(/\.[^.]+$/, ""),
-                    }),
-                );
-                session.add(docs);
-                setNotice(`Imported ${docs.length} material${docs.length === 1 ? "" : "s"}.`);
-            } catch (e) {
-                setNotice(
-                    `Import failed: ${
-                        e instanceof Error ? e.message : String(e)
-                    }. Supported formats are JSON and POSCAR.`,
-                );
-            }
+            const read = await readFiles(files);
+            const docs: MaterialDoc[] = [];
+            const failed: string[] = [];
+
+            // One unreadable file must not cost the user the others. Each is turned into a
+            // document on its own, and the failures are reported alongside what did come in.
+            read.forEach(({ name, content }) => {
+                try {
+                    docs.push(createMaterialDoc("import-file", { name, content }));
+                } catch {
+                    failed.push(name);
+                }
+            });
+
+            if (docs.length) session.add(docs);
+
+            const imported = docs.length
+                ? `Imported ${docs.length} material${docs.length === 1 ? "" : "s"}.`
+                : "";
+            const skipped = failed.length
+                ? `${failed.length === read.length ? "" : " "}Could not read ${failed.join(
+                      ", ",
+                  )} — supported formats are JSON and POSCAR.`
+                : "";
+            setNotice(`${imported}${skipped}`.trim() || null);
         },
         [session],
     );
@@ -269,8 +292,8 @@ export function MaterialsDesigner({
     // v1 published its reducer state here and the Cypress suite reads it; 2.0 publishes the same
     // shape, derived from the log rather than stored alongside it.
     useEffect(() => {
-        (window as unknown as { MDState: unknown }).MDState = toMDState(session.state);
-    }, [session.state]);
+        (window as unknown as { MDState: unknown }).MDState = toMDState(session.state, isLoading);
+    }, [session.state, isLoading]);
 
     const panel = panelType ? PANELS[panelType] : undefined;
     const PanelComponent = panel?.Component;
@@ -298,7 +321,7 @@ export function MaterialsDesigner({
                                 source: `${entry.name} (standard library)`,
                             }),
                         ]);
-                        setPanelType(null);
+                        closePanel();
                     }}
                 />
             );
@@ -307,6 +330,7 @@ export function MaterialsDesigner({
             return (
                 <CombinatorialPanel
                     material={session.active.material}
+                    maxMaterials={maxCombinatorialBasesCount}
                     onCancel={() => setPanelType(null)}
                     onApply={(configs, xyz) => {
                         session.run((state) =>
@@ -314,7 +338,7 @@ export function MaterialsDesigner({
                                 setLabel: "Combinatorial set",
                             }),
                         );
-                        setPanelType(null);
+                        closePanel();
                     }}
                 />
             );
@@ -333,7 +357,7 @@ export function MaterialsDesigner({
                                 setLabel: "Interpolated set",
                             }),
                         );
-                        setPanelType(null);
+                        closePanel();
                     }}
                 />
             );
@@ -366,7 +390,7 @@ export function MaterialsDesigner({
                         applyLabel={editApplyLabel(editing, downstream)}
                         onApply={editing ? handleApplyEdit : handleApply}
                         onCancel={() => {
-                            setPanelType(null);
+                            closePanel();
                             setEditingStep(null);
                         }}
                     />
@@ -497,17 +521,21 @@ export function MaterialsDesigner({
                         />
                     </div>
 
-                    <div
-                        className={`md2-center md2-region${
-                            regions.viewport ? "" : " md2-region-hidden"
-                        }`}
-                        data-region="viewport"
-                    >
-                        <Viewport
-                            material={session.active.material}
-                            onEdit={handleCanvasEdit}
-                            onSelectionChanged={session.selectSites}
-                        />
+                    {/* Two independent regions share the centre column: hiding the 3D view must
+                        not take the Console with it, which nesting them would. */}
+                    <div className="md2-center">
+                        <div
+                            className={`md2-region-v md2-center-fill${
+                                regions.viewport ? "" : " md2-region-hidden"
+                            }`}
+                            data-region="viewport"
+                        >
+                            <Viewport
+                                material={session.active.material}
+                                onEdit={handleCanvasEdit}
+                                onSelectionChanged={session.selectSites}
+                            />
+                        </div>
                         <div
                             className={`md2-region-v${regions.console ? "" : " md2-region-hidden"}`}
                             data-region="console"
@@ -599,6 +627,7 @@ export function MaterialsDesigner({
                     >
                         <CatalogLite
                             query={catalogQuery}
+                            materialCount={session.state.materials.length}
                             onQueryChange={setCatalogQuery}
                             onClose={() => setCatalogOpen(false)}
                             onPick={(type) => {

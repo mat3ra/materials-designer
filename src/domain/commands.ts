@@ -8,6 +8,7 @@
  * Availability is expressed here rather than at each button, so the palette, the toolbar and the
  * keyboard all agree about what can run — and, when something cannot, they give the same reason.
  */
+import type { MaterialDoc } from "../core/types";
 import type { UseSession } from "../core/useSession";
 import type { Command } from "../shell/commands";
 import { type MDStateView, toMDState } from "./mdState";
@@ -16,7 +17,13 @@ export type RegionName = "navigator" | "viewport" | "timeline" | "inspector" | "
 
 /** The file-level actions the platform injects. Absent in standalone; each self-disables. */
 export interface HostActions {
-    import?: () => void;
+    /**
+     * Opens the platform's import modal.
+     *
+     * Handed the session's own adder, because what the modal returns has to end up somewhere and
+     * the embed layer has no session of its own to put it in.
+     */
+    import?: (add: (docs: MaterialDoc[]) => void) => void;
     /** Handed the session projected into the shape the platform's save dialog reads. */
     save?: (state: MDStateView) => void;
     exit?: () => void;
@@ -101,7 +108,7 @@ export const COMMANDS: Command<CommandContext>[] = [
         label: "Import from the platform",
         group: "File",
         keywords: ["host", "open"],
-        run: (c) => c.host.import?.(),
+        run: (c) => c.host.import?.(c.session.add),
         // Standalone has no host to import from, exactly as v1's menu item self-disabled.
         isEnabled: (c) => Boolean(c.host.import),
         disabledReason: () => "Only available when embedded in the platform",

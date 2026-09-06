@@ -67,9 +67,23 @@ export function InterpolatedSetPanel({
     onCancel,
     applyLabel,
 }: InterpolatedSetPanelProps) {
-    const others = docs
-        .filter((doc) => doc.id !== activeId)
-        .map((doc) => ({ doc, resolved: resolve(doc).material }));
+    // Rebuilt from stable inputs so the preview below memoises on something that does not change
+    // identity every render.
+    const others = useMemo(
+        () =>
+            docs
+                .filter((doc) => doc.id !== activeId)
+                .map((doc) => ({ doc, resolved: resolve(doc).material })),
+        [docs, activeId],
+    );
+
+    /** Cells have to match for interpolation to mean anything; this is the cheap indicator. */
+    const compatible = useMemo(() => {
+        const cellOf = (m: Material) =>
+            JSON.stringify((m.basis as unknown as { cell?: unknown })?.cell ?? null);
+        const source = cellOf(material);
+        return others.filter(({ resolved }) => cellOf(resolved) === source);
+    }, [others, material]);
     /*
      * Open on an endpoint that can actually work.
      *
@@ -78,14 +92,9 @@ export function InterpolatedSetPanel({
      * heuristic — the attempt in `preview` is the real check — but it is enough to pick a sensible
      * starting selection, and the most recently added match is the likeliest intended partner.
      */
-    const [finalId, setFinalId] = useState(() => {
-        const cellOf = (m: Material) =>
-            JSON.stringify((m.basis as unknown as { cell?: unknown })?.cell ?? null);
-        const source = cellOf(material);
-        const compatible = others.filter(({ resolved }) => cellOf(resolved) === source);
-        const pick = compatible.length ? compatible[compatible.length - 1] : others[0];
-        return pick?.doc.id ?? "";
-    });
+    const [finalId, setFinalId] = useState(
+        () => (compatible.length ? compatible[compatible.length - 1] : others[0])?.doc.id ?? "",
+    );
     const [count, setCount] = useState("5");
 
     const images = Number(count);

@@ -145,6 +145,10 @@ button {
     flex-direction: column;
     min-height: 0;
 }
+.md2-center-fill {
+    flex: 1;
+    min-height: 0;
+}
 .md2-region-hidden {
     width: 0 !important;
     min-width: 0 !important;

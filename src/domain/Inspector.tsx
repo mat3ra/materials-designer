@@ -185,38 +185,13 @@ function StructureTab({
  * screen reader can read and edit coordinates here even though the 3D scene is
  * opaque to it.
  */
-function SelectionTab({
-    theme,
-    onApplyCoalescing,
-    material,
-    selection,
-    onApply,
-}: {
-    material: Material;
-    selection: SelectionModel;
-    onApply: (type: string, params: unknown) => void;
-    onApplyCoalescing: (type: string, params: unknown) => void;
-    theme: "dark" | "light";
-}) {
-    // Read and write in the same units. getBasisAsXyz() emits whatever the
-    // basis currently holds, so writing back with a hardcoded "crystal" would
-    // reinterpret angstroms as fractions and destroy a cartesian structure.
-    const units = (material.basis as { units?: "crystal" | "cartesian" })?.units ?? "crystal";
-    const current = material.getBasisAsXyz();
-    const [draft, setDraft] = useState(current);
-    const [dirty, setDirty] = useState(false);
-
-    // Follow the material unless the user is mid-edit, so applying an operation
-    // elsewhere does not silently discard their typing. A successful apply
-    // changes `current`, which clears the dirty flag; a rejected one does not,
-    // so the draft survives to be corrected.
-    useEffect(() => {
-        setDraft(current);
-        setDirty(false);
-    }, [current]);
-
-    const lines = draft.split("\n");
-
+/**
+ * What is selected, and what that means.
+ *
+ * Editing the basis lives in Structure, where the lattice and the sites are described together;
+ * this tab reports the selection and reads from the same shared store the viewport does.
+ */
+function SelectionTab({ selection }: { selection: SelectionModel }) {
     return (
         <section className="md2-isec">
             <div className="md2-stitle">
@@ -275,15 +250,7 @@ export function Inspector({
                         theme={theme}
                     />
                 )}
-                {tab === "selection" && (
-                    <SelectionTab
-                        material={material}
-                        selection={selection}
-                        onApply={onApply}
-                        onApplyCoalescing={onApplyCoalescing}
-                        theme={theme}
-                    />
-                )}
+                {tab === "selection" && <SelectionTab selection={selection} />}
                 {tab === "display" && (
                     <div className="md2-note">
                         Display settings live in the viewport toolbar for now. In the full design

@@ -131,7 +131,19 @@ export function useSession({
         if (persistence === "none") return undefined;
         if (timer.current) clearTimeout(timer.current);
         timer.current = setTimeout(() => {
-            if (save(state, sessionName)) setSavedAt(Date.now());
+            if (save(state, sessionName)) {
+                setSavedAt(Date.now());
+                return;
+            }
+            // Storage is full, or refused. Telling the user their work is saved when it is not is
+            // the one failure this file exists to prevent, so the claim is withdrawn and said out
+            // loud; the last good save is still in storage, untouched.
+            setSavedAt(null);
+            setError(
+                "This session could not be saved — browser storage is full or unavailable. " +
+                    "Your last saved version is untouched, but changes since then are only in " +
+                    "this tab. Export anything you need to keep.",
+            );
         }, AUTOSAVE_DEBOUNCE_MS);
         return () => {
             if (timer.current) clearTimeout(timer.current);

@@ -14,6 +14,8 @@ import { PANEL_META } from "./shared";
 
 export interface CatalogEntry {
     type: string;
+    /** Evaluated against the session; a card that cannot run says why, like its command does. */
+    requires?: (context: { materialCount: number }) => string | undefined;
     title: string;
     icon: string;
     description: string;
@@ -41,6 +43,8 @@ export const CATALOG: CatalogEntry[] = [
     },
     {
         type: "interpolated-set",
+        requires: ({ materialCount }) =>
+            materialCount > 1 ? undefined : "Interpolation needs a second material to run to",
         title: "Interpolated set (NEB)",
         icon: "⋯",
         description:
@@ -132,6 +136,8 @@ export function filterCatalog(query: string, entries: CatalogEntry[] = CATALOG):
 
 export interface CatalogLiteProps {
     query: string;
+    /** Lets a card refuse for the same reason its command would. */
+    materialCount: number;
     onPick: (type: string) => void;
     onQueryChange: (query: string) => void;
     onClose: () => void;
@@ -139,6 +145,7 @@ export interface CatalogLiteProps {
 
 export function CatalogLite({
     query,
+    materialCount,
     onPick,
     onQueryChange,
     onClose,
@@ -162,29 +169,33 @@ export function CatalogLite({
             </div>
 
             <div className="md2-catalog-list">
-                {results.map((entry) => (
-                    <button
-                        key={entry.type}
-                        type="button"
-                        className="md2-catalog-card"
-                        disabled={Boolean(entry.disabledReason)}
-                        onClick={() => onPick(entry.type)}
-                    >
-                        <span className="md2-icon" aria-hidden="true">
-                            {entry.icon}
-                        </span>
-                        <span className="md2-catalog-title">{entry.title}</span>
-                        <span className="md2-badge" data-engine={entry.engine}>
-                            {entry.engine.toUpperCase()}
-                        </span>
-                        <span className="md2-catalog-desc">{entry.description}</span>
-                        {entry.disabledReason ? (
-                            <span className="md2-note md2-note-warn">
-                                {`⚠ ${entry.disabledReason}`}
+                {results.map((entry) => {
+                    // A card and its command must agree: one saying "not yet" while the other
+                    // opens an unusable panel is worse than either answer on its own.
+                    const reason = entry.disabledReason ?? entry.requires?.({ materialCount });
+                    return (
+                        <button
+                            key={entry.type}
+                            type="button"
+                            className="md2-catalog-card"
+                            disabled={Boolean(reason)}
+                            title={reason}
+                            onClick={() => onPick(entry.type)}
+                        >
+                            <span className="md2-icon" aria-hidden="true">
+                                {entry.icon}
                             </span>
-                        ) : null}
-                    </button>
-                ))}
+                            <span className="md2-catalog-title">{entry.title}</span>
+                            <span className="md2-badge" data-engine={entry.engine}>
+                                {entry.engine.toUpperCase()}
+                            </span>
+                            <span className="md2-catalog-desc">{entry.description}</span>
+                            {reason ? (
+                                <span className="md2-note md2-note-warn">{`⚠ ${reason}`}</span>
+                            ) : null}
+                        </button>
+                    );
+                })}
                 {results.length === 0 ? (
                     <p className="md2-note">
                         {`Nothing matches “${query.trim()}” — the Assistant can compile it from these same operations.`}

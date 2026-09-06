@@ -8,6 +8,9 @@
  *
  * Everything here exists so that nothing above it has to know a host is present.
  */
+// The embedded app carries its own stylesheet: a host renders the component, not our page.
+import "../styles/md2.css";
+
 import React, { useMemo } from "react";
 
 import { MaterialsDesigner } from "../domain/MaterialsDesigner";
@@ -71,10 +74,15 @@ export function MaterialsDesignerContainer({
             // Present only when the platform injected them; each command self-disables otherwise.
             host={{
                 import: openImportModal
-                    ? () =>
+                    ? (addMaterials) =>
                           openImportModal({
                               show: true,
-                              onSubmit: () => closeImportModal?.(),
+                              // The modal hands back what the user picked; adding it is the whole
+                              // point of opening it.
+                              onSubmit: (materials) => {
+                                  if (materials?.length) addMaterials(materials.map(toMaterialDoc));
+                                  closeImportModal?.();
+                              },
                           })
                     : undefined,
                 save: openSaveActionDialog,

@@ -7,19 +7,41 @@
  */
 import { Made } from "@mat3ra/made";
 import type Material from "@mat3ra/made/dist/js/Material";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 export interface CombinatorialPanelProps {
     material: Material;
     /** Receives one config per emitted material. */
     onApply: (configs: { config: unknown; label: string }[], xyz: string) => void;
     onCancel: () => void;
+    /** The host's ceiling on one batch; the platform sets it per deployment. */
+    maxMaterials?: number;
 }
 
-const MAX_MATERIALS = 100;
+const DEFAULT_MAX_MATERIALS = 100;
 
-export function CombinatorialPanel({ material, onApply, onCancel }: CombinatorialPanelProps) {
+export function CombinatorialPanel({
+    material,
+    onApply,
+    onCancel,
+    maxMaterials = DEFAULT_MAX_MATERIALS,
+}: CombinatorialPanelProps) {
     const [xyz, setXyz] = useState(() => material.getBasisAsXyz());
+
+    /*
+     * Follow the material the panel is pointed at.
+     *
+     * The template seeds from the active material, and switching material while the panel is open
+     * would otherwise combine one material's sites with another's lattice and record the result as
+     * children of the new one — silently wrong rather than visibly broken.
+     */
+    const seeded = useRef(material);
+    useEffect(() => {
+        if (seeded.current !== material) {
+            seeded.current = material;
+            setXyz(material.getBasisAsXyz());
+        }
+    }, [material]);
 
     // Forecast the batch on every keystroke, exactly like the numeric panels:
     // a combinatorial run is the easiest way to accidentally make 500 materials.
@@ -60,7 +82,7 @@ export function CombinatorialPanel({ material, onApply, onCancel }: Combinatoria
     }, [xyz, material]);
 
     const count = forecast.ok ? forecast.configs.length : 0;
-    const tooMany = count > MAX_MATERIALS;
+    const tooMany = count > maxMaterials;
 
     return (
         <section className="md2-panel" aria-label="Combinatorial set">
@@ -89,7 +111,7 @@ export function CombinatorialPanel({ material, onApply, onCancel }: Combinatoria
                 {forecast.ok ? (
                     <div className={`md2-predict${tooMany ? " md2-predict-error" : ""}`}>
                         → {count} material{count === 1 ? "" : "s"} (one set)
-                        {tooMany ? ` · over the ${MAX_MATERIALS} limit` : ""}
+                        {tooMany ? ` · over the ${maxMaterials} limit` : ""}
                     </div>
                 ) : (
                     <div className="md2-predict md2-predict-error">{forecast.error}</div>

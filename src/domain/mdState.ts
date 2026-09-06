@@ -21,35 +21,42 @@ export interface MDStateView {
 }
 
 export function toMDState(state: SessionState, isLoading = false): MDStateView {
-    const materials = state.materials.flatMap((doc) => {
-        const { material } = resolve(doc);
+    /*
+     * Positions are counted against what is actually published.
+     *
+     * A material can fail to rebuild, or to serialise — some standard-library entries carry fields
+     * the enhanced schema rejects — and a view that exists so other things can read the session
+     * must never be the reason the session stops rendering. But dropping one while still counting
+     * positions against the full list would be worse than crashing: `materials[index]` would point
+     * at a different material, and the platform's save dialog writes whatever it is handed. So the
+     * survivors are collected first and every index is derived from them.
+     */
+    const kept: { material: MDMaterial; modified: boolean }[] = [];
+    let index = 0;
+
+    state.materials.forEach((doc) => {
+        let converted: MDMaterial;
         try {
-            // externalId is the platform's own id; it travels back so a save updates the right
-            // record rather than creating a duplicate.
-            return [
-                MDMaterial.fromMadeMaterial(
-                    material,
-                    doc.externalId ? { _id: doc.externalId } : {},
-                ),
-            ];
+            const { material } = resolve(doc);
+            // externalId is the platform's own id; it travels back so a save updates that record
+            // rather than creating a duplicate.
+            converted = MDMaterial.fromMadeMaterial(
+                material,
+                doc.externalId ? { _id: doc.externalId } : {},
+            );
         } catch {
-            // Not every material in the standard library survives a round trip through the
-            // enhanced schema — some carry fields it rejects. A view that exists so other things
-            // can read the session must never be the reason the session stops rendering, so such
-            // a material is left out of the projection rather than taking the app down with it.
-            return [];
+            return;
         }
+        if (doc.id === state.activeId) index = kept.length;
+        kept.push({ material: converted, modified: isModified(doc) });
     });
 
     return {
-        index: Math.max(
-            0,
-            state.materials.findIndex((doc) => doc.id === state.activeId),
-        ),
+        index,
         isLoading,
-        materials,
-        updatedIndices: state.materials
-            .map((doc, index) => (isModified(doc) ? index : -1))
-            .filter((index) => index >= 0),
+        materials: kept.map((entry) => entry.material),
+        updatedIndices: kept
+            .map((entry, position) => (entry.modified ? position : -1))
+            .filter((position) => position >= 0),
     };
 }
