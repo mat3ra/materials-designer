@@ -267,7 +267,20 @@ export function removeMaterial(state: SessionState, id: string): SessionState {
 }
 
 /** Fork: a sibling material sharing ancestry — how branching works (decision D3). */
-export function forkMaterial(state: SessionState, id: string, upToStep?: number): SessionState {
+/**
+ * Copy a material as a sibling.
+ *
+ * `select` distinguishes two intents that look the same from here. Forking from a timeline step
+ * means "carry on from there", so the fork becomes active. Cloning a material — v1's Clone, and
+ * what the `material.clone` command does — appends a copy and leaves you where you were: the list
+ * grows, the position indicator does not move.
+ */
+export function forkMaterial(
+    state: SessionState,
+    id: string,
+    upToStep?: number,
+    options: { select?: boolean } = {},
+): SessionState {
     const doc = getDoc(state, id);
     if (!doc) return state;
     const log = doc.log.slice(0, upToStep ?? doc.log.length);
@@ -280,7 +293,7 @@ export function forkMaterial(state: SessionState, id: string, upToStep?: number)
     return pushChange(
         state,
         { kind: "materials-added", materialIds: [copy.id], docs: [copy] },
-        { materials, activeId: copy.id },
+        { materials, activeId: options.select === false ? state.activeId : copy.id },
     );
 }
 

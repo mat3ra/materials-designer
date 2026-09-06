@@ -171,7 +171,9 @@ export const COMMANDS: Command<CommandContext>[] = [
         label: "Clone material",
         group: "Material",
         keywords: ["copy", "duplicate", "fork"],
-        run: (c) => c.session.fork(c.session.activeDoc.id),
+        // v1's Clone appends without moving the selection; the harvested status-bar spec pins
+        // that the denominator grows while the numerator stays put.
+        run: (c) => c.session.fork(c.session.activeDoc.id, undefined, { select: false }),
     },
     {
         id: "material.rename",

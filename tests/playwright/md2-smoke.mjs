@@ -303,6 +303,37 @@ check(
     `folder visible while expanded: ${expandedFolders}`,
 );
 
+// --- status bar groups ------------------------------------------------------
+{
+    const material = page.locator("#materials-designer-status-bar .status-material");
+    const position = page.locator("#materials-designer-status-bar .status-position");
+    check("the status bar exposes a material group", await material.isVisible());
+    const materialText = (await material.innerText()).replace(/\s+/g, " ");
+    check(
+        "which answers what this material is",
+        /atoms/.test(materialText) && materialText.trim().length > 0,
+        materialText,
+    );
+
+    const before = (await position.innerText()).trim();
+    check("and a position group reading n / m", /^\d+ \/ \d+$/.test(before), before);
+
+    // Cloning appends without moving the selection: the denominator grows, the numerator does not.
+    const [n0, m0] = before.split("/").map((part) => Number(part.trim()));
+    await page.click('[data-command="material.clone"]');
+    await page.waitForTimeout(500);
+    const after = (await position.innerText()).trim();
+    const [n1, m1] = after.split("/").map((part) => Number(part.trim()));
+    check(
+        "cloning grows the list without switching to the copy",
+        n1 === n0 && m1 === m0 + 1,
+        `${before} -> ${after}`,
+    );
+
+    await page.keyboard.press("Control+z");
+    await page.waitForTimeout(500);
+}
+
 // --- inline rename ---------------------------------------------------------
 {
     const row = page.locator('[data-testid="material-row"]').first();

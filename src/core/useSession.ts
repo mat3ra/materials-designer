@@ -57,7 +57,7 @@ export interface UseSession {
     ) => void;
     add: (docs: MaterialDoc[]) => void;
     remove: (id: string) => void;
-    fork: (id: string, upToStep?: number) => void;
+    fork: (id: string, upToStep?: number, options?: { select?: boolean }) => void;
     revert: (id: string, step: number) => void;
     select: (id: string) => void;
     selectSites: (siteIds: number[]) => void;
@@ -147,7 +147,8 @@ export function useSession(): UseSession {
             ) => run((s) => applyCoalescingOperation(s, type, params, options)),
             add: (docs: MaterialDoc[]) => run((s) => addMaterials(s, docs)),
             remove: (id: string) => run((s) => removeMaterial(s, id)),
-            fork: (id: string, upToStep?: number) => run((s) => forkMaterial(s, id, upToStep)),
+            fork: (id: string, upToStep?: number, options?: { select?: boolean }) =>
+                run((s) => forkMaterial(s, id, upToStep, options)),
             revert: (id: string, step: number) => run((s) => revertTo(s, id, step)),
             select: (id: string) => run((s) => setActive(s, id)),
             selectSites: (siteIds: number[]) => run((s) => setSelection(s, siteIds)),

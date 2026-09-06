@@ -950,6 +950,13 @@ select.md2-field {
     font-size: 11.5px;
     color: var(--text-dim);
 }
+/* A status group keeps its facts together so they can be read as one answer. */
+.md2-sgroup {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .md2-sseg {
     display: inline-flex;
     align-items: center;
