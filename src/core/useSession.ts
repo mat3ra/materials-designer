@@ -69,12 +69,28 @@ export interface UseSession {
     run: (fn: (state: SessionState) => SessionState) => void;
 }
 
-export function useSession(): UseSession {
+export interface UseSessionOptions {
+    /** Seeds a fresh session; ignored when a stored one is adopted. */
+    initialDocs?: MaterialDoc[];
+    /**
+     * "none" skips both restoring and autosaving.
+     *
+     * The embedded costume uses it: the platform hands over the materials it wants edited, and a
+     * session left in this browser from some other visit must not overwrite them.
+     */
+    persistence?: "local" | "none";
+}
+
+export function useSession({
+    initialDocs,
+    persistence = "local",
+}: UseSessionOptions = {}): UseSession {
     // A stored session is only usable if it still replays: a dependency bump can
     // leave an operation unreplayable, and rendering an unresolvable material
     // would white-screen the app on every load with no way back. Check before
     // adopting it, and fall back to a fresh session with an explanation.
     const [restored] = useState<(PersistedSession & { unusable?: string }) | null>(() => {
+        if (persistence === "none") return null;
         const payload = load();
         if (!payload) return null;
         try {
@@ -91,7 +107,7 @@ export function useSession(): UseSession {
                   sets: restored.sets,
                   activeId: restored.activeId,
               })
-            : createInitialState(),
+            : createInitialState(initialDocs),
     );
     const [sessionName, setSessionName] = useState(
         restored && usable ? restored.name : "Untitled session",
@@ -112,6 +128,7 @@ export function useSession(): UseSession {
     // Autosave on idle. Restoring silently would be worse than not restoring —
     // the notice is dismissed explicitly by the user (see restoredFrom).
     useEffect(() => {
+        if (persistence === "none") return undefined;
         if (timer.current) clearTimeout(timer.current);
         timer.current = setTimeout(() => {
             if (save(state, sessionName)) setSavedAt(Date.now());
@@ -119,7 +136,7 @@ export function useSession(): UseSession {
         return () => {
             if (timer.current) clearTimeout(timer.current);
         };
-    }, [state, sessionName]);
+    }, [state, sessionName, persistence]);
 
     /** Wrap a reducer so a failing operation surfaces instead of white-screening. */
     const run = useCallback((fn: (s: SessionState) => SessionState) => {

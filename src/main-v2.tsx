@@ -18,8 +18,8 @@ import allSchemas from "@mat3ra/esse/dist/js/schemas.json";
 import React from "react";
 import ReactDOM from "react-dom";
 
-import { App } from "./domain/MaterialsDesigner";
+import { MaterialsDesigner } from "./domain/MaterialsDesigner";
 
 JSONSchemasInterface.setSchemas(allSchemas as never);
 
-ReactDOM.render(<App />, document.getElementById("root"));
+ReactDOM.render(<MaterialsDesigner />, document.getElementById("root"));

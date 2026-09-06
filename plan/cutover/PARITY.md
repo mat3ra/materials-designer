@@ -16,11 +16,11 @@ a named spec passes. Specs tagged `@parity_2_0` are harvested from PR #299 and r
 
 | v1 capability | 2.0 home | Status | Covering test |
 |---|---|---|---|
-| Import via host modal (`openImportModal`) | ☰ + palette, host-injected, self-disabling | **absent** | `menu/input-output/add-remove-import-files` |
-| Save / Exit (`openSaveActionDialog`, `onExit`) | ☰ + ⌘S; `toMDState(session)` view | **absent** | web-app's own suite (gate 2) |
-| `initialMaterials` → step-0 origins | `createMaterialDoc("create-from-config")` | **absent** | web-app's own suite (gate 2) |
-| `window.MDState` shape | derived in an effect from the session | **absent** | `material with following data exists in state` |
-| `isConventionalCellShown`, `initialViewSettings`, `maxCombinatorialBasesCount` | pass-through to Viewport / combinatorial cap | **absent** | web-app's own suite (gate 2) |
+| Import via host modal (`openImportModal`) | `file.import` command, host-injected, self-disabling | **done** — adapter in `src/embed` | `menu/input-output/add-remove-import-files`; embed unit tests |
+| Save / Exit (`openSaveActionDialog`, `onExit`) | `file.save` (⌘S) / `file.exit`; save is handed `toMDState(session)` | **done** | web-app's own suite (gate 2); embed unit tests |
+| `initialMaterials` → step-0 origins | `toMaterialDoc()` — one origin op each, `externalId` preserved | **done** | embed unit tests |
+| `window.MDState` shape | derived in an effect; a material that cannot serialise is skipped rather than crashing the app | **done** | drives most `@parity_2_0` specs |
+| `isConventionalCellShown`, `initialViewSettings`, `maxCombinatorialBasesCount` | cap is wired; the two viewport props are accepted and **inert**, pending wave.js taking them as controlled props | **partial** — deliberately, and documented at the type | web-app's own suite (gate 2) |
 | Upload from disk (POSCAR/JSON) | Catalog › From file + global drag-and-drop | **done** | `menu/input-output/add-remove-import-files` |
 | Import from Standata (74 configs) | Catalog › Create › Standard library | **done** | `menu/input-output/import-from-standata` |
 | Export JSON / POSCAR / all | ☰ › Export | **done** | md2 smoke (to port) |
@@ -79,6 +79,14 @@ a named spec passes. Specs tagged `@parity_2_0` are harvested from PR #299 and r
 | Keyboard sheet | app-owned `?` overlay | **absent** | *(needs one)* |
 | Multi-material 3D combine (removed with wave's Outliner) | Combine v2 as a 2-input Catalog card | **deferred** — owner: post-cutover, per PROPOSAL ⟲ | — |
 | Fullscreen (broken in v1) | replaced by costumes | **done** | — |
+
+## Still open
+
+- The published `src/exports.js` still points `MaterialsDesignerContainer` at v1. It switches at the
+  flip; until then the 2.0 adapter is reachable at `dist/embed/MaterialsDesignerContainer` for
+  anyone who wants to try the embedded costume.
+- Import-review panel, interpolated-set panel (still an identity stub), Console › Notebook and
+  Console › REPL.
 
 ## Descope order if Phase 2 slips
 

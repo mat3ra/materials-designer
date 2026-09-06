@@ -10,13 +10,15 @@
  */
 import type { UseSession } from "../core/useSession";
 import type { Command } from "../shell/commands";
+import { type MDStateView, toMDState } from "./mdState";
 
 export type RegionName = "navigator" | "viewport" | "timeline" | "inspector" | "console";
 
 /** The file-level actions the platform injects. Absent in standalone; each self-disables. */
 export interface HostActions {
     import?: () => void;
-    save?: () => void;
+    /** Handed the session projected into the shape the platform's save dialog reads. */
+    save?: (state: MDStateView) => void;
     exit?: () => void;
 }
 
@@ -111,7 +113,7 @@ export const COMMANDS: Command<CommandContext>[] = [
         label: "Save to the platform",
         group: "File",
         shortcut: "mod+s",
-        run: (c) => c.host.save?.(),
+        run: (c) => c.host.save?.(toMDState(c.session.state)),
         isEnabled: (c) => Boolean(c.host.save),
         disabledReason: () => "Only available when embedded in the platform",
     },

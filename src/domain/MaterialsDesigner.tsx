@@ -14,13 +14,14 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { exportMaterials, readFiles } from "../core/io";
 import { replay, resolve } from "../core/replay";
 import { applySetOperation, createMaterialDoc, editOperation } from "../core/session";
+import type { MaterialDoc } from "../core/types";
 import { useSession } from "../core/useSession";
 import { CommandPalette } from "../kit/command/CommandPalette";
 import { toMuiTheme } from "../kit/theme/tokens";
 import { resolveCommands, useCommandShortcuts } from "../shell/commands";
 import { AppMenu } from "./AppMenu";
 import { CombinatorialPanel } from "./CombinatorialPanel";
-import { type CommandContext, type RegionName, COMMANDS } from "./commands";
+import { type CommandContext, type HostActions, type RegionName, COMMANDS } from "./commands";
 import { ConsoleDock } from "./ConsoleDock";
 import { Inspector } from "./Inspector";
 import { toMDState } from "./mdState";
@@ -50,8 +51,26 @@ function editApplyLabel(editing: boolean, downstream: number): string | undefine
 /** Steps whose parameters can be re-opened and replayed. */
 const EDITABLE_TYPES = new Set(Object.keys(PANELS));
 
-export function App() {
-    const session = useSession();
+/* eslint-disable react/no-unused-prop-types */
+export interface MaterialsDesignerProps {
+    /** Seeds the session; the platform's materials arrive as step-0 origins. */
+    initialDocs?: MaterialDoc[];
+    isLoading?: boolean;
+    isConventionalCellShown?: boolean;
+    maxCombinatorialBasesCount?: number;
+    /** File-level actions the platform injects; each command self-disables when absent. */
+    host?: HostActions;
+    persistence?: "local" | "none";
+}
+
+export function MaterialsDesigner({
+    initialDocs,
+    isLoading = false,
+    maxCombinatorialBasesCount,
+    host = {},
+    persistence = "local",
+}: MaterialsDesignerProps = {}) {
+    const session = useSession({ initialDocs, persistence });
     const [theme, setTheme] = useState<Theme>("dark");
     const [catalogOpen, setCatalogOpen] = useState(false);
     const [catalogQuery, setCatalogQuery] = useState("");
@@ -222,9 +241,9 @@ export function App() {
         () => ({
             session,
             regions,
-            // Standalone has no host; each file-level command self-disables, exactly as v1's
+            // Standalone has no host, so each file-level command self-disables — exactly as v1's
             // menu items did when the platform did not inject them.
-            host: {},
+            host,
             ui: {
                 openPanel: setPanelType,
                 openCatalog: () => setCatalogOpen(true),
@@ -238,7 +257,7 @@ export function App() {
                 startRename: setRenamingId,
             },
         }),
-        [session, regions, pickFiles, handleExport],
+        [session, regions, host, pickFiles, handleExport],
     );
 
     const commands = useMemo(() => resolveCommands(COMMANDS, commandContext), [commandContext]);
