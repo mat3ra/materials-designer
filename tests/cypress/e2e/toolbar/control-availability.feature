@@ -21,15 +21,17 @@ Feature: Controls that cannot do anything say so
     And I see the "redo" quick action is "enabled"
 
   Scenario: The last panel left open cannot be toggled away
-    Then I see the "SourceEditor" panel toggle is "enabled"
+    Then I see the "inspector" panel toggle is "enabled"
 
-    When I toggle the "ItemsList" panel
-    And I toggle the "ThreeDEditorFullscreen" panel
-    Then I see the "SourceEditor" panel toggle is "disabled"
-    And I see the "ItemsList" panel toggle is "enabled"
+    When I toggle the "navigator" panel
+    And I toggle the "viewport" panel
+    And I toggle the "timeline" panel
+    And I toggle the "console" panel
+    Then I see the "inspector" panel toggle is "disabled"
+    And I see the "navigator" panel toggle is "enabled"
 
-    When I toggle the "ItemsList" panel
-    Then I see the "SourceEditor" panel toggle is "enabled"
+    When I toggle the "navigator" panel
+    Then I see the "inspector" panel toggle is "enabled"
 
   Scenario: Browsing the list is not something to undo
     When I clone material at index "1"

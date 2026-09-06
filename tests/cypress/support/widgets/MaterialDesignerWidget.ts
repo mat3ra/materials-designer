@@ -4,6 +4,8 @@ import BoundaryConditionsDialogWidget, {
 import DefaultImportModalDialogWidget from "./DefaultImportModalDialogWidget";
 import HeaderMenuWidget from "./HeaderMenuWidget";
 import { InterpolatedSetDialogWidget } from "./InterpolatedSetDialogWidget";
+import { isV2 } from "../app";
+import { CommandsWidget } from "./CommandsWidget";
 import { ItemsListWidget } from "./ItemsListWidget";
 import JupyterLiteSession from "./JupyterLiteSession";
 import JupyterLiteTransformationDialogWidget from "./JupyterLiteTransformationDialogWidget";
@@ -20,6 +22,9 @@ export default class MaterialDesignerWidget extends Widget {
     surfaceDialog: SurfaceDialogWidget;
 
     itemsList: ItemsListWidget;
+
+    /** Runs actions by their stable command id (MD 2.0). */
+    commands: CommandsWidget;
 
     sourceEditor: SourceEditorWidget;
 
@@ -42,6 +47,7 @@ export default class MaterialDesignerWidget extends Widget {
     constructor(selector: string) {
         super(selector);
         this.itemsList = new ItemsListWidget();
+        this.commands = new CommandsWidget();
         this.headerMenu = new HeaderMenuWidget();
         this.sourceEditor = new SourceEditorWidget();
         this.surfaceDialog = new SurfaceDialogWidget();
@@ -70,6 +76,12 @@ export default class MaterialDesignerWidget extends Widget {
     }
 
     cloneCurrentMaterial() {
+        // v1 reaches Clone as the fourth item of the Edit menu. 2.0 has no menu bar, so the
+        // command is addressed by its id — the same action, found by name instead of by position.
+        if (isV2()) {
+            this.commands.run("material.clone");
+            return;
+        }
         this.headerMenu.selectMenuItemByNameAndItemNumber("Edit", 4);
     }
 

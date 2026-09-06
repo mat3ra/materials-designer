@@ -37,7 +37,11 @@ export function StandataPanel({ onPick, onCancel }: StandataPanelProps) {
     const shown = needle ? entries.filter((e) => e.name.toLowerCase().includes(needle)) : entries;
 
     return (
-        <section className="md2-panel" aria-label="Standard library">
+        <section
+            className="md2-panel"
+            aria-label="Standard library"
+            data-testid="panel-standard-library"
+        >
             <header className="md2-panel-head">
                 <span className="md2-icon" aria-hidden="true">
                     ◈

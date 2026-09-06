@@ -346,6 +346,22 @@ button {
     align-items: center;
     padding: 10px 10px 8px;
 }
+.md2-filter-clear {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    color: var(--text-faint);
+    background: transparent;
+    border: 0;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+.md2-filter-clear:hover {
+    color: var(--text);
+    background: var(--bg3);
+}
+
 .md2-nav-filter {
     padding: 0 10px 8px;
     display: flex;

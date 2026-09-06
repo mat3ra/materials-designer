@@ -6,13 +6,13 @@ Feature: The quick-action row reaches common operations in one click
     Then I see material designer page
 
   Scenario: Panel toggles hide and restore the editor panels
-    Then I see the ".materials-designer-source-editor" panel
+    Then I see the "[data-region='inspector']" panel
 
-    When I toggle the "SourceEditor" panel
-    Then I do not see the ".materials-designer-source-editor" panel
+    When I toggle the "inspector" panel
+    Then I do not see the "[data-region='inspector']" panel
 
-    When I toggle the "SourceEditor" panel
-    Then I see the ".materials-designer-source-editor" panel
+    When I toggle the "inspector" panel
+    Then I see the "[data-region='inspector']" panel
 
   Scenario: An action on the row opens the same dialog as the menu
     When I click the "import-standata" quick action

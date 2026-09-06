@@ -25,6 +25,19 @@ export default defineConfig({
             config: Cypress.PluginConfigOptions,
         ): Promise<Cypress.PluginConfigOptions> {
             await addCucumberPreprocessorPlugin(on, config);
+
+            // The 3D editor needs a WebGL context, and a headless container has no GPU. Software
+            // rendering gives wave.js a real context to draw into; without it every spec that
+            // touches the viewport fails on "Error creating WebGL context" before it can assert
+            // anything.
+            on("before:browser:launch", (browser, launchOptions) => {
+                if (browser.family === "chromium" && browser.name !== "electron") {
+                    launchOptions.args.push("--use-gl=swiftshader");
+                    launchOptions.args.push("--enable-unsafe-swiftshader");
+                    launchOptions.args.push("--disable-gpu-sandbox");
+                }
+                return launchOptions;
+            });
             on(
                 "file:preprocessor",
                 createBundler({

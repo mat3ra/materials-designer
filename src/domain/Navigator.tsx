@@ -169,7 +169,7 @@ export function Navigator({
                 <span className="md2-tmeta">{digest.atomCount}</span>
                 {isModified(doc) && (
                     <span
-                        className="md2-mdot"
+                        className="md2-mdot material-updated-dot"
                         title="Modified — clears if you revert to the origin"
                         data-testid="modified-dot"
                     />
@@ -203,19 +203,39 @@ export function Navigator({
     }
 
     return (
-        <div className="md2-nav">
+        <div className="md2-nav materials-designer-items-list">
             <div className="md2-nav-head">
                 <span className="md2-htitle">MATERIALS</span>
-                <span className="md2-count">{state.materials.length}</span>
+                <span className="md2-count materials-count" data-testid="materials-count">
+                    {query && visible.length !== state.materials.length
+                        ? `${visible.length} / ${state.materials.length}`
+                        : state.materials.length}
+                </span>
             </div>
-            <div className="md2-nav-filter">
+            <div className="md2-nav-filter materials-filter">
                 <input
                     value={filter}
                     placeholder="Filter by name or formula…"
                     aria-label="Filter materials"
                     onChange={(event) => setFilter(event.target.value)}
                 />
-                <button type="button" className="md2-btn-new" onClick={onNew} title="New material">
+                {filter && (
+                    <button
+                        type="button"
+                        className="md2-filter-clear materials-filter-clear"
+                        aria-label="Clear the filter"
+                        title="Clear the filter"
+                        onClick={() => setFilter("")}
+                    >
+                        ×
+                    </button>
+                )}
+                <button
+                    type="button"
+                    className="md2-btn-new add-material-menu"
+                    onClick={onNew}
+                    title="New material"
+                >
                     + New
                 </button>
             </div>
@@ -238,7 +258,11 @@ export function Navigator({
                     }
                     return renderMaterial(doc, depth);
                 })}
-                {!visible.length && <div className="md2-empty">No matches · clear the filter</div>}
+                {!visible.length && (
+                    <div className="md2-empty materials-empty-state">
+                        No matches · clear the filter
+                    </div>
+                )}
             </div>
         </div>
     );

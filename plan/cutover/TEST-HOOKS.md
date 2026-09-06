@@ -72,3 +72,46 @@ A spec never selects by tag name, CSS class, DOM position, or visible label. Cla
 change with the design language; labels change with the copy; positions change with the layout.
 Command IDs and test IDs are the only supported handles, and they are chosen so that the flip is a
 change of implementation rather than a change of contract.
+
+## Running the parity specs (added 2026-09-06)
+
+The suite drives both applications while they coexist. `cypress/support/app.ts` decides which:
+
+```
+cd tests && npx cypress run --env APP=v2,TAGS='@parity_2_0'
+```
+
+`APP=v2` points `MaterialDesignerPage.url` at `/v2.html` and switches the widgets to 2.0's
+selectors; the default stays v1 at `/`, so every existing spec runs exactly as before. The whole
+mechanism deletes itself at the flip, when v1 is gone and `/v2.html` becomes `/`.
+
+Two environment notes, both of which cost an afternoon to discover:
+
+- **The Cypress binary needs a resumable download here.** `npm install` fetched 188 MB of a 200 MB
+  archive and failed the checksum. `curl -C - --retry` completed it, and the checksum then matched
+  exactly — the artefact was fine, the transfer was not. Install with
+  `CYPRESS_INSTALL_BINARY=/path/to/cypress.zip npx cypress install`.
+- **The viewport needs software rendering.** A headless container has no GPU, so wave.js fails on
+  "Error creating WebGL context" before any assertion runs. `cypress.config.ts` now passes
+  `--use-gl=swiftshader` for chromium browsers, which is what the Playwright smoke already did.
+
+## What the parity specs say today
+
+Run against 2.0 on 2026-09-06: **10 passing, 16 failing.**
+
+| Spec | Result |
+|---|---|
+| `toolbar/control-availability` | 3/3 |
+| `toolbar/keyboard-shortcuts` | 3/3 |
+| `toolbar/quick-actions` | 3/3 |
+| `status-bar/status-bar` | 1/1 |
+| `toolbar/command-palette` | 0/4 — the palette is not built |
+| `materials-list/filter-and-count` | 0/6 — blocked in its Background |
+| `materials-list/updated-marker` | 0/2 — blocked in its first step |
+| `source-editor/basis-table` | 0/4 — the basis table is not built |
+
+The twelve failures outside the palette share one cause: `I create materials with the following
+data` and `I set material basis and lattice with the following data` both need the **basis editor
+and the lattice form**, which 2.0 does not have yet. They are the two items the plan marks "never
+cut", and they are now demonstrably on the critical path rather than merely listed as gaps — the
+same phrase is what 17 of web-app's own features use to set up their fixtures.

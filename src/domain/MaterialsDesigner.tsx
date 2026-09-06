@@ -22,6 +22,7 @@ import { CombinatorialPanel } from "./CombinatorialPanel";
 import { type CommandContext, type RegionName, COMMANDS } from "./commands";
 import { ConsoleDock } from "./ConsoleDock";
 import { Inspector } from "./Inspector";
+import { toMDState } from "./mdState";
 import { Navigator } from "./Navigator";
 import { CatalogLite, PANELS } from "./panels";
 import { StandataPanel } from "./StandataPanel";
@@ -241,6 +242,12 @@ export function App() {
     // Shortcuts are off while a panel or overlay owns the keyboard.
     useCommandShortcuts(commands, !catalogOpen && panelType === null);
 
+    // v1 published its reducer state here and the Cypress suite reads it; 2.0 publishes the same
+    // shape, derived from the log rather than stored alongside it.
+    useEffect(() => {
+        (window as unknown as { MDState: unknown }).MDState = toMDState(session.state);
+    }, [session.state]);
+
     const panel = panelType ? PANELS[panelType] : undefined;
     const PanelComponent = panel?.Component;
 
@@ -336,7 +343,10 @@ export function App() {
     return (
         <CoveThemeProvider theme={muiTheme}>
             <div
-                className="md2-app"
+                // Both hooks are part of the published test contract: MD's own Page selects the
+                // id, web-app's widget subclass selects the class.
+                id="materials-designer"
+                className="md2-app materials-designer"
                 onDragOver={(event) => {
                     if (!event.dataTransfer.types.includes("Files")) return;
                     event.preventDefault();
@@ -426,22 +436,24 @@ export function App() {
                         className={`md2-region${regions.navigator ? "" : " md2-region-hidden"}`}
                         data-region="navigator"
                     >
-                    <Navigator
-                        state={session.state}
-                        onSelect={session.select}
-                        onRemove={session.remove}
-                        onFork={(id) => session.fork(id)}
-                        onNew={() => session.add([createMaterialDoc("create-default", {})])}
-                        onRename={(id, name) =>
-                            session.apply("rename", { name }, { materialId: id })
-                        }
-                        renamingId={renamingId}
-                        onRenamingIdChange={setRenamingId}
-                    />
+                        <Navigator
+                            state={session.state}
+                            onSelect={session.select}
+                            onRemove={session.remove}
+                            onFork={(id) => session.fork(id)}
+                            onNew={() => session.add([createMaterialDoc("create-default", {})])}
+                            onRename={(id, name) =>
+                                session.apply("rename", { name }, { materialId: id })
+                            }
+                            renamingId={renamingId}
+                            onRenamingIdChange={setRenamingId}
+                        />
                     </div>
 
                     <div
-                        className={`md2-center md2-region${regions.viewport ? "" : " md2-region-hidden"}`}
+                        className={`md2-center md2-region${
+                            regions.viewport ? "" : " md2-region-hidden"
+                        }`}
                         data-region="viewport"
                     >
                         <Viewport
@@ -464,17 +476,17 @@ export function App() {
                         className={`md2-region${regions.timeline ? "" : " md2-region-hidden"}`}
                         data-region="timeline"
                     >
-                    <Timeline
-                        doc={session.activeDoc}
-                        editableTypes={EDITABLE_TYPES}
-                        editingStep={editingStep}
-                        onEditStep={(step) => {
-                            setEditingStep(step);
-                            setPanelType(session.activeDoc.log[step].type);
-                        }}
-                        onRevertTo={(step) => session.revert(session.activeDoc.id, step)}
-                        onFork={(step) => session.fork(session.activeDoc.id, step)}
-                    />
+                        <Timeline
+                            doc={session.activeDoc}
+                            editableTypes={EDITABLE_TYPES}
+                            editingStep={editingStep}
+                            onEditStep={(step) => {
+                                setEditingStep(step);
+                                setPanelType(session.activeDoc.log[step].type);
+                            }}
+                            onRevertTo={(step) => session.revert(session.activeDoc.id, step)}
+                            onFork={(step) => session.fork(session.activeDoc.id, step)}
+                        />
                     </div>
 
                     <div

@@ -279,7 +279,7 @@ export function forkMaterial(
     state: SessionState,
     id: string,
     upToStep?: number,
-    options: { select?: boolean } = {},
+    options: { select?: boolean; name?: string } = {},
 ): SessionState {
     const doc = getDoc(state, id);
     if (!doc) return state;
@@ -289,6 +289,13 @@ export function forkMaterial(
         parentId: doc.parentId ?? doc.id,
         log: log.map((op) => ({ ...op, id: uid("op") })),
     };
+    if (options.name) {
+        // Named inside the fork rather than by a following rename, so the copy still arrives as a
+        // single change: one undo removes the whole material instead of peeling off its name first.
+        const renamed = makeOperation("rename", { name: options.name }, { source: "form" });
+        copy.log = [...copy.log, renamed];
+        renamed.result = digestOf(resolve(copy).material);
+    }
     const materials = [...state.materials, copy];
     return pushChange(
         state,
