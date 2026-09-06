@@ -61,6 +61,7 @@ export function App() {
     /** Which regions are visible. The command registry refuses to hide the last one. */
     const [regions, setRegions] = useState<Record<RegionName, boolean>>({
         navigator: true,
+        viewport: true,
         timeline: true,
         inspector: true,
         console: true,
@@ -421,6 +422,10 @@ export function App() {
                 )}
 
                 <div className="md2-main">
+                    <div
+                        className={`md2-region${regions.navigator ? "" : " md2-region-hidden"}`}
+                        data-region="navigator"
+                    >
                     <Navigator
                         state={session.state}
                         onSelect={session.select}
@@ -433,19 +438,32 @@ export function App() {
                         renamingId={renamingId}
                         onRenamingIdChange={setRenamingId}
                     />
+                    </div>
 
-                    <div className="md2-center">
+                    <div
+                        className={`md2-center md2-region${regions.viewport ? "" : " md2-region-hidden"}`}
+                        data-region="viewport"
+                    >
                         <Viewport
                             material={session.active.material}
                             onEdit={handleCanvasEdit}
                             onSelectionChanged={session.selectSites}
                         />
-                        <ConsoleDock
-                            doc={session.activeDoc}
-                            materialName={session.active.material.name ?? "material"}
-                        />
+                        <div
+                            className={`md2-region-v${regions.console ? "" : " md2-region-hidden"}`}
+                            data-region="console"
+                        >
+                            <ConsoleDock
+                                doc={session.activeDoc}
+                                materialName={session.active.material.name ?? "material"}
+                            />
+                        </div>
                     </div>
 
+                    <div
+                        className={`md2-region${regions.timeline ? "" : " md2-region-hidden"}`}
+                        data-region="timeline"
+                    >
                     <Timeline
                         doc={session.activeDoc}
                         editableTypes={EDITABLE_TYPES}
@@ -457,8 +475,14 @@ export function App() {
                         onRevertTo={(step) => session.revert(session.activeDoc.id, step)}
                         onFork={(step) => session.fork(session.activeDoc.id, step)}
                     />
+                    </div>
 
-                    {renderRightPane()}
+                    <div
+                        className={`md2-region${regions.inspector ? "" : " md2-region-hidden"}`}
+                        data-region="inspector"
+                    >
+                        {renderRightPane()}
+                    </div>
                 </div>
 
                 <StatusBar

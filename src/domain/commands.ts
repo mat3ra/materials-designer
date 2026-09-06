@@ -11,7 +11,7 @@
 import type { UseSession } from "../core/useSession";
 import type { Command } from "../shell/commands";
 
-export type RegionName = "navigator" | "timeline" | "inspector" | "console";
+export type RegionName = "navigator" | "viewport" | "timeline" | "inspector" | "console";
 
 /** The file-level actions the platform injects. Absent in standalone; each self-disables. */
 export interface HostActions {
@@ -287,6 +287,7 @@ export const COMMANDS: Command<CommandContext>[] = [
 
     // ------------------------------------------------------------------- view
     regionCommand("navigator", "Toggle the materials list"),
+    regionCommand("viewport", "Toggle the 3D view"),
     regionCommand("timeline", "Toggle the timeline"),
     regionCommand("inspector", "Toggle the inspector"),
     regionCommand("console", "Toggle the console"),

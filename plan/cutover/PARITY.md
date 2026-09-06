@@ -53,10 +53,10 @@ a named spec passes. Specs tagged `@parity_2_0` are harvested from PR #299 and r
 | Modified / updated marker | Navigator dot, revert-aware | **done** — content comparison against the material as it entered the session; materials derived in-session stay marked | `materials-list/updated-marker` @parity_2_0, 6 unit tests |
 | Status bar (v1 footer was empty) | Status Bar segments | **done** — `#materials-designer-status-bar` with `.status-material` and `.status-position` groups; clone grows the list without moving the position | `status-bar/status-bar` @parity_2_0, smoke |
 | Command palette | ⌘K over the command registry | **partial** — registry exists (`shell/commands.ts` + `domain/commands.ts`); ⌘K still opens the Catalog rather than a palette over actions/materials/Standata | `toolbar/command-palette` @parity_2_0 |
-| Quick actions row | Workspace Bar | **partial** — undo/redo/clone/Standata render from the registry with `data-command` ids and disabled-with-reason; panel toggles not yet in the row | `toolbar/quick-actions` @parity_2_0 |
+| Quick actions row | Workspace Bar | **done** — undo/redo/clone/Standata as `.quick-action-<key>`, plus the panel toggles, all from the registry with disabled-with-reason | `toolbar/quick-actions`, `toolbar/control-availability` @parity_2_0, smoke |
 | Keyboard shortcuts + control availability | command registry + disabled-with-reason | **partial** — chords bound through the registry with one typing guard; `[`/`]` cycling and the last-panel rule are declared but their UI is not wired | `toolbar/keyboard-shortcuts`, `toolbar/control-availability` @parity_2_0 |
 | Shift+U/D cycling (broken while typing) | `[` / `]` with field-focus guards | **partial** — `material.next`/`material.previous` bound to `]`/`[` behind the typing guard | `toolbar/keyboard-shortcuts` @parity_2_0 |
-| View menu panel toggles | Alt+1…5 layout toggles | **absent** | `toolbar/quick-actions` @parity_2_0 |
+| View menu panel toggles | Workspace Bar toggles (`.panel-toggle-<region>`) | **done** — five regions collapse to zero width while staying mounted; the last visible one refuses to hide | `toolbar/quick-actions`, `toolbar/control-availability` @parity_2_0, smoke |
 
 ## Code surfaces
 

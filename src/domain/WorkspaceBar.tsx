@@ -36,8 +36,28 @@ export interface WorkspaceBarProps {
     theme: "dark" | "light";
 }
 
-/** Ids the quick-action row shows, in order. */
-const QUICK_ACTIONS = ["edit.undo", "edit.redo", "material.clone", "create.standard-library"];
+/**
+ * The quick-action row: a short key the specs address it by, and the command it runs.
+ *
+ * The key is deliberately not the command id. Specs say `.quick-action-undo`, which reads as an
+ * action rather than as a namespaced identifier, and keeps the class stable if a command is ever
+ * regrouped.
+ */
+const QUICK_ACTIONS: { key: string; command: string }[] = [
+    { key: "undo", command: "edit.undo" },
+    { key: "redo", command: "edit.redo" },
+    { key: "clone", command: "material.clone" },
+    { key: "import-standata", command: "create.standard-library" },
+];
+
+/** Regions that can be shown or hidden, with the name their toggle is addressed by. */
+const PANEL_TOGGLES: { name: string; command: string; label: string }[] = [
+    { name: "navigator", command: "view.toggle-navigator", label: "Materials list" },
+    { name: "viewport", command: "view.toggle-viewport", label: "3D view" },
+    { name: "timeline", command: "view.toggle-timeline", label: "Timeline" },
+    { name: "inspector", command: "view.toggle-inspector", label: "Inspector" },
+    { name: "console", command: "view.toggle-console", label: "Console" },
+];
 
 function savedLabel(savedAt: number | null): string {
     if (!savedAt) return "Not saved yet";
@@ -53,12 +73,12 @@ function savedLabel(savedAt: number | null): string {
  * The title carries the command's own reason when it cannot run: a control that greys out without
  * saying why leaves the user unable to tell a no-op from a bug.
  */
-function QuickAction({ command }: { command: ResolvedCommand }) {
+function QuickAction({ command, actionKey }: { command: ResolvedCommand; actionKey: string }) {
     const hint = command.shortcut ? ` (${command.shortcut.replace("mod", "⌘")})` : "";
     return (
         <button
             type="button"
-            className="md2-wbtn md2-icon"
+            className={`md2-wbtn md2-icon quick-action-${actionKey}`}
             onClick={command.run}
             disabled={!command.enabled}
             title={command.enabled ? `${command.label}${hint}` : command.reason}
@@ -111,9 +131,31 @@ export function WorkspaceBar({
                 {savedLabel(savedAt)}
             </span>
             <span className="md2-vdiv" />
-            {QUICK_ACTIONS.map((id) => {
-                const command = byId.get(id);
-                return command ? <QuickAction key={id} command={command} /> : null;
+            {QUICK_ACTIONS.map(({ key, command }) => {
+                const resolved = byId.get(command);
+                return resolved ? (
+                    <QuickAction key={key} actionKey={key} command={resolved} />
+                ) : null;
+            })}
+            <span className="md2-vdiv" />
+            {PANEL_TOGGLES.map(({ name, command, label }) => {
+                const resolved = byId.get(command);
+                if (!resolved) return null;
+                return (
+                    <button
+                        key={name}
+                        type="button"
+                        className={`md2-wbtn md2-toggle panel-toggle-${name}`}
+                        onClick={resolved.run}
+                        disabled={!resolved.enabled}
+                        title={resolved.enabled ? resolved.label : resolved.reason}
+                        aria-label={resolved.label}
+                        aria-pressed={undefined}
+                        data-command={resolved.id}
+                    >
+                        {label}
+                    </button>
+                );
             })}
             <span className="md2-spacer" />
             <button type="button" className="md2-searchpill" onClick={onOpenCatalog}>

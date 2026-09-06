@@ -128,6 +128,32 @@ button {
     flex: 1;
     min-height: 0;
 }
+/*
+ * A hidden region collapses to nothing but stays mounted.
+ *
+ * Unmounting the viewport would throw away the WebGL context and the camera with it, so toggling a
+ * panel away and back would reset the user's view. Zero width with hidden overflow keeps the tree
+ * alive; Cypress and assistive tech both read a zero-size element as not visible, which is the
+ * intent.
+ */
+.md2-region {
+    display: flex;
+    min-width: 0;
+}
+.md2-region-v {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+.md2-region-hidden {
+    width: 0 !important;
+    min-width: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    border: 0 !important;
+}
+
 .md2-center {
     flex: 1;
     display: flex;
@@ -177,6 +203,17 @@ button {
     background: var(--bg1);
     border-bottom: 1px solid var(--border);
 }
+/* Panel toggles read as words rather than icons: five glyphs would be a puzzle. */
+.md2-toggle {
+    font-size: 11px;
+    padding: 0 8px;
+    color: var(--text-dim);
+}
+.md2-toggle:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
 .md2-wbtn {
     height: 30px;
     padding: 0 9px;

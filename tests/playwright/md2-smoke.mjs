@@ -303,6 +303,39 @@ check(
     `folder visible while expanded: ${expandedFolders}`,
 );
 
+// --- panel toggles ---------------------------------------------------------
+{
+    const inspector = page.locator('[data-region="inspector"]');
+    check("the inspector starts visible", await inspector.isVisible());
+
+    await page.click(".panel-toggle-inspector");
+    await page.waitForTimeout(300);
+    check("toggling hides it", !(await inspector.isVisible()));
+    // Hidden, not unmounted: the element is still in the tree so the panes keep their state.
+    check("but it stays mounted", (await inspector.count()) === 1);
+
+    await page.click(".panel-toggle-inspector");
+    await page.waitForTimeout(300);
+    check("toggling again restores it", await inspector.isVisible());
+
+    // The last visible region cannot be hidden: a blank window has no way back.
+    for (const name of ["navigator", "viewport", "timeline", "console"]) {
+        await page.click(`.panel-toggle-${name}`);
+        await page.waitForTimeout(150);
+    }
+    const lastToggle = page.locator(".panel-toggle-inspector");
+    check(
+        "the last visible panel refuses to hide",
+        await lastToggle.isDisabled(),
+        `title: ${await lastToggle.getAttribute("title")}`,
+    );
+
+    for (const name of ["navigator", "viewport", "timeline", "console"]) {
+        await page.click(`.panel-toggle-${name}`);
+        await page.waitForTimeout(150);
+    }
+}
+
 // --- status bar groups ------------------------------------------------------
 {
     const material = page.locator("#materials-designer-status-bar .status-material");
