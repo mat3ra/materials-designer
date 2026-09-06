@@ -235,7 +235,7 @@ export const COMMANDS: Command<CommandContext>[] = [
     },
     {
         id: "create.from-file",
-        label: "Import from file",
+        label: "Upload from disk",
         group: "Create",
         keywords: ["upload", "poscar", "json", "open"],
         run: (c) => c.ui.pickFiles(),

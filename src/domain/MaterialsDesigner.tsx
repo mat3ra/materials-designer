@@ -24,6 +24,7 @@ import { CombinatorialPanel } from "./CombinatorialPanel";
 import { type CommandContext, type HostActions, type RegionName, COMMANDS } from "./commands";
 import { type ConsoleTab, ConsoleDock, TALL_TABS } from "./console/ConsoleDock";
 import type { NotebookInput, NotebookOutput } from "./console/NotebookTab";
+import { ImportReview } from "./ImportReview";
 import { Inspector } from "./Inspector";
 import { toMDState } from "./mdState";
 import { Navigator } from "./Navigator";
@@ -41,7 +42,12 @@ type Theme = "dark" | "light";
 /** Operations whose panel lives in the shell rather than the parameter kit. */
 const STANDATA = loadStandata();
 
-const SHELL_PANELS = new Set(["standard-library", "combinatorial-set", "interpolated-set"]);
+const SHELL_PANELS = new Set([
+    "standard-library",
+    "combinatorial-set",
+    "interpolated-set",
+    "import-review",
+]);
 
 /** Apply-button wording: an edit says how much history it will re-run. */
 function editApplyLabel(editing: boolean, downstream: number): string | undefined {
@@ -204,9 +210,8 @@ export function MaterialsDesigner({
      * so provenance starts at "where it came from". Format detection is
      * made.js's, so the accepted set is exactly v1's (JSON and POSCAR).
      */
-    const importFiles = useCallback(
-        async (files: FileList | File[]) => {
-            const read = await readFiles(files);
+    const addImported = useCallback(
+        (read: { name: string; content: string }[]) => {
             const docs: MaterialDoc[] = [];
             const failed: string[] = [];
 
@@ -233,6 +238,12 @@ export function MaterialsDesigner({
             setNotice(`${imported}${skipped}`.trim() || null);
         },
         [session],
+    );
+
+    /** Drag-and-drop onto the app: no review step, because the drop *is* the decision. */
+    const importFiles = useCallback(
+        async (files: FileList | File[]) => addImported(await readFiles(files)),
+        [addImported],
     );
 
     /**
@@ -305,18 +316,14 @@ export function MaterialsDesigner({
         [session],
     );
 
-    const pickFiles = useCallback(() => {
-        const input = document.createElement("input");
-        input.type = "file";
-        input.multiple = true;
-        input.accept = ".json,.poscar,.vasp,.txt,application/json,text/plain";
-        input.onchange = () => {
-            if (input.files?.length) {
-                importFiles(input.files).catch(() => setNotice("Import failed."));
-            }
-        };
-        input.click();
-    }, [importFiles]);
+    /**
+     * Uploading from disk opens the review rather than the file picker.
+     *
+     * v1 did the same, and the reason survives the redesign: a file's format is detected, not
+     * declared, so the list of what was understood is worth seeing before any of it becomes a
+     * material. The picker is one click further in, behind the drop zone.
+     */
+    const pickFiles = useCallback(() => setPanelType("import-review"), []);
 
     const handleExport = useCallback(
         (format: "json" | "poscar", all: boolean) => {
@@ -705,6 +712,31 @@ export function MaterialsDesigner({
                             onClose={() => {
                                 setPaletteOpen(false);
                                 setPaletteQuery("");
+                            }}
+                        />
+                    </div>
+                )}
+
+                {/* Not in the panel zone: the review is a table of four columns, and the zone is
+                    three hundred pixels wide and belongs to the material behind it. */}
+                {panelType === "import-review" && (
+                    <div
+                        className="md2-scrim"
+                        role="presentation"
+                        onClick={(e) => {
+                            if (e.target === e.currentTarget) closePanel();
+                        }}
+                    >
+                        <ImportReview
+                            onClose={closePanel}
+                            onSubmit={(staged) => {
+                                closePanel();
+                                addImported(
+                                    staged.map(({ fileName, text }) => ({
+                                        name: fileName,
+                                        content: text,
+                                    })),
+                                );
                             }}
                         />
                     </div>

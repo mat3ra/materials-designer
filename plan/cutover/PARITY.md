@@ -21,7 +21,7 @@ a named spec passes. Specs tagged `@parity_2_0` are harvested from PR #299 and r
 | `initialMaterials` → step-0 origins | `toMaterialDoc()` — one origin op each, `externalId` preserved | **done** | embed unit tests |
 | `window.MDState` shape | derived in an effect; a material that cannot serialise is skipped rather than crashing the app | **done** | drives most `@parity_2_0` specs |
 | `isConventionalCellShown`, `initialViewSettings`, `maxCombinatorialBasesCount` | cap is wired; the two viewport props are accepted and **inert**, pending wave.js taking them as controlled props | **partial** — deliberately, and documented at the type | web-app's own suite (gate 2) |
-| Upload from disk (POSCAR/JSON) | Catalog › From file + global drag-and-drop | **done** | `menu/input-output/add-remove-import-files` |
+| Upload from disk (POSCAR/JSON) | Upload quick action, Catalog › From file, ☰, and global drag-and-drop | **done** — the first three open the review; a drop imports directly, because the drop *is* the decision. An imported material takes the structure's own name, not the file's, which is what the platform's fixtures pin | `menu/input-output/add-remove-import-files` **green against 2.0** |
 | Import from Standata (74 configs) | Catalog › Create › Standard library | **done** | `menu/input-output/import-from-standata` |
 | Export JSON / POSCAR / all | ☰ › Export | **done** | md2 smoke (to port) |
 
@@ -48,7 +48,7 @@ a named spec passes. Specs tagged `@parity_2_0` are harvested from PR #299 and r
 |---|---|---|---|
 | Lattice form (type/a/b/c/α/β/γ, units, scale-vs-preserve) | Inspector › Structure › Edit lattice | **done** — disclosed form, staged edits, preserve-vs-scale kept | `materials-list/*` @parity_2_0 (drives it via the create path) |
 | Basis XYZ text (constraints, validation, crystal/cartesian) | Basis table + text view on `#basis-xyz` | **done** — both views write one `set-basis` op; constraints appear only when something is constrained | `source-editor/basis-table` @parity_2_0 (4/4) |
-| Upload review grid | Import-review panel | **absent** | `menu/input-output/add-remove-import-files` |
+| Upload review grid | Import review, on the Catalog's overlay rather than the 300px panel zone | **done** — v1's DOM contract kept whole (`#defaultImportModalDialog`, the DataGrid's `role="cell"`/`data-field` cells, `#<file>-remove-button`, the submit and cancel ids), so the feature passes against 2.0 with only the step that *opens* it retargeted | `menu/input-output/add-remove-import-files` **green against 2.0**; 6 unit tests; 10 smoke checks |
 | Materials list: filter, count, empty state | Navigator filter + count | **done** | `materials-list/filter-and-count` @parity_2_0 |
 | Modified / updated marker | Navigator dot, revert-aware | **done** — content comparison against the material as it entered the session; materials derived in-session stay marked | `materials-list/updated-marker` @parity_2_0, 6 unit tests |
 | Status bar (v1 footer was empty) | Status Bar segments | **done** — `#materials-designer-status-bar` with `.status-material` and `.status-position` groups; clone grows the list without moving the position | `status-bar/status-bar` @parity_2_0, smoke |
@@ -64,7 +64,7 @@ a named spec passes. Specs tagged `@parity_2_0` are harvested from PR #299 and r
 |---|---|---|---|
 | JupyterLite Transformation (`materials_in`/`materials_out`) | Console › Notebook, same bridge | **done** — same wrapper id, `data-tid`s and iframe id, so `JupyterLiteTransformationDialogWidget` and `JupyterLiteSession` drive it unchanged; only the step that *opens* it moved to `console.notebook`. Results land as `notebook-result` origins under the input they came from | the 53 `@notebook_healthcheck` features; 12 unit tests; 9 smoke checks |
 | JupyterLite session drawer | Console › Notebook | **done** — one surface instead of a drawer plus a modal | `I see JupyterLite session` (web-app) |
-| Python REPL | Console › REPL — cove `PythonRepl` over `InPageTransport` | **absent** — the tab exists and says so; `kit/BridgedIframe` and `domain/console/payload.ts` are the halves it will reuse | *(needs one)* |
+| Python REPL | Console › REPL | **partial** — a working Python console, on the fallback the plan wrote down: JupyterLite's own `/repl/` app through `BridgedIframe`. `materials_in`/`materials_out` are deliberately **not** bound, because whether the data bridge is live in that app is not something this repository can verify, and a selector that silently never fills is worse than an absent one. The binding arrives with cove's `PythonRepl` over `InPageTransport`, where it is a direct call rather than a message — owner: cove `feature/SOF-7961` | 3 smoke checks |
 | History as script | Console › Script (`logAsPython`) | **done** | md2 smoke (to port) |
 | Orphaned in-page Pyodide dialog | retired | **done** (not carried over) | — |
 
@@ -85,7 +85,9 @@ a named spec passes. Specs tagged `@parity_2_0` are harvested from PR #299 and r
 - The published `src/exports.js` still points `MaterialsDesignerContainer` at v1. It switches at the
   flip; until then the 2.0 adapter is reachable at `dist/embed/MaterialsDesignerContainer` for
   anyone who wants to try the embedded costume.
-- Import-review panel and Console › REPL.
+- The REPL's materials binding, which waits on cove's `feature/SOF-7961` (see the row above).
+- Retargeting the remaining v1 specs, which is Phase 3 rather than Phase 2: see *What the v1 suite
+  says against 2.0* in TEST-HOOKS.md for the list.
 
 ## Descope order if Phase 2 slips
 

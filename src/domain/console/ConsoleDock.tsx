@@ -13,6 +13,7 @@ import React from "react";
 
 import type { MaterialDoc } from "../../core/types";
 import { type NotebookInput, type NotebookOutput, NotebookTab } from "./NotebookTab";
+import { ReplTab } from "./ReplTab";
 
 export type ConsoleTab = "script" | "log" | "notebook" | "repl";
 
@@ -136,17 +137,7 @@ export function ConsoleDock({
                             onError={onError}
                         />
                     )}
-                    {tab === "repl" && (
-                        <div className="md2-console-stub" data-testid="repl-tab">
-                            <b>Not wired yet.</b>
-                            <p>
-                                The Pyodide REPL lives in cove behind an in-page transport, so this
-                                tab is a mount point rather than a second implementation. Results
-                                will sync back as operations tagged with the repl engine, landing in
-                                the Timeline like everything else.
-                            </p>
-                        </div>
-                    )}
+                    {tab === "repl" && <ReplTab />}
                 </div>
             )}
         </div>

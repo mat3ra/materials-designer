@@ -49,7 +49,7 @@ export function AppMenu({
     return (
         <div className="md2-menu" ref={ref} role="menu" data-testid="app-menu">
             <button type="button" role="menuitem" className="md2-mi" onClick={onImport}>
-                <span className="md2-mic">⇪</span>Import from file…
+                <span className="md2-mic">⇪</span>Upload from disk…
             </button>
             <div className="md2-msep" />
             <button

@@ -125,8 +125,13 @@ const definitions: OperationDefinition[] = [
         apply: (_m, p: { content: string; name: string }) => {
             // made.js sniffs the format itself (JSON or POSCAR today), so the
             // step stores the payload and lets detection happen at replay.
-            const config = Made.parsers.nativeFormatParsers.convertFromNativeFormat(p.content);
-            return new Material({ ...(config as any), name: p.name });
+            const config = Made.parsers.nativeFormatParsers.convertFromNativeFormat(
+                p.content,
+            ) as any;
+            // The structure's own name wins over the file's. A file is a container: importing
+            // graphene.json gives you Graphene, and where it came from is the chip's business.
+            // The file name is the fallback for formats that carry none.
+            return new Material({ ...config, name: config?.name || p.name });
         },
         digest: (p: { name: string; content: string }) => {
             const format = Made.parsers.nativeFormatParsers.detectFormat(p.content);

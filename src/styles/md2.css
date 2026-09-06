@@ -1001,6 +1001,19 @@ select.md2-field {
     padding: 8px 10px;
 }
 
+/* ----------------------------------------------------------- console > repl */
+.md2-repl {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 0;
+}
+.md2-repl .md2-note {
+    flex: none;
+    margin: 0;
+}
+
 /* ------------------------------------------------------- console > notebook */
 .md2-notebook {
     height: 100%;
@@ -1114,6 +1127,51 @@ select.md2-field {
     border-radius: 12px;
     box-shadow: var(--shadow);
     overflow: hidden;
+}
+/* ---------------------------------------------------------- import review */
+.md2-import {
+    width: 860px;
+    max-width: 92vw;
+    max-height: 82vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+.md2-import-body {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    padding: 14px 16px;
+}
+.md2-dropzone {
+    width: 100%;
+    height: 260px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font: inherit;
+    font-size: 13px;
+    color: var(--text-dim);
+    background: none;
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+}
+.md2-dropzone:hover,
+.md2-dropzone.md2-dragging {
+    border-color: var(--accent);
+    color: var(--text);
+}
+.md2-dropzone-icon {
+    font-size: 26px;
+    line-height: 1;
+    color: var(--text-faint);
 }
 .md2-catalog-head {
     padding: 14px 16px 10px;

@@ -231,9 +231,11 @@ check(
 
 const rowsBeforeImport = await page.getByTestId("material-row").count();
 await page.getByTestId("app-menu-button").click();
-const chooser = page.waitForEvent("filechooser");
-await page.getByRole("menuitem", { name: /Import from file/i }).click();
-await (await chooser).setFiles(exportPath);
+await page.getByRole("menuitem", { name: /Upload from disk/i }).click();
+await page.waitForSelector("#defaultImportModalDialog", { timeout: 5000 });
+await page.locator('input[data-name="fileapi"]').setInputFiles(exportPath);
+await page.waitForTimeout(600);
+await page.locator("#defaultImportModalDialog-submit-button").click();
 await page.waitForTimeout(1800);
 check(
     "importing it back adds a material",
@@ -520,6 +522,92 @@ check(
     await page.waitForTimeout(500);
     const badge = (await page.getByTestId("timeline-chip").first().innerText()).toUpperCase();
     check("the timeline records the notebook as the engine", /NOTEBOOK/.test(badge), badge);
+}
+
+// --- console > repl --------------------------------------------------------
+{
+    await page.locator('[data-command="console.repl"]').click();
+    await page.waitForSelector("#python-repl", { timeout: 5000 });
+    const src = await page.locator("iframe#python-repl-iframe").getAttribute("src");
+    check(
+        "the REPL tab loads JupyterLite's own console app",
+        /\/repl\/index\.html\?kernel=python/.test(src ?? ""),
+        src ?? "no iframe",
+    );
+    check(
+        "and says plainly that materials are not bound yet",
+        /Notebook tab/.test(await page.getByTestId("repl-note").innerText()),
+    );
+    // Switching away and back must not leave two frames on the page: both tabs address their
+    // frame by id when posting, so a stale one would receive the messages.
+    await page.locator('[data-command="console.notebook"]').click();
+    await page.waitForTimeout(400);
+    check(
+        "switching tabs unmounts the frame it left",
+        (await page.locator("iframe#python-repl-iframe").count()) === 0 &&
+            (await page.locator("iframe#jupyter-lite-iframe").count()) === 1,
+    );
+    await page.locator('[data-command="view.toggle-console"]').click();
+    await page.waitForTimeout(300);
+}
+
+// --- import review ---------------------------------------------------------
+{
+    const before = await page.getByTestId("material-row").count();
+    await page.locator('[data-command="create.from-file"]').click();
+    await page.waitForSelector("#defaultImportModalDialog", { timeout: 5000 });
+    check("upload from disk opens the review, not the file picker", await page.locator("#defaultImportModalDialog").isVisible());
+    check("which starts on a drop zone", await page.locator('[data-name="dropzone"]').isVisible());
+    const addButton = page.locator("#defaultImportModalDialog-submit-button");
+    check("with nothing to add yet", await addButton.isDisabled());
+
+    // Two files, one of each supported format, so the format column has something to detect.
+    const poscar = await page.evaluate(() => window.MDState.materials[0].getAsPOSCAR());
+    await page.locator('input[data-name="fileapi"]').setInputFiles([
+        { name: "smoke.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(await page.evaluate(() => window.MDState.materials[0].toJSON()))) },
+        { name: "smoke.poscar", mimeType: "text/plain", buffer: Buffer.from(poscar) },
+    ]);
+    await page.waitForTimeout(700);
+    const cell = (field, value) => page.locator(`div[role="cell"][data-field="${field}"] div[title="${value}"]`);
+    check(
+        "both files are listed with the format that was detected, not declared",
+        (await cell("fileName", "smoke.json").count()) === 1 &&
+            (await cell("format", "json").count()) === 1 &&
+            (await cell("fileName", "smoke.poscar").count()) === 1 &&
+            (await cell("format", "poscar").count()) === 1,
+        `json: ${await cell("format", "json").count()}, poscar: ${await cell("format", "poscar").count()}`,
+    );
+    check("nothing has been imported yet", (await page.getByTestId("material-row").count()) === before);
+
+    await page.locator("#smoke-poscar-remove-button").click();
+    await page.waitForTimeout(400);
+    check(
+        "removing a row drops it from the review",
+        (await cell("fileName", "smoke.poscar").count()) === 0 &&
+            (await cell("fileName", "smoke.json").count()) === 1,
+    );
+    await page.screenshot({ path: `${SHOTS}/09-import-review.png` });
+
+    await addButton.click();
+    await page.waitForTimeout(700);
+    check(
+        "submitting imports what survived the review",
+        (await page.getByTestId("material-row").count()) === before + 1,
+        `${await page.getByTestId("material-row").count()} rows`,
+    );
+    check("and closes the review", (await page.locator("#defaultImportModalDialog").count()) === 0);
+
+    // Cancel must not be a second way to import.
+    const afterImport = await page.getByTestId("material-row").count();
+    await page.locator('[data-command="create.from-file"]').click();
+    await page.waitForSelector("#defaultImportModalDialog", { timeout: 5000 });
+    await page.locator("#defaultImportModalDialog-cancel-button").click();
+    await page.waitForTimeout(400);
+    check(
+        "cancelling closes it and adds nothing",
+        (await page.locator("#defaultImportModalDialog").count()) === 0 &&
+            (await page.getByTestId("material-row").count()) === afterImport,
+    );
 }
 
 // --- light theme -----------------------------------------------------------

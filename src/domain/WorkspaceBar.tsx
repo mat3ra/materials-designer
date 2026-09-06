@@ -13,6 +13,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import RedoIcon from "@mui/icons-material/Redo";
 import SearchIcon from "@mui/icons-material/Search";
 import UndoIcon from "@mui/icons-material/Undo";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
 import React from "react";
 
 import type { ResolvedCommand } from "../shell/commands";
@@ -23,6 +24,7 @@ const ICONS: Record<string, React.ReactNode> = {
     "edit.redo": <RedoIcon fontSize="small" />,
     "material.clone": <ContentCopyIcon fontSize="small" />,
     "create.standard-library": <LibraryAddIcon fontSize="small" />,
+    "create.from-file": <UploadFileIcon fontSize="small" />,
 };
 
 export interface WorkspaceBarProps {
@@ -48,6 +50,7 @@ const QUICK_ACTIONS: { key: string; command: string }[] = [
     { key: "redo", command: "edit.redo" },
     { key: "clone", command: "material.clone" },
     { key: "import-standata", command: "create.standard-library" },
+    { key: "import-file", command: "create.from-file" },
 ];
 
 /** Regions that can be shown or hidden, with the name their toggle is addressed by. */

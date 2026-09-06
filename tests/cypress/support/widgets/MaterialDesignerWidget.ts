@@ -89,6 +89,16 @@ export default class MaterialDesignerWidget extends Widget {
         this.headerMenu.selectMenuItemByNameAndItemNumber("Advanced", 1);
     }
 
+    openUploadDialog() {
+        // v1 reaches Upload from Disk as the third item of Input/Output; 2.0 opens the same
+        // review from the Create group of the command registry.
+        if (isV2()) {
+            this.commands.run("create.from-file");
+            return;
+        }
+        this.headerMenu.selectMenuItemByNameAndItemNumber("Input/Output", 3);
+    }
+
     openJupyterLiteTransformation() {
         // v1 reaches JupyterLite as the sixth item of the Advanced menu. In 2.0 it is a console
         // tab, addressed by the command id it renders — the same surface, found by name rather
