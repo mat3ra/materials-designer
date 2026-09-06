@@ -50,7 +50,7 @@ a named spec passes. Specs tagged `@parity_2_0` are harvested from PR #299 and r
 | Basis XYZ text (constraints, validation, crystal/cartesian) | Basis table + code toggle, units global | **partial** — one textarea in Inspector, no table, no constraint columns | `source-editor/basis-table` @parity_2_0 |
 | Upload review grid | Import-review panel | **absent** | `menu/input-output/add-remove-import-files` |
 | Materials list: filter, count, empty state | Navigator filter + count | **done** | `materials-list/filter-and-count` @parity_2_0 |
-| Modified / updated marker | Navigator dot, revert-aware | **partial** — dot exists; `@parity_2_0` spec not yet run | `materials-list/updated-marker` @parity_2_0 |
+| Modified / updated marker | Navigator dot, revert-aware | **done** — content comparison against the material as it entered the session; materials derived in-session stay marked | `materials-list/updated-marker` @parity_2_0, 6 unit tests |
 | Status bar (v1 footer was empty) | Status Bar segments | **partial** — bar exists; needs the group/text shape the spec asserts | `status-bar/status-bar` @parity_2_0 |
 | Command palette | ⌘K over the command registry | **partial** — registry exists (`shell/commands.ts` + `domain/commands.ts`); ⌘K still opens the Catalog rather than a palette over actions/materials/Standata | `toolbar/command-palette` @parity_2_0 |
 | Quick actions row | Workspace Bar | **partial** — undo/redo/clone/Standata render from the registry with `data-command` ids and disabled-with-reason; panel toggles not yet in the row | `toolbar/quick-actions` @parity_2_0 |

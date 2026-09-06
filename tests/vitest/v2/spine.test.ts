@@ -632,3 +632,71 @@ describe("regressions found by review", () => {
         expect(after.getBasisAsXyz()).toBe(xyz);
     });
 });
+
+describe("isModified — differs from how it entered the session", () => {
+    it("a freshly opened material is not marked", () => {
+        const state = createInitialState();
+        expect(isModified(state.materials[0])).toBe(false);
+    });
+
+    it("an edit marks it", () => {
+        let state = createInitialState();
+        state = applyOperation(state, "supercell", { matrix: [[2, 0, 0], [0, 1, 0], [0, 0, 1]] });
+        expect(isModified(state.materials[0])).toBe(true);
+    });
+
+    it("editing back to the original content clears the mark", () => {
+        // Operations compose rather than invert, so getting back to the original means writing the
+        // original basis again — which is exactly what the browser spec does through the editor.
+        // The log is three entries long by the end; a step count would still report modified.
+        // set-basis must be given the material's own units: without them made.js reads the
+        // coordinates as angstrom, which silently writes a different structure.
+        let state = createInitialState();
+        const originalHash = resolve(state.materials[0]).material.hash;
+        const units = "crystal";
+
+        state = applyOperation(state, "set-basis", { xyz: "Si 0 0 0\nSi 0.3 0.3 0.3", units });
+        expect(isModified(state.materials[0])).toBe(true);
+
+        state = applyOperation(state, "set-basis", { xyz: "Si 0 0 0\nSi 0.25 0.25 0.25", units });
+        expect(state.materials[0].log.length).toBe(3);
+        expect(resolve(state.materials[0]).material.hash).toBe(originalHash);
+        expect(isModified(state.materials[0])).toBe(false);
+    });
+
+    it("a rename counts as a difference even though the structure is untouched", () => {
+        // Material.hash ignores the name, so comparing hashes alone would call this unchanged
+        // while the platform would still have an older name saved.
+        let state = createInitialState();
+        state = applyOperation(state, "rename", { name: "Something else" });
+        expect(isModified(state.materials[0])).toBe(true);
+    });
+
+    it("a clone stays marked, because it has no original to return to", () => {
+        let state = createInitialState();
+        state = forkMaterial(state, state.materials[0].id);
+        const clone = state.materials[1];
+        expect(isModified(clone)).toBe(true);
+
+        // Editing it and undoing that edit by hand must not make it look saved.
+        const units = "crystal";
+        state = applyOperation(state, "set-basis", { xyz: "Si 0 0 0\nSi 0.3 0.3 0.3", units }, {
+            materialId: clone.id,
+        });
+        state = applyOperation(
+            state,
+            "set-basis",
+            { xyz: "Si 0 0 0\nSi 0.25 0.25 0.25", units },
+            { materialId: clone.id },
+        );
+        expect(isModified(state.materials[1])).toBe(true);
+    });
+
+    it("reverting to the origin clears the mark", () => {
+        let state = createInitialState();
+        state = applyOperation(state, "supercell", { matrix: [[2, 0, 0], [0, 1, 0], [0, 0, 1]] });
+        expect(isModified(state.materials[0])).toBe(true);
+        state = revertTo(state, state.materials[0].id, 0);
+        expect(isModified(state.materials[0])).toBe(false);
+    });
+});

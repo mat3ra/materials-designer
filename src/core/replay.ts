@@ -90,10 +90,41 @@ export function digestAt(doc: MaterialDoc, step: number): ResultDigest | undefin
 }
 
 /**
- * A material is "modified" when it carries operations beyond its origin.
- * Undoing back to the origin clears the marker — the revert-aware behaviour
- * v1 tracked with a side array of indices that drifted out of sync.
+ * How a material is identified for the purpose of "has this changed?".
+ *
+ * `Material.hash` covers the structure but deliberately ignores the name, and a rename is a real
+ * difference from what was saved — so the name rides along.
+ */
+function fingerprint(material: Material): string {
+    return `${material.hash}\u00b7${material.name ?? ""}`;
+}
+
+/** Origins are cheap to replay, but not free; key on log identity like `resolve` does. */
+const originFingerprints = new WeakMap<Operation[], string>();
+
+function originFingerprint(doc: MaterialDoc): string {
+    const hit = originFingerprints.get(doc.log);
+    if (hit !== undefined) return hit;
+    const value = fingerprint(replay(doc.log, 1));
+    originFingerprints.set(doc.log, value);
+    return value;
+}
+
+/**
+ * Whether a material differs from how it entered the session.
+ *
+ * This is a comparison of content, not a count of steps. Editing a basis and then putting it back
+ * leaves a three-entry log but an identical material, and the marker has to clear — that is the
+ * "switch the colour back when the material is back to the original" behaviour v1 tracked with a
+ * side array of indices that drifted out of sync.
+ *
+ * A material derived inside the session — a clone, or a member of a generated set — has no
+ * original to return to, so it stays marked however much it is edited and un-edited. `parentId`
+ * already records exactly that: `forkMaterial` always sets it, and a material that arrived with
+ * the session never has one.
  */
 export function isModified(doc: MaterialDoc): boolean {
-    return doc.log.length > 1;
+    if (doc.parentId) return true;
+    if (doc.log.length <= 1) return false;
+    return fingerprint(resolve(doc).material) !== originFingerprint(doc);
 }
