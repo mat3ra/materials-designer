@@ -32,12 +32,12 @@ a named spec passes. Specs tagged `@parity_2_0` are harvested from PR #299 and r
 | Supercell (3×3, det≠0) | Catalog › Build › Supercell panel | **done** | `menu/advanced/supercell` **green against 2.0** |
 | Surface / slab (hkl, layers, vacuum) | Catalog › Build › Surface panel | **done** | `menu/advanced/surface` **green against 2.0** |
 | Boundary conditions (pbc/bc1–3 + offset) | Inspector › Structure | **done** | `menu/advanced/boundary_conditions` **green against 2.0** |
-| Combinatorial set (XYZ syntax, cap, naming) | Catalog › Sets › Combinatorial → set folder | **done** | md2 smoke (to port) |
+| Combinatorial set (XYZ syntax, cap, naming) | Catalog › Sets › Combinatorial → set folder | **done** — the batch is one operation, so one Cmd+Z removes it | `sets/combinatorial` @parity_2_0 |
 | **Interpolated set / NEB** | Catalog › Sets › NEB, **both** endpoints picked in-panel | **done** — images are set children with their own origins, inserted after the material they came from; the forecast is the interpolation actually run, so an impossible pair is explained before Apply rather than throwing after it | `menu/advanced/interpolated-set` **green against 2.0**, smoke (both paths) |
 | Use conventional cell | Inspector › Structure › Cell, recorded as an op | **done** — a labelled control on the Structure tab, `structure.conventional-cell` in the registry | md2 smoke (2 checks); no Cypress feature yet — v1 had none either |
 | Toggle isNonPeriodic + saved-material guard | Inspector › Structure › Periodicity, guard → disabled-with-reason | **partial** — op registered; guard not implemented | *(needs one)* |
 | Clone | Navigator fork (fork-origin chip) | **done** | `menu/edit/reset-clone-undo-redo` |
-| Undo / Redo — one stack | Timeline steps + ⌘Z everywhere | **done** | `menu/edit/reset-clone-undo-redo`, `toolbar/quick-actions` @parity_2_0 |
+| Undo / Redo — one stack | Timeline steps + ⌘Z everywhere | **done** | `timeline/one-undo-stack`, `menu/edit/reset-clone-undo-redo`, `toolbar/quick-actions` |
 | Reset | `edit.reset` — the session back to how it opened, undo stack included | **done** — this was wrong until the spec said so: 2.0 had only a per-material revert, and v1's Reset was always session-level | `menu/edit/reset-clone-undo-redo` **green against 2.0** |
 | Delete material (undoable) | Navigator row action | **done** | `3d-editor/delete-material`, `materials-list/filter-and-count` @parity_2_0 |
 | Rename material | Navigator inline rename | **done** — double-click a name, or the `material.rename` command; a no-op rename records nothing | `materials-list/filter-and-count` @parity_2_0, smoke |
@@ -64,8 +64,8 @@ a named spec passes. Specs tagged `@parity_2_0` are harvested from PR #299 and r
 |---|---|---|---|
 | JupyterLite Transformation (`materials_in`/`materials_out`) | Console › Notebook, same bridge | **done** — same wrapper id, `data-tid`s and iframe id, so `JupyterLiteTransformationDialogWidget` and `JupyterLiteSession` drive it unchanged; only the step that *opens* it moved to `console.notebook`. Results land as `notebook-result` origins under the input they came from | the 53 `@notebook_healthcheck` features; 12 unit tests; 9 smoke checks |
 | JupyterLite session drawer | Console › Notebook | **done** — one surface instead of a drawer plus a modal | `I see JupyterLite session` (web-app) |
-| Python REPL | Console › REPL | **partial** — a working Python console, on the fallback the plan wrote down: JupyterLite's own `/repl/` app through `BridgedIframe`. `materials_in`/`materials_out` are deliberately **not** bound, because whether the data bridge is live in that app is not something this repository can verify, and a selector that silently never fills is worse than an absent one. The binding arrives with cove's `PythonRepl` over `InPageTransport`, where it is a direct call rather than a message — owner: cove `feature/SOF-7961` | 3 smoke checks |
-| History as script | Console › Script (`logAsPython`) | **done** | md2 smoke (to port) |
+| Python REPL | Console › REPL | **partial** — a working Python console, on the fallback the plan wrote down: JupyterLite's own `/repl/` app through `BridgedIframe`. `materials_in`/`materials_out` are deliberately **not** bound, because whether the data bridge is live in that app is not something this repository can verify, and a selector that silently never fills is worse than an absent one. The binding arrives with cove's `PythonRepl` over `InPageTransport`, where it is a direct call rather than a message — owner: cove `feature/SOF-7961` | `console/repl` @parity_2_0; 3 smoke checks |
+| History as script | Console › Script (`logAsPython`) | **done** — the operations, not the coordinates: configs and bases are elided so the recipe stays readable | 2 unit tests |
 | Orphaned in-page Pyodide dialog | retired | **done** (not carried over) | — |
 
 ## Viewport (wave.js)
@@ -79,6 +79,22 @@ a named spec passes. Specs tagged `@parity_2_0` are harvested from PR #299 and r
 | Keyboard sheet | app-owned `?` overlay | **absent** | *(needs one)* |
 | Multi-material 3D combine (removed with wave's Outliner) | Combine v2 as a 2-input Catalog card | **deferred** — owner: post-cutover, per PROPOSAL ⟲ | — |
 | Fullscreen (broken in v1) | replaced by costumes | **done** | — |
+
+## What 2.0 adds that v1 had no equivalent for
+
+These are not parity rows — there is nothing to be at parity with. They are here because they are
+the reasons for the rewrite, and each one now has a spec rather than a claim.
+
+| 2.0 behaviour | Covering test |
+|---|---|
+| A transform is forecast before it is applied, with the material still on screen | `timeline/edit-a-past-step` |
+| A past step can be edited in place; everything after it replays, for one undo | `timeline/edit-a-past-step` |
+| One undo stack across every surface (v1 had two, and they could resurrect each other's state) | `timeline/one-undo-stack` |
+| A refresh does not lose the session, and the app says it restored rather than doing it silently | `session/autosave-and-restore` |
+| A batch is one operation: one folder, one undo | `sets/combinatorial` |
+| Files are reviewed before they enter the session, and cancelling leaves nothing behind | `menu/input-output/import-review-cancel` |
+| Files can be dropped anywhere on the window, and a cancelled drag leaves no overlay behind | `session/drag-and-drop` |
+| Code surfaces are tabs of one dock; switching leaves exactly one frame mounted | `console/repl`, `console/notebook` |
 
 ## Cutover gate 1 — the v1 suite against 2.0
 

@@ -3,7 +3,8 @@ import { describe, expect, it } from "vitest";
 
 import { fromFramePayload, toFramePayload } from "../../../src/domain/console/payload";
 import { resolve } from "../../../src/core/replay";
-import { createMaterialDoc } from "../../../src/core/session";
+import { applyOperation, createInitialState, createMaterialDoc } from "../../../src/core/session";
+import { logAsPython } from "../../../src/domain/console/ConsoleDock";
 
 const SILICON = {
     name: "Silicon FCC",
@@ -109,5 +110,33 @@ describe("adopting a notebook result", () => {
             { parentId: parent.id },
         );
         expect(child.parentId).toBe(parent.id);
+    });
+});
+
+describe("the timeline as a script", () => {
+    it("names every step in order, with its parameters", () => {
+        let doc = createMaterialDoc("create-from-config", { config: SILICON });
+        let state = createInitialState([doc]);
+        state = applyOperation(state, "supercell", {
+            matrix: [
+                [2, 0, 0],
+                [0, 1, 0],
+                [0, 0, 1],
+            ],
+        });
+        doc = state.materials[0];
+
+        const script = logAsPython(doc, "Silicon FCC");
+        expect(script).toContain("# material: Silicon FCC");
+        expect(script).toContain("# step 1: Created");
+        expect(script).toContain("# step 2: Supercell");
+        expect(script).toContain('apply("supercell"');
+        expect(script).toContain("[[2,0,0],[0,1,0],[0,0,1]]");
+    });
+
+    it("elides the bulk fields, which are the structure rather than the recipe", () => {
+        // A config or a basis inlined into every line would bury the operations in coordinates.
+        const doc = createMaterialDoc("create-from-config", { config: SILICON });
+        expect(logAsPython(doc, "Silicon FCC")).not.toContain("elements");
     });
 });

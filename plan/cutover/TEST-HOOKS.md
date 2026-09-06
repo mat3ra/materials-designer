@@ -200,6 +200,40 @@ not in the specs:
 | Clearing the basis text box committed a material with no atoms | `domain/inspector/BasisEditor.tsx` |
 | `external` was being stripped from every imported config on the theory that made.js could not serialise it. It can: exactly **one** of the seventy-three library entries names an `external.source` outside the schema's enum, and dropping the block from all of them cost the other seventy-two the provenance the specs assert on | `core/io.ts` — `toImportableConfig` now drops it only when it is what makes the config unusable, with a test that pins the count |
 
+## Porting the browser smoke into Cypress (added 2026-09-06)
+
+The Playwright smoke was the MVP's oracle because Chromium happened to be pre-installed; the plan
+always had it becoming Cypress features so CI would run them. What it covered and nothing else did
+is now six features, all `@parity_2_0` because they describe behaviour v1 does not have:
+
+| Feature | What it pins |
+|---|---|
+| `timeline/edit-a-past-step` | a transform is forecast before it is applied; editing step 2 replaces it in place, replays what follows, and costs one undo |
+| `timeline/one-undo-stack` | an edit from a panel and an edit from the Inspector are one history — v1 had two stacks |
+| `session/autosave-and-restore` | work survives a reload, the app says it was restored, and "start fresh" discards it |
+| `sets/combinatorial` | a batch folds into one set folder beside its source and one Cmd+Z removes it |
+| `console/repl` | switching console tabs leaves exactly one frame mounted |
+| `menu/input-output/import-review-cancel` | nothing enters the session until you say so |
+| `session/drag-and-drop` | a drop imports directly; a drag that leaves takes its overlay with it |
+
+Three things learned writing them, all worth keeping:
+
+- **The save chip cannot gate a reload.** It reads "Saved · just now" for the save *before* a change
+  as readily as the one after, so a spec that waits for it still races the debounce. The step reads
+  the autosaved payload instead, which is both a reliable wait and the assertion the scenario is
+  actually about.
+- **`CombinatorialPanel` was the one panel not on the `#panel-<type>` convention** — it predates
+  `PanelFrame` and rolled its own footer. It carries the id and the `panel-apply` / `panel-cancel`
+  hooks now, so every panel is addressed the same way.
+- **Two step definitions can claim the same sentence, and only a run finds out.** A new
+  `I do not see the {string} panel` for operation panels collided with the existing one for
+  regions, and cucumber reported it on `toolbar/quick-actions` — a spec that had nothing to do with
+  either change. `scripts/check-test-contract.sh` now fails on a duplicate phrase, so the clash is
+  caught where it was written.
+
+The Playwright script stays until the remaining checks (viewport selection sync, drag-and-drop,
+theme) have features of their own; it is not in CI, and `npm run test:md2-smoke` runs it locally.
+
 ## Both suites, side by side
 
 Run on 2026-09-06, after the retarget:

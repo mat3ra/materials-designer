@@ -12,6 +12,31 @@
 # and coordinate the matching web-app PR.
 set -euo pipefail
 
+# ---------------------------------------------------------------- duplicate phrases
+#
+# Cucumber resolves a sentence to exactly one step definition, and reports "Multiple matching step
+# definitions" at run time — on whichever spec happens to use it, which may not be the one that
+# introduced the clash. Two files can each look fine in review. Catch it here instead.
+DUPES="$(grep -rhoP '^\s*(Given|When|Then)\("\K[^"]+' tests/cypress/support/step_definitions/ \
+    | sort | uniq -d || true)"
+
+if [ -n "$DUPES" ]; then
+    cat >&2 <<MSG
+check-test-contract: FAILED
+
+These Gherkin phrases are defined more than once:
+
+$(echo "$DUPES" | sed 's/^/  /')
+
+Cucumber matches a sentence to one definition; two makes every spec that uses the phrase fail.
+Make one of them more specific — "I do not see the {string} operation panel" rather than
+"I do not see the {string} panel".
+MSG
+    exit 1
+fi
+
+echo "check-test-contract: no duplicate Gherkin phrases."
+
 BASE="${1:-origin/dev}"
 
 if ! git rev-parse --verify --quiet "$BASE" >/dev/null; then

@@ -85,7 +85,12 @@ export function CombinatorialPanel({
     const tooMany = count > maxMaterials;
 
     return (
-        <section className="md2-panel" aria-label="Combinatorial set">
+        <section
+            className="md2-panel"
+            id="panel-combinatorial-set"
+            data-panel="combinatorial-set"
+            aria-label="Combinatorial set"
+        >
             <header className="md2-panel-head">
                 <span className="md2-icon" aria-hidden="true">
                     ⋈
@@ -99,6 +104,7 @@ export function CombinatorialPanel({
                 <div className="md2-section-title">BASIS WITH COMBINATIONS</div>
                 <textarea
                     className="md2-basis-edit"
+                    data-tid="combinatorial-basis"
                     rows={8}
                     value={xyz}
                     aria-label="Combinatorial basis in XYZ format"
@@ -118,12 +124,18 @@ export function CombinatorialPanel({
                 )}
             </div>
             <div className="md2-actions">
-                <button type="button" className="md2-btn" onClick={onCancel}>
+                <button
+                    type="button"
+                    className="md2-btn"
+                    data-testid="panel-cancel"
+                    onClick={onCancel}
+                >
                     Cancel
                 </button>
                 <button
                     type="button"
                     className="md2-btn md2-btn-primary"
+                    data-testid="panel-apply"
                     disabled={!forecast.ok || !count || tooMany}
                     onClick={() => forecast.ok && onApply(forecast.configs, xyz)}
                 >
