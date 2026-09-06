@@ -119,6 +119,7 @@ export function SurfacePanel({
 
     return (
         <PanelFrame
+            type={TYPE}
             applyLabel={applyLabel}
             icon={PANEL_META.surface.icon}
             title={PANEL_META.surface.title}
@@ -133,6 +134,7 @@ export function SurfacePanel({
             >
                 <NumberField
                     id={fieldId("h")}
+                    tid="miller-h"
                     label="Miller h"
                     value={draft.h}
                     onChange={set("h")}
@@ -141,6 +143,7 @@ export function SurfacePanel({
                 />
                 <NumberField
                     id={fieldId("k")}
+                    tid="miller-k"
                     label="Miller k"
                     value={draft.k}
                     onChange={set("k")}
@@ -149,6 +152,7 @@ export function SurfacePanel({
                 />
                 <NumberField
                     id={fieldId("l")}
+                    tid="miller-l"
                     label="Miller l"
                     value={draft.l}
                     onChange={set("l")}
@@ -161,6 +165,7 @@ export function SurfacePanel({
             <Section title="SLAB">
                 <NumberField
                     id={fieldId("thickness")}
+                    tid="thickness"
                     label="Thickness in layers"
                     value={draft.thickness}
                     onChange={set("thickness")}
@@ -169,6 +174,7 @@ export function SurfacePanel({
                 />
                 <NumberField
                     id={fieldId("vacuumRatio")}
+                    tid="vacuum-ratio"
                     label="Vacuum ratio"
                     value={draft.vacuumRatio}
                     onChange={set("vacuumRatio")}
@@ -185,6 +191,7 @@ export function SurfacePanel({
             <Section title="IN-PLANE SUPERCELL">
                 <NumberField
                     id={fieldId("vx")}
+                    tid="vx"
                     label="Supercell dimension x"
                     value={draft.vx}
                     onChange={set("vx")}
@@ -193,6 +200,7 @@ export function SurfacePanel({
                 />
                 <NumberField
                     id={fieldId("vy")}
+                    tid="vy"
                     label="Supercell dimension y"
                     value={draft.vy}
                     onChange={set("vy")}

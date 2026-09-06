@@ -175,6 +175,17 @@ export const COMMANDS: Command<CommandContext>[] = [
         disabledReason: () => "Nothing to redo",
     },
 
+    {
+        id: "edit.reset",
+        label: "Reset the session",
+        group: "Edit",
+        keywords: ["revert", "start over", "discard"],
+        run: (c) => c.session.reset(),
+        // Nothing to discard in a session that has not been touched.
+        isEnabled: (c) => c.session.canUndo || c.session.canRedo,
+        disabledReason: () => "The session has not been changed",
+    },
+
     // ------------------------------------------------------------------ material
     {
         id: "material.clone",

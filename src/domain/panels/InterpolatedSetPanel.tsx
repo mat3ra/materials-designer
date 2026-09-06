@@ -128,6 +128,7 @@ export function InterpolatedSetPanel({
 
     return (
         <PanelFrame
+            type="interpolated-set"
             title="Interpolated set (NEB)"
             icon="⋯"
             engine="native"

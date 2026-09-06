@@ -19,6 +19,7 @@ import type {
     MaterialDoc,
     Operation,
     OperationSource,
+    ResultDigest,
     SessionState,
     SetDoc,
 } from "./types";
@@ -40,6 +41,21 @@ export interface RecordOptions {
     engine?: Engine;
     label?: string;
     provenance?: Record<string, unknown>;
+}
+
+/**
+ * Measure a material, having first checked the app can actually hold it.
+ *
+ * made.js validates lazily: `apply` succeeds and `toJSON` throws later, inside whichever consumer
+ * asks first — and wave.js clones the material on every prop change, so "later" is usually the 3D
+ * view, several frames after the edit that caused it, with a stack that names nothing useful.
+ * Asking here turns that into a refused edit: the throw propagates out of the write path, the
+ * session keeps its previous state, and the user gets the reason. `digestOf` cannot do this job —
+ * it is deliberately tolerant so a malformed structure never breaks a chip.
+ */
+function digestOfSerialisable(material: Material): ResultDigest {
+    material.toJSON();
+    return digestOf(material);
 }
 
 export function makeOperation(
@@ -74,7 +90,7 @@ export function createMaterialDoc(
         setId: options.setId,
         log: [op],
     };
-    op.result = digestOf(resolve(doc).material);
+    op.result = digestOfSerialisable(resolve(doc).material);
     return doc;
 }
 
@@ -139,10 +155,10 @@ export function applyOperation(
     const op = makeOperation(type, params, options);
     const nextDoc: MaterialDoc = { ...doc, log: [...doc.log, op] };
 
-    // Deliberately unguarded: if the operation cannot replay, the throw
-    // propagates and the session keeps its previous state rather than
+    // Deliberately unguarded: if the operation cannot replay, or produces something the app
+    // cannot serialise, the throw propagates and the session keeps its previous state rather than
     // recording a step that does not reproduce.
-    op.result = digestOf(resolve(nextDoc).material);
+    op.result = digestOfSerialisable(resolve(nextDoc).material);
 
     const materials = state.materials.map((m) => (m.id === targetId ? nextDoc : m));
     return pushChange(state, { kind: "op", materialId: targetId, op }, { materials });
@@ -185,7 +201,7 @@ export function applyCoalescingOperation(
         ...doc!,
         log: [...doc!.log.slice(0, -1), merged],
     };
-    merged.result = digestOf(resolve(nextDoc).material);
+    merged.result = digestOfSerialisable(resolve(nextDoc).material);
 
     const materials = state.materials.map((m) => (m.id === targetId ? nextDoc : m));
     // Replace the pending undo entry rather than stacking a second one.
@@ -232,9 +248,19 @@ export function applySetOperation(
         ),
     );
 
-    const materials = state.materials
-        .map((m) => (m.id === sourceId ? { ...m, log: [...m.log, op] } : m))
-        .concat(docs);
+    // Children land immediately after the material they came from, not at the end of the list.
+    // v1 did the same (`addAtIndex`), and the platform's fixtures count on it: an interpolated
+    // image is the second material in a two-material session, not the third. It also reads better
+    // — a set belongs beside its source rather than at the bottom of a long list.
+    const withOp = state.materials.map((m) =>
+        m.id === sourceId ? { ...m, log: [...m.log, op] } : m,
+    );
+    const sourceIndex = withOp.findIndex((m) => m.id === sourceId);
+    const materials = [
+        ...withOp.slice(0, sourceIndex + 1),
+        ...docs,
+        ...withOp.slice(sourceIndex + 1),
+    ];
 
     return pushChange(
         state,
@@ -294,7 +320,7 @@ export function forkMaterial(
         // single change: one undo removes the whole material instead of peeling off its name first.
         const renamed = makeOperation("rename", { name: options.name }, { source: "form" });
         copy.log = [...copy.log, renamed];
-        renamed.result = digestOf(resolve(copy).material);
+        renamed.result = digestOfSerialisable(resolve(copy).material);
     }
     const materials = [...state.materials, copy];
     return pushChange(

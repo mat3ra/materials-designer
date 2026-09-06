@@ -1,9 +1,16 @@
+import { forApp } from "../app";
 import Widget from "./Widget";
 
+/**
+ * v1 configured a supercell in a modal; 2.0 does it in a panel beside the viewport, so you can
+ * watch the cell grow while you type. Both are addressed here: the widget's method names are the
+ * contract other repositories depend on, and the selectors underneath them are not.
+ */
 const selectors = {
-    wrapper: "#supercellModal",
-    submitButton: "#supercellModal-submit-button",
-    matrixElementByIndices: (i: number, j: number) => `div.m${i + 1}${j + 1} input`,
+    wrapper: forApp("#supercellModal", "#panel-supercell"),
+    submitButton: forApp("#supercellModal-submit-button", '[data-testid="panel-apply"]'),
+    matrixElementByIndices: (i: number, j: number) =>
+        forApp(`div.m${i + 1}${j + 1} input`, `[data-tid="m${i + 1}${j + 1}"]`),
 };
 
 export class SupercellDialogWidget extends Widget {

@@ -140,7 +140,10 @@ export function BasisEditor({ xyz, units, theme, onCommit }: BasisEditorProps) {
                         content={draft}
                         updateContent={(content: string) => {
                             setDraft(content);
-                            onCommit(content);
+                            // Clearing the box is a step on the way to typing, not an instruction
+                            // to delete every atom — and a material with no sites is one nothing
+                            // downstream can serialise.
+                            if (content.trim()) onCommit(content);
                         }}
                         language="python"
                         theme={theme}

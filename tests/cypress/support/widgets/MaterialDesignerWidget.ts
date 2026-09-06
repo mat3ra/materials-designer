@@ -62,10 +62,18 @@ export default class MaterialDesignerWidget extends Widget {
     }
 
     openSurfaceDialog() {
+        if (isV2()) {
+            this.commands.run("op.surface");
+            return;
+        }
         this.headerMenu.selectMenuItemByNameAndItemNumber("Advanced", 4);
     }
 
     openSaveDialog() {
+        if (isV2()) {
+            this.commands.run("file.save");
+            return;
+        }
         this.headerMenu.selectMenuItemByNameAndItemNumber("Input/Output", 5);
     }
 
@@ -86,6 +94,10 @@ export default class MaterialDesignerWidget extends Widget {
     }
 
     openSupercellDialog() {
+        if (isV2()) {
+            this.commands.run("op.supercell");
+            return;
+        }
         this.headerMenu.selectMenuItemByNameAndItemNumber("Advanced", 1);
     }
 
@@ -111,6 +123,10 @@ export default class MaterialDesignerWidget extends Widget {
     }
 
     exit() {
+        if (isV2()) {
+            this.commands.run("file.exit");
+            return;
+        }
         this.headerMenu.selectMenuItemByNameAndItemNumber("Input/Output", 6);
     }
 
@@ -147,6 +163,10 @@ export default class MaterialDesignerWidget extends Widget {
     }
 
     openBoundaryConditionsDialog() {
+        if (isV2()) {
+            this.commands.run("op.boundary-conditions");
+            return;
+        }
         this.headerMenu.selectMenuItemByNameAndItemNumber("Advanced", 5);
     }
 
@@ -157,6 +177,10 @@ export default class MaterialDesignerWidget extends Widget {
     }
 
     openInterpolateSetDialog() {
+        if (isV2()) {
+            this.commands.run("op.interpolated-set");
+            return;
+        }
         this.headerMenu.selectMenuItemByNameAndItemNumber("Advanced", 3);
     }
 
@@ -166,11 +190,24 @@ export default class MaterialDesignerWidget extends Widget {
         this.interpolatedSetDialog.submit();
     }
 
+    /**
+     * v1's Edit menu, by position: 1 undo, 2 redo, 3 reset. The ordinals are the reason this
+     * needed a widget at all; 2.0 names the three actions instead.
+     */
     clickUndoRedoReset(index = 1) {
+        if (isV2()) {
+            const byPosition = ["edit.undo", "edit.redo", "edit.reset"];
+            this.commands.run(byPosition[index - 1]);
+            return;
+        }
         this.headerMenu.selectMenuItemByNameAndItemNumber("Edit", index);
     }
 
     toggleIsNonPeriodic() {
+        if (isV2()) {
+            this.commands.run("structure.toggle-periodicity");
+            return;
+        }
         this.headerMenu.selectMenuItemByNameAndItemNumber("Edit", 6);
     }
 

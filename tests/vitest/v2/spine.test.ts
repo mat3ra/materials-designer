@@ -700,3 +700,26 @@ describe("isModified — differs from how it entered the session", () => {
         expect(isModified(state.materials[0])).toBe(false);
     });
 });
+
+describe("what the write path refuses to record", () => {
+    it("rejects a step whose result cannot be serialised", () => {
+        const state = createInitialState();
+        const id = state.activeId;
+        // An empty basis: made.js accepts it into a Material and only objects when something asks
+        // for JSON — which everything eventually does, starting with the 3D view.
+        expect(() =>
+            applyOperation(state, "set-basis", { xyz: "", units: "crystal" }, { materialId: id }),
+        ).toThrow();
+    });
+
+    it("and leaves the session exactly as it was", () => {
+        const state = createInitialState();
+        const before = state.materials[0].log.length;
+        try {
+            applyOperation(state, "set-basis", { xyz: "", units: "crystal" });
+        } catch {
+            // expected
+        }
+        expect(state.materials[0].log).toHaveLength(before);
+    });
+});

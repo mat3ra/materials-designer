@@ -81,11 +81,12 @@ export class ItemsListWidget extends Widget {
         if (isV2()) {
             // 2.0 opens the field on double-click and commits on Enter; there is no always-present
             // input to type into.
-            this.browser.get(rowsV2).eq(itemIndex - 1).find(".md2-tname").dblclick();
             this.browser
-                .get('[data-testid="material-name-input"]')
-                .clear()
-                .type(`${name}{enter}`);
+                .get(rowsV2)
+                .eq(itemIndex - 1)
+                .find(".md2-tname")
+                .dblclick();
+            this.browser.get('[data-testid="material-name-input"]').clear().type(`${name}{enter}`);
             return;
         }
         const selector = this.getSelectorPerItem(itemIndex, this.selectors.nameInput);
@@ -101,13 +102,21 @@ export class ItemsListWidget extends Widget {
     }
 
     selectItemByIndex(index: number) {
-        if (isV2()) return this.browser.get(rowsV2).eq(index - 1).click();
+        if (isV2())
+            return this.browser
+                .get(rowsV2)
+                .eq(index - 1)
+                .click();
         return this.browser.click(this.getSelectorPerItem(index, ""));
     }
 
     deleteMaterialByIndex(index: number) {
         if (isV2()) {
-            this.browser.get(rowsV2).eq(index - 1).find('[data-testid="row-remove"]').click({ force: true });
+            this.browser
+                .get(rowsV2)
+                .eq(index - 1)
+                .find('[data-testid="row-remove"]')
+                .click({ force: true });
             return;
         }
         this.browser.click(this.getSelectorPerItem(index, this.selectors.iconButtonDelete));

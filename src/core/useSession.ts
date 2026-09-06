@@ -43,6 +43,8 @@ export interface UseSession {
     restoredFrom: string | null;
     dismissRestoreNotice: () => void;
     startFresh: () => void;
+    /** Back to how the session opened, history included. v1's Edit › Reset. */
+    reset: () => void;
     canUndo: boolean;
     canRedo: boolean;
     apply: (
@@ -211,6 +213,13 @@ export function useSession({
             setSessionName("Untitled session");
             setRestoredFrom(null);
         },
+        /**
+         * v1's Reset restored the whole session to the state it opened in and emptied the undo
+         * stack — it was never a per-material revert, which is why the platform's fixtures expect
+         * the default material back rather than the active one rewound. Reverting one material to
+         * its origin is a separate command, on the Timeline where its effect is visible.
+         */
+        reset: () => setState(createInitialState(initialDocs)),
         canUndo: canUndo(state),
         canRedo: canRedo(state),
         run,

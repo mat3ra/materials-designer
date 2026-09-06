@@ -102,6 +102,7 @@ export function BoundaryConditionsPanel({
 
     return (
         <PanelFrame
+            type={TYPE}
             applyLabel={applyLabel}
             icon={PANEL_META["boundary-conditions"].icon}
             title={PANEL_META["boundary-conditions"].title}
@@ -118,6 +119,7 @@ export function BoundaryConditionsPanel({
                     <label htmlFor={fieldId("type")}>Type</label>
                     <select
                         id={fieldId("type")}
+                        data-tid="type"
                         className="md2-field"
                         value={draft.boundaryType}
                         onChange={(event) =>
@@ -136,6 +138,7 @@ export function BoundaryConditionsPanel({
                 </div>
                 <NumberField
                     id={fieldId("offset")}
+                    tid="offset"
                     label="Offset"
                     unit="Å"
                     value={draft.offset}

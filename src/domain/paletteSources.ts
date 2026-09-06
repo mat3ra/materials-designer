@@ -33,6 +33,7 @@ export function buildPaletteItems(query: string, sources: PaletteSources): Palet
 
     const commands: PaletteItem[] = filterCommands(sources.commands, trimmed).map((command) => ({
         id: `command:${command.id}`,
+        commandId: command.id,
         label: command.label,
         group: command.group,
         hint: command.shortcut?.replace("mod", "⌘"),

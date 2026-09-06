@@ -9,6 +9,7 @@
  * dominate a panel that also has to show the basis. Edits are staged and applied together, because
  * a lattice half-way between two symmetries is not a structure anyone wants recorded.
  */
+import { Made } from "@mat3ra/made";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import React, { useEffect, useState } from "react";
@@ -61,6 +62,44 @@ function toDraft(lattice: Partial<LatticeValue> | undefined): Record<string, str
     };
 }
 
+/**
+ * Re-derive the dependent parameters after an edit.
+ *
+ * A Bravais type is a set of constraints, not a label: choosing TET fixes the angles at 90° and
+ * ties b to a, and made.js knows those rules. Without this, picking a type left the previous
+ * type's angles in the form and produced a structure whose lattice contradicted its own symmetry —
+ * which is exactly what the platform's fixtures caught. v1 ran the same function on every change;
+ * `isConventional` tells made.js to keep the edited value and adjust around it.
+ */
+function withSymmetry(
+    draft: Record<string, string>,
+    isConventional: boolean,
+    base: Partial<LatticeValue> | undefined,
+) {
+    const numeric = Object.fromEntries(
+        [...LENGTHS, ...ANGLES].map((key) => [key, Number(draft[key])]),
+    );
+    // Nothing to derive from a half-typed number, and made.js computes with these: handing it a
+    // NaN surfaces deep inside its maths library as an unreadable type error.
+    if (Object.values(numeric).some((value) => !Number.isFinite(value))) return draft;
+    const derived = (
+        Made.Lattice as unknown as {
+            getDefaultPrimitiveLatticeConfigByType: (
+                config: Record<string, unknown>,
+                isConventional?: boolean,
+            ) => Record<string, unknown>;
+        }
+    )
+        // The material's own lattice underneath: it carries `units` and the vectors, and made.js
+        // computes with them. Handing over the six numbers alone leaves units undefined and the
+        // maths library fails on a value it cannot type.
+        .getDefaultPrimitiveLatticeConfigByType(
+            { ...(base as Record<string, unknown>), ...numeric, type: draft.type },
+            isConventional,
+        );
+    return toDraft(derived as Partial<LatticeValue>);
+}
+
 export function LatticeForm({
     lattice,
     preserveBasis,
@@ -77,13 +116,18 @@ export function LatticeForm({
     }, [lattice, open]);
 
     function apply() {
+        // Derived once, here, rather than on every keystroke: recomputing while someone types
+        // rewrites the field under the cursor. v1 did it per change and reformatted half-typed
+        // numbers as a result.
+        const settled = withSymmetry(draft, true, lattice);
         const next: LatticeValue = {
-            type: draft.type,
+            type: settled.type,
             ...(Object.fromEntries(
-                [...LENGTHS, ...ANGLES].map((key) => [key, Number(draft[key])]),
+                [...LENGTHS, ...ANGLES].map((key) => [key, Number(settled[key])]),
             ) as Omit<LatticeValue, "type">),
         };
         if ([...LENGTHS, ...ANGLES].some((key) => !Number.isFinite(next[key]))) return;
+        setDraft(settled);
         onApply(next);
     }
 
@@ -117,7 +161,13 @@ export function LatticeForm({
                         value={draft.type}
                         size="small"
                         onChange={(event) =>
-                            setDraft({ ...draft, type: String(event.target.value) })
+                            setDraft(
+                                withSymmetry(
+                                    { ...draft, type: String(event.target.value) },
+                                    false,
+                                    lattice,
+                                ),
+                            )
                         }
                     >
                         {LATTICE_TYPES.map((type) => (

@@ -102,6 +102,7 @@ export function SupercellPanel({
 
     return (
         <PanelFrame
+            type={TYPE}
             applyLabel={applyLabel}
             icon={PANEL_META.supercell.icon}
             title={PANEL_META.supercell.title}
@@ -119,6 +120,7 @@ export function SupercellPanel({
                         <input
                             key={cellName(index)}
                             id={fieldId(cellName(index))}
+                            data-tid={cellName(index)}
                             className="md2-field"
                             type="number"
                             inputMode="numeric"

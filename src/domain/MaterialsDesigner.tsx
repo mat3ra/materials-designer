@@ -247,6 +247,29 @@ export function MaterialsDesigner({
     );
 
     /**
+     * Bring a standard-library entry in.
+     *
+     * Both the panel and the palette land here rather than each building the document themselves,
+     * so a config the schema will not accept fails the same way from either — as a notice naming
+     * the entry, instead of an exception in a click handler.
+     */
+    const importStandata = useCallback(
+        (entry: { name: string; config: Record<string, unknown> }) => {
+            try {
+                session.add([
+                    createMaterialDoc("create-from-config", {
+                        config: toImportableConfig(entry.config),
+                        source: `${entry.name} (standard library)`,
+                    }),
+                ]);
+            } catch {
+                setNotice(`Could not import ${entry.name} — the library entry is not a structure.`);
+            }
+        },
+        [session],
+    );
+
+    /**
      * The notebook's `materials_in`.
      *
      * Built only while that tab is showing: every material has to be replayed and serialised, and
@@ -403,12 +426,7 @@ export function MaterialsDesigner({
                 <StandataPanel
                     onCancel={() => setPanelType(null)}
                     onPick={(entry) => {
-                        session.add([
-                            createMaterialDoc("create-from-config", {
-                                config: toImportableConfig(entry.config),
-                                source: `${entry.name} (standard library)`,
-                            }),
-                        ]);
+                        importStandata(entry);
                         closePanel();
                     }}
                 />
@@ -701,13 +719,7 @@ export function MaterialsDesigner({
                                 materials: session.state.materials,
                                 standata: STANDATA,
                                 onSelectMaterial: session.select,
-                                onImportStandata: (entry) =>
-                                    session.add([
-                                        createMaterialDoc("create-from-config", {
-                                            config: toImportableConfig(entry.config),
-                                            source: `${entry.name} (standard library)`,
-                                        }),
-                                    ]),
+                                onImportStandata: importStandata,
                             })}
                             onClose={() => {
                                 setPaletteOpen(false);

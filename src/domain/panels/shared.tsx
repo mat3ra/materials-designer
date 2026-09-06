@@ -174,6 +174,13 @@ export function useFieldIds(prefix: string): (name: string) => string {
 export function PanelFrame(props: {
     icon: string;
     title: string;
+    /**
+     * The operation this panel configures. Becomes `#panel-<type>`, which is how the Cypress
+     * widgets address it: v1 gave each dialog a bespoke id (`#supercellModal`,
+     * `#BoundaryConditionsModal`), so every widget had to know a different one. One convention
+     * across every panel means a new panel is addressable the day it exists.
+     */
+    type: string;
     /** Shown as the engine badge; every MVP panel is native. */
     engine?: PanelEngine;
     canApply: boolean;
@@ -185,6 +192,7 @@ export function PanelFrame(props: {
     const {
         icon,
         title,
+        type,
         engine = "native",
         canApply,
         applyLabel,
@@ -195,7 +203,12 @@ export function PanelFrame(props: {
     // Esc, Cmd-Z and the other chords are global (shell-owned), so a panel binds
     // no keys of its own; it only labels its region.
     return (
-        <section className="md2-panel" aria-label={`${title} operation panel`}>
+        <section
+            className="md2-panel"
+            id={`panel-${type}`}
+            data-panel={type}
+            aria-label={`${title} operation panel`}
+        >
             <header className="md2-panel-head">
                 <span className="md2-icon" aria-hidden="true">
                     {icon}
@@ -207,12 +220,18 @@ export function PanelFrame(props: {
             </header>
             <div className="md2-panel-body">{children}</div>
             <div className="md2-actions">
-                <button type="button" className="md2-btn" onClick={onCancel}>
+                <button
+                    type="button"
+                    className="md2-btn"
+                    data-testid="panel-cancel"
+                    onClick={onCancel}
+                >
                     Cancel
                 </button>
                 <button
                     type="button"
                     className="md2-btn md2-btn-primary"
+                    data-testid="panel-apply"
                     disabled={!canApply}
                     onClick={onApply}
                 >
@@ -258,13 +277,18 @@ export function NumberField(props: {
     label: string;
     value: string;
     onChange: (value: string) => void;
+    /**
+     * Stable handle for the Cypress widgets, rendered as `data-tid`. A named prop rather than a
+     * hyphenated JSX attribute, which TypeScript accepts on any component and silently drops.
+     */
+    tid?: string;
     /** Rendered after the input, e.g. "Å". */
     unit?: string;
     min?: number;
     max?: number;
     step?: number;
 }): JSX.Element {
-    const { id, label, value, onChange, unit, min, max, step } = props;
+    const { id, label, value, onChange, tid, unit, min, max, step } = props;
     return (
         <div className="md2-field-row">
             <label htmlFor={id}>
@@ -273,6 +297,7 @@ export function NumberField(props: {
             </label>
             <input
                 id={id}
+                data-tid={tid}
                 className="md2-field"
                 type="number"
                 inputMode="decimal"

@@ -6,8 +6,6 @@
  * frame sends back an object under a `materials` key. Both directions are adapted here, so a
  * change in either is a change in one file.
  */
-import Material from "@mat3ra/made/dist/js/Material";
-
 import { toImportableConfig } from "../../core/io";
 
 export type MaterialConfig = Record<string, unknown>;
@@ -37,8 +35,8 @@ export interface ReceivedMaterials {
  * with it.
  */
 export function fromFramePayload(payload: unknown): ReceivedMaterials {
-    const raw = (payload as { materials?: unknown } | null)?.materials;
-    if (!Array.isArray(raw)) {
+    const sent = (payload as { materials?: unknown } | null)?.materials;
+    if (!Array.isArray(sent)) {
         return {
             configs: null,
             errors: ["The notebook sent something that was not a material list"],
@@ -47,13 +45,15 @@ export function fromFramePayload(payload: unknown): ReceivedMaterials {
 
     const configs: MaterialConfig[] = [];
     const errors: string[] = [];
-    raw.forEach((entry, index) => {
-        const config = toImportableConfig((entry ?? {}) as MaterialConfig);
+    sent.forEach((entry, index) => {
+        const config = (entry ?? {}) as MaterialConfig;
         const name = (config.name as string) || `material ${index + 1}`;
         try {
-            const material = new Material(config as never);
-            material.validate();
-            configs.push(config);
+            // Serialisability, not `validate()`: that checks against the base schema and rejects
+            // the `external` block a structure taken from a database carries. Serialising is what
+            // everything downstream actually does — the 3D view clones the material on every prop
+            // change — so it is the definition of "usable" the rest of the app lives by.
+            configs.push(toImportableConfig(config));
         } catch (error) {
             errors.push(`Could not read ${name}: ${(error as Error).message}`);
         }

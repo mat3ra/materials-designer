@@ -22,23 +22,23 @@ a named spec passes. Specs tagged `@parity_2_0` are harvested from PR #299 and r
 | `window.MDState` shape | derived in an effect; a material that cannot serialise is skipped rather than crashing the app | **done** | drives most `@parity_2_0` specs |
 | `isConventionalCellShown`, `initialViewSettings`, `maxCombinatorialBasesCount` | cap is wired; the two viewport props are accepted and **inert**, pending wave.js taking them as controlled props | **partial** — deliberately, and documented at the type | web-app's own suite (gate 2) |
 | Upload from disk (POSCAR/JSON) | Upload quick action, Catalog › From file, ☰, and global drag-and-drop | **done** — the first three open the review; a drop imports directly, because the drop *is* the decision. An imported material takes the structure's own name, not the file's, which is what the platform's fixtures pin | `menu/input-output/add-remove-import-files` **green against 2.0** |
-| Import from Standata (74 configs) | Catalog › Create › Standard library | **done** | `menu/input-output/import-from-standata` |
+| Import from Standata (73 configs) | Catalog › Create › Standard library | **done** — listed by material name (it was showing file names until the spec said otherwise), and every entry imports: one names an `external.source` outside the schema's enum, so that block alone is dropped for that entry | `menu/input-output/import-from-standata`, `toolbar/command-palette` **green against 2.0**; 6 unit tests |
 | Export JSON / POSCAR / all | ☰ › Export | **done** | md2 smoke (to port) |
 
 ## Operations
 
 | v1 capability | 2.0 home | Status | Covering test |
 |---|---|---|---|
-| Supercell (3×3, det≠0) | Catalog › Build › Supercell panel | **done** | `menu/advanced/supercell` |
-| Surface / slab (hkl, layers, vacuum) | Catalog › Build › Surface panel | **done** | `menu/advanced/surface` |
-| Boundary conditions (pbc/bc1–3 + offset) | Inspector › Structure | **done** | `menu/advanced/boundary_conditions` |
+| Supercell (3×3, det≠0) | Catalog › Build › Supercell panel | **done** | `menu/advanced/supercell` **green against 2.0** |
+| Surface / slab (hkl, layers, vacuum) | Catalog › Build › Surface panel | **done** | `menu/advanced/surface` **green against 2.0** |
+| Boundary conditions (pbc/bc1–3 + offset) | Inspector › Structure | **done** | `menu/advanced/boundary_conditions` **green against 2.0** |
 | Combinatorial set (XYZ syntax, cap, naming) | Catalog › Sets › Combinatorial → set folder | **done** | md2 smoke (to port) |
-| **Interpolated set / NEB** | Catalog › Sets › NEB, **both** endpoints picked in-panel | **done** — images are set children with their own origins; the forecast is the interpolation actually run, so an impossible pair is explained before Apply rather than throwing after it | smoke (both paths) |
-| Use conventional cell | Inspector › Structure › Cell, recorded as an op | **partial** — op registered, Inspector references it; needs a control and a test | *(needs one)* |
+| **Interpolated set / NEB** | Catalog › Sets › NEB, **both** endpoints picked in-panel | **done** — images are set children with their own origins, inserted after the material they came from; the forecast is the interpolation actually run, so an impossible pair is explained before Apply rather than throwing after it | `menu/advanced/interpolated-set` **green against 2.0**, smoke (both paths) |
+| Use conventional cell | Inspector › Structure › Cell, recorded as an op | **done** — a labelled control on the Structure tab, `structure.conventional-cell` in the registry | md2 smoke (2 checks); no Cypress feature yet — v1 had none either |
 | Toggle isNonPeriodic + saved-material guard | Inspector › Structure › Periodicity, guard → disabled-with-reason | **partial** — op registered; guard not implemented | *(needs one)* |
 | Clone | Navigator fork (fork-origin chip) | **done** | `menu/edit/reset-clone-undo-redo` |
 | Undo / Redo — one stack | Timeline steps + ⌘Z everywhere | **done** | `menu/edit/reset-clone-undo-redo`, `toolbar/quick-actions` @parity_2_0 |
-| Reset | Timeline › revert to step 0 | **done** | `menu/edit/reset-clone-undo-redo` |
+| Reset | `edit.reset` — the session back to how it opened, undo stack included | **done** — this was wrong until the spec said so: 2.0 had only a per-material revert, and v1's Reset was always session-level | `menu/edit/reset-clone-undo-redo` **green against 2.0** |
 | Delete material (undoable) | Navigator row action | **done** | `3d-editor/delete-material`, `materials-list/filter-and-count` @parity_2_0 |
 | Rename material | Navigator inline rename | **done** — double-click a name, or the `material.rename` command; a no-op rename records nothing | `materials-list/filter-and-count` @parity_2_0, smoke |
 
@@ -46,7 +46,7 @@ a named spec passes. Specs tagged `@parity_2_0` are harvested from PR #299 and r
 
 | v1 capability | 2.0 home | Status | Covering test |
 |---|---|---|---|
-| Lattice form (type/a/b/c/α/β/γ, units, scale-vs-preserve) | Inspector › Structure › Edit lattice | **done** — disclosed form, staged edits, preserve-vs-scale kept | `materials-list/*` @parity_2_0 (drives it via the create path) |
+| Lattice form (type/a/b/c/α/β/γ, units, scale-vs-preserve) | Inspector › Structure › Edit lattice | **done** — disclosed form, staged edits, preserve-vs-scale kept, and the dependent parameters re-derived from the Bravais type on apply (choosing TET fixes the angles at 90° and ties b to a) | `menu/advanced/interpolated-set`, `menu/edit/reset-clone-undo-redo` **green against 2.0** |
 | Basis XYZ text (constraints, validation, crystal/cartesian) | Basis table + text view on `#basis-xyz` | **done** — both views write one `set-basis` op; constraints appear only when something is constrained | `source-editor/basis-table` @parity_2_0 (4/4) |
 | Upload review grid | Import review, on the Catalog's overlay rather than the 300px panel zone | **done** — v1's DOM contract kept whole (`#defaultImportModalDialog`, the DataGrid's `role="cell"`/`data-field` cells, `#<file>-remove-button`, the submit and cancel ids), so the feature passes against 2.0 with only the step that *opens* it retargeted | `menu/input-output/add-remove-import-files` **green against 2.0**; 6 unit tests; 10 smoke checks |
 | Materials list: filter, count, empty state | Navigator filter + count | **done** | `materials-list/filter-and-count` @parity_2_0 |
@@ -79,6 +79,27 @@ a named spec passes. Specs tagged `@parity_2_0` are harvested from PR #299 and r
 | Keyboard sheet | app-owned `?` overlay | **absent** | *(needs one)* |
 | Multi-material 3D combine (removed with wave's Outliner) | Combine v2 as a 2-input Catalog card | **deferred** — owner: post-cutover, per PROPOSAL ⟲ | — |
 | Fullscreen (broken in v1) | replaced by costumes | **done** | — |
+
+## Cutover gate 1 — the v1 suite against 2.0
+
+Run on 2026-09-06 with `--env APP=v2`: **all eight specs CI gates on pass**, and no feature file
+was edited to get there. What changed is step-definition bodies and widget selectors, which is
+what freezing the phrases rather than the implementation is for. The whole suite against 2.0 —
+these eight plus the harvested specs — is 37 passing, 0 failing.
+
+| Spec | Result against 2.0 |
+|---|---|
+| `3d-editor/delete-material` | ✔ |
+| `menu/input-output/add-remove-import-files` | ✔ |
+| `menu/input-output/import-from-standata` | ✔ |
+| `menu/advanced/supercell` | ✔ |
+| `menu/advanced/surface` | ✔ |
+| `menu/advanced/boundary_conditions` | ✔ |
+| `menu/advanced/interpolated-set` | ✔ |
+| `menu/edit/reset-clone-undo-redo` | ✔ |
+
+Gate 2 — the 62 web-app features against WIP tarballs of both packages — is still to run, and is
+the one that decides the flip.
 
 ## Still open
 

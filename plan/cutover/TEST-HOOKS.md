@@ -157,18 +157,64 @@ up to three times in one scenario and assert `Introduction.ipynb` each time: the
 only while the tab is showing, and "Add to session" closes the console. Together they reproduce
 what a modal did by being unmounted.
 
+## Reaching a command that has no button (added 2026-09-06)
+
+Most operations have no permanent trigger — that is the point of a registry. `CommandsWidget.run`
+therefore looks in three places, in the order a person would:
+
+1. a visible `[data-command="<id>"]` — the quick-action row, the panel toggles, the console tabs;
+2. the **Catalog**, opened by clicking, whose cards now carry the id of the command they are the
+   face of;
+3. the **command palette**, which lists the whole registry, for everything else — undo, reset,
+   the view toggles.
+
+The palette is opened for (3) by dispatching the chord at the document rather than typing it.
+`cy.type` sends keys to whatever holds focus and the registry ignores chords typed into a field —
+correctly, and `toolbar/keyboard-shortcuts` exists to pin that. A step whose intent is "run this
+command" should not fail because the previous step left the cursor in a text box, so
+`CommandPaletteWidget` has both: `openWithShortcut()` for the keyboard specs and `open()` for
+everything else.
+
+Two conventions came out of this, and both replace a bespoke id per dialog:
+
+- every operation panel is `#panel-<type>` (`#panel-supercell`, `#panel-boundary-conditions`, …),
+  rendered by `PanelFrame` from the operation it configures;
+- its footer buttons are `[data-testid="panel-apply"]` and `[data-testid="panel-cancel"]`.
+
+## What the v1 suite says against 2.0
+
+The eight specs CI actually gates on, run with `--env APP=v2`. All eight pass, with **no feature
+file changed** — only step-definition bodies and widget selectors, which is the whole point of
+freezing the phrases rather than the implementation.
+
+Closing them turned up seven defects that nothing else had caught — every one in the product,
+not in the specs:
+
+| What the spec found | Where it was |
+|---|---|
+| A step could be recorded that produced a material nothing could serialise. made.js validates lazily, so `apply` succeeded and the 3D view crashed several frames later, cloning it on a prop change. | `core/session.ts` — the write path now serialises before recording, so the edit is refused with a reason instead |
+| Set children were appended to the end of the list; v1 inserted them after the material they came from, which is what the fixtures count on | `core/session.ts` |
+| The standard library listed file names (`C-[Graphene]-HEX_[P6%2Fmmm]…json`) instead of material names | `domain/StandataPanel.tsx` |
+| Choosing a Bravais type left the previous type's angles in the form, producing a lattice that contradicted its own symmetry | `domain/inspector/LatticeForm.tsx` |
+| Reset reverted the active material; v1's Reset restored the whole session and emptied the undo stack | new `edit.reset` command |
+| Clearing the basis text box committed a material with no atoms | `domain/inspector/BasisEditor.tsx` |
+| `external` was being stripped from every imported config on the theory that made.js could not serialise it. It can: exactly **one** of the seventy-three library entries names an `external.source` outside the schema's enum, and dropping the block from all of them cost the other seventy-two the provenance the specs assert on | `core/io.ts` — `toImportableConfig` now drops it only when it is what makes the config unusable, with a test that pins the count |
+
 ## Both suites, side by side
 
-Run on 2026-09-06, after retargeting:
+Run on 2026-09-06, after the retarget:
 
 ```
-# MD 2.0 — the harvested parity specs
-npx cypress run --env APP=v2,TAGS='@parity_2_0'          # 26 passing, 0 failing
+# MD 2.0 — everything CI would gate on, harvested specs included
+npx cypress run --env APP=v2,TAGS='not @ignore and not @quarantine and not @notebook_healthcheck'
+                                                          # 37 passing, 0 failing, 57 pending
 
 # v1 — what CI runs today, unchanged
 npx cypress run --env TAGS='not @ignore and not @quarantine and not @notebook_healthcheck and not @parity_2_0'
-                                                          # 8 passing, 0 failing, 4 pending
+                                                          # 8 passing, 0 failing
 ```
 
+The 57 pending are the tag-filtered health-checks and the `@ignore`d specs, exactly as in CI.
+
 That v1 still passes is the point: every change so far is additive, and the same step definitions
-drive both applications until the flip removes the need.
+drive both applications until the flip removes the need for the switch.

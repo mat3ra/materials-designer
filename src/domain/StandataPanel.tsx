@@ -21,7 +21,13 @@ export function loadStandata(): StandataEntry[] {
         }
     ).runtimeData.filesMapByName;
     return Object.entries(map)
-        .map(([name, config]) => ({ name, config }))
+        .map(([fileName, config]) => ({
+            // The map is keyed by file name — "C-[Graphene]-HEX_[P6%2Fmmm]_2D_[Monolayer].json" —
+            // which is storage, not language. What someone is choosing from is the material's own
+            // name, which is also what v1's dialog listed and what the platform's fixtures name.
+            name: (config.name as string) || fileName,
+            config,
+        }))
         .sort((a, b) => a.name.localeCompare(b.name));
 }
 
@@ -56,7 +62,8 @@ export function StandataPanel({ onPick, onCancel }: StandataPanelProps) {
                     className="md2-field"
                     style={{ width: "100%", marginBottom: 10 }}
                     value={query}
-                    placeholder="Search 74 materials…"
+                    data-testid="standata-search"
+                    placeholder={`Search ${entries.length} materials…`}
                     aria-label="Search the standard library"
                     onChange={(e) => setQuery(e.target.value)}
                 />
@@ -66,6 +73,7 @@ export function StandataPanel({ onPick, onCancel }: StandataPanelProps) {
                             type="button"
                             key={entry.name}
                             className="md2-standata-row"
+                            data-testid="standata-row"
                             onClick={() => onPick(entry)}
                         >
                             <span className="md2-swatch" />

@@ -9,6 +9,12 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 
 export interface PaletteItem {
     id: string;
+    /**
+     * The command this row runs, when it runs one. Rendered as `data-command`, which is how a
+     * spec reaches an action with no button of its own. Distinct from `id`, which namespaces the
+     * row so a material and a command cannot collide.
+     */
+    commandId?: string;
     label: string;
     /** Section heading; items are grouped in the order their sections first appear. */
     group: string;
@@ -118,6 +124,10 @@ export function CommandPalette({
                                     key={item.id}
                                     role="option"
                                     aria-selected={isActive}
+                                    // The palette is where every command can be reached,
+                                    // including the ones with no button of their own — so it is
+                                    // also how a spec reaches them.
+                                    data-command={item.commandId}
                                     className={`command-palette-item md2-palette-item${
                                         isActive ? " md2-on" : ""
                                     }`}

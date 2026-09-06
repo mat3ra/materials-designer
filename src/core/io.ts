@@ -1,9 +1,11 @@
 /**
- * File in, file out.
+ * Structures in, structures out.
  *
  * Import records the file as an origin operation (payload + format), so a
  * material's provenance starts with "where it came from" rather than a bare
- * structure. Export is the only place a structure leaves as coordinates.
+ * structure. Export is the only place a structure leaves as coordinates. The
+ * config guard below is the other half of the boundary: what arrives from
+ * outside has to be something the session can actually hold.
  */
 import Material from "@mat3ra/made/dist/js/Material";
 
@@ -65,18 +67,27 @@ export function readFiles(files: FileList | File[]): Promise<ImportedFile[]> {
 }
 
 /**
- * A third-party config as the session can hold it.
+ * A config from outside, as the session can hold it.
  *
- * Standard-library entries — and anything a notebook echoes back from one — carry an `external`
- * block recording the database the structure came from. made.js accepts it on the way in and
- * rejects it when serialising against the enhanced schema, so a material imported with it intact
- * throws the first time anything asks for its JSON. Since `window.MDState` is republished on every
- * change, that means the app stops rendering.
+ * Structures taken from a database carry an `external` block saying where they came from, and the
+ * enhanced schema constrains its `source` to a fixed list. One of the seventy-three standard-library
+ * entries names a source outside that list, so it cannot be serialised — and everything downstream
+ * serialises, starting with the 3D view, which clones the material on every prop change.
  *
- * The block is dropped at the import boundary rather than papered over downstream. Its content is
- * provenance about an external database, which the operation log records in its own terms anyway.
+ * The block is dropped only when it is the thing making the config unusable. An earlier version of
+ * this dropped it from everything on the theory that made.js could never serialise it; that was
+ * wrong, and it cost the other seventy-two entries the provenance the platform's specs assert on.
+ * Anything still unusable without it is a broken structure, and the error is left to the caller,
+ * which knows what to name in the message.
  */
 export function toImportableConfig(config: Record<string, unknown>): Record<string, unknown> {
-    const { external, ...rest } = config;
-    return rest;
+    try {
+        new Material(config as never).toJSON();
+        return config;
+    } catch (error) {
+        if (config.external === undefined) throw error;
+        const { external, ...rest } = config;
+        new Material(rest as never).toJSON();
+        return rest;
+    }
 }

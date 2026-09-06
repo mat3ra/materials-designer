@@ -1,4 +1,5 @@
 /* eslint-disable max-classes-per-file */
+import { isV2 } from "../app";
 import Widget from "./Widget";
 
 const latticeEditorSelectors = {
@@ -34,10 +35,12 @@ class LatticeEditorWidget extends Widget {
 
     setLatticeParamInput(name: string, value: string) {
         this.browser.waitForVisible(this.selectors.latticeOptionSelectorByNameInput(name));
+        // Clear first. v1's field emptied itself on focus; 2.0's keeps what is there, so typing
+        // without clearing appends to the current value and produces a number that is not one.
         this.browser.setInputValue(
             this.selectors.latticeOptionSelectorByNameInput(name),
             value,
-            false,
+            isV2(),
         );
     }
 

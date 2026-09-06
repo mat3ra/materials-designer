@@ -14,6 +14,12 @@ import { PANEL_META } from "./shared";
 
 export interface CatalogEntry {
     type: string;
+    /**
+     * The registry command this card is the visible face of, where one exists. Every trigger in
+     * the app renders the id of what it runs (see `domain/commands.ts`), and the Catalog is the
+     * only on-screen trigger most operations have.
+     */
+    command?: string;
     /** Evaluated against the session; a card that cannot run says why, like its command does. */
     requires?: (context: { materialCount: number }) => string | undefined;
     title: string;
@@ -29,6 +35,7 @@ const NOT_YET = "Not in the MVP";
 export const CATALOG: CatalogEntry[] = [
     {
         type: "import-file",
+        command: "create.from-file",
         title: "From file",
         icon: "⇪",
         description: "Import JSON or POSCAR from disk — or drop files anywhere on the window.",
@@ -36,13 +43,15 @@ export const CATALOG: CatalogEntry[] = [
     },
     {
         type: "standard-library",
+        command: "create.standard-library",
         title: "Standard library",
         icon: "◈",
-        description: "Start from one of the 74 curated Standata materials.",
+        description: "Start from one of the curated Standata materials.",
         engine: "native",
     },
     {
         type: "interpolated-set",
+        command: "op.interpolated-set",
         requires: ({ materialCount }) =>
             materialCount > 1 ? undefined : "Interpolation needs a second material to run to",
         title: "Interpolated set (NEB)",
@@ -53,6 +62,7 @@ export const CATALOG: CatalogEntry[] = [
     },
     {
         type: "combinatorial-set",
+        command: "op.combinatorial-set",
         title: "Combinatorial set",
         icon: "⋈",
         description:
@@ -61,6 +71,7 @@ export const CATALOG: CatalogEntry[] = [
     },
     {
         type: "supercell",
+        command: "op.supercell",
         title: PANEL_META.supercell.title,
         icon: PANEL_META.supercell.icon,
         description: "Repeat the cell by an integer 3×3 scaling matrix.",
@@ -68,6 +79,7 @@ export const CATALOG: CatalogEntry[] = [
     },
     {
         type: "surface",
+        command: "op.surface",
         title: PANEL_META.surface.title,
         icon: PANEL_META.surface.icon,
         description:
@@ -76,6 +88,7 @@ export const CATALOG: CatalogEntry[] = [
     },
     {
         type: "boundary-conditions",
+        command: "op.boundary-conditions",
         title: PANEL_META["boundary-conditions"].title,
         icon: PANEL_META["boundary-conditions"].icon,
         description:
@@ -163,7 +176,12 @@ export function CatalogLite({
                     onChange={(event) => onQueryChange(event.target.value)}
                 />
                 <span className="md2-hint">{`${results.length} of ${CATALOG.length}`}</span>
-                <button type="button" className="md2-btn" onClick={onClose}>
+                <button
+                    type="button"
+                    className="md2-btn"
+                    data-testid="close-catalog"
+                    onClick={onClose}
+                >
                     Close
                 </button>
             </div>
@@ -178,6 +196,7 @@ export function CatalogLite({
                             key={entry.type}
                             type="button"
                             className="md2-catalog-card"
+                            data-command={entry.command}
                             disabled={Boolean(reason)}
                             title={reason}
                             onClick={() => onPick(entry.type)}

@@ -39,7 +39,7 @@ describe("the notebook bridge payload", () => {
         const { configs, errors } = fromFramePayload({ materials: [SILICON] });
         expect(errors).toEqual([]);
         expect(configs).toHaveLength(1);
-        expect(configs[0].name).toBe("Silicon FCC");
+        expect(configs![0].name).toBe("Silicon FCC");
     });
 
     it("reports a payload that is not a material list rather than throwing", () => {
@@ -62,12 +62,22 @@ describe("the notebook bridge payload", () => {
         expect(errors[0]).toContain("Broken");
     });
 
-    it("strips the external block, which made.js accepts but refuses to serialise", () => {
-        const withExternal = { ...SILICON, external: { id: "mp-149", source: "materialsproject" } };
-        const { configs } = fromFramePayload({ materials: [withExternal] });
-        expect(configs[0].external).toBeUndefined();
-        // The point of stripping it: everything downstream asks for JSON eventually.
-        expect(() => new Material(configs[0] as never).toJSON()).not.toThrow();
+    it("keeps the external block, which records where a structure came from", () => {
+        // The shape a standard-library entry actually carries; a partial one is rejected, which
+        // is the schema doing its job rather than a problem with the block itself.
+        const external = {
+            id: "2dm-3993",
+            source: "2dmatpedia",
+            doi: "10.1038/s41597-019-0097-3",
+            url: "http://www.2dmatpedia.org/2dmaterials/doc/2dm-3993",
+            origin: true,
+        };
+        const { configs } = fromFramePayload({ materials: [{ ...SILICON, external }] });
+        expect(configs?.[0].external).toEqual(external);
+        // It was briefly stripped here on the theory that made.js could not serialise it. It can;
+        // the crash that theory came from had another cause, and dropping the block cost the
+        // platform provenance it asserts on.
+        expect(() => new Material(configs![0] as never).toJSON()).not.toThrow();
     });
 });
 
