@@ -375,6 +375,18 @@ button {
     color: var(--text);
     font-size: 12.5px;
 }
+
+/* Inline rename: the field takes the name's exact place so the row does not jump. */
+.md2-tname-input {
+    flex: 1;
+    min-width: 0;
+    font: inherit;
+    color: var(--text);
+    background: var(--bg0);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-sm);
+    padding: 1px 4px;
+}
 .md2-tmeta {
     font-size: 11px;
     color: var(--text-faint);

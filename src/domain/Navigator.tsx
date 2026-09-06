@@ -18,6 +18,10 @@ export interface NavigatorProps {
     onRemove: (id: string) => void;
     onFork: (id: string) => void;
     onNew: () => void;
+    onRename: (id: string, name: string) => void;
+    /** Set by the `material.rename` command so the row opens straight into its field. */
+    renamingId?: string | null;
+    onRenamingIdChange?: (id: string | null) => void;
 }
 
 interface Row {
@@ -44,11 +48,32 @@ function toRows(materials: MaterialDoc[]): Row[] {
     return rows;
 }
 
-export function Navigator({ state, onSelect, onRemove, onFork, onNew }: NavigatorProps) {
+export function Navigator({
+    state,
+    onSelect,
+    onRemove,
+    onFork,
+    onNew,
+    onRename,
+    renamingId = null,
+    onRenamingIdChange,
+}: NavigatorProps) {
     const [filter, setFilter] = useState("");
     const [openSets, setOpenSets] = useState<Record<string, boolean>>({});
     const rows = useMemo(() => toRows(state.materials), [state.materials]);
     const query = filter.trim().toLowerCase();
+
+    /**
+     * A rename that changes nothing is not an edit.
+     *
+     * Clicking away from a row's name field must not deepen the history, or an undo would spend
+     * itself walking back a no-op instead of removing the material the user actually added.
+     */
+    function commitRename(id: string, next: string, previous: string | undefined) {
+        const trimmed = next.trim();
+        if (trimmed && trimmed !== (previous ?? "")) onRename(id, trimmed);
+        onRenamingIdChange?.(null);
+    }
 
     // Filtering flattens through set folders: a search should find a member
     // even when its folder is closed.
@@ -110,9 +135,37 @@ export function Navigator({ state, onSelect, onRemove, onFork, onNew }: Navigato
                 data-testid="material-row"
             >
                 <span className="md2-swatch" />
-                <span className="md2-tname" title={material.name}>
-                    {material.name || "Untitled"}
-                </span>
+                {renamingId === doc.id ? (
+                    <input
+                        className="md2-tname-input"
+                        // The row knows which material it is, so renaming the only row left by a
+                        // filter renames that material rather than whichever happens to sit first.
+                        defaultValue={material.name ?? ""}
+                        aria-label={`Rename ${material.name}`}
+                        data-testid="material-name-input"
+                        ref={(node) => node?.focus()}
+                        onClick={(event) => event.stopPropagation()}
+                        onBlur={(event) => commitRename(doc.id, event.target.value, material.name)}
+                        onKeyDown={(event) => {
+                            if (event.key === "Enter") {
+                                commitRename(doc.id, event.currentTarget.value, material.name);
+                            }
+                            if (event.key === "Escape") onRenamingIdChange?.(null);
+                            event.stopPropagation();
+                        }}
+                    />
+                ) : (
+                    <span
+                        className="md2-tname"
+                        title={material.name}
+                        onDoubleClick={(event) => {
+                            event.stopPropagation();
+                            onRenamingIdChange?.(doc.id);
+                        }}
+                    >
+                        {material.name || "Untitled"}
+                    </span>
+                )}
                 <span className="md2-tmeta">{digest.atomCount}</span>
                 {isModified(doc) && (
                     <span

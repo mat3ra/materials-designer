@@ -427,6 +427,11 @@ export function App() {
                         onRemove={session.remove}
                         onFork={(id) => session.fork(id)}
                         onNew={() => session.add([createMaterialDoc("create-default", {})])}
+                        onRename={(id, name) =>
+                            session.apply("rename", { name }, { materialId: id })
+                        }
+                        renamingId={renamingId}
+                        onRenamingIdChange={setRenamingId}
                     />
 
                     <div className="md2-center">

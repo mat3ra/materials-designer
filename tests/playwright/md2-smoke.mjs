@@ -303,6 +303,41 @@ check(
     `folder visible while expanded: ${expandedFolders}`,
 );
 
+// --- inline rename ---------------------------------------------------------
+{
+    const row = page.locator('[data-testid="material-row"]').first();
+    // Select first: chips() reads the *active* material's log, so the count has to be taken
+    // against the same material that is about to be renamed.
+    await row.click();
+    await page.waitForTimeout(300);
+    const before = await chips();
+    await row.locator(".md2-tname").dblclick();
+    const field = page.locator('[data-testid="material-name-input"]');
+    check("double-clicking a name opens its field", await field.isVisible());
+
+    await field.fill("Renamed Material");
+    await field.press("Enter");
+    await page.waitForTimeout(400);
+    check(
+        "the new name shows on the row",
+        (await row.locator(".md2-tname").innerText()).trim() === "Renamed Material",
+        (await row.locator(".md2-tname").innerText()).trim(),
+    );
+    check("and the rename is recorded as a step", (await chips()) === before + 1, `${await chips()} chips`);
+
+    // Opening the field and leaving without changing anything must not deepen the history,
+    // or an undo would spend itself walking back a no-op.
+    const afterRename = await chips();
+    await row.locator(".md2-tname").dblclick();
+    await page.locator('[data-testid="material-name-input"]').press("Enter");
+    await page.waitForTimeout(400);
+    check(
+        "a rename that changes nothing records nothing",
+        (await chips()) === afterRename,
+        `${await chips()} chips`,
+    );
+}
+
 // --- light theme -----------------------------------------------------------
 await page.getByRole("button", { name: /toggle theme/i }).click();
 await page.waitForTimeout(600);

@@ -40,7 +40,7 @@ a named spec passes. Specs tagged `@parity_2_0` are harvested from PR #299 and r
 | Undo / Redo — one stack | Timeline steps + ⌘Z everywhere | **done** | `menu/edit/reset-clone-undo-redo`, `toolbar/quick-actions` @parity_2_0 |
 | Reset | Timeline › revert to step 0 | **done** | `menu/edit/reset-clone-undo-redo` |
 | Delete material (undoable) | Navigator row action | **done** | `3d-editor/delete-material`, `materials-list/filter-and-count` @parity_2_0 |
-| Rename material | Navigator inline rename | **absent** — `rename` op registered, no UI | `materials-list/filter-and-count` @parity_2_0 |
+| Rename material | Navigator inline rename | **done** — double-click a name, or the `material.rename` command; a no-op rename records nothing | `materials-list/filter-and-count` @parity_2_0, smoke |
 
 ## Editing surfaces
 
