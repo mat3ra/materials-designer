@@ -158,8 +158,15 @@ export function WorkspaceBar({
                 );
             })}
             <span className="md2-spacer" />
-            <button type="button" className="md2-searchpill" onClick={onOpenCatalog}>
-                <SearchIcon fontSize="small" /> Create or transform…<kbd>⌘K</kbd>
+            {/* The Catalog is the browsing surface; ⌘K opens the palette, which searches
+                everything by name. Two doors, deliberately not the same one. */}
+            <button
+                type="button"
+                className="md2-searchpill"
+                onClick={onOpenCatalog}
+                data-testid="open-catalog"
+            >
+                <SearchIcon fontSize="small" /> Create or transform…
             </button>
             {themeCommand ? (
                 <button

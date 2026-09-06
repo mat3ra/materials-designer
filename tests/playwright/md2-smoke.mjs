@@ -43,7 +43,7 @@ check("timeline starts with the origin step", (await chips()) === 1, `${await ch
 await page.screenshot({ path: `${SHOTS}/01-default-dark.png` });
 
 // --- a transform through the Catalog + Operation Panel ---------------------
-await page.keyboard.press("Control+k");
+await page.getByTestId("open-catalog").click();
 await page.waitForSelector(".md2-catalog", { timeout: 5000 });
 await page.screenshot({ path: `${SHOTS}/02-catalog.png` });
 check("catalog opens on the palette chord", await page.locator(".md2-catalog").isVisible());
@@ -169,7 +169,7 @@ await page.keyboard.press("Control+Shift+z");
 await page.waitForTimeout(800);
 
 // --- sets: one template, many materials, one undo -------------------------
-await page.keyboard.press("Control+k");
+await page.getByTestId("open-catalog").click();
 await page.waitForSelector(".md2-catalog");
 await page.getByRole("button", { name: /Combinatorial set/i }).first().click();
 await page.waitForSelector(".md2-panel");
@@ -199,7 +199,7 @@ check(
 );
 
 // --- the standard library --------------------------------------------------
-await page.keyboard.press("Control+k");
+await page.getByTestId("open-catalog").click();
 await page.waitForSelector(".md2-catalog");
 await page.getByRole("button", { name: /Standard library/i }).first().click();
 await page.waitForSelector(".md2-standata-list", { timeout: 10000 });
@@ -283,7 +283,7 @@ await page.waitForTimeout(400);
 check("the app menu toggles shut from its own button", (await page.getByTestId("app-menu").count()) === 0);
 
 // An expanded set must be collapsible again.
-await page.keyboard.press("Control+k");
+await page.getByTestId("open-catalog").click();
 await page.waitForSelector(".md2-catalog");
 await page.getByRole("button", { name: /Combinatorial set/i }).first().click();
 await page.waitForSelector(".md2-panel");

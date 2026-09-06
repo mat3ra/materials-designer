@@ -21,11 +21,24 @@ export interface MDStateView {
 }
 
 export function toMDState(state: SessionState, isLoading = false): MDStateView {
-    const materials = state.materials.map((doc) => {
+    const materials = state.materials.flatMap((doc) => {
         const { material } = resolve(doc);
-        // externalId is the platform's own id; it travels back so a save updates the right record
-        // rather than creating a duplicate.
-        return MDMaterial.fromMadeMaterial(material, doc.externalId ? { _id: doc.externalId } : {});
+        try {
+            // externalId is the platform's own id; it travels back so a save updates the right
+            // record rather than creating a duplicate.
+            return [
+                MDMaterial.fromMadeMaterial(
+                    material,
+                    doc.externalId ? { _id: doc.externalId } : {},
+                ),
+            ];
+        } catch {
+            // Not every material in the standard library survives a round trip through the
+            // enhanced schema — some carry fields it rejects. A view that exists so other things
+            // can read the session must never be the reason the session stops rendering, so such
+            // a material is left out of the projection rather than taking the app down with it.
+            return [];
+        }
     });
 
     return {

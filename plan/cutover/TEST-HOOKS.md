@@ -97,21 +97,21 @@ Two environment notes, both of which cost an afternoon to discover:
 
 ## What the parity specs say today
 
-Run against 2.0 on 2026-09-06: **10 passing, 16 failing.**
+Run against 2.0 on 2026-09-06: **26 passing, 0 failing** — every harvested spec is green.
 
 | Spec | Result |
 |---|---|
+| `toolbar/command-palette` | 4/4 |
 | `toolbar/control-availability` | 3/3 |
 | `toolbar/keyboard-shortcuts` | 3/3 |
 | `toolbar/quick-actions` | 3/3 |
 | `status-bar/status-bar` | 1/1 |
-| `toolbar/command-palette` | 0/4 — the palette is not built |
-| `materials-list/filter-and-count` | 0/6 — blocked in its Background |
-| `materials-list/updated-marker` | 0/2 — blocked in its first step |
-| `source-editor/basis-table` | 0/4 — the basis table is not built |
+| `materials-list/filter-and-count` | 6/6 |
+| `materials-list/updated-marker` | 2/2 |
+| `source-editor/basis-table` | 4/4 |
 
-The twelve failures outside the palette share one cause: `I create materials with the following
-data` and `I set material basis and lattice with the following data` both need the **basis editor
-and the lattice form**, which 2.0 does not have yet. They are the two items the plan marks "never
-cut", and they are now demonstrably on the critical path rather than merely listed as gaps — the
-same phrase is what 17 of web-app's own features use to set up their fixtures.
+They started at 3 passing. Closing the other 23 needed six product gaps filled — `window.MDState`,
+the clone's name, the basis editor, the lattice form, the list's add menu, and the palette — plus
+one crash the specs exposed that nothing else had: a Standard-library config carries an `external`
+block that made.js accepts on the way in and rejects when serialising, so importing one and then
+publishing `MDState` took the whole app down.

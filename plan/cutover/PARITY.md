@@ -52,10 +52,10 @@ a named spec passes. Specs tagged `@parity_2_0` are harvested from PR #299 and r
 | Materials list: filter, count, empty state | Navigator filter + count | **done** | `materials-list/filter-and-count` @parity_2_0 |
 | Modified / updated marker | Navigator dot, revert-aware | **done** — content comparison against the material as it entered the session; materials derived in-session stay marked | `materials-list/updated-marker` @parity_2_0, 6 unit tests |
 | Status bar (v1 footer was empty) | Status Bar segments | **done** — `#materials-designer-status-bar` with `.status-material` and `.status-position` groups; clone grows the list without moving the position | `status-bar/status-bar` @parity_2_0, smoke |
-| Command palette | ⌘K over the command registry | **partial** — registry exists (`shell/commands.ts` + `domain/commands.ts`); ⌘K still opens the Catalog rather than a palette over actions/materials/Standata | `toolbar/command-palette` @parity_2_0 |
+| Command palette | ⌘K over actions, session materials and Standata | **done** — library searched only once a query is typed | `toolbar/command-palette` @parity_2_0 (4/4) |
 | Quick actions row | Workspace Bar | **done** — undo/redo/clone/Standata as `.quick-action-<key>`, plus the panel toggles, all from the registry with disabled-with-reason | `toolbar/quick-actions`, `toolbar/control-availability` @parity_2_0, smoke |
-| Keyboard shortcuts + control availability | command registry + disabled-with-reason | **partial** — chords bound through the registry with one typing guard; `[`/`]` cycling and the last-panel rule are declared but their UI is not wired | `toolbar/keyboard-shortcuts`, `toolbar/control-availability` @parity_2_0 |
-| Shift+U/D cycling (broken while typing) | `[` / `]` with field-focus guards | **partial** — `material.next`/`material.previous` bound to `]`/`[` behind the typing guard | `toolbar/keyboard-shortcuts` @parity_2_0 |
+| Keyboard shortcuts + control availability | command registry + disabled-with-reason | **done** | `toolbar/keyboard-shortcuts` (3/3), `toolbar/control-availability` (3/3) @parity_2_0 |
+| Shift+U/D cycling (broken while typing) | `[` / `]` with field-focus guards | **done** | `toolbar/keyboard-shortcuts` @parity_2_0 |
 | View menu panel toggles | Workspace Bar toggles (`.panel-toggle-<region>`) | **done** — five regions collapse to zero width while staying mounted; the last visible one refuses to hide | `toolbar/quick-actions`, `toolbar/control-availability` @parity_2_0, smoke |
 
 ## Code surfaces

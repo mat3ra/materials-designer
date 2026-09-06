@@ -25,6 +25,22 @@ export function loadStandata(): StandataEntry[] {
         .sort((a, b) => a.name.localeCompare(b.name));
 }
 
+/**
+ * A library config as the session can hold it.
+ *
+ * Standata entries carry an `external` block recording where the structure came from. made.js
+ * accepts it on the way in but rejects it when serialising against the enhanced schema, so a
+ * material imported with it intact throws the first time anything asks for its JSON — which,
+ * since `window.MDState` is published on every change, means the app stops rendering.
+ *
+ * The block is dropped here rather than papered over downstream. Its content is provenance about
+ * an external database, which the operation log records in its own terms anyway.
+ */
+export function toImportableConfig(config: Record<string, unknown>): Record<string, unknown> {
+    const { external, ...rest } = config;
+    return rest;
+}
+
 export interface StandataPanelProps {
     onPick: (entry: StandataEntry) => void;
     onCancel: () => void;

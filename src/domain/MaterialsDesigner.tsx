@@ -15,6 +15,7 @@ import { exportMaterials, readFiles } from "../core/io";
 import { replay, resolve } from "../core/replay";
 import { applySetOperation, createMaterialDoc, editOperation } from "../core/session";
 import { useSession } from "../core/useSession";
+import { CommandPalette } from "../kit/command/CommandPalette";
 import { toMuiTheme } from "../kit/theme/tokens";
 import { resolveCommands, useCommandShortcuts } from "../shell/commands";
 import { AppMenu } from "./AppMenu";
@@ -24,8 +25,9 @@ import { ConsoleDock } from "./ConsoleDock";
 import { Inspector } from "./Inspector";
 import { toMDState } from "./mdState";
 import { Navigator } from "./Navigator";
+import { buildPaletteItems } from "./paletteSources";
 import { CatalogLite, PANELS } from "./panels";
-import { StandataPanel } from "./StandataPanel";
+import { loadStandata, StandataPanel, toImportableConfig } from "./StandataPanel";
 import { StatusBar } from "./StatusBar";
 import { Timeline } from "./Timeline";
 import { Viewport } from "./Viewport";
@@ -34,6 +36,8 @@ import { WorkspaceBar } from "./WorkspaceBar";
 type Theme = "dark" | "light";
 
 /** Operations whose panel lives in the shell rather than the parameter kit. */
+const STANDATA = loadStandata();
+
 const SHELL_PANELS = new Set(["standard-library", "combinatorial-set"]);
 
 /** Apply-button wording: an edit says how much history it will re-run. */
@@ -69,6 +73,8 @@ export function App() {
     });
     /** Material whose name is being edited inline in the Navigator. */
     const [renamingId, setRenamingId] = useState<string | null>(null);
+    const [paletteOpen, setPaletteOpen] = useState(false);
+    const [paletteQuery, setPaletteQuery] = useState("");
 
     useEffect(() => {
         document.documentElement.setAttribute("data-theme", theme);
@@ -79,16 +85,14 @@ export function App() {
     // dropped in from cove lands in Mat3rial D3sign rather than cove's violet.
     const muiTheme = useMemo(() => createTheme(toMuiTheme(theme)), [theme]);
 
-    // The palette chord opens the same Catalog the toolbar does — one command
-    // surface, several doors into it.
+    // Escape closes whatever overlay is open. The palette chord is not bound here: it belongs to
+    // the command registry with every other shortcut, and binding it in both places opened the
+    // Catalog on top of the palette.
     useEffect(() => {
         function onKeyDown(event: KeyboardEvent) {
-            if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
-                event.preventDefault();
-                setCatalogOpen(true);
-            }
             if (event.key === "Escape") {
                 setCatalogOpen(false);
+                setPaletteOpen(false);
                 setPanelType(null);
             }
         }
@@ -224,7 +228,7 @@ export function App() {
             ui: {
                 openPanel: setPanelType,
                 openCatalog: () => setCatalogOpen(true),
-                openPalette: () => setCatalogOpen(true),
+                openPalette: () => setPaletteOpen(true),
                 pickFiles,
                 exportActive: (format) => handleExport(format, false),
                 exportAll: () => handleExport("json", true),
@@ -240,7 +244,7 @@ export function App() {
     const commands = useMemo(() => resolveCommands(COMMANDS, commandContext), [commandContext]);
 
     // Shortcuts are off while a panel or overlay owns the keyboard.
-    useCommandShortcuts(commands, !catalogOpen && panelType === null);
+    useCommandShortcuts(commands, !catalogOpen && !paletteOpen && panelType === null);
 
     // v1 published its reducer state here and the Cypress suite reads it; 2.0 publishes the same
     // shape, derived from the log rather than stored alongside it.
@@ -270,7 +274,7 @@ export function App() {
                     onPick={(entry) => {
                         session.add([
                             createMaterialDoc("create-from-config", {
-                                config: entry.config,
+                                config: toImportableConfig(entry.config),
                                 source: `${entry.name} (standard library)`,
                             }),
                         ]);
@@ -511,6 +515,40 @@ export function App() {
                     materialCount={session.state.materials.length}
                     saved={session.savedAt !== null}
                 />
+
+                {paletteOpen && (
+                    <div
+                        className="md2-scrim"
+                        role="presentation"
+                        onClick={(e) => {
+                            if (e.target === e.currentTarget) setPaletteOpen(false);
+                        }}
+                    >
+                        <CommandPalette
+                            open
+                            query={paletteQuery}
+                            onQueryChange={setPaletteQuery}
+                            placeholder="Search commands, materials and the standard library…"
+                            items={buildPaletteItems(paletteQuery, {
+                                commands,
+                                materials: session.state.materials,
+                                standata: STANDATA,
+                                onSelectMaterial: session.select,
+                                onImportStandata: (entry) =>
+                                    session.add([
+                                        createMaterialDoc("create-from-config", {
+                                            config: toImportableConfig(entry.config),
+                                            source: `${entry.name} (standard library)`,
+                                        }),
+                                    ]),
+                            })}
+                            onClose={() => {
+                                setPaletteOpen(false);
+                                setPaletteQuery("");
+                            }}
+                        />
+                    </div>
+                )}
 
                 {catalogOpen && (
                     <div
