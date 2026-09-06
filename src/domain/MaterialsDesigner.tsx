@@ -11,7 +11,7 @@ import type Material from "@mat3ra/made/dist/js/Material";
 import { createTheme } from "@mui/material/styles";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { exportMaterials, readFiles } from "../core/io";
+import { exportMaterials, readFiles, toImportableConfig } from "../core/io";
 import { replay, resolve } from "../core/replay";
 import { applySetOperation, createMaterialDoc, editOperation } from "../core/session";
 import type { MaterialDoc } from "../core/types";
@@ -22,14 +22,15 @@ import { resolveCommands, useCommandShortcuts } from "../shell/commands";
 import { AppMenu } from "./AppMenu";
 import { CombinatorialPanel } from "./CombinatorialPanel";
 import { type CommandContext, type HostActions, type RegionName, COMMANDS } from "./commands";
-import { ConsoleDock } from "./ConsoleDock";
+import { type ConsoleTab, ConsoleDock, TALL_TABS } from "./console/ConsoleDock";
+import type { NotebookInput, NotebookOutput } from "./console/NotebookTab";
 import { Inspector } from "./Inspector";
 import { toMDState } from "./mdState";
 import { Navigator } from "./Navigator";
 import { buildPaletteItems } from "./paletteSources";
 import { CatalogLite, PANELS } from "./panels";
 import { InterpolatedSetPanel } from "./panels/InterpolatedSetPanel";
-import { loadStandata, StandataPanel, toImportableConfig } from "./StandataPanel";
+import { loadStandata, StandataPanel } from "./StandataPanel";
 import { StatusBar } from "./StatusBar";
 import { Timeline } from "./Timeline";
 import { Viewport } from "./Viewport";
@@ -102,6 +103,9 @@ export function MaterialsDesigner({
         inspector: true,
         console: true,
     });
+    /** Which console tab is forward, and whether the dock is showing its body. */
+    const [consoleTab, setConsoleTab] = useState<ConsoleTab>("script");
+    const [consoleOpen, setConsoleOpen] = useState(false);
     /** Material whose name is being edited inline in the Navigator. */
     const [renamingId, setRenamingId] = useState<string | null>(null);
     const [paletteOpen, setPaletteOpen] = useState(false);
@@ -231,6 +235,76 @@ export function MaterialsDesigner({
         [session],
     );
 
+    /**
+     * The notebook's `materials_in`.
+     *
+     * Built only while that tab is showing: every material has to be replayed and serialised, and
+     * doing that on every session change to feed a hidden surface is work nobody asked for.
+     */
+    const notebookOpen = consoleOpen && consoleTab === "notebook";
+    const notebookInputs = useMemo<NotebookInput[]>(() => {
+        if (!notebookOpen) return [];
+        return session.state.materials.flatMap((doc) => {
+            try {
+                const { material } = resolve(doc);
+                return [
+                    {
+                        id: doc.id,
+                        name: material.name ?? "material",
+                        config: material.toJSON() as unknown as Record<string, unknown>,
+                    },
+                ];
+            } catch {
+                // A material that cannot be serialised cannot be sent to a kernel either; leaving
+                // it out of the picker is better than offering something that will fail on use.
+                return [];
+            }
+        });
+    }, [notebookOpen, session.state]);
+
+    /**
+     * Adopting what a notebook produced.
+     *
+     * Each output becomes its own material whose origin step records that a notebook made it and
+     * from what — so the Timeline chip reads as notebook work and the Navigator can show it under
+     * the material it came from, rather than as an anonymous import that appeared from nowhere.
+     */
+    const handleNotebookOutputs = useCallback(
+        (outputs: NotebookOutput[], inputs: NotebookInput[], notebookPath: string) => {
+            const docs: MaterialDoc[] = [];
+            const failed: string[] = [];
+            outputs.forEach((output) => {
+                try {
+                    docs.push(
+                        createMaterialDoc(
+                            "notebook-result",
+                            { config: output.config, inputs: inputs.map((one) => one.name) },
+                            {
+                                source: "code",
+                                parentId: inputs[0]?.id,
+                                // The inputs live in the params, where replay can see them;
+                                // provenance carries only what replay does not need.
+                                provenance: { entryPath: notebookPath },
+                            },
+                        ),
+                    );
+                } catch {
+                    failed.push(output.name);
+                }
+            });
+            if (docs.length) session.add(docs);
+            // v1 closed its dialog on submit. Keeping that: the materials just landed in the
+            // Navigator, and re-opening the notebook is what starts a fresh session.
+            setConsoleOpen(false);
+            const added = docs.length
+                ? `Added ${docs.length} material${docs.length === 1 ? "" : "s"} from the notebook.`
+                : "";
+            const skipped = failed.length ? ` Could not read ${failed.join(", ")}.` : "";
+            setNotice(`${added}${skipped}`.trim() || null);
+        },
+        [session],
+    );
+
     const pickFiles = useCallback(() => {
         const input = document.createElement("input");
         input.type = "file";
@@ -277,6 +351,13 @@ export function MaterialsDesigner({
                 exportAll: () => handleExport("json", true),
                 toggleRegion: (region) =>
                     setRegions((current) => ({ ...current, [region]: !current[region] })),
+                openConsole: (tab) => {
+                    setConsoleTab(tab);
+                    setConsoleOpen(true);
+                    // Asking for a console tab while the console is hidden should show it, not
+                    // silently succeed against something nobody can see.
+                    setRegions((current) => ({ ...current, console: true }));
+                },
                 toggleTheme: () => setTheme((t) => (t === "dark" ? "light" : "dark")),
                 startRename: setRenamingId,
             },
@@ -537,12 +618,24 @@ export function MaterialsDesigner({
                             />
                         </div>
                         <div
-                            className={`md2-region-v${regions.console ? "" : " md2-region-hidden"}`}
+                            className={`md2-region-v${
+                                consoleOpen && TALL_TABS.includes(consoleTab)
+                                    ? " md2-console-region-tall"
+                                    : ""
+                            }${regions.console ? "" : " md2-region-hidden"}`}
                             data-region="console"
                         >
                             <ConsoleDock
                                 doc={session.activeDoc}
                                 materialName={session.active.material.name ?? "material"}
+                                tab={consoleTab}
+                                open={consoleOpen}
+                                onTabChange={setConsoleTab}
+                                onOpenChange={setConsoleOpen}
+                                notebookInputs={notebookInputs}
+                                activeMaterialId={session.activeDoc.id}
+                                onAddFromNotebook={handleNotebookOutputs}
+                                onError={setNotice}
                             />
                         </div>
                     </div>

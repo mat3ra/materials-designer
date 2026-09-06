@@ -63,3 +63,20 @@ export function readFiles(files: FileList | File[]): Promise<ImportedFile[]> {
         ),
     );
 }
+
+/**
+ * A third-party config as the session can hold it.
+ *
+ * Standard-library entries — and anything a notebook echoes back from one — carry an `external`
+ * block recording the database the structure came from. made.js accepts it on the way in and
+ * rejects it when serialising against the enhanced schema, so a material imported with it intact
+ * throws the first time anything asks for its JSON. Since `window.MDState` is republished on every
+ * change, that means the app stops rendering.
+ *
+ * The block is dropped at the import boundary rather than papered over downstream. Its content is
+ * provenance about an external database, which the operation log records in its own terms anyway.
+ */
+export function toImportableConfig(config: Record<string, unknown>): Record<string, unknown> {
+    const { external, ...rest } = config;
+    return rest;
+}

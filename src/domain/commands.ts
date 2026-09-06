@@ -11,6 +11,7 @@
 import type { MaterialDoc } from "../core/types";
 import type { UseSession } from "../core/useSession";
 import type { Command } from "../shell/commands";
+import type { ConsoleTab } from "./console/ConsoleDock";
 import { type MDStateView, toMDState } from "./mdState";
 
 export type RegionName = "navigator" | "viewport" | "timeline" | "inspector" | "console";
@@ -41,6 +42,8 @@ export interface CommandContext {
         exportActive: (format: "json" | "poscar") => void;
         exportAll: () => void;
         toggleRegion: (region: RegionName) => void;
+        /** Show the console and bring one tab forward. */
+        openConsole: (tab: ConsoleTab) => void;
         toggleTheme: () => void;
         startRename: (id: string) => void;
     };
@@ -309,6 +312,24 @@ export const COMMANDS: Command<CommandContext>[] = [
         keywords: ["dark", "light", "appearance"],
         run: (c) => c.ui.toggleTheme(),
     },
+
+    // ---------------------------------------------------------------- console
+    ...(
+        [
+            ["script", "Show the timeline as a script", ["python", "code", "export"]],
+            ["log", "Show the operation log", ["history", "steps"]],
+            ["notebook", "Open a notebook", ["jupyter", "jupyterlite", "python"]],
+            ["repl", "Open the Python REPL", ["pyodide", "python", "console"]],
+        ] as [ConsoleTab, string, string[]][]
+    ).map(
+        ([tab, label, keywords]): Command<CommandContext> => ({
+            id: `console.${tab}`,
+            label,
+            group: "Console",
+            keywords,
+            run: (c) => c.ui.openConsole(tab),
+        }),
+    ),
 
     // ----------------------------------------------------------------- global
     {

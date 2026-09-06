@@ -437,6 +437,91 @@ check(
     );
 }
 
+// --- console > notebook ----------------------------------------------------
+// The real JupyterLite origin is not reachable from here, so the frame itself is not exercised.
+// Everything on this side of the bridge is: the surface, the selectors the 53 health-check
+// features drive, and what happens to a structure the frame pushes back.
+{
+    const before = await page.getByTestId("material-row").count();
+    await page.locator('[data-command="console.notebook"]').click();
+    await page.waitForSelector("#jupyterlite-transformation-dialog", { timeout: 5000 });
+    check(
+        "the notebook opens on the frozen wrapper id",
+        await page.locator("#jupyterlite-transformation-dialog").isVisible(),
+    );
+
+    const frameSrc = await page.locator("iframe#jupyter-lite-iframe").getAttribute("src");
+    check(
+        "the frame keeps its id and opens the default notebook",
+        /jupyterlite.*\/lab\/tree\?path=made\/Introduction\.ipynb$/.test(frameSrc ?? ""),
+        frameSrc ?? "no iframe",
+    );
+
+    const inChips = page.locator("[data-tid='materials-in-selector'] .MuiChip-root");
+    check(
+        "materials_in opens on the active material",
+        (await inChips.count()) === 1,
+        `${await inChips.count()} chip(s)`,
+    );
+
+    const submit = page.locator("#jupyterlite-transformation-dialog-submit-button");
+    check("nothing to add before the notebook has run", await submit.isDisabled());
+
+    // Speak the bridge protocol at the app the way the frame would.
+    await page.evaluate(() => {
+        const config = window.MDState.materials[0].toJSON();
+        window.dispatchEvent(
+            new MessageEvent("message", {
+                origin: "https://jupyterlite.mat3ra.com",
+                data: {
+                    type: "from-iframe-to-host",
+                    action: "set-data",
+                    payload: { materials: [{ ...config, name: "Notebook Output" }] },
+                },
+            }),
+        );
+    });
+    await page.waitForTimeout(500);
+    const outChips = page.locator("[data-tid='materials-out-selector'] .MuiChip-root");
+    check(
+        "what the notebook produced is staged, not adopted",
+        (await outChips.count()) === 1 && (await page.getByTestId("material-row").count()) === before,
+        `${await outChips.count()} staged, ${await page.getByTestId("material-row").count()} rows`,
+    );
+    check("and the button now offers to add it", await submit.isEnabled());
+    await page.screenshot({ path: `${SHOTS}/08-notebook.png` });
+
+    await submit.click();
+    await page.waitForTimeout(700);
+    check(
+        "adding it puts the material in the session",
+        (await page.getByTestId("material-row").count()) === before + 1,
+        `${await page.getByTestId("material-row").count()} rows`,
+    );
+    check(
+        "and closes the console, so re-opening starts a fresh notebook",
+        (await page.locator("#jupyterlite-transformation-dialog").count()) === 0,
+    );
+
+    // The point of the operation log: notebook work shows up as notebook work. The row is found
+    // by name rather than by position, because lineage puts a derived material under its parent
+    // rather than at the end of the list.
+    const producedRow = page
+        .getByTestId("material-row")
+        .filter({ hasText: "Notebook Output" })
+        .first();
+    check("the produced material is listed", (await producedRow.count()) === 1);
+    check(
+        "and sits under the material it was derived from",
+        Number(((await producedRow.getAttribute("style")) ?? "").replace(/\D/g, "") || 0) > 0,
+        (await producedRow.getAttribute("style")) ?? "no indent",
+    );
+    await producedRow.click();
+    await page.waitForTimeout(500);
+    const badge = (await page.getByTestId("timeline-chip").first().innerText()).toUpperCase();
+    check("the timeline records the notebook as the engine", /NOTEBOOK/.test(badge), badge);
+}
+
 // --- light theme -----------------------------------------------------------
 await page.getByRole("button", { name: /toggle theme/i }).click();
 await page.waitForTimeout(600);

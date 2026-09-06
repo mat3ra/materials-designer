@@ -102,6 +102,22 @@ const definitions: OperationDefinition[] = [
         digest: (p: { source?: string }) => p.source || "from config",
     },
     {
+        type: "notebook-result",
+        engine: "notebook",
+        title: "From notebook",
+        isOrigin: true,
+        // A notebook is not replayable — it is a person running cells against a kernel we do not
+        // control. So the log stores the structure it produced rather than the code that produced
+        // it, which keeps replay deterministic, and carries enough provenance that the chip reads
+        // as notebook work instead of an anonymous import.
+        apply: (_m, p: { config: any }) => new Material(p.config),
+        // Which notebook actually ran is not knowable — JupyterLite lets you navigate away from
+        // the one the session opened at — so the chip names the inputs, and the entry path is
+        // recorded as provenance rather than asserted as fact.
+        digest: (p: { inputs?: string[] }) =>
+            p.inputs?.length ? `from ${p.inputs.join(", ")}` : "no input material",
+    },
+    {
         type: "import-file",
         engine: "native",
         title: "Imported",

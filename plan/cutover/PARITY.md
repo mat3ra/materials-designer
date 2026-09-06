@@ -62,9 +62,9 @@ a named spec passes. Specs tagged `@parity_2_0` are harvested from PR #299 and r
 
 | v1 capability | 2.0 home | Status | Covering test |
 |---|---|---|---|
-| JupyterLite Transformation (`materials_in`/`materials_out`) | Console › Notebook, same bridge | **absent** — tab renders "Not wired in the MVP" | the 53 `@notebook_healthcheck` features |
-| JupyterLite session drawer | Console › Notebook | **absent** | `I see JupyterLite session` (web-app) |
-| Python REPL | Console › REPL — cove `PythonRepl` over `InPageTransport` | **absent** | *(needs one)* |
+| JupyterLite Transformation (`materials_in`/`materials_out`) | Console › Notebook, same bridge | **done** — same wrapper id, `data-tid`s and iframe id, so `JupyterLiteTransformationDialogWidget` and `JupyterLiteSession` drive it unchanged; only the step that *opens* it moved to `console.notebook`. Results land as `notebook-result` origins under the input they came from | the 53 `@notebook_healthcheck` features; 12 unit tests; 9 smoke checks |
+| JupyterLite session drawer | Console › Notebook | **done** — one surface instead of a drawer plus a modal | `I see JupyterLite session` (web-app) |
+| Python REPL | Console › REPL — cove `PythonRepl` over `InPageTransport` | **absent** — the tab exists and says so; `kit/BridgedIframe` and `domain/console/payload.ts` are the halves it will reuse | *(needs one)* |
 | History as script | Console › Script (`logAsPython`) | **done** | md2 smoke (to port) |
 | Orphaned in-page Pyodide dialog | retired | **done** (not carried over) | — |
 
@@ -85,7 +85,7 @@ a named spec passes. Specs tagged `@parity_2_0` are harvested from PR #299 and r
 - The published `src/exports.js` still points `MaterialsDesignerContainer` at v1. It switches at the
   flip; until then the 2.0 adapter is reachable at `dist/embed/MaterialsDesignerContainer` for
   anyone who wants to try the embedded costume.
-- Import-review panel, Console › Notebook and Console › REPL.
+- Import-review panel and Console › REPL.
 
 ## Descope order if Phase 2 slips
 

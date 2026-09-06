@@ -89,6 +89,17 @@ export default class MaterialDesignerWidget extends Widget {
         this.headerMenu.selectMenuItemByNameAndItemNumber("Advanced", 1);
     }
 
+    openJupyterLiteTransformation() {
+        // v1 reaches JupyterLite as the sixth item of the Advanced menu. In 2.0 it is a console
+        // tab, addressed by the command id it renders — the same surface, found by name rather
+        // than by counting menu entries.
+        if (isV2()) {
+            this.commands.run("console.notebook");
+            return;
+        }
+        this.headerMenu.selectMenuItemByNameAndItemNumber("Advanced", 6);
+    }
+
     exit() {
         this.headerMenu.selectMenuItemByNameAndItemNumber("Input/Output", 6);
     }

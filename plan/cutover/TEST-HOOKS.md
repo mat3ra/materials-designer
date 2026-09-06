@@ -98,6 +98,11 @@ Two environment notes, both of which cost an afternoon to discover:
 - **The viewport needs software rendering.** A headless container has no GPU, so wave.js fails on
   "Error creating WebGL context" before any assertion runs. `cypress.config.ts` now passes
   `--use-gl=swiftshader` for chromium browsers, which is what the Playwright smoke already did.
+- **The notebook health-checks cannot run in this sandbox.** `https://jupyterlite.mat3ra.com`
+  answers 200 to `curl`, but a browser's tunnel through the agent proxy is reset
+  (`net::ERR_CONNECTION_RESET`), so the frame never loads. CI's Docker job is the authority for the
+  53 `@notebook_healthcheck` features; locally, everything on MD's side of the bridge is covered by
+  the smoke checks below, which speak the protocol at the app the way the frame would.
 
 ## What the parity specs say today
 
@@ -120,6 +125,37 @@ one crash the specs exposed that nothing else had: a Standard-library config car
 block that made.js accepts on the way in and rejects when serialising, so importing one and then
 publishing `MDState` took the whole app down.
 
+
+## Console › Notebook (added 2026-09-06)
+
+The notebook surface keeps v1's DOM contract on purpose, so the 53 generated health-check features
+and the four `.ftl` templates need **no change at all** — one step body moved, and nothing else:
+
+| Handle | Where it is now |
+|---|---|
+| `#jupyterlite-transformation-dialog` | the Notebook tab's root |
+| `iframe#jupyter-lite-iframe` | `kit/BridgedIframe`, opened at `made/Introduction.ipynb` |
+| `[data-tid='materials-in-selector']` / `[data-tid='materials-out-selector']` | `domain/console/MaterialsSelector` |
+| `[data-tid='select-material']`, `.MuiChip-root`, `.MuiAutocomplete-popper` | unchanged MUI markup |
+| `#jupyterlite-transformation-dialog-submit-button` | the "Add to session" button |
+
+What changed, and why each change was safe:
+
+- `I open JupyterLite Transformation dialog` now calls
+  `MaterialDesignerWidget.openJupyterLiteTransformation()`, which runs `console.notebook` under
+  `APP=v2` and keeps the Advanced-menu path for v1. The phrase and the widget's method names are
+  untouched.
+- `I select materials in MaterialsSelector` clears the selection instead of removing a chip named
+  "Silicon FCC". The old body assumed the surface always opened on the first material in the list;
+  2.0 opens on the material you are looking at.
+- `deselectAllMaterials()` removes the first chip and re-queries until none are left. Chip labels
+  carry their own position (`0: Silicon FCC`), so collecting names up front and deleting them one
+  by one worked for a single chip and silently missed the rest.
+
+Two behaviours are load-bearing rather than cosmetic, both because the templates open the surface
+up to three times in one scenario and assert `Introduction.ipynb` each time: the frame is mounted
+only while the tab is showing, and "Add to session" closes the console. Together they reproduce
+what a modal did by being unmounted.
 
 ## Both suites, side by side
 

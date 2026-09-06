@@ -77,6 +77,7 @@ export function buildPaletteItems(query: string, sources: PaletteSources): Palet
         "Standard library",
         "Edit",
         "History",
+        "Console",
         "View",
         "Global",
         "File",
