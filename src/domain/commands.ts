@@ -39,8 +39,6 @@ export interface CommandContext {
     };
 }
 
-const NOT_YET = "Not built yet";
-
 /** Materials in list order, which is the order the Navigator and the status bar both use. */
 function materials(context: CommandContext) {
     return context.session.state.materials;
@@ -250,10 +248,8 @@ export const COMMANDS: Command<CommandContext>[] = [
         group: "Build",
         keywords: ["neb", "images", "endpoints"],
         run: (c) => c.ui.openPanel("interpolated-set"),
-        // Registered in the operation registry, but its apply is still the identity function —
-        // so it would replay as a silent no-op. Better to say so than to appear to work.
-        isEnabled: () => false,
-        disabledReason: () => NOT_YET,
+        isEnabled: (c) => materials(c).length > 1,
+        disabledReason: () => "Interpolation needs a second material to run to",
     },
 
     // --------------------------------------------------------------- structure

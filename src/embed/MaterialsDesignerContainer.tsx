@@ -11,9 +11,9 @@
 import React, { useMemo } from "react";
 
 import { MaterialsDesigner } from "../domain/MaterialsDesigner";
-import { toMaterialDoc } from "./docs";
 import type { MDStateView } from "../domain/mdState";
 import type { MDMaterial } from "../MDMaterial";
+import { toMaterialDoc } from "./docs";
 
 export interface ImportModalProps {
     show: boolean;

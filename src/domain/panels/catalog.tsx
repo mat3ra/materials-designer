@@ -40,6 +40,14 @@ export const CATALOG: CatalogEntry[] = [
         engine: "native",
     },
     {
+        type: "interpolated-set",
+        title: "Interpolated set (NEB)",
+        icon: "⋯",
+        description:
+            "Images between two structures, for a reaction path. Both endpoints are chosen; v1 could only interpolate with the next material in the list.",
+        engine: "native",
+    },
+    {
         type: "combinatorial-set",
         title: "Combinatorial set",
         icon: "⋈",

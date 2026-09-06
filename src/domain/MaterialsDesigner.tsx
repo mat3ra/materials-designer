@@ -28,6 +28,7 @@ import { toMDState } from "./mdState";
 import { Navigator } from "./Navigator";
 import { buildPaletteItems } from "./paletteSources";
 import { CatalogLite, PANELS } from "./panels";
+import { InterpolatedSetPanel } from "./panels/InterpolatedSetPanel";
 import { loadStandata, StandataPanel, toImportableConfig } from "./StandataPanel";
 import { StatusBar } from "./StatusBar";
 import { Timeline } from "./Timeline";
@@ -39,7 +40,7 @@ type Theme = "dark" | "light";
 /** Operations whose panel lives in the shell rather than the parameter kit. */
 const STANDATA = loadStandata();
 
-const SHELL_PANELS = new Set(["standard-library", "combinatorial-set"]);
+const SHELL_PANELS = new Set(["standard-library", "combinatorial-set", "interpolated-set"]);
 
 /** Apply-button wording: an edit says how much history it will re-run. */
 function editApplyLabel(editing: boolean, downstream: number): string | undefined {
@@ -311,6 +312,25 @@ export function MaterialsDesigner({
                         session.run((state) =>
                             applySetOperation(state, "combinatorial-set", { xyz }, configs, {
                                 setLabel: "Combinatorial set",
+                            }),
+                        );
+                        setPanelType(null);
+                    }}
+                />
+            );
+        }
+        if (panelType === "interpolated-set") {
+            return (
+                <InterpolatedSetPanel
+                    material={session.active.material}
+                    digest={session.active.digest}
+                    docs={session.state.materials}
+                    activeId={session.activeDoc.id}
+                    onCancel={() => setPanelType(null)}
+                    onApply={(params, children) => {
+                        session.run((state) =>
+                            applySetOperation(state, "interpolated-set", params, children, {
+                                setLabel: "Interpolated set",
                             }),
                         );
                         setPanelType(null);

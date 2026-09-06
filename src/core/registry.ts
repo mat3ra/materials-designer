@@ -275,6 +275,10 @@ const definitions: OperationDefinition[] = [
         type: "interpolated-set",
         engine: "native",
         title: "Interpolated set (NEB)",
+        // A set-producing operation: the images are recorded as children with their own origins
+        // (see `applySetOperation`), and this entry marks the step on the source material. The
+        // source itself is unchanged, which is why apply is the identity here — for a set marker
+        // that is the truth, not a stub.
         apply: (m) => m,
         digest: (p: { count: number }) => `→ ${p.count} images`,
     },

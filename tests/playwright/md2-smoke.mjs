@@ -303,6 +303,41 @@ check(
     `folder visible while expanded: ${expandedFolders}`,
 );
 
+// --- interpolated set (NEB) ------------------------------------------------
+{
+    // Clone first: a path's images have to share a cell, and a copy of the active material is the
+    // one endpoint guaranteed to qualify.
+    await page.click('[data-command="material.clone"]');
+    await page.waitForTimeout(600);
+    const foldersBefore = await page.getByTestId("set-folder").count();
+
+    await page.getByTestId("open-catalog").click();
+    await page.waitForTimeout(300);
+    await page.locator('.md2-catalog-card:has-text("Interpolated set")').click();
+    await page.waitForTimeout(500);
+    check(
+        "the NEB panel opens on an endpoint it can actually use",
+        /materials \(one set\)/.test(await page.locator(".md2-predict").innerText()),
+        (await page.locator(".md2-predict").innerText()).replace(/\s+/g, " "),
+    );
+
+    await page.getByRole("button", { name: /^Apply/i }).click();
+    await page.waitForTimeout(1400);
+    const foldersAfter = await page.getByTestId("set-folder").count();
+    check(
+        "applying collapses the images into a set folder",
+        foldersAfter === foldersBefore + 1,
+        `${foldersBefore} -> ${foldersAfter} folder(s)`,
+    );
+
+    await page.keyboard.press("Control+z");
+    await page.waitForTimeout(900);
+    check(
+        "and one undo removes the whole set",
+        (await page.getByTestId("set-folder").count()) === foldersBefore,
+    );
+}
+
 // --- panel toggles ---------------------------------------------------------
 {
     const inspector = page.locator('[data-region="inspector"]');

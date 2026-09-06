@@ -33,7 +33,7 @@ a named spec passes. Specs tagged `@parity_2_0` are harvested from PR #299 and r
 | Surface / slab (hkl, layers, vacuum) | Catalog › Build › Surface panel | **done** | `menu/advanced/surface` |
 | Boundary conditions (pbc/bc1–3 + offset) | Inspector › Structure | **done** | `menu/advanced/boundary_conditions` |
 | Combinatorial set (XYZ syntax, cap, naming) | Catalog › Sets › Combinatorial → set folder | **done** | md2 smoke (to port) |
-| **Interpolated set / NEB** | Catalog › Sets › NEB, endpoints picked in-panel | **partial** — registered in `registry.ts` but `apply` is `(m) => m`, no panel, not in the Catalog | `menu/advanced/interpolated-set` |
+| **Interpolated set / NEB** | Catalog › Sets › NEB, **both** endpoints picked in-panel | **done** — images are set children with their own origins; the forecast is the interpolation actually run, so an impossible pair is explained before Apply rather than throwing after it | smoke (both paths) |
 | Use conventional cell | Inspector › Structure › Cell, recorded as an op | **partial** — op registered, Inspector references it; needs a control and a test | *(needs one)* |
 | Toggle isNonPeriodic + saved-material guard | Inspector › Structure › Periodicity, guard → disabled-with-reason | **partial** — op registered; guard not implemented | *(needs one)* |
 | Clone | Navigator fork (fork-origin chip) | **done** | `menu/edit/reset-clone-undo-redo` |
@@ -85,8 +85,7 @@ a named spec passes. Specs tagged `@parity_2_0` are harvested from PR #299 and r
 - The published `src/exports.js` still points `MaterialsDesignerContainer` at v1. It switches at the
   flip; until then the 2.0 adapter is reachable at `dist/embed/MaterialsDesignerContainer` for
   anyone who wants to try the embedded costume.
-- Import-review panel, interpolated-set panel (still an identity stub), Console › Notebook and
-  Console › REPL.
+- Import-review panel, Console › Notebook and Console › REPL.
 
 ## Descope order if Phase 2 slips
 
