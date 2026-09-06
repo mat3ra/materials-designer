@@ -1365,3 +1365,75 @@ select.md2-field {
     font-weight: 650;
     color: var(--text);
 }
+
+
+/* ---------------------------------------------------------------- basis editor */
+
+.md2-basis-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+.md2-basis-views {
+    margin-left: auto;
+}
+.md2-basis-text {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+.md2-basis-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-data);
+}
+.md2-basis-table th {
+    padding: 2px 4px;
+    font-size: var(--fs-micro);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--text-faint);
+    text-align: left;
+    text-transform: uppercase;
+}
+.md2-basis-table td {
+    padding: 1px 2px;
+}
+.md2-basis-table input[type="text"],
+.md2-basis-table td input:not([type="checkbox"]) {
+    width: 100%;
+    min-width: 0;
+    padding: 2px 4px;
+    font-family: var(--font-mono);
+    font-size: var(--fs-data);
+    color: var(--text);
+    background: var(--bg0);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+}
+.md2-basis-table .basis-cell-element input {
+    font-family: var(--font-sans);
+}
+.md2-basis-constraints {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+.basis-remove-site {
+    padding: 0 5px;
+    color: var(--text-faint);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+}
+.basis-remove-site:hover:not(:disabled) {
+    color: var(--err);
+}
+.basis-remove-site:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+.basis-add-site {
+    margin-top: 6px;
+}

@@ -9,12 +9,16 @@ import type Material from "@mat3ra/made/dist/js/Material";
 import React, { useEffect, useState } from "react";
 
 import type { ResultDigest, SelectionModel } from "../core/types";
+import { BasisEditor } from "./inspector/BasisEditor";
 
 export interface InspectorProps {
     material: Material;
     digest: ResultDigest;
     selection: SelectionModel;
     onApply: (type: string, params: unknown) => void;
+    /** Successive edits to the same field collapse into one step rather than one per keystroke. */
+    onApplyCoalescing: (type: string, params: unknown) => void;
+    theme: "dark" | "light";
 }
 
 type Tab = "structure" | "selection" | "display";
@@ -32,10 +36,16 @@ function StructureTab({
     material,
     digest,
     onApply,
+    onApplyCoalescing,
+    selection,
+    theme,
 }: {
     material: Material;
     digest: ResultDigest;
     onApply: (type: string, params: unknown) => void;
+    onApplyCoalescing: (type: string, params: unknown) => void;
+    selection: SelectionModel;
+    theme: "dark" | "light";
 }) {
     const lattice = material.lattice as unknown as Record<string, number | string> | undefined;
     const isNonPeriodic = Boolean(
@@ -117,6 +127,45 @@ function StructureTab({
                 <ReadRow label="Formula" value={digest.formula} />
                 <ReadRow label="Atoms" value={String(digest.atomCount)} />
             </section>
+
+            <section className="md2-isec">
+                <div className="md2-stitle">BASIS</div>
+                <div className="md2-basis" role="group" aria-label="Basis lines">
+                    {material
+                        .getBasisAsXyz()
+                        .trim()
+                        .split("\n")
+                        .map((line, index) => (
+                            // The row index IS the site identity here (line n = site n), which is
+                            // exactly what the selection model keys on.
+                            <div
+                                // eslint-disable-next-line react/no-array-index-key
+                                key={index}
+                                className={`md2-basis-line${
+                                    selection.siteIds.includes(index) ? " md2-sel" : ""
+                                }`}
+                            >
+                                <span className="md2-basis-idx">{index}</span>
+                                {line}
+                            </div>
+                        ))}
+                </div>
+                <BasisEditor
+                    xyz={material.getBasisAsXyz()}
+                    units={
+                        (material.basis as { units?: "crystal" | "cartesian" })?.units ?? "crystal"
+                    }
+                    theme={theme}
+                    onCommit={(xyz) =>
+                        onApplyCoalescing("set-basis", {
+                            xyz,
+                            units:
+                                (material.basis as { units?: "crystal" | "cartesian" })?.units ??
+                                "crystal",
+                        })
+                    }
+                />
+            </section>
         </>
     );
 }
@@ -127,6 +176,8 @@ function StructureTab({
  * opaque to it.
  */
 function SelectionTab({
+    theme,
+    onApplyCoalescing,
     material,
     selection,
     onApply,
@@ -134,6 +185,8 @@ function SelectionTab({
     material: Material;
     selection: SelectionModel;
     onApply: (type: string, params: unknown) => void;
+    onApplyCoalescing: (type: string, params: unknown) => void;
+    theme: "dark" | "light";
 }) {
     // Read and write in the same units. getBasisAsXyz() emits whatever the
     // basis currently holds, so writing back with a hardcoded "crystal" would
@@ -155,82 +208,31 @@ function SelectionTab({
     const lines = draft.split("\n");
 
     return (
-        <>
-            <section className="md2-isec">
-                <div className="md2-stitle">
-                    SELECTION
-                    <span className="md2-sact">
-                        {selection.siteIds.length
-                            ? `sites ${selection.siteIds.join(", ")}`
-                            : "click an atom in 3D"}
-                    </span>
-                </div>
-                <div className="md2-note">
-                    Selection is shared state: picking an atom in the viewport highlights its line
-                    below, and both read the same store.
-                </div>
-            </section>
-
-            <section className="md2-isec">
-                <div className="md2-stitle">BASIS (XYZ)</div>
-                <div className="md2-basis" role="group" aria-label="Basis lines">
-                    {lines.map((line, index) => (
-                        <div
-                            // The row index IS the site identity here (line n = site n),
-                            // which is exactly what the selection model keys on.
-                            // eslint-disable-next-line react/no-array-index-key
-                            key={index}
-                            className={`md2-basis-line${
-                                selection.siteIds.includes(index) ? " md2-sel" : ""
-                            }`}
-                        >
-                            <span className="md2-basis-idx">{index}</span>
-                            {line}
-                        </div>
-                    ))}
-                </div>
-                <textarea
-                    className="md2-basis-edit"
-                    aria-label="Edit basis in XYZ format"
-                    value={draft}
-                    onChange={(e) => {
-                        setDraft(e.target.value);
-                        setDirty(true);
-                    }}
-                    rows={5}
-                />
-                <div className="md2-ibtnrow">
-                    <button
-                        type="button"
-                        className="md2-btn"
-                        disabled={!dirty}
-                        onClick={() => {
-                            setDraft(current);
-                            setDirty(false);
-                        }}
-                    >
-                        Discard
-                    </button>
-                    <button
-                        type="button"
-                        className="md2-btn md2-btn-primary"
-                        disabled={!dirty}
-                        onClick={() => {
-                            // Keep the draft dirty: if the operation is rejected
-                            // the effect below must not overwrite what the user
-                            // typed with the unchanged material's basis.
-                            onApply("set-basis", { xyz: draft, units });
-                        }}
-                    >
-                        Apply — adds 1 step
-                    </button>
-                </div>
-            </section>
-        </>
+        <section className="md2-isec">
+            <div className="md2-stitle">
+                SELECTION
+                <span className="md2-sact">
+                    {selection.siteIds.length
+                        ? `sites ${selection.siteIds.join(", ")}`
+                        : "click an atom in 3D"}
+                </span>
+            </div>
+            <div className="md2-note">
+                Selection is shared state: picking an atom in the viewport highlights its line
+                below, and both read the same store.
+            </div>
+        </section>
     );
 }
 
-export function Inspector({ material, digest, selection, onApply }: InspectorProps) {
+export function Inspector({
+    material,
+    digest,
+    selection,
+    onApply,
+    onApplyCoalescing,
+    theme,
+}: InspectorProps) {
     const [tab, setTab] = useState<Tab>("structure");
 
     return (
@@ -254,10 +256,23 @@ export function Inspector({ material, digest, selection, onApply }: InspectorPro
             </div>
             <div className="md2-ibody">
                 {tab === "structure" && (
-                    <StructureTab material={material} digest={digest} onApply={onApply} />
+                    <StructureTab
+                        material={material}
+                        digest={digest}
+                        onApply={onApply}
+                        onApplyCoalescing={onApplyCoalescing}
+                        selection={selection}
+                        theme={theme}
+                    />
                 )}
                 {tab === "selection" && (
-                    <SelectionTab material={material} selection={selection} onApply={onApply} />
+                    <SelectionTab
+                        material={material}
+                        selection={selection}
+                        onApply={onApply}
+                        onApplyCoalescing={onApplyCoalescing}
+                        theme={theme}
+                    />
                 )}
                 {tab === "display" && (
                     <div className="md2-note">

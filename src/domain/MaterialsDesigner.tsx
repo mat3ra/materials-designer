@@ -336,6 +336,8 @@ export function App() {
                 digest={session.active.digest}
                 selection={session.state.selection}
                 onApply={handleApply}
+                onApplyCoalescing={(type, params) => session.applyCoalescing(type, params)}
+                theme={theme}
             />
         );
     }
