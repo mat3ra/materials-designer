@@ -68,6 +68,12 @@ export class ItemsListWidget extends Widget {
     }
 
     undoRemove() {
+        // v1 offered an inline "undo" beside the list. 2.0 has one history for every surface, so
+        // undoing a removal is the same action as undoing anything else.
+        if (isV2()) {
+            this.browser.click('[data-command="edit.undo"]');
+            return;
+        }
         this.browser.click(this.selectors.undoRemove);
     }
 

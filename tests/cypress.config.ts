@@ -46,6 +46,10 @@ export default defineConfig({
             );
             return config;
         },
-        viewportHeight: 800,
+        // A designer needs room: at Cypress's default 1000px the panels are squeezed to the
+        // point where controls are unreachable, which reads as a missing element rather than a
+        // narrow window.
+        viewportWidth: 1600,
+        viewportHeight: 900,
     },
 });

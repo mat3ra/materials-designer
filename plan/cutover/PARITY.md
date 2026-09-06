@@ -46,8 +46,8 @@ a named spec passes. Specs tagged `@parity_2_0` are harvested from PR #299 and r
 
 | v1 capability | 2.0 home | Status | Covering test |
 |---|---|---|---|
-| Lattice form (type/a/b/c/α/β/γ, units, scale-vs-preserve) | Inspector › Lattice + 3×3 toggle + symmetry locks | **absent** — Inspector renders read-only rows | `I set material basis and lattice with the following data` |
-| Basis XYZ text (constraints, validation, crystal/cartesian) | Basis table + code toggle, units global | **partial** — one textarea in Inspector, no table, no constraint columns | `source-editor/basis-table` @parity_2_0 |
+| Lattice form (type/a/b/c/α/β/γ, units, scale-vs-preserve) | Inspector › Structure › Edit lattice | **done** — disclosed form, staged edits, preserve-vs-scale kept | `materials-list/*` @parity_2_0 (drives it via the create path) |
+| Basis XYZ text (constraints, validation, crystal/cartesian) | Basis table + text view on `#basis-xyz` | **done** — both views write one `set-basis` op; constraints appear only when something is constrained | `source-editor/basis-table` @parity_2_0 (4/4) |
 | Upload review grid | Import-review panel | **absent** | `menu/input-output/add-remove-import-files` |
 | Materials list: filter, count, empty state | Navigator filter + count | **done** | `materials-list/filter-and-count` @parity_2_0 |
 | Modified / updated marker | Navigator dot, revert-aware | **done** — content comparison against the material as it entered the session; materials derived in-session stay marked | `materials-list/updated-marker` @parity_2_0, 6 unit tests |

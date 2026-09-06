@@ -19,6 +19,10 @@ export interface NavigatorProps {
     onFork: (id: string) => void;
     onNew: () => void;
     onRename: (id: string, name: string) => void;
+    /** Opens the standard library panel. */
+    onImportStandata?: () => void;
+    /** Opens the file picker. */
+    onImportFile?: () => void;
     /** Set by the `material.rename` command so the row opens straight into its field. */
     renamingId?: string | null;
     onRenamingIdChange?: (id: string | null) => void;
@@ -55,11 +59,14 @@ export function Navigator({
     onFork,
     onNew,
     onRename,
+    onImportStandata,
+    onImportFile,
     renamingId = null,
     onRenamingIdChange,
 }: NavigatorProps) {
     const [filter, setFilter] = useState("");
     const [openSets, setOpenSets] = useState<Record<string, boolean>>({});
+    const [addMenuOpen, setAddMenuOpen] = useState(false);
     const rows = useMemo(() => toRows(state.materials), [state.materials]);
     const query = filter.trim().toLowerCase();
 
@@ -178,6 +185,7 @@ export function Navigator({
                     <button
                         type="button"
                         title="Fork a sibling from this material"
+                        data-testid="row-fork"
                         aria-label={`Fork ${material.name}`}
                         onClick={(event) => {
                             event.stopPropagation();
@@ -190,6 +198,7 @@ export function Navigator({
                         type="button"
                         title="Remove (undoable)"
                         aria-label={`Remove ${material.name}`}
+                        data-testid="row-remove"
                         onClick={(event) => {
                             event.stopPropagation();
                             onRemove(doc.id);
@@ -233,11 +242,35 @@ export function Navigator({
                 <button
                     type="button"
                     className="md2-btn-new add-material-menu"
-                    onClick={onNew}
-                    title="New material"
+                    aria-haspopup="menu"
+                    aria-expanded={addMenuOpen}
+                    onClick={() => setAddMenuOpen((open) => !open)}
+                    title="Add a material"
                 >
                     + New
                 </button>
+                {addMenuOpen && (
+                    <ul className="md2-addmenu" role="menu" aria-label="Add a material">
+                        {[
+                            { label: "New material", run: onNew },
+                            { label: "Import from Standata", run: onImportStandata },
+                            { label: "Import from file", run: onImportFile },
+                        ].map(({ label, run }) => (
+                            <li key={label} role="none">
+                                <button
+                                    type="button"
+                                    role="menuitem"
+                                    onClick={() => {
+                                        setAddMenuOpen(false);
+                                        run?.();
+                                    }}
+                                >
+                                    {label}
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                )}
             </div>
             <div className="md2-tree" role="tree">
                 {visible.map(({ doc, depth }) => {

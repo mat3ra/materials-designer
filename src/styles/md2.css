@@ -1437,3 +1437,109 @@ select.md2-field {
 .basis-add-site {
     margin-top: 6px;
 }
+
+
+/* ---------------------------------------------------------------- lattice form */
+
+.md2-lattice {
+    margin-top: 6px;
+}
+.md2-lattice-trigger {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px;
+    font-size: var(--fs-data);
+    color: var(--text-dim);
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    user-select: none;
+}
+.md2-lattice-trigger:hover {
+    color: var(--text);
+    border-color: var(--border-strong, var(--accent));
+}
+.md2-lattice-caret {
+    margin-left: auto;
+    color: var(--text-faint);
+}
+.md2-lattice-config {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 6px;
+    border: 1px solid var(--border);
+    border-top: 0;
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+}
+.md2-lattice-config .md2-frow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.md2-lattice-config .md2-flabel {
+    width: 46px;
+    font-size: var(--fs-micro);
+    color: var(--text-faint);
+    text-transform: uppercase;
+}
+.md2-lattice-config input:not([type="checkbox"]) {
+    flex: 1;
+    min-width: 0;
+    padding: 2px 5px;
+    font-family: var(--font-mono);
+    font-size: var(--fs-data);
+    color: var(--text);
+    background: var(--bg0);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+}
+.md2-lattice-preserve {
+    margin-top: 4px;
+    font-size: var(--fs-data);
+    color: var(--text-dim);
+}
+.md2-lattice-config .save-lattice-config {
+    margin-top: 6px;
+}
+
+/* A hidden element is hidden, whatever display its class asks for. */
+[hidden] {
+    display: none !important;
+}
+
+
+/* The add menu: a short list of ways a material can enter the session. */
+.md2-addmenu {
+    position: absolute;
+    z-index: 40;
+    right: 8px;
+    margin: 2px 0 0;
+    padding: 4px;
+    list-style: none;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow);
+}
+.md2-addmenu button {
+    display: block;
+    width: 100%;
+    padding: 5px 10px;
+    font-size: var(--fs-body);
+    color: var(--text);
+    text-align: left;
+    background: transparent;
+    border: 0;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    white-space: nowrap;
+}
+.md2-addmenu button:hover {
+    background: var(--bg3);
+}
+.md2-nav-filter {
+    position: relative;
+}

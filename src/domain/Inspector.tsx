@@ -10,6 +10,7 @@ import React, { useEffect, useState } from "react";
 
 import type { ResultDigest, SelectionModel } from "../core/types";
 import { BasisEditor } from "./inspector/BasisEditor";
+import { LatticeForm } from "./inspector/LatticeForm";
 
 export interface InspectorProps {
     material: Material;
@@ -47,6 +48,9 @@ function StructureTab({
     selection: SelectionModel;
     theme: "dark" | "light";
 }) {
+    // v1's "scale vs preserve" choice, kept because the two give different structures and the
+    // difference is invisible after the fact.
+    const [preserveBasis, setPreserveBasis] = useState(true);
     const lattice = material.lattice as unknown as Record<string, number | string> | undefined;
     const isNonPeriodic = Boolean(
         (material as unknown as { isNonPeriodic?: boolean }).isNonPeriodic,
@@ -85,6 +89,12 @@ function StructureTab({
                     Editable lattice fields with symmetry locking are Phase 1 work; the MVP shows
                     the values and keeps every mutation on the operation path.
                 </div>
+                <LatticeForm
+                    lattice={lattice as never}
+                    preserveBasis={preserveBasis}
+                    onPreserveBasisChange={setPreserveBasis}
+                    onApply={(next) => onApply("set-lattice", { lattice: next, preserveBasis })}
+                />
             </section>
 
             <section className="md2-isec">

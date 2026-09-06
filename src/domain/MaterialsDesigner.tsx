@@ -447,6 +447,8 @@ export function App() {
                             onRename={(id, name) =>
                                 session.apply("rename", { name }, { materialId: id })
                             }
+                            onImportStandata={() => setPanelType("standard-library")}
+                            onImportFile={pickFiles}
                             renamingId={renamingId}
                             onRenamingIdChange={setRenamingId}
                         />
