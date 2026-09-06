@@ -91,6 +91,10 @@ Two environment notes, both of which cost an afternoon to discover:
   archive and failed the checksum. `curl -C - --retry` completed it, and the checksum then matched
   exactly — the artefact was fine, the transfer was not. Install with
   `CYPRESS_INSTALL_BINARY=/path/to/cypress.zip npx cypress install`.
+- **Fixtures are Git LFS objects.** A clone made with `GIT_LFS_SKIP_SMUDGE=1`, or one where the
+  smudge filter did not run, leaves them as pointer stubs, and specs fail with `cy.readFile ...
+  failed` on a file that is plainly present. `git lfs pull` fixes it. CI checks out with
+  `lfs: true`, so this only bites locally.
 - **The viewport needs software rendering.** A headless container has no GPU, so wave.js fails on
   "Error creating WebGL context" before any assertion runs. `cypress.config.ts` now passes
   `--use-gl=swiftshader` for chromium browsers, which is what the Playwright smoke already did.
@@ -115,3 +119,20 @@ the clone's name, the basis editor, the lattice form, the list's add menu, and t
 one crash the specs exposed that nothing else had: a Standard-library config carries an `external`
 block that made.js accepts on the way in and rejects when serialising, so importing one and then
 publishing `MDState` took the whole app down.
+
+
+## Both suites, side by side
+
+Run on 2026-09-06, after retargeting:
+
+```
+# MD 2.0 — the harvested parity specs
+npx cypress run --env APP=v2,TAGS='@parity_2_0'          # 26 passing, 0 failing
+
+# v1 — what CI runs today, unchanged
+npx cypress run --env TAGS='not @ignore and not @quarantine and not @notebook_healthcheck and not @parity_2_0'
+                                                          # 8 passing, 0 failing, 4 pending
+```
+
+That v1 still passes is the point: every change so far is additive, and the same step definitions
+drive both applications until the flip removes the need.
