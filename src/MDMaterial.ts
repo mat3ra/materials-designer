@@ -5,8 +5,17 @@ import Material, {
 } from "@mat3ra/made/dist/js/Material";
 
 export class MDMaterial extends Material {
+    /** Ephemeral producer-owned region marker. It is intentionally absent from {@link toJSON}. */
+    syncScope?: string;
+
     constructor(config: MaterialConfig = defaultMaterialConfig) {
         super(config);
+    }
+
+    clone(extraContext?: object): this {
+        const material = super.clone(extraContext);
+        material.syncScope = this.syncScope;
+        return material;
     }
 
     static fromMadeMaterial(madeMaterial: Material, metadata: Partial<MaterialSchema> = {}) {
@@ -29,6 +38,7 @@ export class MDMaterial extends Material {
     cleanOnCopy() {
         // @ts-expect-error MD-only runtime prop, not on MaterialSchema
         ["_id"].forEach((p) => this.unsetProp(p));
+        this.syncScope = undefined;
     }
 
     get boundaryConditions(): object {
