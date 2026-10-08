@@ -4,7 +4,8 @@
     "description": "Materials Designer",
     "scripts": {
         "start": "vite",
-        "build": "vite build",
+        "build": "vite build && npm run pack:tests",
+        "pack:tests": "mkdir -p build && cd tests && cp \"../build/$(npm pack --pack-destination ../build --silent | tail -1)\" \"../build/materials-designer-tests-${COMMIT_REF:-local}.tgz\"",
         "prepare": "husky install",
         "transpile": "tsc && npm run copy-css",
         "copy-css": "mkdir -p dist/stylesheets && cp src/stylesheets/* dist/stylesheets/",

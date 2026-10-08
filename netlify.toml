@@ -1,0 +1,13 @@
+[build]
+  # Declared in-repo rather than left to UI-only settings so the published output is
+  # reproducible from the repo, and so the build runs `npm run build` -- which also packs
+  # the tests/ tarball that deploy previews serve for pinning an unreleased commit.
+  command = "npm run build"
+
+  # MUST stay build/, never dist/. This repo produces two unrelated outputs:
+  #   build/ -- the app, written by `vite build` (see build.outDir in vite.config.mts)
+  #   dist/  -- the tsc library output, committed to git and published to npm as
+  #             @mat3ra/materials-designer ("main": "dist/exports.js")
+  # dist/ contains no index.html, so publishing it serves Netlify's 404 page at the site
+  # root and takes the whole app offline. That regression shipped once already (#282).
+  publish = "build/"
