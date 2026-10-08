@@ -32,7 +32,13 @@ const SELECTORS = {
         item: "#jp-mainmenu-run ul li",
     },
     kernel: {
-        status: "#jp-bottom-panel #jp-main-statusbar div:nth-child(5) span",
+        // Not pinned to a specific child index: the status bar's item order shifts with which
+        // status-bar plugins/extensions are registered (e.g. JupyterLite's own "Simple" mode
+        // toggle adds an extra item ahead of it), so a fixed nth-child silently starts reading a
+        // different item's text. isKernelInStatus() already does a substring `.includes()` check,
+        // so matching the whole status bar and letting Cypress concatenate all items' text is
+        // enough to find "Idle"/"Busy" wherever the kernel item currently sits.
+        status: "#jp-bottom-panel #jp-main-statusbar span",
         restart:
             '.jp-NotebookPanel:not(.p-mod-hidden) .jp-NotebookPanel-toolbar button[data-command="kernelmenu:restart"]',
     },
