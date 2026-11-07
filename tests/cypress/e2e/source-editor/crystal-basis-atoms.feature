@@ -1,0 +1,33 @@
+Feature: User can edit labels and starting magnetization of each atom in the Atoms view of the crystal basis
+
+  Scenario:
+    When I open materials designer page
+    Then I see material designer page
+    When I set material basis and lattice with the following data:
+      | basis                                                     | lattice                  |
+      | Fe 0 0 0;Fe 0.5 0.5 0.5;O 0.25 0.25 0.25;O 0.75 0.75 0.75 | {"type":"CUB","a":4.334} |
+    And I select "atoms" view of the crystal basis
+    And I set atom values in the crystal basis with the following data:
+      | index | field                 | value |
+      | 1     | startingMagnetization | 0.5   |
+      | 2     | startingMagnetization | -0.5  |
+      | 4     | label                 | 10    |
+    Then material with following data exists in state
+      | path          | index   |
+      | feo-afm.json  | $INT{1} |
+
+    # A refused value shows made's validation message and is not stored
+    When I set atom values in the crystal basis with the following data:
+      | index | field                 | value |
+      | 1     | startingMagnetization | 1.5   |
+    Then I see error alert "/basis/startingMagnetization/0/value must be <= 1"
+    And material with following data exists in state
+      | path          | index   |
+      | feo-afm.json  | $INT{1} |
+
+    # An XYZ edit keeps labels and starting magnetization by line
+    When I select "crystal" view of the crystal basis
+    And I add line "O 0.5 0.5 0" to material basis
+    Then material with following data exists in state
+      | path                     | index   |
+      | feo-afm-added-atom.json  | $INT{1} |

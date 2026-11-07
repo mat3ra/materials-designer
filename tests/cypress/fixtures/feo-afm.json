@@ -1,0 +1,17 @@
+{
+    "basis": {
+        "elements": [
+            { "id": 0, "value": "Fe" },
+            { "id": 1, "value": "Fe" },
+            { "id": 2, "value": "O" },
+            { "id": 3, "value": "O" }
+        ],
+        "labels": [{ "id": 3, "value": 10 }],
+        "startingMagnetization": [
+            { "id": 0, "value": 0.5 },
+            { "id": 1, "value": -0.5 },
+            { "id": 2, "value": 0 },
+            { "id": 3, "value": 0 }
+        ]
+    }
+}
