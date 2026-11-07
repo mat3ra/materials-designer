@@ -1,4 +1,5 @@
 /* eslint-disable react/sort-comp */
+import { showErrorAlert } from "@mat3ra/cove/dist/other/alerts";
 import { Made } from "@mat3ra/made";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Accordion from "@mui/material/Accordion";
@@ -16,13 +17,29 @@ import s from "underscore.string";
 import { theme } from "../../settings";
 import BasisText from "./BasisText";
 
+const ATOMS_VIEW = "atoms";
+
+const ATOM_COLUMNS = [
+    { field: "index", headerName: "Index", type: "number", width: 60 },
+    { field: "element", headerName: "Element", width: 80 },
+    { field: "label", headerName: "Label", type: "number", flex: 1, editable: true },
+    {
+        field: "startingMagnetization",
+        headerName: "Starting Magnetization",
+        type: "number",
+        flex: 2,
+        minWidth: 155,
+        editable: true,
+    },
+];
+
 class BasisEditor extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            xyzContent: props.material.getBasisAsXyz(),
-            coordinateUnits: Made.ATOMIC_COORD_UNITS.crystal,
+            xyzContent: this.getXyzWithoutLabels(props.material),
+            basisView: Made.ATOMIC_COORD_UNITS.crystal,
             checks: props.material.getConsistencyChecks(),
         };
 
@@ -34,11 +51,17 @@ class BasisEditor extends React.Component {
         const { material } = this.props;
         if (material !== nextProps.material) {
             this.setState({
-                xyzContent: nextProps.material.getBasisAsXyz(),
+                xyzContent: this.getXyzWithoutLabels(nextProps.material),
                 checks: nextProps.material.getConsistencyChecks(),
             });
         }
     }
+
+    getXyzWithoutLabels = (material) =>
+        material.getBasisAsXyz(
+            false,
+            material.getBasis().elements.map(({ value }) => value),
+        );
 
     getXYZInCoordUnits = (material, coordinateUnits) => {
         switch (coordinateUnits) {
@@ -51,40 +74,36 @@ class BasisEditor extends React.Component {
             default:
                 break;
         }
-        return material.getBasisAsXyz();
+        return this.getXyzWithoutLabels(material);
     };
 
     handleBasisTextChange(content) {
         // "clone" original material from props to assert state updates
         const { material, onUpdate } = this.props;
-        const { coordinateUnits } = this.state;
+        const { basisView } = this.state;
         const newMaterial = material.clone();
-        newMaterial.setBasis(content, "xyz", coordinateUnits);
-        // XYZ text holds no starting magnetization and renumbers atoms by line: carry it by position
+        newMaterial.setBasis(content, "xyz", basisView);
         const basis = newMaterial.getBasis();
-        const atomIds = material.basis.elements.map(({ id }) => id).slice(0, basis.nAtoms);
-        basis.startingMagnetization = material
-            .getBasis()
-            .startingMagnetization.filter(({ id }) => atomIds.includes(id))
-            .map(({ id, value }) => ({ id: atomIds.indexOf(id), value }));
+        basis.copyLabelsAndStartingMagnetizationByIndex(material.getBasis());
         newMaterial.setBasis(basis.toJSON());
         onUpdate(newMaterial);
     }
 
+    /** Returns one row per atom, in basis order, with its label and starting magnetization */
     getAtomRows() {
         const { material } = this.props;
         const basis = material.getBasis();
-        const { labels, startingMagnetization } = basis;
-        const valueOf = (entries, atomId) => entries.find(({ id }) => id === atomId)?.value ?? null;
+        const { atomicLabelsArray, startingMagnetizationArray } = basis;
         return basis.elements.map(({ id, value }, index) => ({
             id,
             index: index + 1,
             element: value,
-            label: valueOf(labels, id),
-            startingMagnetization: valueOf(startingMagnetization, id),
+            label: atomicLabelsArray[index] ?? null,
+            startingMagnetization: startingMagnetizationArray[index],
         }));
     }
 
+    /** Writes the edited row's values through made; made's validation refuses out-of-range ones */
     handleAtomRowUpdate = (updatedRow) => {
         const { material, onUpdate } = this.props;
         const rows = this.getAtomRows().map((row) => (row.id === updatedRow.id ? updatedRow : row));
@@ -101,6 +120,11 @@ class BasisEditor extends React.Component {
         return updatedRow;
     };
 
+    handleAtomRowUpdateError = (error) =>
+        error.details.error.forEach(({ instancePath, message }) =>
+            showErrorAlert(`${instancePath} ${message}`),
+        );
+
     renderBasisUnitsLabel = (unitsType = "crystal") => {
         return (
             <ToggleButton
@@ -115,27 +139,8 @@ class BasisEditor extends React.Component {
     };
 
     render() {
-        const { coordinateUnits, checks, xyzContent } = this.state;
+        const { basisView, checks, xyzContent } = this.state;
         const { material } = this.props;
-        const columns = [
-            { field: "index", headerName: "Index", flex: 1 },
-            { field: "element", headerName: "Element", flex: 1 },
-            {
-                field: "label",
-                headerName: "Label",
-                type: "number",
-                flex: 1,
-                editable: true,
-                preProcessEditCellProps: ({ props }) => ({ ...props, error: props.value < 0 }),
-            },
-            {
-                field: "startingMagnetization",
-                headerName: "Starting Magnetization",
-                type: "number",
-                flex: 1,
-                editable: true,
-            },
-        ];
         return (
             <Accordion defaultExpanded className="crystal-basis" elevation={2}>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -146,34 +151,42 @@ class BasisEditor extends React.Component {
                         <Grid item xs={12}>
                             <ToggleButtonGroup
                                 id="basis-options"
-                                value={coordinateUnits}
+                                value={basisView}
                                 fullWidth
                                 exclusive
                                 size="small"
-                                onChange={(e, unitsType) => {
+                                onChange={(e, view) => {
                                     this.setState({
-                                        coordinateUnits: unitsType,
-                                        xyzContent: this.getXYZInCoordUnits(material, unitsType),
+                                        basisView: view,
+                                        xyzContent: this.getXYZInCoordUnits(material, view),
                                     });
                                 }}
                             >
                                 {this.renderBasisUnitsLabel(Made.ATOMIC_COORD_UNITS.crystal)}
                                 {this.renderBasisUnitsLabel(Made.ATOMIC_COORD_UNITS.cartesian)}
+                                <ToggleButton
+                                    value={ATOMS_VIEW}
+                                    sx={{ fontSize: theme.typography.caption.fontSize }}
+                                >
+                                    Atoms
+                                </ToggleButton>
                             </ToggleButtonGroup>
                         </Grid>
                         <Grid item xs={12}>
-                            <BasisText
-                                content={xyzContent}
-                                checks={checks}
-                                onChange={this.handleBasisTextChange}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <DataGrid
-                                rows={this.getAtomRows()}
-                                columns={columns}
-                                processRowUpdate={this.handleAtomRowUpdate}
-                            />
+                            {basisView === ATOMS_VIEW ? (
+                                <DataGrid
+                                    rows={this.getAtomRows()}
+                                    columns={ATOM_COLUMNS}
+                                    processRowUpdate={this.handleAtomRowUpdate}
+                                    onProcessRowUpdateError={this.handleAtomRowUpdateError}
+                                />
+                            ) : (
+                                <BasisText
+                                    content={xyzContent}
+                                    checks={checks}
+                                    onChange={this.handleBasisTextChange}
+                                />
+                            )}
                         </Grid>
                     </Grid>
                 </AccordionDetails>
