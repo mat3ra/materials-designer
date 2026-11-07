@@ -8,6 +8,7 @@ import Grid from "@mui/material/Grid";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Typography from "@mui/material/Typography";
+import { DataGrid } from "@mui/x-data-grid";
 import PropTypes from "prop-types";
 import React from "react";
 import s from "underscore.string";
@@ -59,8 +60,46 @@ class BasisEditor extends React.Component {
         const { coordinateUnits } = this.state;
         const newMaterial = material.clone();
         newMaterial.setBasis(content, "xyz", coordinateUnits);
+        // XYZ text holds no starting magnetization and renumbers atoms by line: carry it by position
+        const basis = newMaterial.getBasis();
+        const atomIds = material.basis.elements.map(({ id }) => id).slice(0, basis.nAtoms);
+        basis.startingMagnetization = material
+            .getBasis()
+            .startingMagnetization.filter(({ id }) => atomIds.includes(id))
+            .map(({ id, value }) => ({ id: atomIds.indexOf(id), value }));
+        newMaterial.setBasis(basis.toJSON());
         onUpdate(newMaterial);
     }
+
+    getAtomRows() {
+        const { material } = this.props;
+        const basis = material.getBasis();
+        const { labels, startingMagnetization } = basis;
+        const valueOf = (entries, atomId) => entries.find(({ id }) => id === atomId)?.value ?? null;
+        return basis.elements.map(({ id, value }, index) => ({
+            id,
+            index: index + 1,
+            element: value,
+            label: valueOf(labels, id),
+            startingMagnetization: valueOf(startingMagnetization, id),
+        }));
+    }
+
+    handleAtomRowUpdate = (updatedRow) => {
+        const { material, onUpdate } = this.props;
+        const rows = this.getAtomRows().map((row) => (row.id === updatedRow.id ? updatedRow : row));
+        const entriesOf = (field) =>
+            rows
+                .filter((row) => row[field] !== null)
+                .map((row) => ({ id: row.id, value: row[field] }));
+        const newMaterial = material.clone();
+        const basis = newMaterial.getBasis();
+        basis.labels = entriesOf("label");
+        basis.startingMagnetization = entriesOf("startingMagnetization");
+        newMaterial.setBasis(basis.toJSON());
+        onUpdate(newMaterial);
+        return updatedRow;
+    };
 
     renderBasisUnitsLabel = (unitsType = "crystal") => {
         return (
@@ -78,6 +117,25 @@ class BasisEditor extends React.Component {
     render() {
         const { coordinateUnits, checks, xyzContent } = this.state;
         const { material } = this.props;
+        const columns = [
+            { field: "index", headerName: "Index", flex: 1 },
+            { field: "element", headerName: "Element", flex: 1 },
+            {
+                field: "label",
+                headerName: "Label",
+                type: "number",
+                flex: 1,
+                editable: true,
+                preProcessEditCellProps: ({ props }) => ({ ...props, error: props.value < 0 }),
+            },
+            {
+                field: "startingMagnetization",
+                headerName: "Starting Magnetization",
+                type: "number",
+                flex: 1,
+                editable: true,
+            },
+        ];
         return (
             <Accordion defaultExpanded className="crystal-basis" elevation={2}>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -108,6 +166,13 @@ class BasisEditor extends React.Component {
                                 content={xyzContent}
                                 checks={checks}
                                 onChange={this.handleBasisTextChange}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <DataGrid
+                                rows={this.getAtomRows()}
+                                columns={columns}
+                                processRowUpdate={this.handleAtomRowUpdate}
                             />
                         </Grid>
                     </Grid>
