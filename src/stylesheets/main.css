@@ -6,17 +6,21 @@
 $header-height: 54px;
 $footer-height: 54px;
 $crystal-lattice-accordion-height-with-borders: 56px;
+$crystal-basis-accordion-header-with-button-group: 116px;
 .three-renderer {
   height: calc(100vh - $footer-height - $header-height);
 }
 
-#basis-xyz {
-  $crystal-basis-accordion-header-with-button-group: 116px;
+#basis-xyz,
+#basis-atoms {
   height: calc(
           100vh - $footer-height - $header-height -
           $crystal-lattice-accordion-height-with-borders - $crystal-basis-accordion-header-with-button-group
   );
   overflow-y: hidden;
+}
+
+#basis-xyz {
   .cm-editor {
     // Assuming that `em` will pick up the font size of the MUI theme
     font-size: 0.9em;

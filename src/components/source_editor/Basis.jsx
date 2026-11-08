@@ -190,6 +190,7 @@ class BasisEditor extends React.Component {
                                         columns={ATOM_COLUMNS}
                                         processRowUpdate={this.handleAtomRowUpdate}
                                         onProcessRowUpdateError={this.handleAtomRowUpdateError}
+                                        disableRowSelectionOnClick
                                     />
                                 </div>
                             ) : (
