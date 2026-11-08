@@ -57,6 +57,7 @@ class BasisEditor extends React.Component {
         }
     }
 
+    /** Returns the basis as XYZ text with bare elements: labels are edited in the Atoms view */
     getXyzWithoutLabels = (material) =>
         material.getBasisAsXyz(
             false,
@@ -80,11 +81,11 @@ class BasisEditor extends React.Component {
     handleBasisTextChange(content) {
         // "clone" original material from props to assert state updates
         const { material, onUpdate } = this.props;
-        const { basisView } = this.state;
+        const previousBasis = material.getBasis();
         const newMaterial = material.clone();
-        newMaterial.setBasis(content, "xyz", basisView);
+        newMaterial.setBasis(content, "xyz", previousBasis.units);
         const basis = newMaterial.getBasis();
-        basis.copyLabelsAndStartingMagnetizationByIndex(material.getBasis());
+        basis.copyLabelsAndStartingMagnetizationByIndex(previousBasis);
         newMaterial.setBasis(basis.toJSON());
         onUpdate(newMaterial);
     }
@@ -93,13 +94,16 @@ class BasisEditor extends React.Component {
     getAtomRows() {
         const { material } = this.props;
         const basis = material.getBasis();
-        const { atomicLabelsArray, startingMagnetizationArray } = basis;
+        const { atomicLabelsArray, startingMagnetization } = basis;
+        const startingMagnetizationByAtomId = new Map(
+            startingMagnetization.map(({ id, value }) => [id, value]),
+        );
         return basis.elements.map(({ id, value }, index) => ({
             id,
             index: index + 1,
             element: value,
             label: atomicLabelsArray[index] ?? null,
-            startingMagnetization: startingMagnetizationArray[index],
+            startingMagnetization: startingMagnetizationByAtomId.get(id) ?? null,
         }));
     }
 
@@ -120,10 +124,16 @@ class BasisEditor extends React.Component {
         return updatedRow;
     };
 
-    handleAtomRowUpdateError = (error) =>
-        error.details.error.forEach(({ instancePath, message }) =>
-            showErrorAlert(`${instancePath} ${message}`),
-        );
+    /** Shows made's validation messages, with the position in the list replaced by the atom's Index */
+    handleAtomRowUpdateError = (error) => {
+        const { basis } = error.details.json;
+        error.details.error.forEach(({ instancePath, message }) => {
+            const [, , field, position] = instancePath.split("/");
+            const atomId = basis[field][position].id;
+            const atomIndex = basis.elements.findIndex(({ id }) => id === atomId) + 1;
+            showErrorAlert(`/basis/${field}/${atomIndex}/value ${message}`);
+        });
+    };
 
     renderBasisUnitsLabel = (unitsType = "crystal") => {
         return (
@@ -174,12 +184,14 @@ class BasisEditor extends React.Component {
                         </Grid>
                         <Grid item xs={12}>
                             {basisView === ATOMS_VIEW ? (
-                                <DataGrid
-                                    rows={this.getAtomRows()}
-                                    columns={ATOM_COLUMNS}
-                                    processRowUpdate={this.handleAtomRowUpdate}
-                                    onProcessRowUpdateError={this.handleAtomRowUpdateError}
-                                />
+                                <div id="basis-atoms">
+                                    <DataGrid
+                                        rows={this.getAtomRows()}
+                                        columns={ATOM_COLUMNS}
+                                        processRowUpdate={this.handleAtomRowUpdate}
+                                        onProcessRowUpdateError={this.handleAtomRowUpdateError}
+                                    />
+                                </div>
                             ) : (
                                 <BasisText
                                     content={xyzContent}

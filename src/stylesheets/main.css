@@ -42,7 +42,8 @@ $crystal-lattice-accordion-height-with-borders: 56px;
     height: calc(100vh - 108px);
 }
 
-#basis-xyz {
+#basis-xyz,
+#basis-atoms {
     height: calc(100vh - 280px);
     overflow-y: hidden;
 }
