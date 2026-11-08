@@ -103,9 +103,10 @@ class BasisEditorWidget extends Widget {
             const editor = element.getElementsByClassName("cm-content")[0].cmView.view;
             editor.focus();
             const stateLength = editor.state.doc.length;
+            const separator = editor.state.doc.toString().endsWith("\n") ? "" : "\n";
             const transactionPayload = preserveExistingContent
                 ? {
-                      changes: { from: stateLength, insert: `\n${content}` },
+                      changes: { from: stateLength, insert: `${separator}${content}` },
                   }
                 : {
                       changes: { from: 0, to: stateLength, insert: content },
@@ -127,16 +128,7 @@ class BasisEditorWidget extends Widget {
     }
 
     addBasisLine(line: string) {
-        return this.browser.execute((win) => {
-            const editor = win.document
-                .getElementById(basisEditor.basisTextArea)
-                ?.getElementsByClassName("cm-content")[0].cmView.view;
-            editor.focus();
-            const { length } = editor.state.doc;
-            editor.dispatch(
-                editor.state.update({ changes: { from: length, insert: `${line}\n` } }),
-            );
-        });
+        return this.setCodeMirrorContent(basisEditor.basisTextArea, line, true);
     }
 
     selectView(view: string) {

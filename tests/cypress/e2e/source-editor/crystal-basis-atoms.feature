@@ -15,12 +15,13 @@ Feature: User can edit labels and starting magnetization of each atom in the Ato
     Then material with following data exists in state
       | path          | index   |
       | feo-afm.json  | $INT{1} |
+    And atom with index "3" has no "startingMagnetization" value in state
 
     # A refused value shows made's validation message and is not stored
     When I set atom values in the crystal basis with the following data:
       | index | field                 | value |
-      | 1     | startingMagnetization | 1.5   |
-    Then I see error alert "/basis/startingMagnetization/0/value must be <= 1"
+      | 4     | startingMagnetization | 1.5   |
+    Then I see error alert "/basis/startingMagnetization/4/value must be <= 1"
     And material with following data exists in state
       | path          | index   |
       | feo-afm.json  | $INT{1} |
