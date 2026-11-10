@@ -24,8 +24,8 @@ const ATOM_COLUMNS = [
     { field: "element", headerName: "Element", width: 80 },
     { field: "label", headerName: "Label", type: "number", flex: 1, editable: true },
     {
-        field: "startingMagnetization",
-        headerName: "Starting Magnetization",
+        field: "magneticMoment",
+        headerName: "Magnetic Moment (μB)",
         type: "number",
         flex: 2,
         minWidth: 155,
@@ -85,25 +85,23 @@ class BasisEditor extends React.Component {
         const newMaterial = material.clone();
         newMaterial.setBasis(content, "xyz", previousBasis.units);
         const basis = newMaterial.getBasis();
-        basis.copyLabelsAndStartingMagnetizationByIndex(previousBasis);
+        basis.copyLabelsAndMagneticMomentsByIndex(previousBasis);
         newMaterial.setBasis(basis.toJSON());
         onUpdate(newMaterial);
     }
 
-    /** Returns one row per atom, in basis order, with its label and starting magnetization */
+    /** Returns one row per atom, in basis order, with its label and magnetic moment */
     getAtomRows() {
         const { material } = this.props;
         const basis = material.getBasis();
-        const { atomicLabelsArray, startingMagnetization } = basis;
-        const startingMagnetizationByAtomId = new Map(
-            startingMagnetization.map(({ id, value }) => [id, value]),
-        );
+        const { atomicLabelsArray, magneticMoments } = basis;
+        const magneticMomentByAtomId = new Map(magneticMoments.map(({ id, value }) => [id, value]));
         return basis.elements.map(({ id, value }, index) => ({
             id,
             index: index + 1,
             element: value,
             label: atomicLabelsArray[index] ?? null,
-            startingMagnetization: startingMagnetizationByAtomId.get(id) ?? null,
+            magneticMoment: magneticMomentByAtomId.get(id) ?? null,
         }));
     }
 
@@ -118,7 +116,7 @@ class BasisEditor extends React.Component {
         const newMaterial = material.clone();
         const basis = newMaterial.getBasis();
         basis.labels = entriesOf("label");
-        basis.startingMagnetization = entriesOf("startingMagnetization");
+        basis.magneticMoments = entriesOf("magneticMoment");
         newMaterial.setBasis(basis.toJSON());
         onUpdate(newMaterial);
         return updatedRow;

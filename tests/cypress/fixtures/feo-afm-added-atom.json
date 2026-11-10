@@ -8,7 +8,7 @@
             { "id": 4, "value": "O" }
         ],
         "labels": [{ "id": 3, "value": 10 }],
-        "startingMagnetization": [
+        "magneticMoments": [
             { "id": 0, "value": 0.5 },
             { "id": 1, "value": -0.5 }
         ]
