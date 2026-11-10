@@ -21,13 +21,13 @@ const ATOM_COLUMNS = [
 function getAtomRows(material) {
     const basis = material.getBasis();
     const { atomicLabelsArray, magneticMoments } = basis;
-    const magneticMomentByAtomId = new Map(magneticMoments.map(({ id, value }) => [id, value]));
+    const magneticMomentsArray = basis.valuesByAtom(magneticMoments);
     return basis.elements.map(({ id, value }, index) => ({
         id,
         index: index + 1,
         element: value,
         label: atomicLabelsArray[index] ?? null,
-        magneticMoment: magneticMomentByAtomId.get(id) ?? null,
+        magneticMoment: magneticMomentsArray[index] ?? null,
     }));
 }
 
