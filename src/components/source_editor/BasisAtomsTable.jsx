@@ -51,24 +51,15 @@ function BasisAtomsTable({ material, onUpdate, readOnly }) {
         return updatedRow;
     };
 
-    /** Shows made's validation messages, with the position in the list replaced by the atom's Index */
-    const handleAtomRowUpdateError = (error) => {
-        const { basis } = error.details.json;
-        error.details.error.forEach(({ instancePath, message }) => {
-            const [, , field, position] = instancePath.split("/");
-            const atomId = basis[field][position].id;
-            const atomIndex = basis.elements.findIndex(({ id }) => id === atomId) + 1;
-            showErrorAlert(`/basis/${field}/${atomIndex}/value ${message}`);
-        });
-    };
-
     return (
         <DataGrid
             rows={getAtomRows(material)}
             columns={ATOM_COLUMNS}
             isCellEditable={() => !readOnly}
             processRowUpdate={handleAtomRowUpdate}
-            onProcessRowUpdateError={handleAtomRowUpdateError}
+            onProcessRowUpdateError={(error) =>
+                showErrorAlert(error.details?.error?.[0]?.message ?? error.message)
+            }
             disableRowSelectionOnClick
         />
     );
@@ -77,10 +68,7 @@ function BasisAtomsTable({ material, onUpdate, readOnly }) {
 BasisAtomsTable.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     material: PropTypes.object.isRequired,
-    onUpdate: (props, propName) =>
-        props.readOnly || typeof props[propName] === "function"
-            ? null
-            : new Error("BasisAtomsTable: onUpdate is required unless readOnly"),
+    onUpdate: PropTypes.func,
     readOnly: PropTypes.bool,
 };
 

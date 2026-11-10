@@ -11,6 +11,7 @@ interface AtomValue {
 
 Given("I set atom values in the crystal basis with the following data:", (table: DataTable) => {
     const { basisEditor } = new MaterialDesignerPage().designerWidget.sourceEditor;
+    basisEditor.selectView("atoms");
     parseTable<AtomValue>(table).forEach(({ index, field, value }) => {
         basisEditor.setAtomValue(parseInt(index, 10), field, value);
     });

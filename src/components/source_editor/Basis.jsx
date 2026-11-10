@@ -70,12 +70,12 @@ class BasisEditor extends React.Component {
         const newMaterial = material.clone();
         newMaterial.setBasis(content, "xyz", previousBasis.units);
         const basis = newMaterial.getBasis();
-        basis.copyLabelsAndMagneticMomentsByIndex(previousBasis);
+        basis.copyPerAtomValuesByIndex(previousBasis);
         newMaterial.setBasis(basis.toJSON());
         onUpdate(newMaterial);
     }
 
-    renderBasisUnitsLabel = (unitsType = "crystal") => {
+    renderBasisUnitsLabel = (unitsType = "crystal", label = `${s.capitalize(unitsType)} Units`) => {
         return (
             <ToggleButton
                 value={unitsType}
@@ -83,7 +83,7 @@ class BasisEditor extends React.Component {
                     fontSize: theme.typography.caption.fontSize,
                 }}
             >
-                {s.capitalize(unitsType)} Units
+                {label}
             </ToggleButton>
         );
     };
@@ -114,12 +114,7 @@ class BasisEditor extends React.Component {
                             >
                                 {this.renderBasisUnitsLabel(Made.ATOMIC_COORD_UNITS.crystal)}
                                 {this.renderBasisUnitsLabel(Made.ATOMIC_COORD_UNITS.cartesian)}
-                                <ToggleButton
-                                    value={ATOMS_VIEW}
-                                    sx={{ fontSize: theme.typography.caption.fontSize }}
-                                >
-                                    Atoms
-                                </ToggleButton>
+                                {this.renderBasisUnitsLabel(ATOMS_VIEW, "Atoms")}
                             </ToggleButtonGroup>
                         </Grid>
                         <Grid item xs={12}>
