@@ -17,6 +17,15 @@ Feature: User can edit labels and magnetic moments of each atom in the Atoms vie
       | feo-afm.json  | $INT{1} |
     And atom with index "3" has no "magneticMoments" value in state
 
+    # A refused value shows made's validation message and is not stored
+    When I set atom values in the crystal basis with the following data:
+      | index | field | value |
+      | 4     | label | 1.5   |
+    Then I see error alert "/basis/labels/4/value must be integer"
+    And material with following data exists in state
+      | path          | index   |
+      | feo-afm.json  | $INT{1} |
+
     # An XYZ edit keeps labels and magnetic moments by line
     When I select "crystal" view of the crystal basis
     And I add line "O 0.5 0.5 0" to material basis
