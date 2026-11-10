@@ -23,7 +23,7 @@ class BasisEditor extends React.Component {
         super(props);
 
         this.state = {
-            xyzContent: this.getXyzWithoutLabels(props.material),
+            xyzContent: props.material.getBasisAsXyz(),
             basisView: Made.ATOMIC_COORD_UNITS.crystal,
             checks: props.material.getConsistencyChecks(),
         };
@@ -36,18 +36,11 @@ class BasisEditor extends React.Component {
         const { material } = this.props;
         if (material !== nextProps.material) {
             this.setState({
-                xyzContent: this.getXyzWithoutLabels(nextProps.material),
+                xyzContent: nextProps.material.getBasisAsXyz(),
                 checks: nextProps.material.getConsistencyChecks(),
             });
         }
     }
-
-    /** Returns the basis as XYZ text with bare elements: labels are edited in the Atoms view */
-    getXyzWithoutLabels = (material) =>
-        material.getBasisAsXyz(
-            false,
-            material.getBasis().elements.map(({ value }) => value),
-        );
 
     getXYZInCoordUnits = (material, coordinateUnits) => {
         switch (coordinateUnits) {
@@ -60,18 +53,14 @@ class BasisEditor extends React.Component {
             default:
                 break;
         }
-        return this.getXyzWithoutLabels(material);
+        return material.getBasisAsXyz();
     };
 
     handleBasisTextChange(content) {
         // "clone" original material from props to assert state updates
         const { material, onUpdate } = this.props;
-        const previousBasis = material.getBasis();
         const newMaterial = material.clone();
-        newMaterial.setBasis(content, "xyz", previousBasis.units);
-        const basis = newMaterial.getBasis();
-        basis.copyPerAtomValuesByIndex(previousBasis);
-        newMaterial.setBasis(basis.toJSON());
+        newMaterial.setBasis(content, "xyz", material.basis.units);
         onUpdate(newMaterial);
     }
 
