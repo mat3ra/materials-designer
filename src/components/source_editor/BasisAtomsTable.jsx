@@ -31,6 +31,7 @@ function getAtomRows(material) {
     }));
 }
 
+/** Per-atom label and magnetic moment table; `readOnly` disables editing */
 function BasisAtomsTable({ material, onUpdate, readOnly }) {
     /** Writes the edited row's values through made; made's validation refuses out-of-range ones */
     const handleAtomRowUpdate = (updatedRow) => {
@@ -76,7 +77,10 @@ function BasisAtomsTable({ material, onUpdate, readOnly }) {
 BasisAtomsTable.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     material: PropTypes.object.isRequired,
-    onUpdate: PropTypes.func,
+    onUpdate: (props, propName) =>
+        props.readOnly || typeof props[propName] === "function"
+            ? null
+            : new Error("BasisAtomsTable: onUpdate is required unless readOnly"),
     readOnly: PropTypes.bool,
 };
 
