@@ -1,0 +1,16 @@
+{
+    "basis": {
+        "elements": [
+            { "id": 0, "value": "Fe" },
+            { "id": 1, "value": "Fe" },
+            { "id": 2, "value": "O" },
+            { "id": 3, "value": "O" }
+        ],
+        "labels": [{ "id": 3, "value": 10 }],
+        "magneticMoments": {
+            "0": { "id": 0, "value": 0.5 },
+            "1": { "id": 1, "value": -0.5 },
+            "length": 2
+        }
+    }
+}

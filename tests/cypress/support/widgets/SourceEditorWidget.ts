@@ -64,6 +64,9 @@ class LatticeEditorWidget extends Widget {
 const basisEditor = {
     wrapper: "",
     basisTextArea: "basis-xyz",
+    viewButton: (view: string) => `#basis-options button[value="${view}"]`,
+    atomCell: (index: number, field: string) =>
+        `.crystal-basis [data-rowindex="${index - 1}"] [data-field="${field}"]`,
 };
 
 class BasisEditorWidget extends Widget {
@@ -121,6 +124,16 @@ class BasisEditorWidget extends Widget {
             basisEditor.basisTextArea,
             this._parseTableTextToBasisString(basisTextInTable),
         );
+    }
+
+    selectView(view: string) {
+        this.browser.click(this.selectors.viewButton(view));
+    }
+
+    setAtomValue(index: number, field: string, value: string) {
+        const cell = this.selectors.atomCell(index, field);
+        this.browser.get(cell).dblclick();
+        this.browser.setInputValue(`${cell} input`, `${value}{enter}`);
     }
 }
 
