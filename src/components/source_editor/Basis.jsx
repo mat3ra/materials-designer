@@ -64,10 +64,10 @@ class BasisEditor extends React.Component {
         onUpdate(newMaterial);
     }
 
-    renderBasisUnitsLabel = (unitsType = "crystal", label = `${s.capitalize(unitsType)} Units`) => {
+    renderBasisViewButton = (view = "crystal", label = `${s.capitalize(view)} Units`) => {
         return (
             <ToggleButton
-                value={unitsType}
+                value={view}
                 sx={{
                     fontSize: theme.typography.caption.fontSize,
                 }}
@@ -101,9 +101,9 @@ class BasisEditor extends React.Component {
                                     });
                                 }}
                             >
-                                {this.renderBasisUnitsLabel(Made.ATOMIC_COORD_UNITS.crystal)}
-                                {this.renderBasisUnitsLabel(Made.ATOMIC_COORD_UNITS.cartesian)}
-                                {this.renderBasisUnitsLabel(ATOMS_VIEW, "Atoms")}
+                                {this.renderBasisViewButton(Made.ATOMIC_COORD_UNITS.crystal)}
+                                {this.renderBasisViewButton(Made.ATOMIC_COORD_UNITS.cartesian)}
+                                {this.renderBasisViewButton(ATOMS_VIEW, "Atoms")}
                             </ToggleButtonGroup>
                         </Grid>
                         <Grid item xs={12}>

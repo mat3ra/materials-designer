@@ -3,9 +3,9 @@ Feature: User can edit labels and magnetic moments of each atom in the Atoms vie
   Scenario:
     When I open materials designer page
     Then I see material designer page
-    When I set material basis and lattice with the following data:
-      | basis                                                     | lattice                  |
-      | Fe 0 0 0;Fe 0.5 0.5 0.5;O 0.25 0.25 0.25;O 0.75 0.75 0.75 | {"type":"CUB","a":4.334} |
+    When I open Standata dialog
+    And I import material "FeO, Iron Oxide, MCLC (C2/m) 3D (Bulk), mp-1274279" from Standata
+    And I select material with index "2" from material designer items list
     And I set atom values in the crystal basis with the following data:
       | index | field          | value |
       | 1     | magneticMoment | 0.5   |
@@ -14,4 +14,4 @@ Feature: User can edit labels and magnetic moments of each atom in the Atoms vie
       | 4     | label          | 1.5   |
     Then material with following data exists in state
       | path          | index   |
-      | feo-afm.json  | $INT{1} |
+      | feo-afm.json  | $INT{2} |

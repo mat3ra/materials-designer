@@ -31,8 +31,8 @@ function getAtomRows(material) {
     }));
 }
 
-/** Per-atom label and magnetic moment table; `readOnly` disables editing */
-function BasisAtomsTable({ material, onUpdate, readOnly }) {
+/** Per-atom label and magnetic moment table; read-only without `onUpdate` */
+function BasisAtomsTable({ material, onUpdate }) {
     /** Writes the edited row's values through made; made's validation refuses out-of-range ones */
     const handleAtomRowUpdate = (updatedRow) => {
         const rows = getAtomRows(material).map((row) =>
@@ -55,7 +55,7 @@ function BasisAtomsTable({ material, onUpdate, readOnly }) {
         <DataGrid
             rows={getAtomRows(material)}
             columns={ATOM_COLUMNS}
-            isCellEditable={() => !readOnly}
+            isCellEditable={() => Boolean(onUpdate)}
             processRowUpdate={handleAtomRowUpdate}
             onProcessRowUpdateError={(error) =>
                 showErrorAlert(error.details?.error?.[0]?.message ?? error.message)
@@ -69,12 +69,10 @@ BasisAtomsTable.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     material: PropTypes.object.isRequired,
     onUpdate: PropTypes.func,
-    readOnly: PropTypes.bool,
 };
 
 BasisAtomsTable.defaultProps = {
     onUpdate: undefined,
-    readOnly: false,
 };
 
 export default BasisAtomsTable;
