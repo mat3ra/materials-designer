@@ -13,10 +13,7 @@ import React from "react";
 import s from "underscore.string";
 
 import { theme } from "../../settings";
-import BasisAtomsTable from "./BasisAtomsTable";
 import BasisText from "./BasisText";
-
-const ATOMS_VIEW = "atoms";
 
 class BasisEditor extends React.Component {
     constructor(props) {
@@ -24,7 +21,7 @@ class BasisEditor extends React.Component {
 
         this.state = {
             xyzContent: props.material.getBasisAsXyz(),
-            basisView: Made.ATOMIC_COORD_UNITS.crystal,
+            coordinateUnits: Made.ATOMIC_COORD_UNITS.crystal,
             checks: props.material.getConsistencyChecks(),
         };
 
@@ -59,27 +56,28 @@ class BasisEditor extends React.Component {
     handleBasisTextChange(content) {
         // "clone" original material from props to assert state updates
         const { material, onUpdate } = this.props;
+        const { coordinateUnits } = this.state;
         const newMaterial = material.clone();
-        newMaterial.setBasis(content, "xyz", material.basis.units);
+        newMaterial.setBasis(content, "xyz", coordinateUnits);
         onUpdate(newMaterial);
     }
 
-    renderBasisViewButton = (view = "crystal", label = `${s.capitalize(view)} Units`) => {
+    renderBasisUnitsLabel = (unitsType = "crystal") => {
         return (
             <ToggleButton
-                value={view}
+                value={unitsType}
                 sx={{
                     fontSize: theme.typography.caption.fontSize,
                 }}
             >
-                {label}
+                {s.capitalize(unitsType)} Units
             </ToggleButton>
         );
     };
 
     render() {
-        const { basisView, checks, xyzContent } = this.state;
-        const { material, onUpdate } = this.props;
+        const { coordinateUnits, checks, xyzContent } = this.state;
+        const { material } = this.props;
         return (
             <Accordion defaultExpanded className="crystal-basis" elevation={2}>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -90,34 +88,27 @@ class BasisEditor extends React.Component {
                         <Grid item xs={12}>
                             <ToggleButtonGroup
                                 id="basis-options"
-                                value={basisView}
+                                value={coordinateUnits}
                                 fullWidth
                                 exclusive
                                 size="small"
-                                onChange={(e, view) => {
+                                onChange={(e, unitsType) => {
                                     this.setState({
-                                        basisView: view,
-                                        xyzContent: this.getXYZInCoordUnits(material, view),
+                                        coordinateUnits: unitsType,
+                                        xyzContent: this.getXYZInCoordUnits(material, unitsType),
                                     });
                                 }}
                             >
-                                {this.renderBasisViewButton(Made.ATOMIC_COORD_UNITS.crystal)}
-                                {this.renderBasisViewButton(Made.ATOMIC_COORD_UNITS.cartesian)}
-                                {this.renderBasisViewButton(ATOMS_VIEW, "Atoms")}
+                                {this.renderBasisUnitsLabel(Made.ATOMIC_COORD_UNITS.crystal)}
+                                {this.renderBasisUnitsLabel(Made.ATOMIC_COORD_UNITS.cartesian)}
                             </ToggleButtonGroup>
                         </Grid>
                         <Grid item xs={12}>
-                            {basisView === ATOMS_VIEW ? (
-                                <div id="basis-atoms">
-                                    <BasisAtomsTable material={material} onUpdate={onUpdate} />
-                                </div>
-                            ) : (
-                                <BasisText
-                                    content={xyzContent}
-                                    checks={checks}
-                                    onChange={this.handleBasisTextChange}
-                                />
-                            )}
+                            <BasisText
+                                content={xyzContent}
+                                checks={checks}
+                                onChange={this.handleBasisTextChange}
+                            />
                         </Grid>
                     </Grid>
                 </AccordionDetails>

@@ -10,8 +10,7 @@ $crystal-lattice-accordion-height-with-borders: 56px;
   height: calc(100vh - $footer-height - $header-height);
 }
 
-#basis-xyz,
-#basis-atoms {
+#basis-xyz {
   $crystal-basis-accordion-header-with-button-group: 116px;
   height: calc(
           100vh - $footer-height - $header-height -
@@ -43,8 +42,7 @@ $crystal-lattice-accordion-height-with-borders: 56px;
     height: calc(100vh - 108px);
 }
 
-#basis-xyz,
-#basis-atoms {
+#basis-xyz {
     height: calc(100vh - 280px);
     overflow-y: hidden;
 }
