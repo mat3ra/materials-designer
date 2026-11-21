@@ -12,3 +12,28 @@ jobs:
       build-script: transpile
     secrets:
       github-token: ${{ secrets.BOT_GITHUB_TOKEN }}
+
+  release-wip-tests:
+    needs: release-wip
+    if: >-
+      contains(github.event.head_commit.message, '[release]') &&
+      github.ref_type == 'branch' &&
+      github.ref_name != github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          lfs: true
+
+      - name: Pack tests tarball
+        working-directory: tests
+        run: |
+          find . -maxdepth 1 -name "*.tgz" -delete
+          npm pack
+          mv "$(ls -1 *.tgz | head -n 1)" "../materials-designer-tests.tgz"
+
+      - name: Upload to WIP release
+        env:
+          GH_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
+        run: gh release upload "${{ needs.release-wip.outputs.tag-name }}" materials-designer-tests.tgz --clobber
