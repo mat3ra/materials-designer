@@ -219,6 +219,28 @@ VITE_JUPYTERLITE_DEVELOPMENT_URL="https://deploy-preview-56--mat3ra-jupyterlite.
 
 This should source JL from the development distribution and run only notebook healthcheck tests.
 
+### 3.7. Python REPL (Pyodide)
+
+The **View → Python REPL** panel embeds the [pyodide-repl](https://github.com/mat3ra/pyodide-repl)
+page in an iframe and talks to it over the same data bridge as the JupyterLite session. All Pyodide
+and Python concerns — the interpreter, the package environment, the wheels — live in that page and
+ship with its deploy; this app only answers `get-data` with its materials (`{ materials,
+selectedIndex }`) and merges the page's `set-data` payloads (`{ syncScope, entities }`) via the
+`materialsSyncScope` reducer: round-tripped ids upsert in place, REPL-created materials replace the
+previous `python-repl` batch, hand-made materials are never touched.
+
+The page's origin comes from `VITE_PYODIDE_REPL_URL` (defaults to the production deploy). To develop
+against a local build:
+
+```bash
+# in pyodide-repl:                    # in materials-designer:
+npm run build                          VITE_PYODIDE_REPL_URL=http://localhost:3021 npm start
+npx vite preview --port 3021 --host
+```
+
+Test: `tests/cypress/e2e/repl/python-repl.feature` (tagged `@ignore` until a shared deploy of the
+page exists for CI to embed; run it locally with the two servers above).
+
 ## 4. Links
 
 1. [Create React App, GitHub Repository](https://github.com/facebook/create-react-app)

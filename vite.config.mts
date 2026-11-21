@@ -21,6 +21,7 @@ export default defineConfig({
         "process.env.VITE_USE_JUPYTERLITE_DEV_URL": JSON.stringify(
             process.env.VITE_USE_JUPYTERLITE_DEV_URL,
         ),
+        "process.env.VITE_PYODIDE_REPL_URL": JSON.stringify(process.env.VITE_PYODIDE_REPL_URL),
     },
     server: {
         port: 3001,
