@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02 · Create &amp; Transform Catalog</title>
+@@CSS@@
+<style>
+/* page-specific */
+.askrow {
+    display: flex; align-items: center; gap: 10px;
+    margin-top: 4px; padding: 10px 12px;
+    border: 1px dashed color-mix(in srgb, var(--ai) 45%, var(--border));
+    border-radius: 10px; color: var(--text-dim); font-size: 12.5px; cursor: pointer;
+}
+.askrow:hover { border-style: solid; color: var(--text); }
+.askrow .aico { color: var(--ai); font-size: 14px; }
+.chip.pending { border-style: dashed; opacity: .85; }
+.chip.pending::before { border-style: dashed; }
+.chip.pending .ctitle { color: var(--ghost); }
+</style>
+</head>
+<body data-states="A|A · Browse catalog,B|B · Configure with live preview">
+<div class="stage">
+<div class="app">
+    @@WBAR@@
+    <div class="main">
+        @@NAV@@
+        <div class="center">
+            @@VTOOLBAR@@
+            <div class="viewport" id="vp" data-vp="cell1,scene8,ghost64,cell3d">
+                <div class="only-B predictline">→ 72 atoms · 1 material · HEX preserved</div>
+                <div class="vp-hint only-B"><span>ghost atoms & dashed cell = result preview — nothing is applied yet</span></div>
+                <div class="vp-chip only-B" style="border-color:color-mix(in srgb,var(--ghost) 45%,var(--border));color:var(--ghost)">previewing · Supercell 3×3×1</div>
+            </div>
+        </div>
+        @@TIMELINE@@
+
+        <!-- State B: the Operation Panel takes the Inspector zone -->
+        <div class="inspector only-B" id="oppanel">
+            <div class="itabs" style="align-items:center">
+                <span style="font-size:13px;font-weight:700;padding:8px 10px 10px">▦ Supercell</span>
+                <span class="ebadge native" style="margin-bottom:2px">NATIVE · INSTANT PREVIEW</span>
+            </div>
+            <div class="ibody">
+                <div class="isec">
+                    <div class="stitle">SCALING MATRIX <span class="sact">last used: 3×3×1</span></div>
+                    <div class="fgrid">
+                        <div class="fld focus">3</div><div class="fld">0</div><div class="fld">0</div>
+                        <div class="fld">0</div><div class="fld focus">3</div><div class="fld">0</div>
+                        <div class="fld">0</div><div class="fld">0</div><div class="fld">1</div>
+                    </div>
+                    <div class="note" style="margin-top:8px">Any integer matrix; det ≠ 0. <span style="color:var(--ok)">det = 9 ✓</span></div>
+                </div>
+                <div class="isec">
+                    <div class="stitle">PREDICTED RESULT</div>
+                    <div class="note ok" style="font-family:ui-monospace,Menlo,monospace;font-size:12px">8 → 72 atoms · 1 material<br>a: 3.87 → 11.60 Å · b: 3.87 → 11.60 Å</div>
+                </div>
+                <div class="isec">
+                    <div class="note">Preview renders live in the Viewport as you edit — ghosts above ~2 000 atoms degrade to a cell outline + counts.</div>
+                </div>
+                <div class="ibtnrow">
+                    <button class="btn ghosty">Cancel</button>
+                    <button class="btn primary">Apply — adds 1 step</button>
+                </div>
+            </div>
+        </div>
+        <!-- State A keeps the normal inspector -->
+        <div class="only-A" style="display:contents" id="inspwrapA">
+        @@INSPECTOR@@
+        </div>
+
+        <!-- State A: catalog overlay -->
+        <div class="only-A">
+            <div class="scrim"></div>
+            <div class="overlay-center">
+                <div class="panelbox catalog">
+                    <div class="cat-search">
+                        <div class="searchpill"><span>⌕</span><span class="q">sla</span><span class="cursor"></span><span style="flex:1"></span><kbd>esc</kbd></div>
+                    </div>
+                    <div class="cat-main">
+                        <div class="cat-rail">
+                            <div class="critem on">⌕ Results <span class="n">6</span></div>
+                            <div class="critem">⭯ Recents <span class="n">3</span></div>
+                            <div class="crgroup">CREATE</div>
+                            <div class="critem">◈ Standard library <span class="n">74</span></div>
+                            <div class="critem">⇪ From file</div>
+                            <div class="critem">⌁ From code</div>
+                            <div class="crgroup">BUILD</div>
+                            <div class="critem">▦ Supercell</div>
+                            <div class="critem">▤ Slab / Surface</div>
+                            <div class="critem">≣ Interface (ZSL)</div>
+                            <div class="critem">▭ Nanoribbon</div>
+                            <div class="critem">◫ Grain boundary</div>
+                            <div class="crgroup">DEFECTS</div>
+                            <div class="critem">○ Vacancy</div>
+                            <div class="critem">⇄ Substitution</div>
+                            <div class="critem">⊙ Interstitial</div>
+                            <div class="critem">⌇ Passivation</div>
+                            <div class="crgroup">SETS</div>
+                            <div class="critem">⋈ Combinatorial</div>
+                            <div class="critem">↭ NEB interpolation</div>
+                            <div class="critem">≈ Perturbation</div>
+                            <div class="crgroup">PROPERTIES</div>
+                            <div class="critem">▣ Boundary conditions</div>
+                            <div class="critem">🔒 Constraints</div>
+                            <div class="critem">◇ Conventional cell</div>
+                            <div class="crgroup">CODE</div>
+                            <div class="critem">▷ REPL snippets</div>
+                            <div class="critem">📓 Blank notebook</div>
+                        </div>
+                        <div class="cat-grid">
+                            <div class="cgtitle">RESULTS FOR “SLA” — ON: Si(111) slab ×3×3</div>
+                            <div class="cards">
+                                <div class="card hover">
+                                    <div class="chead"><span class="cico">▤</span><span class="cname">Slab / Surface</span><span class="ebadge native">NATIVE</span></div>
+                                    <div class="cdesc">Cut a surface slab from a bulk crystal: Miller (h k l), thickness in layers, vacuum.</div>
+                                    <div class="creq">acts on the active material · instant preview</div>
+                                </div>
+                                <div class="card">
+                                    <div class="chead"><span class="cico">⌇</span><span class="cname">Passivate slab surface</span><span class="ebadge nb">NOTEBOOK</span></div>
+                                    <div class="cdesc">Terminate dangling bonds with H/OH via mat3ra.made.tools; runs in the sandbox.</div>
+                                    <div class="creq">runs in ~seconds · preview after dry-run</div>
+                                </div>
+                                <div class="card disabled">
+                                    <div class="chead"><span class="cico">≣</span><span class="cname">Interface (ZSL)</span><span class="ebadge nb">NOTEBOOK</span></div>
+                                    <div class="cdesc">Match two slabs into a strain-minimized interface (Zur–McGill).</div>
+                                    <div class="creq">⚠ needs 2 materials — select a second one in the Navigator</div>
+                                </div>
+                                <div class="card">
+                                    <div class="chead"><span class="cico">◫</span><span class="cname">Grain boundary from slab</span><span class="ebadge nb">NOTEBOOK</span></div>
+                                    <div class="cdesc">Tilt/twist boundary between two grains of the same crystal.</div>
+                                    <div class="creq">acts on the active material</div>
+                                </div>
+                                <div class="card">
+                                    <div class="chead"><span class="cico">▦</span><span class="cname">Supercell</span><span class="ebadge native">NATIVE</span></div>
+                                    <div class="cdesc">Repeat the cell by an integer 3×3 scaling matrix.</div>
+                                    <div class="creq">acts on the active material · instant preview</div>
+                                </div>
+                                <div class="card">
+                                    <div class="chead"><span class="cico">▷</span><span class="cname">slab_tools.py</span><span class="ebadge code">CODE</span></div>
+                                    <div class="cdesc">Your saved REPL snippet — opens in the Console with materials bound.</div>
+                                    <div class="creq">from: this session · edited 2 d ago</div>
+                                </div>
+                            </div>
+                            <div class="askrow"><span class="aico">✦</span>Not here? Ask the Assistant to build “sla…” — it compiles to these same operations, previewed before apply.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @@CONSOLE@@
+    @@STATUS@@
+
+    <!-- pins -->
+    <button class="pin only-A" style="left: 40%; top: 205px;" data-pin="**One Catalog, many engines** — every way to create or transform a structure is a card in one searchable gallery: native operations, the ~25 notebook-backed workflows (interfaces, defects, passivation…), and your own code snippets. The engine is a **badge**, not a different door: NATIVE = instant math + live preview · NOTEBOOK = sandboxed run, seconds · CODE = opens the Console · results from any engine land in the Timeline identically."></button>
+    <button class="pin only-A" style="left: 33.5%; top: 300px;" data-pin="**Browse is modal, configure is modeless** — picking a card closes the gallery and opens a non-blocking Operation Panel (state B) so the 3D view stays visible and orbitable while you tune parameters. Nothing mutates when the Catalog opens."></button>
+    <button class="pin only-A" style="left: 63%; top: 300px;" data-pin="**Disabled cards say why** — Interface (ZSL) needs two input materials, so the card stays visible but disabled with the reason and the fix. Multi-select two materials in the Navigator and it lights up."></button>
+    <button class="pin only-A" style="left: 46%; top: 540px;" data-pin="**Zero-result fallback = the Assistant** — the Catalog and the ⌘K palette share this hook: describe what you need, get a compiled, previewable proposal instead of a dead end."></button>
+    <button class="pin only-B" style="right: 150px; top: 128px;" data-pin="**Operation Panel** — the old blocking dialogs (Supercell, Surface, Boundary conditions…) become side panels: parameters with units and validation, a **predicted result** (atom count, new lattice constants), parameter recall (“last used”), and Apply/Cancel. Apply always appends exactly one Timeline step."></button>
+    <button class="pin only-B" style="left: 44%; top: 46%;" data-pin="**Preview before commit** — the 8 solid atoms are the current slab; the 64 **ghost atoms** and the dashed cell are the 3×3×1 result, rendered live as the matrix changes. Above ~2 000 atoms the preview degrades honestly: cell outline + counts, never a frozen UI."></button>
+    <button class="pin only-B" style="right: 330px; top: 246px;" data-pin="**The pending step** — the Timeline shows where the operation will land before you apply it. Cancel and the dashed chip vanishes; Apply and it becomes step 1, undoable and re-editable forever."></button>
+</div>
+</div>
+@@JS@@
+<script>
+// State B rewrites the frame to the historical moment step 1 was configured:
+// active material = the 8-atom slab, timeline = origin + a pending chip, preview ghosts on.
+window.MD_ON_STATE = function (state) {
+    var tl = document.querySelector(".timeline .tl-body");
+    var st = document.querySelector(".statusbar");
+    if (!tl.dataset.saved) {
+        tl.dataset.saved = "1";
+        tl.dataset.orig = tl.innerHTML;
+        st.dataset.orig = st.innerHTML;
+    }
+    var nav = document.querySelector("#activeRow");
+    var slabRow = document.querySelectorAll(".trow.lvl1")[0];
+    var setVP = window.MD_SET_VP;
+    if (state === "B") {
+        var originChip = tl.dataset.orig.substring(
+            tl.dataset.orig.indexOf('<div class="chip origin"'),
+            tl.dataset.orig.indexOf('<div class="chip" id="ch1"'));
+        tl.innerHTML = '<div class="tl-rail"></div>' + originChip +
+            '<div class="chip pending"><div class="c1"><span class="cic">▦</span><span class="ctitle">Supercell</span><span class="ebadge native">NATIVE</span></div><div class="cparams">configuring · not applied yet</div></div>' +
+            '<div class="tl-now">NOW</div>';
+        document.querySelector(".timeline .crumb").innerHTML = 'From: <a href="#">Si bulk</a>';
+        nav.classList.remove("active");
+        slabRow.classList.add("active");
+        st.innerHTML = '<span class="sseg"><b>Si₈</b></span><span class="sdiv"></span><span class="sseg">8 atoms</span><span class="sdiv"></span><span class="sseg">HEX · P3m1</span><span class="sdiv"></span><span class="sseg">slab (111) · vacuum 10 Å</span><span class="sdiv"></span><span class="sseg" style="color:var(--ghost)">previewing: Supercell 3×3×1</span><span class="sspacer"></span><span class="sseg">Units</span><span class="unittoggle"><span class="on">crystal</span><span>cartesian</span></span><span class="sdiv"></span><span class="sseg" style="color:var(--ok)">✓ autosaved</span>';
+        setVP(["cell1", "scene8", "ghost64", "cell3d"]);
+    } else {
+        tl.innerHTML = tl.dataset.orig;
+        st.innerHTML = st.dataset.orig;
+        document.querySelector(".timeline .crumb").innerHTML = 'From: <a href="#">Si bulk</a> › <a href="#">Si(111) slab · 4L</a>';
+        slabRow.classList.remove("active");
+        nav.classList.add("active");
+        setVP(["cell3", "scene72", "atom41p"]);
+    }
+};
+</script>
+</body>
+</html>

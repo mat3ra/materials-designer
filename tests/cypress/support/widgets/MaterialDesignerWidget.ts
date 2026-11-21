@@ -4,6 +4,7 @@ import BoundaryConditionsDialogWidget, {
 import DefaultImportModalDialogWidget from "./DefaultImportModalDialogWidget";
 import HeaderMenuWidget from "./HeaderMenuWidget";
 import { InterpolatedSetDialogWidget } from "./InterpolatedSetDialogWidget";
+import { CommandsWidget } from "./CommandsWidget";
 import { ItemsListWidget } from "./ItemsListWidget";
 import JupyterLiteSession from "./JupyterLiteSession";
 import JupyterLiteTransformationDialogWidget from "./JupyterLiteTransformationDialogWidget";
@@ -20,6 +21,9 @@ export default class MaterialDesignerWidget extends Widget {
     surfaceDialog: SurfaceDialogWidget;
 
     itemsList: ItemsListWidget;
+
+    /** Runs actions by their stable command id (MD 2.0). */
+    commands: CommandsWidget;
 
     sourceEditor: SourceEditorWidget;
 
@@ -42,6 +46,7 @@ export default class MaterialDesignerWidget extends Widget {
     constructor(selector: string) {
         super(selector);
         this.itemsList = new ItemsListWidget();
+        this.commands = new CommandsWidget();
         this.headerMenu = new HeaderMenuWidget();
         this.sourceEditor = new SourceEditorWidget();
         this.surfaceDialog = new SurfaceDialogWidget();
@@ -56,11 +61,11 @@ export default class MaterialDesignerWidget extends Widget {
     }
 
     openSurfaceDialog() {
-        this.headerMenu.selectMenuItemByNameAndItemNumber("Advanced", 4);
+        this.commands.run("op.surface");
     }
 
     openSaveDialog() {
-        this.headerMenu.selectMenuItemByNameAndItemNumber("Input/Output", 5);
+        this.commands.run("file.save");
     }
 
     createSurface(config: SurfaceConfig) {
@@ -70,15 +75,25 @@ export default class MaterialDesignerWidget extends Widget {
     }
 
     cloneCurrentMaterial() {
-        this.headerMenu.selectMenuItemByNameAndItemNumber("Edit", 4);
+        this.commands.run("material.clone");
     }
 
     openSupercellDialog() {
-        this.headerMenu.selectMenuItemByNameAndItemNumber("Advanced", 1);
+        this.commands.run("op.supercell");
+    }
+
+    openUploadDialog() {
+        // The import review, opened from the Create group of the command registry.
+        this.commands.run("create.from-file");
+    }
+
+    openJupyterLiteTransformation() {
+        // JupyterLite is a Console tab, addressed by the command that opens it.
+        this.commands.run("console.notebook");
     }
 
     exit() {
-        this.headerMenu.selectMenuItemByNameAndItemNumber("Input/Output", 6);
+        this.commands.run("file.exit");
     }
 
     generateSupercell(supercellMatrixAsString: string) {
@@ -114,7 +129,7 @@ export default class MaterialDesignerWidget extends Widget {
     }
 
     openBoundaryConditionsDialog() {
-        this.headerMenu.selectMenuItemByNameAndItemNumber("Advanced", 5);
+        this.commands.run("op.boundary-conditions");
     }
 
     addBoundaryConditions(config: BoundaryConditions) {
@@ -124,7 +139,7 @@ export default class MaterialDesignerWidget extends Widget {
     }
 
     openInterpolateSetDialog() {
-        this.headerMenu.selectMenuItemByNameAndItemNumber("Advanced", 3);
+        this.commands.run("op.interpolated-set");
     }
 
     generateInterpolatedSet(nImages: number) {
@@ -133,12 +148,17 @@ export default class MaterialDesignerWidget extends Widget {
         this.interpolatedSetDialog.submit();
     }
 
+    /**
+     * The phrase other repositories use is positional — v1's Edit menu was 1 undo, 2 redo,
+     * 3 reset — and the phrase is frozen, so the position is translated to a name here. That
+     * translation is the whole reason this method exists.
+     */
     clickUndoRedoReset(index = 1) {
-        this.headerMenu.selectMenuItemByNameAndItemNumber("Edit", index);
+        this.commands.run(["edit.undo", "edit.redo", "edit.reset"][index - 1]);
     }
 
     toggleIsNonPeriodic() {
-        this.headerMenu.selectMenuItemByNameAndItemNumber("Edit", 6);
+        this.commands.run("structure.toggle-periodicity");
     }
 
     clickDeleteAction(index: number) {

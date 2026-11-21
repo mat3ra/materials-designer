@@ -11,15 +11,15 @@ export interface SurfaceConfig {
 }
 
 const selectors = {
-    wrapper: "#surfaceModal",
-    submitButton: "#surfaceModal-submit-button",
-    h: '[data-tid="miller-h"] input',
-    k: '[data-tid="miller-k"] input',
-    l: '[data-tid="miller-l"] input',
-    thickness: '[data-tid="thickness"] input',
-    vacuumRatio: '[data-tid="vacuum-ratio"] input',
-    vx: '[data-tid="vx"] input',
-    vy: '[data-tid="vy"] input',
+    wrapper: "#panel-surface",
+    submitButton: '[data-testid="panel-apply"]',
+    h: '[data-tid="miller-h"]',
+    k: '[data-tid="miller-k"]',
+    l: '[data-tid="miller-l"]',
+    thickness: '[data-tid="thickness"]',
+    vacuumRatio: '[data-tid="vacuum-ratio"]',
+    vx: '[data-tid="vx"]',
+    vy: '[data-tid="vy"]',
 };
 
 export default class SurfaceDialogWidget extends Widget {

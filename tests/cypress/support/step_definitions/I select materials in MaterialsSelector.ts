@@ -8,21 +8,17 @@ interface MaterialSelection {
     index: number;
 }
 
-const defaultMaterial = "Silicon FCC";
-
 When("I select materials in MaterialsSelector", (table: DataTable) => {
     const materials = parseTable<MaterialSelection>(table);
-    const materialDesignerPage = new MaterialDesignerPage();
+    const { jupyterLiteTransformationDialog } = new MaterialDesignerPage().designerWidget;
 
-    // First remove Silicon FCC that's selected by default
-    materialDesignerPage.designerWidget.jupyterLiteTransformationDialog.removeMaterial(
-        defaultMaterial,
-    );
+    // The surface opens with one material preselected. This step used to clear it by name,
+    // assuming that was always "Silicon FCC" — true only while the default was the first material
+    // in the list. Clearing whatever is there says what the step means and survives the default
+    // becoming the material the user is actually looking at.
+    jupyterLiteTransformationDialog.deselectAllMaterials();
 
-    // Select each material from the table
     materials.forEach(({ name }) => {
-        materialDesignerPage.designerWidget.jupyterLiteTransformationDialog.selectMaterialByName(
-            name,
-        );
+        jupyterLiteTransformationDialog.selectMaterialByName(name);
     });
 });

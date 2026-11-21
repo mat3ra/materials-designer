@@ -13,3 +13,10 @@ tests/cypress/downloads/*
 .idea/
 .DS_Store
 src/react-app-env.d.ts
+
+# Python bytecode (mockup build helpers)
+__pycache__/
+*.pyc
+
+# Screenshots written by tests/playwright/md2-smoke.mjs when MD2_SHOTS is set
+md2-shots/

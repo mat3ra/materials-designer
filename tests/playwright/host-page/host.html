@@ -1,0 +1,38 @@
+<!doctype html>
+<!--
+  A stand-in for the platform: its own body background, its own type, its own buttons, and MD
+  embedded in a corner of it. The embed must be visible in exactly one place — inside its own
+  wrapper. Anything of this page that changes is a rule that escaped `.md2-app`.
+-->
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Host page</title>
+        <style>
+            body {
+                background: rgb(250, 235, 215);
+                color: rgb(20, 20, 20);
+                font-family: Georgia, serif;
+                margin: 24px;
+            }
+            #host-panel {
+                border: 1px solid rgb(200, 200, 200);
+                padding: 12px;
+            }
+            #md-slot {
+                height: 600px;
+                width: 900px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="host-panel">
+            <h1 id="host-heading">Platform</h1>
+            <button id="host-button">Host button</button>
+            <input id="host-input" value="host input" />
+            <kbd id="host-kbd">⌘K</kbd>
+        </div>
+        <div id="md-slot"></div>
+        <script type="module" src="./host.tsx"></script>
+    </body>
+</html>

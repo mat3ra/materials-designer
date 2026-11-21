@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 · The Workspace</title>
+@@CSS@@
+</head>
+<body data-legend="collapsed">
+<div class="stage">
+<div class="app">
+    @@WBAR@@
+    <div class="main">
+        @@NAV@@
+        <div class="center">
+            @@VTOOLBAR@@
+            <div class="viewport" data-vp="cell3,scene72,atom41p,sel3">
+                <div class="vp-hint"><span>drag&nbsp;·&nbsp;orbit</span><span>shift-drag&nbsp;·&nbsp;marquee</span><span><kbd>?</kbd>&nbsp;shortcuts</span></div>
+            </div>
+        </div>
+        @@TIMELINE@@
+        @@INSPECTOR@@
+    </div>
+    @@CONSOLE@@
+    @@STATUS@@
+
+    <!-- annotation pins (positions relative to .app) -->
+    <button class="pin" style="left: 76px;  top: 36px;"  data-pin="**Workspace Bar** — session identity, saved state, ONE undo/redo pair (⌘Z works the same whether the edit came from a gesture, a form, code, or the AI), palette, Assistant, Share. The five v1 menus are gone; the ☰ app menu keeps only file-level actions (host-injected Import/Save/Exit stay supported)."></button>
+    <button class="pin" style="left: 236px; top: 218px;" data-pin="**Navigator** — materials as a **lineage tree**: the slab is indented under its bulk; combinatorial output collapses into one **set folder** row (12 children, virtualized). Filter, count, + New (opens the Catalog). The amber dot is the revert-aware modified marker."></button>
+    <button class="pin" style="left: 47%;  top: 300px;" data-pin="**Viewport** — the canvas keeps rendering, camera, picking and gizmos; **all chrome moves to the app** so it can be themed, tested and kept consistent. Selection (blue rings) is shared state: the same 3 atoms are highlighted in the basis table, the code view, and the Selection tab."></button>
+    <button class="pin" style="left: 30%;  top: 74px;"  data-pin="**Viewport Toolbar** — app-owned tools: select/move/rotate, atom add/clone/delete, measurements, bonds/labels/repetitions, camera presets, snapshot/figure/GIF. The ⚡Transform split-button opens the Catalog scoped to the active material."></button>
+    <button class="pin" style="right: 526px; top: 132px;" data-pin="**Timeline** — the material's derivation as re-editable operation chips: origin (fork from the parent slab), Supercell 3×3×1, a coalesced manual edit, an AI-proposed substitution, constraints. Undo = step back here. Collapsible to a 48-px dot strip."></button>
+    <button class="pin" style="right: 288px; top: 150px;" data-pin="**Inspector · Structure** — the lattice form grows up: symmetry-locked fields (b, α, β, γ follow HEX) render locked with the reason; a 3×3 vector matrix is one toggle away; conventional/primitive and periodicity are labeled controls, recorded as operations like everything else."></button>
+    <button class="pin" style="left: 40%;  bottom: 56px;" data-pin="**Console** — code becomes one surface with four tabs: Pyodide **REPL** (materials_in / materials contract from PR #294), JupyterLite **Notebook**, **Script** (the timeline exported as runnable Python), and the operation **Log**. No more three disconnected drawers."></button>
+    <button class="pin" style="left: 46%;  bottom: 12px;" data-pin="**Status Bar** — live facts: formula, atom count, lattice + space group, slab provenance digest, selection count, the **global crystal/cartesian units mode**, autosave state."></button>
+    <button class="pin" style="right: 150px; top: 36px;" data-pin="**Share** — links that encode the recipe (operation log), not just coordinates; embed snippets; downloads. Autosave means a refresh never loses the session again."></button>
+</div>
+</div>
+@@JS@@
+</body>
+</html>

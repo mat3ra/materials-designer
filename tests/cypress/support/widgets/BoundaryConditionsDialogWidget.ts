@@ -1,10 +1,10 @@
 import Widget from "./Widget";
 
 const selectors = {
-    wrapper: "#BoundaryConditionsModal",
-    submitButton: "#BoundaryConditionsModal-submit-button",
-    type: '.MuiFormControl-root[data-tid="type"]',
-    offset: '[data-tid="offset"] input',
+    wrapper: "#panel-boundary-conditions",
+    submitButton: '[data-testid="panel-apply"]',
+    type: 'select[data-tid="type"]',
+    offset: '[data-tid="offset"]',
 };
 
 export interface BoundaryConditions {
@@ -22,14 +22,13 @@ export default class BoundaryConditionsDialogWidget extends Widget {
 
     addBoundaryConditions({ type, offset }: BoundaryConditions) {
         const selectorType = this.selectors.type;
-        const selectorOffset = this.selectors.offset;
         this.browser.waitForVisible(selectorType);
-        this.browser.click(selectorType);
-        const menuItemSelector = `li[data-value="${type}"]`;
-        this.browser.waitForVisible(menuItemSelector);
-        this.browser.click(menuItemSelector);
 
-        this.browser.waitForVisible(selectorOffset);
+        // A native select, so the choice is made on the element rather than by clicking a menu
+        // item that MUI renders in a portal somewhere else on the page.
+        cy.get(selectorType).select(type);
+
+        this.browser.waitForVisible(this.selectors.offset);
         this.browser.setInputValue(this.selectors.offset, offset);
     }
 

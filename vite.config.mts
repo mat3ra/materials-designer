@@ -26,13 +26,8 @@ export default defineConfig({
         port: 3001,
     },
     build: {
+        // One entry again: index.html is the app. The two-input block that used to live here
+        // existed only to keep v1 and /v2.html from colliding over the same chunk name.
         outDir: "build",
-        rollupOptions: {
-            output: {
-                entryFileNames: "main.js", // Name the main output bundle as main.js
-                chunkFileNames: "[name]-[hash].js", // Optional: Name for dynamic imports or shared chunks
-                assetFileNames: "[name]-[hash].[ext]", // Optional: Name for assets like CSS or images
-            },
-        },
     },
 });

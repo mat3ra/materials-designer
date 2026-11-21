@@ -1,0 +1,41 @@
+<!doctype html>
+<!--
+  The same host page as host.html, but rendering the *transpiled* container out of dist/ — the
+  files web-app actually resolves. `npm run transpile` preserves `import "../styles/md2.css"` in
+  dist/embed/MaterialsDesignerContainer.js, so this fails outright if `copy-css` has not put the
+  stylesheet at dist/styles/md2.css, which no unit test can check.
+
+  Run `npm run transpile` first; dist/ is not in the repository.
+-->
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Host page (dist)</title>
+        <style>
+            body {
+                background: rgb(250, 235, 215);
+                color: rgb(20, 20, 20);
+                font-family: Georgia, serif;
+                margin: 24px;
+            }
+            #host-panel {
+                border: 1px solid rgb(200, 200, 200);
+                padding: 12px;
+            }
+            #md-slot {
+                height: 600px;
+                width: 900px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="host-panel">
+            <h1 id="host-heading">Platform</h1>
+            <button id="host-button">Host button</button>
+            <input id="host-input" value="host input" />
+            <kbd id="host-kbd">⌘K</kbd>
+        </div>
+        <div id="md-slot"></div>
+        <script type="module" src="./host-dist.tsx"></script>
+    </body>
+</html>

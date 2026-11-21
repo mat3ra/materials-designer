@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>05 · Sessions & Sharing</title>
+@@CSS@@
+<style>
+.sharedlg { width: 566px; }
+.sharedlg .dbody { padding: 16px 18px 6px; }
+.sharedlg .frow label { width: 92px; }
+.copybtn {
+    flex: none; height: 28px; padding: 0 12px;
+    font: inherit; font-size: 12px; font-weight: 600;
+    background: var(--accent); color: #fff; border: 1px solid var(--accent-strong);
+    border-radius: 6px; cursor: pointer;
+}
+.hostinset {
+    position: absolute; right: 356px; top: 56px; z-index: 25;
+    background: var(--bg1); border: 1px solid var(--border);
+    border-radius: 10px; box-shadow: var(--shadow);
+    padding: 10px 12px; width: 250px;
+}
+.hostinset .cap { font-size: 10px; font-weight: 700; letter-spacing: .07em; color: var(--text-faint); margin-bottom: 7px; }
+.mrow-meta { margin-left: auto; font-size: 11px; color: var(--text-faint); }
+</style>
+</head>
+<body>
+<div class="stage">
+<div class="app">
+    @@WBAR@@
+    <div class="main">
+        @@NAV@@
+        <div class="center">
+            @@VTOOLBAR@@
+            <div class="viewport" data-vp="cell3,scene72,atom41p"></div>
+        </div>
+        @@TIMELINE@@
+        @@INSPECTOR@@
+        <div class="scrim"></div>
+
+        <!-- share dialog -->
+        <div class="overlay-center">
+            <div class="panelbox sharedlg">
+                <div class="dlg-head"><span class="dtitle">Share — Silicon slab study</span><span class="dclose">✕</span></div>
+                <div class="dlg-tabs">
+                    <button class="itab on">Link</button>
+                    <button class="itab">Embed</button>
+                    <button class="itab">Download</button>
+                </div>
+                <div class="dbody">
+                    <div class="frow"><label>Access</label>
+                        <div class="seg"><button>Editable copy</button><button class="on">Read-only viewer</button></div>
+                    </div>
+                    <div class="frow"><label>Scope</label>
+                        <div class="seg"><button class="on">Whole session</button><button>Current material</button></div>
+                    </div>
+                    <div class="frow" style="margin-top:12px"><label>Link</label>
+                        <div class="fld">mat3ra.com/md/s/6QjXv…9d2F<span class="unit">4.1 KB</span></div>
+                        <button class="copybtn">Copy</button>
+                    </div>
+                    <div class="note" style="margin:4px 0 10px 100px">The link encodes the <b style="color:var(--text)">recipe</b> — origins and operation logs — so the receiver gets editable provenance, not a frozen snapshot. Structures too large for a URL fall back to coordinates-only, and the link says so.</div>
+                    <div class="frow"><label>Include</label>
+                        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dim)"><span class="switch"></span>View settings (camera, bonds, labels, repetitions)</div>
+                    </div>
+                </div>
+                <div class="dlg-foot"><button class="btn" style="flex:none;padding:0 18px">Done</button></div>
+            </div>
+        </div>
+
+        <!-- session switcher -->
+        <div class="menu" style="left: 64px; top: 4px; width: 286px; z-index: 25;">
+            <div class="mhead">SESSIONS — AUTOSAVED LOCALLY</div>
+            <div class="mi hl"><span class="mic" style="color:var(--ok)">●</span>Silicon slab study<span class="mrow-meta">16 materials · now</span></div>
+            <div class="mi"><span class="mic"></span>MoS₂ defect screen<span class="mrow-meta">41 · yesterday</span></div>
+            <div class="mi"><span class="mic"></span>Quartz interfaces<span class="mrow-meta">7 · Mon</span></div>
+            <div class="msep"></div>
+            <div class="mi"><span class="mic">+</span>New session</div>
+            <div class="mi"><span class="mic">✎</span>Rename</div>
+            <div class="mi"><span class="mic">⧉</span>Duplicate</div>
+            <div class="mi danger"><span class="mic">🗑</span>Delete…</div>
+            <div class="msep"></div>
+            <div class="mi"><span class="mic">▤</span>Manage sessions…</div>
+        </div>
+
+        <!-- embedded-mode save-state inset -->
+        <div class="hostinset">
+            <div class="cap">WHEN EMBEDDED IN THE PLATFORM</div>
+            <span class="savechip dirty"><span class="dot"></span>Platform save pending · ⌘S</span>
+            <div class="note" style="margin-top:8px">Local autosave still runs as a draft; ⌘S hands the session to the host's save flow (the same injected callback as v1). Two states, both visible.</div>
+        </div>
+    </div>
+    @@CONSOLE@@
+    @@STATUS@@
+
+    <!-- pins -->
+    <button class="pin" style="left: 212px; top: 16px;" data-pin="**Autosave, always** — every applied operation persists locally; a refresh, crash, or sleeping laptop no longer costs the session (v1's single biggest trust gap). The chip shows the truth continuously."></button>
+    <button class="pin" style="left: 348px; top: 130px;" data-pin="**Sessions are documents** — named, listed, renameable, duplicable. A session holds materials + their operation logs + view settings + Console state. Switching is instant; nothing is 'open in a tab' to lose."></button>
+    <button class="pin" style="right: 322px; top: 96px;" data-pin="**Two save states when embedded** — local draft autosave vs. host persistence stay visibly distinct; ⌘S routes to the platform's injected save flow, exactly like v1's contract."></button>
+    <button class="pin" style="left: 52%; top: 39%;" data-pin="**Share modes** — an **editable copy** (receiver forks your session) or a **read-only viewer** (the embed-grade MaterialGeometry view); scope it to the whole session or one material. The Embed tab emits an iframe snippet with mode/theme/chrome parameters; Download is the new home of Export (JSON/POSCAR, zip for many)."></button>
+    <button class="pin" style="left: 63%; top: 55%;" data-pin="**Links carry recipes** — the URL encodes origins + operation logs, so sharing preserves editability and provenance, not just coordinates. Size fallback is explicit, never silent."></button>
+</div>
+</div>
+@@JS@@
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    var chip = document.getElementById("saveChip");
+    chip.innerHTML = '<span class="dot"></span>Saved · just now';
+});
+</script>
+</body>
+</html>
