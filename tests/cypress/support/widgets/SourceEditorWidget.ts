@@ -66,6 +66,32 @@ const basisEditor = {
     basisTextArea: "basis-xyz",
 };
 
+interface CodeMirrorEditorView {
+    focus(): void;
+    state: {
+        doc: { length: number; toString(): string };
+        update(spec: { changes: { from: number; to?: number; insert: string } }): unknown;
+    };
+    dispatch(transaction: unknown): void;
+}
+
+interface CodeMirrorContentElement extends Element {
+    cmTile?: { root: { view: CodeMirrorEditorView } | null };
+    cmView?: { view: CodeMirrorEditorView };
+}
+
+// @codemirror/view 6.43+ attaches the view to cmTile.root, older versions to cmView.
+function getEditorView(contentElement: Element): CodeMirrorEditorView {
+    const { cmTile, cmView } = contentElement as CodeMirrorContentElement;
+    const view = (cmTile?.root ?? cmView)?.view;
+
+    if (!view) {
+        throw new Error("CodeMirror view not found on the .cm-content element");
+    }
+
+    return view;
+}
+
 class BasisEditorWidget extends Widget {
     selectors: typeof basisEditor;
 
@@ -84,8 +110,10 @@ class BasisEditorWidget extends Widget {
         return this.browser.execute((win) => {
             const element = win.document.getElementById(editorId);
             return element
-                ?.getElementsByClassName("cm-content")[0]
-                .cmView.editorView.state.doc.toString();
+                ? getEditorView(
+                      element.getElementsByClassName("cm-content")[0],
+                  ).state.doc.toString()
+                : undefined;
         });
     }
 
@@ -97,7 +125,7 @@ class BasisEditorWidget extends Widget {
                 throw new Error(`setCodeMirrorContent: Element not found by Id : ${editorId}`);
             }
 
-            const editor = element.getElementsByClassName("cm-content")[0].cmView.view;
+            const editor = getEditorView(element.getElementsByClassName("cm-content")[0]);
             editor.focus();
             const stateLength = editor.state.doc.length;
             const transactionPayload = preserveExistingContent
