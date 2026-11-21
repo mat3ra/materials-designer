@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Materials Designer 2.0 — Mockups</title>
+@@CSS@@
+<style>
+body { min-width: 980px; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 8px 16px 56px; position: relative; }
+.hero { margin: 26px 4px 8px; }
+.hero .k { font-size: 11px; font-weight: 700; letter-spacing: .1em; color: var(--accent); }
+.hero h1 { font-size: 27px; margin: 6px 0 10px; }
+.hero p.lead { margin: 0; color: var(--text-dim); max-width: 860px; line-height: 1.65; font-size: 14px; }
+.hero p.lead b { color: var(--text); }
+.sect { margin: 30px 4px 12px; font-size: 12px; font-weight: 700; letter-spacing: .08em; color: var(--text-faint); }
+
+.prin { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.pcard { background: var(--bg1); border: 1px solid var(--border); border-radius: 10px; padding: 13px 14px; }
+.pcard .n { font: 700 11px ui-monospace, Menlo, monospace; color: var(--accent); }
+.pcard b { display: block; font-size: 13px; margin: 4px 0 5px; }
+.pcard p { margin: 0; font-size: 11.5px; color: var(--text-dim); line-height: 1.5; }
+
+.screens { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+a.scard { display: block; text-decoration: none; color: inherit; background: var(--bg1); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+a.scard:hover { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.thumb { height: 128px; background: var(--vp-bg); border-bottom: 1px solid var(--border-soft); position: relative; overflow: hidden; }
+.thumb .blk { position: absolute; border: 1px solid var(--border); background: color-mix(in srgb, var(--bg1) 88%, transparent); border-radius: 3px; font-size: 8px; color: var(--text-faint); display: flex; align-items: center; justify-content: center; }
+.thumb .acc { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.thumb .aic { border-color: var(--ai); color: var(--ai); background: color-mix(in srgb, var(--ai) 12%, transparent); }
+.thumb .gho { border-style: dashed; border-color: var(--ghost); color: var(--ghost); }
+.scard .sbody { padding: 11px 13px 13px; }
+.scard .st { font-size: 13.5px; font-weight: 700; }
+.scard .sd { font-size: 11.5px; color: var(--text-dim); line-height: 1.5; margin-top: 4px; }
+.scard .states { margin-top: 7px; display: flex; gap: 5px; flex-wrap: wrap; }
+.scard .states span { font-size: 10px; color: var(--text-faint); border: 1px solid var(--border-soft); border-radius: 4px; padding: 1px 6px; }
+
+.how { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.howcard { background: var(--bg1); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; font-size: 12.5px; color: var(--text-dim); line-height: 1.65; }
+.howcard b { color: var(--text); }
+.howcard .pin-demo { position: static; display: inline-block; transform: none; margin: 0 3px; }
+.foot { margin-top: 34px; font-size: 11.5px; color: var(--text-faint); line-height: 1.7; border-top: 1px dashed var(--border); padding-top: 14px; }
+.foot a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body data-index="1">
+<div class="wrap">
+    <div class="hero">
+        <div class="k">MATERIALS DESIGNER 2.0 · UX REDESIGN MOCKUPS · v2 TRACK</div>
+        <h1>A parametric CAD studio for crystals</h1>
+        <p class="lead">One document model — materials plus their <b>operation logs</b> — with three synchronized projections (3D, forms, code), one searchable <b>Catalog</b> for every way to create or transform a structure, an <b>Assistant</b> that compiles language into previewable operations, and provenance as the spine of the product. Six screens tell one continuous story: a session named <b>“Silicon slab study”</b>, where a Si bulk becomes a (111) slab, a 3×3 supercell, a P-doped surface with pinned bottom layers — every step recorded, editable, shareable.</p>
+    </div>
+
+    <div class="sect">THE SCREENS — ONE NARRATIVE, SIX ANGLES</div>
+    <div class="screens">
+        <a class="scard" href="01-workspace.html">
+            <div class="thumb">
+                <span class="blk" style="left:6%;top:10%;width:14%;height:76%">NAV</span>
+                <span class="blk" style="left:22%;top:10%;width:38%;height:76%">VIEWPORT</span>
+                <span class="blk acc" style="left:62%;top:10%;width:11%;height:76%">TIME</span>
+                <span class="blk" style="left:75%;top:10%;width:19%;height:76%">INSPECT</span>
+            </div>
+            <div class="sbody"><div class="st">01 · The Workspace</div>
+            <div class="sd">Every named surface in its default state: lineage Navigator, app-owned Viewport chrome, Timeline, Inspector, Console, live Status Bar — and one unified undo.</div></div>
+        </a>
+        <a class="scard" href="02-catalog.html">
+            <div class="thumb">
+                <span class="blk" style="left:14%;top:14%;width:72%;height:68%">CATALOG</span>
+                <span class="blk acc" style="left:20%;top:34%;width:18%;height:26%">card</span>
+                <span class="blk" style="left:41%;top:34%;width:18%;height:26%">card</span>
+                <span class="blk gho" style="left:62%;top:34%;width:18%;height:26%">ghost</span>
+            </div>
+            <div class="sbody"><div class="st">02 · Create &amp; Transform</div>
+            <div class="sd">One gallery for native ops, notebook workflows and code — engine badges, disabled-with-reason, then a modeless Operation Panel with live ghost preview.</div>
+            <div class="states"><span>state A · browse</span><span>state B · configure + preview</span></div></div>
+        </a>
+        <a class="scard" href="03-timeline.html">
+            <div class="thumb">
+                <span class="blk" style="left:10%;top:12%;width:52%;height:72%">VIEWPORT</span>
+                <span class="blk acc" style="left:66%;top:10%;width:24%;height:16%">chip · supercell</span>
+                <span class="blk" style="left:66%;top:30%;width:24%;height:16%">chip · manual</span>
+                <span class="blk aic" style="left:66%;top:50%;width:24%;height:16%">chip · AI ✦</span>
+                <span class="blk" style="left:66%;top:70%;width:24%;height:16%">chip · locks</span>
+            </div>
+            <div class="sbody"><div class="st">03 · Provenance Timeline</div>
+            <div class="sd">Re-edit a past step and replay downstream; scrub time safely; resolve stale manual edits explicitly; export the whole history as a runnable script.</div>
+            <div class="states"><span>A · edit past</span><span>B · time-travel</span><span>C · replay &amp; stale</span></div></div>
+        </a>
+        <a class="scard" href="04-assistant.html">
+            <div class="thumb">
+                <span class="blk" style="left:8%;top:12%;width:56%;height:72%">VIEWPORT + ghost P</span>
+                <span class="blk aic" style="left:68%;top:12%;width:24%;height:72%">✦ PROPOSAL</span>
+            </div>
+            <div class="sbody"><div class="st">04 · Assistant</div>
+            <div class="sd">Language in, compiled operations out: interpretation, op list, predicted digest, ghost-diff preview — never auto-applied, always recorded with its prompt.</div></div>
+        </a>
+        <a class="scard" href="05-sessions.html">
+            <div class="thumb">
+                <span class="blk" style="left:8%;top:12%;width:26%;height:56%">SESSIONS ▾</span>
+                <span class="blk acc" style="left:38%;top:26%;width:40%;height:48%">SHARE — link · embed · download</span>
+            </div>
+            <div class="sbody"><div class="st">05 · Sessions &amp; Sharing</div>
+            <div class="sd">Autosave always; named sessions; links that encode the recipe (operation logs), not just coordinates; the host-save state when embedded.</div></div>
+        </a>
+        <a class="scard" href="06-modes.html">
+            <div class="thumb">
+                <span class="blk" style="left:8%;top:12%;width:40%;height:34%">IDE</span>
+                <span class="blk" style="left:52%;top:12%;width:40%;height:34%">EMBEDDED</span>
+                <span class="blk" style="left:8%;top:54%;width:40%;height:34%;background:#fff;color:#56636f;border-color:#ccd5e0">VIEWER · light</span>
+                <span class="blk" style="left:52%;top:54%;width:40%;height:34%">PICKER</span>
+            </div>
+            <div class="sbody"><div class="st">06 · Product Modes</div>
+            <div class="sd">One core, four costumes: standalone IDE, platform-embedded editor, read-only MaterialGeometry viewer, micro picker — plus the per-surface mode matrix.</div></div>
+        </a>
+    </div>
+
+    <div class="sect">EIGHT PRINCIPLES THE DESIGN COMMITS TO</div>
+    <div class="prin">
+        <div class="pcard"><span class="n">P1</span><b>Every edit is an operation</b><p>Gestures, forms, notebooks, AI proposals — all compile to one recorded operation object. Exactly one history; ⌘Z works everywhere the same.</p></div>
+        <div class="pcard"><span class="n">P2</span><b>The recipe is the artifact</b><p>The timeline is the editable source the structure is computed from — and it exports as a runnable script. Reproducibility is UX, not documentation.</p></div>
+        <div class="pcard"><span class="n">P3</span><b>Preview before commit</b><p>Ghost atoms, dashed future cells, predicted counts before Apply. Engines that can't preview say so and predict what they can.</p></div>
+        <div class="pcard"><span class="n">P4</span><b>One catalog, many engines</b><p>Users pick <i>what</i>; native / notebook / code / AI is a badge on the card, not a different door. The ~25 hidden notebook workflows become visible.</p></div>
+        <div class="pcard"><span class="n">P5</span><b>Three projections, one selection</b><p>Viewport, forms and code are views of the same model; selection and hover flow across all three, both directions.</p></div>
+        <div class="pcard"><span class="n">P6</span><b>Sets and lineage, not lists</b><p>A combinatorial op emits 100 materials; a slab knows its bulk. Trees, set folders, roll-ups and virtualization are the default shape.</p></div>
+        <div class="pcard"><span class="n">P7</span><b>Crystallographic honesty</b><p>Units always visible; crystal vs cartesian is a global mode; symmetry locks dependent lattice fields visibly; conventional vs primitive is labeled.</p></div>
+        <div class="pcard"><span class="n">P8</span><b>Same core, four costumes</b><p>IDE, embedded editor, read-only viewer, picker — one model and component set; only chrome and permissions change.</p></div>
+    </div>
+
+    <div class="sect">HOW TO READ THESE MOCKUPS</div>
+    <div class="how">
+        <div class="howcard">
+            <b>Controls, top bar of every screen:</b> theme toggle (dark is the product default; light is full-parity — try it anywhere), <b>state switcher</b> on screens with multiple states (also deep-linkable, e.g. <span class="mono">02-catalog.html?state=B</span>), and an <b>Annotations</b> toggle. Numbered <button class="pin pin-demo" style="position:static">1</button> pins mark design decisions — hover one, or read the legend panel (click its header to collapse).
+        </div>
+        <div class="howcard">
+            <b>What is faked:</b> the 3D viewport is a static SVG of a real Si(111) slab (computed geometry, not clip-art) standing in for wave.js; data is one consistent narrative session. <b>What is real:</b> the layout system, both themes, all chrome, and every interaction pattern annotated. These are self-contained HTML files — no build step, open from disk.
+        </div>
+    </div>
+
+    <div class="foot">
+        Deliverable of the <b>MD 2.0 UX redesign (v2 track)</b> — runs parallel to the incremental v1.x track (PR <a href="https://github.com/mat3ra/materials-designer/pull/299">#299</a>: status bar, ⌘K palette, basis table, resizable panels). Stack-agnostic by agreement: these screens assume only a capable web stack, a canvas emitting edit-commit events (wave.js), and an in-browser Python sandbox (JupyterLite/Pyodide). The companion document — audit, the five load-bearing decisions (D1–D5), IA rationale, system spine, extension specs, full parity matrix, MVP estimate (~9–10 engineer-weeks) and phased roadmap — is <span class="mono">plan/ux-redesign/PROPOSAL.md</span>.
+    </div>
+</div>
+@@JS@@
+</body>
+</html>

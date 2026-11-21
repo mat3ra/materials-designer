@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03 · Provenance Timeline</title>
+@@CSS@@
+<style>
+/* chip anatomy callout (state A) */
+.anat {
+    position: absolute; z-index: 8;
+    right: 556px; top: 96px; width: 208px;
+    font-size: 11px; color: var(--text-dim);
+}
+.anat .arow { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin: 10px 0; }
+.anat .arow .ln { flex: 1; border-top: 1px dashed var(--pin-bg); opacity: .7; }
+.anat .arow .lb { color: var(--pin-bg); font-weight: 600; white-space: nowrap; }
+/* stale resolution popover (state C) */
+.stalepop {
+    position: absolute; z-index: 26;
+    right: 470px; top: 296px; width: 252px;
+    background: var(--bg1);
+    border: 1px solid color-mix(in srgb, var(--warn) 55%, var(--border));
+    border-radius: 10px; box-shadow: var(--shadow); padding: 11px 12px;
+}
+.stalepop .st { font-size: 12px; color: var(--warn); font-weight: 650; margin-bottom: 5px; }
+.stalepop .sx { font-size: 11.5px; color: var(--text-dim); line-height: 1.5; margin-bottom: 9px; }
+.stalepop .btn { height: 27px; font-size: 11.5px; margin-bottom: 5px; width: 100%; }
+/* replay overlay (state C) */
+.replaying {
+    position: absolute; inset: 0; z-index: 6;
+    display: flex; align-items: center; justify-content: center;
+}
+.replaying .box {
+    background: color-mix(in srgb, var(--bg1) 92%, transparent);
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 20px; text-align: center; box-shadow: var(--shadow);
+}
+.replaying .bar { width: 210px; height: 5px; border-radius: 3px; background: var(--bg3); margin: 10px auto 4px; overflow: hidden; }
+.replaying .bar i { display: block; height: 100%; width: 55%; border-radius: 3px; background: var(--accent); }
+</style>
+</head>
+<body data-states="A|A · Edit a past step,B|B · Time-travel,C|C · Replay & stale steps">
+<div class="stage">
+<div class="app">
+    @@WBAR@@
+    <div class="main">
+        @@NAV@@
+        <div class="center">
+            @@VTOOLBAR@@
+            <div class="viewport" data-vp="cell3,scene72,atom41p">
+                <div class="vp-banner only-B">Viewing <b>step 2 of 4</b> — the present is untouched &nbsp;·&nbsp; <a href="#">Return to latest</a> &nbsp;·&nbsp; <a href="#">⑂ Fork from here</a></div>
+                <div class="replaying only-C"><div class="box"><b>Replaying downstream steps…</b><div class="bar"><i></i></div><span style="font-size:11px;color:var(--text-faint)">step 2 of 4 · Move atoms</span></div></div>
+                <div class="vp-hint"><span>the viewport always shows the state the Timeline points at</span></div>
+            </div>
+        </div>
+        @@TIMELINE@@
+
+        <!-- State A: edit panel replaces inspector -->
+        <div class="inspector only-A">
+            <div class="itabs" style="align-items:center">
+                <span style="font-size:13px;font-weight:700;padding:8px 10px 10px">▦ Supercell · step 1 of 4</span>
+            </div>
+            <div class="ibody">
+                <div class="isec">
+                    <div class="stitle">SCALING MATRIX <span class="sact">was: 3×3×1</span></div>
+                    <div class="fgrid">
+                        <div class="fld focus">4</div><div class="fld">0</div><div class="fld">0</div>
+                        <div class="fld">0</div><div class="fld focus">4</div><div class="fld">0</div>
+                        <div class="fld">0</div><div class="fld">0</div><div class="fld">1</div>
+                    </div>
+                </div>
+                <div class="isec">
+                    <div class="stitle">PREDICTED RESULT</div>
+                    <div class="note ok" style="font-family:ui-monospace,Menlo,monospace;font-size:12px">8 → 128 atoms · this material only</div>
+                </div>
+                <div class="isec">
+                    <div class="note warn">⟳ Applying replays the 3 downstream steps — Move atoms, Substitute Si→P, Constraints. Parametric steps recompute; the manual step re-targets its sites and warns if one disappears (state C).</div>
+                </div>
+                <div class="ibtnrow">
+                    <button class="btn ghosty">Cancel</button>
+                    <button class="btn primary">Apply &amp; replay ⟳</button>
+                </div>
+            </div>
+        </div>
+        <div style="display:contents" id="inspB">
+            <div class="inspector only-B">
+                <div class="itabs"><button class="itab on">Step</button><button class="itab">Structure</button><button class="itab">Display</button></div>
+                <div class="ibody">
+                    <div class="isec">
+                        <div class="stitle">VIEWING · STEP 2 OF 4</div>
+                        <div class="note"><b style="color:var(--text)">Move atoms</b> — moved 3 atoms on the top layer (coalesced from 3 drag gestures).<br><br>Read-only while time-traveling. The scrubber previews any past state without touching the present; <b style="color:var(--text)">Fork from here</b> makes it a sibling material in the Navigator, sharing ancestry.</div>
+                    </div>
+                    <div class="isec">
+                        <div class="stitle">AT THIS STEP</div>
+                        <div class="frow"><label>Formula</label><div class="fld">Si₇₂</div></div>
+                        <div class="frow"><label>Atoms</label><div class="fld">72</div></div>
+                        <div class="frow"><label>Hash</label><div class="fld">a41c…9f02</div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="inspector only-C">
+                <div class="itabs"><button class="itab on">Replay</button></div>
+                <div class="ibody">
+                    <div class="isec">
+                        <div class="stitle">REPLAYING EDITED HISTORY</div>
+                        <div class="note">Step 1 changed to <b class="mono" style="color:var(--text)">4×4×1</b>. Steps recompute in order; each chip reports ✓ or flags a conflict for you to resolve — nothing is guessed silently.</div>
+                    </div>
+                    <div class="isec">
+                        <div class="stitle">DETERMINISM</div>
+                        <div class="note">Native ops recompute exactly. Notebook / AI steps replay pinned versions and compare output hashes; a mismatch flags the chip instead of substituting a different result.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- State A: chip context menu -->
+        <div class="menu only-A" style="right: 330px; top: 400px;">
+            <div class="mi hl"><span class="mic">✎</span>Edit parameters<kbd>↵</kbd></div>
+            <div class="mi"><span class="mic">⊘</span>Disable step <span class="sub">replay without it</span></div>
+            <div class="mi"><span class="mic">⧉</span>Duplicate step</div>
+            <div class="mi"><span class="mic">⌁</span>Copy as code</div>
+            <div class="mi"><span class="mic">⑂</span>Fork material from here</div>
+            <div class="msep"></div>
+            <div class="mi"><span class="mic">▤</span>Flatten history up to here…</div>
+            <div class="mi danger"><span class="mic">🗑</span>Delete step…</div>
+        </div>
+
+        <!-- State A: chip anatomy callout -->
+        <div class="anat only-A">
+            <div class="arow"><span class="lb">operation + label</span><span class="ln"></span></div>
+            <div class="arow"><span class="lb">engine badge</span><span class="ln"></span></div>
+            <div class="arow"><span class="lb">params digest</span><span class="ln"></span></div>
+            <div class="arow"><span class="lb">result delta</span><span class="ln"></span></div>
+        </div>
+
+        <!-- State C: stale popover -->
+        <div class="stalepop only-C">
+            <div class="st">⚠ Move atoms is stale</div>
+            <div class="sx">2 of 3 moved sites no longer exist after Supercell 4×4×1. Choose how to continue:</div>
+            <button class="btn">Re-map sites by proximity</button>
+            <button class="btn">Skip this step</button>
+            <button class="btn ghosty">Fork at step 1 instead</button>
+        </div>
+    </div>
+    @@CONSOLE@@
+    @@STATUS@@
+
+    <!-- pins -->
+    <button class="pin only-A" style="right: 536px; top: 176px;" data-pin="**Chip anatomy** — every step names its operation, engine (native / notebook / REPL / AI / manual), parameter digest, and result delta. The chips ARE the undo stack: ⌘Z steps back one chip, from any surface."></button>
+    <button class="pin only-A" style="right: 286px; top: 200px;" data-pin="**Edit the past** — selecting a step opens its original Operation Panel, pre-filled. Apply replays everything downstream in order; the panel says exactly how many steps that is before you commit. Reset is gone — “Revert to step 0” is just a scrub, explicit and previewable."></button>
+    <button class="pin only-A" style="right: 306px; top: 528px;" data-pin="**Step context menu** — Disable (Fusion-style suppress: downstream replays without it) · Duplicate · Copy as code · **Fork material from here** (branching = a sibling material with shared ancestry — timelines stay linear and readable, the Navigator draws the tree) · Flatten (bake, with an explicit “loses parametricity” warning)."></button>
+    <button class="pin only-B" style="left: 44%; top: 158px;" data-pin="**Time-travel is safe** — dragging the scrubber shows any past state in the Viewport; the present is never silently edited. The banner offers the only two exits: return to latest, or fork a new material from this point."></button>
+    <button class="pin only-B" style="right: 420px; top: 348px;" data-pin="**The scrubber** — sits between chips; downstream steps dim while previewing. Undo/redo move it one chip at a time; the Timeline and ⌘Z are the same mechanism."></button>
+    <button class="pin only-C" style="right: 452px; top: 282px;" data-pin="**Stale steps resolve explicitly** — a manual edit whose target sites vanished after an upstream change flags itself and offers: re-map by proximity, skip, or fork. No silent guessing, no corrupted result."></button>
+    <button class="pin only-C" style="left: 46%; top: 47%;" data-pin="**Replay is visible** — recompute streams progress per step and is cancellable. Native ops recompute exactly; notebook/AI steps replay pinned versions and hash-check their outputs."></button>
+    <button class="pin" style="right: 250px; bottom: 130px;" data-pin="**History is exportable** — “Copy as script” turns the timeline into runnable Python against the materials API (opens in Console › Script); “Export recipe” saves portable JSON. AI-originated steps carry their prompt — reproducibility includes provenance of intent."></button>
+</div>
+</div>
+@@JS@@
+<script>
+window.MD_ON_STATE = function (state) {
+    var ch1 = document.getElementById("ch1"), ch2 = document.getElementById("ch2"),
+        ch3 = document.getElementById("ch3"), ch4 = document.getElementById("ch4");
+    [ch1, ch2, ch3, ch4].forEach(function (c) { c.classList.remove("selected", "stale", "dimfut"); });
+    var old = document.getElementById("scrubEl"); if (old) old.remove();
+    var params1 = ch1.querySelector(".cparams"), delta1 = ch1.querySelector(".cdelta");
+    var st = document.querySelector(".statusbar");
+    if (!st.dataset.orig) st.dataset.orig = st.innerHTML;
+
+    if (state === "A") {
+        ch1.classList.add("selected");
+        params1.textContent = "3×3×1"; delta1.textContent = "8 → 72 atoms";
+        st.innerHTML = st.dataset.orig;
+        window.MD_SET_VP(["cell3", "scene72", "atom41p"]);
+    } else if (state === "B") {
+        ch3.classList.add("dimfut"); ch4.classList.add("dimfut");
+        params1.textContent = "3×3×1"; delta1.textContent = "8 → 72 atoms";
+        var s = document.createElement("div");
+        s.className = "scrub"; s.id = "scrubEl"; s.style.top = "186px"; s.title = "Drag to preview any step";
+        document.querySelector(".tl-body").appendChild(s);
+        st.innerHTML = '<span class="sseg" style="color:var(--warn)">◷ viewing step 2 of 4 · read-only</span><span class="sdiv"></span><span class="sseg"><b>Si₇₂</b></span><span class="sdiv"></span><span class="sseg">72 atoms</span><span class="sspacer"></span><span class="sseg">scrub, or ⌘Z / ⇧⌘Z to step</span>';
+        window.MD_SET_VP(["cell3", "scene72", "atom41si"]);
+    } else { // C
+        ch2.classList.add("stale");
+        params1.textContent = "4×4×1 · edited"; delta1.textContent = "8 → 128 atoms";
+        st.innerHTML = '<span class="sseg" style="color:var(--accent)">⟳ replaying 3 downstream steps…</span><span class="sdiv"></span><span class="sseg">1 conflict to resolve</span><span class="sspacer"></span><span class="sseg">esc cancels · nothing applied until replay completes</span>';
+        window.MD_SET_VP(["cell3", "scene72", "atom41si"]);
+        document.querySelector(".viewport").classList.add("vp-dim");
+    }
+    if (state !== "C") document.querySelector(".viewport").classList.remove("vp-dim");
+};
+</script>
+</body>
+</html>
