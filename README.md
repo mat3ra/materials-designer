@@ -90,8 +90,6 @@ Desirable features/fixes for implementation.
 
 General Improvements:
 
-- switch the color back to white when the material is back to the original after editing
-- show the total number of materials in the list and the current index
 - fix fullscreen support
 - add lattice vectors form to change lattice vectors in a 3x3 matrix with all components explicitly:
 - highlight atoms that are selected in the source editor in the 3D editor and vice versa

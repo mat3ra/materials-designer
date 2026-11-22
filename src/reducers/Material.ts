@@ -16,10 +16,46 @@ export type MDState = {
     updatedIndices: number[];
 };
 
+/**
+ * Identity of a material for "has this been edited?" purposes. `hash` covers only basis and
+ * lattice, so name and boundary conditions - both editable in the app - are folded in explicitly.
+ * Returns `null` for materials that cannot be hashed (unsupported lattice/basis), which are then
+ * treated as always-updated rather than silently reported as unchanged.
+ */
+export function getMaterialSignature(material: MDMaterial): string | null {
+    try {
+        const boundaryConditions = JSON.stringify(material.boundaryConditions || {});
+        return `${material.hash}:${material.name}:${boundaryConditions}`;
+    } catch (error) {
+        return null;
+    }
+}
+
+/** Records where a material starts from, so a later edit can be recognised as reverted. */
+export function stampOriginalSignature<T extends MDMaterial>(material: T): T {
+    const signature = getMaterialSignature(material);
+    if (signature) material.originalSignature = signature;
+    return material;
+}
+
 export function addUpdatedIndices(state: MDState, indices: number[]): MDState {
     const updated = new Set(state.updatedIndices);
     indices.forEach((i) => updated.add(i));
     return { ...state, updatedIndices: [...updated] };
+}
+
+/**
+ * Flags `index` as updated, or clears the flag when the material is byte-identical to the version
+ * that entered the session — so undoing an edit by hand also clears the "updated" marker.
+ */
+export function syncUpdatedIndexBySignature(state: MDState, index: number): MDState {
+    const material = state.materials[index];
+    const { originalSignature } = material;
+    // No recorded original (created in-session) means there is nothing to revert to: stay flagged.
+    const isBackToOriginal =
+        Boolean(originalSignature) && getMaterialSignature(material) === originalSignature;
+    if (!isBackToOriginal) return addUpdatedIndices(state, [index]);
+    return { ...state, updatedIndices: state.updatedIndices.filter((i) => i !== index) };
 }
 
 export function isMaterialUpdated(state: MDState, index: number): boolean {
@@ -67,11 +103,13 @@ export function materialsUpdateOne(
     action: { material: MDMaterial; index?: number },
 ): MDState {
     const materials = state.materials.slice(); // get copy of array
-    const index = action.index || state.index; // not passing index when modifying currently displayed material
+    // `??` rather than `||`: index 0 is a real index, and would otherwise fall through to the
+    // active one. Omitting it entirely still means "the material currently displayed".
+    const index = action.index ?? state.index;
     const material = action.material.clone(); // clone material to assert props re-render
     // TODO: consider adjusting the logic to avoid expensive cloning procedure below
     materials[index] = material;
-    return addUpdatedIndices({ ...state, materials }, [index]);
+    return syncUpdatedIndexBySignature({ ...state, materials }, index);
 }
 
 export function materialsCloneOne(state: MDState): MDState {
@@ -80,6 +118,8 @@ export function materialsCloneOne(state: MDState): MDState {
     material.cleanOnCopy();
     material.name = "New Material";
     materials.push(material);
+    // `cleanOnCopy` drops the original signature: a clone has no saved counterpart, so it stays
+    // flagged as updated regardless of later edits.
     return addUpdatedIndices({ ...state, materials }, [materials.length - 1]);
 }
 

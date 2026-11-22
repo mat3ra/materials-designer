@@ -4,7 +4,8 @@
     "rules": {
         "jsx-a11y/label-has-associated-control": "off",
         "react/function-component-definition": "off",
-        "@typescript-eslint/explicit-module-boundary-types": "off"
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "react/jsx-no-duplicate-props": ["error", { "ignoreCase": false }]
     },
     "settings": {
         "import/resolver": {
