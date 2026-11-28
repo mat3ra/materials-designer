@@ -43,13 +43,14 @@ class CombinatorialBasisDialog extends React.Component {
         // eslint-disable-next-line no-unused-vars
         _.each(newBases, (elm, idx) => {
             // first set units from existing material, as allBasises() returns no units
-            const basis = material.getBasis();
-            const atomIds = basis.elements.map(({ id }) => id);
-            basis.elements = elm.elements.map((value, index) => ({ id: atomIds[index], value }));
-            basis.coordinates = elm.coordinates.map((value, index) => ({
-                id: atomIds[index],
-                value,
-            }));
+            const latticeConfig = material.lattice;
+            const lattice = new Made.Lattice(latticeConfig);
+            const basis = Made.Basis.fromElementsAndCoordinates({
+                elements: elm.elements,
+                coordinates: elm.coordinates,
+                cell: lattice.vectorArrays,
+                units: material.basis.units,
+            });
             // then create material
             const newMaterialConfig = {
                 ...material.toJSON(),
